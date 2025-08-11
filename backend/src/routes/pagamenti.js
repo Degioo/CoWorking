@@ -12,8 +12,9 @@ router.post('/pagamenti/:id/confirm', pagamentiController.confirmPayment);
 router.post('/pagamenti/:id/refund', pagamentiController.refundPayment);
 
 // Stripe (reale)
-router.get('/pagamenti/stripe/config', pagamentiController.getStripeConfig);
+router.get('/pagamenti/stripe/config', pagamentiController.getStripePublicConfig);
 router.post('/pagamenti/stripe/intent', pagamentiController.createCardIntent);
 router.post('/pagamenti/stripe/complete', pagamentiController.completeCardPayment);
+router.get('/pagamenti/stripe/status/:payment_intent_id', pagamentiController.getPaymentStatus);
 
 module.exports = router; 

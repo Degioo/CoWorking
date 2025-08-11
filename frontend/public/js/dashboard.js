@@ -245,16 +245,36 @@ function displayPrenotazioniUtente(prenotazioni) {
   }
   
   let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th></tr></thead><tbody>';
+  html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
   
   prenotazioni.forEach(p => {
     const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
+    const dataFine = new Date(p.data_fine);
+    const dataInizioObj = new Date(p.data_inizio);
+    const durataOre = Math.round((dataFine - dataInizioObj) / (1000 * 60 * 60));
+    const importo = durataOre * 10; // 10€/ora
+    
+    // Determina se mostrare il pulsante di pagamento
+    let azioniHtml = '';
+    if (p.stato === 'in attesa' || p.stato === 'pendente') {
+      azioniHtml = `
+        <button class="btn btn-success btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
+          💳 Paga Ora (€${importo.toFixed(2)})
+        </button>
+      `;
+    } else if (p.stato === 'confermata') {
+      azioniHtml = '<span class="badge bg-success">✅ Pagato</span>';
+    } else {
+      azioniHtml = '<span class="text-muted">-</span>';
+    }
+    
     html += `
       <tr>
         <td>${dataInizio}</td>
         <td>${p.nome_sede}</td>
         <td>${p.nome_spazio}</td>
         <td><span class="badge bg-${getStatusColor(p.stato)}">${p.stato}</span></td>
+        <td>${azioniHtml}</td>
       </tr>
     `;
   });
@@ -331,4 +351,16 @@ function setupEventHandlers() {
 function viewSpaziSede(idSede) {
   // Per ora mostra un alert, in futuro potrebbe aprire una modal
   alert(`Gestione spazi per sede ${idSede} - Funzionalità in sviluppo`);
+}
+
+// Funzione per avviare il pagamento di una prenotazione
+function pagaPrenotazione(idPrenotazione) {
+  // Verifica che l'utente sia autenticato
+  if (!currentUser) {
+    alert('Devi essere autenticato per procedere al pagamento');
+    return;
+  }
+  
+  // Reindirizza alla pagina di pagamento
+  window.location.href = `pagamento.html?id=${idPrenotazione}`;
 } 

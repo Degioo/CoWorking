@@ -11,4 +11,7 @@ router.post('/prenotazioni', prenotazioniController.creaPrenotazione);
 // Visualizza prenotazioni (per utente o gestore)
 router.get('/prenotazioni', prenotazioniController.getPrenotazioni);
 
+// Ottiene i dettagli di una singola prenotazione
+router.get('/prenotazioni/:id', prenotazioniController.getPrenotazioneById);
+
 module.exports = router; 
