@@ -9,10 +9,18 @@
     "build": "cd backend && npm install",
     "dev": "cd backend && node src/app.js"
   },
-  "keywords": ["coworking", "prenotazioni", "stripe", "postgresql"],
+  "keywords": [
+    "coworking",
+    "prenotazioni",
+    "stripe",
+    "postgresql"
+  ],
   "author": "Matti",
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2"
   }
 }
