@@ -34,6 +34,10 @@ app.use('/api', pagamentiRoutes);
 const gestoreRoutes = require('./routes/gestore');
 app.use('/api', gestoreRoutes);
 
+// Rotte webhook Stripe
+const webhookRoutes = require('./routes/webhook');
+app.use('/webhook', webhookRoutes);
+
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
