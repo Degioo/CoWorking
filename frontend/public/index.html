@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoWorkSpace - Prenota spazi di coworking</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">CoWorkSpace</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="catalogo.html">Catalogo</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html#registrazione">Registrati</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 mx-auto text-center">
+        <h1 class="display-4">Benvenuto su CoWorkSpace</h1>
+        <p class="lead">Prenota spazi di coworking professionali in tutta Italia</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtri -->
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 mx-auto">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Filtra sedi</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <select class="form-select" id="filtroCitta">
+                  <option value="">Tutte le città</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <button class="btn btn-primary w-100" id="btnFiltra">Filtra</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalogo Sedi -->
+  <div class="container mt-4">
+    <h2>Le nostre sedi</h2>
+    <div class="row" id="catalogoSedi">
+      <!-- Le cards delle sedi verranno caricate dinamicamente -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-light mt-5 py-4">
+    <div class="container text-center">
+      <p>&copy; 2024 CoWorkSpace. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html> 
