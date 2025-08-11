@@ -1,7 +1,18 @@
 {
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "express": "^5.1.0",
-    "pg": "^8.16.3"
+  "name": "coworking-mio",
+  "version": "1.0.0",
+  "description": "Piattaforma per la gestione e prenotazione di spazi di coworking",
+  "main": "backend/src/app.js",
+  "scripts": {
+    "start": "cd backend && node src/app.js",
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm install",
+    "dev": "cd backend && node src/app.js"
+  },
+  "keywords": ["coworking", "prenotazioni", "stripe", "postgresql"],
+  "author": "Matti",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
