@@ -18,6 +18,7 @@ function getStripe() {
   return new Stripe(secretKey);
 }
 
+// DEPRECATED: usa getStripePublicConfig
 exports.getStripeConfig = (req, res) => {
   res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '' });
 };
@@ -136,10 +137,12 @@ exports.refundPayment = async (req, res) => {
 exports.createCardIntent = async (req, res) => {
   const stripe = getStripe();
   if (!stripe) return res.status(400).json({ error: 'Stripe non configurato' });
-  
-  const { id_prenotazione, id_utente } = req.body;
+
+  const { id_prenotazione } = req.body;
+  const id_utente = req.user.id_utente; // Prende l'ID utente dal token JWT
+
   if (!id_prenotazione) return res.status(400).json({ error: 'id_prenotazione obbligatorio' });
-  
+
   try {
     // Recupera la prenotazione e i dettagli utente
     const pre = await pool.query(
@@ -149,16 +152,16 @@ exports.createCardIntent = async (req, res) => {
        WHERE p.id_prenotazione = $1`,
       [id_prenotazione]
     );
-    
+
     if (pre.rowCount === 0) return res.status(404).json({ error: 'Prenotazione non trovata' });
-    
+
     const { data_inizio, data_fine, stato, email, nome, cognome } = pre.rows[0];
-    
+
     // Verifica che la prenotazione non sia già pagata
     if (stato === 'confermata') {
       return res.status(400).json({ error: 'Prenotazione già confermata' });
     }
-    
+
     const ore = hoursBetween(data_inizio, data_fine);
     const importo = Math.max(1, Math.round(ore * BASE_RATE_EUR_PER_HOUR));
     const amountCents = importo * 100;
@@ -169,7 +172,7 @@ exports.createCardIntent = async (req, res) => {
       'SELECT stripe_customer_id FROM Utente WHERE id_utente = $1',
       [id_utente]
     );
-    
+
     if (existingCustomer.rows.length > 0 && existingCustomer.rows[0].stripe_customer_id) {
       customer = await stripe.customers.retrieve(existingCustomer.rows[0].stripe_customer_id);
     } else {
@@ -180,7 +183,7 @@ exports.createCardIntent = async (req, res) => {
           utente_id: id_utente
         }
       });
-      
+
       // Salva l'ID del cliente Stripe
       await pool.query(
         'UPDATE Utente SET stripe_customer_id = $1 WHERE id_utente = $2',
@@ -212,9 +215,9 @@ exports.createCardIntent = async (req, res) => {
       [id_prenotazione, importo, paymentIntent.id]
     );
 
-    res.json({ 
-      clientSecret: paymentIntent.client_secret, 
-      paymentIntentId: paymentIntent.id, 
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
       amount: importo,
       customerId: customer.id
     });
@@ -252,13 +255,13 @@ exports.completeCardPayment = async (req, res) => {
 exports.getPaymentStatus = async (req, res) => {
   const stripe = getStripe();
   if (!stripe) return res.status(400).json({ error: 'Stripe non configurato' });
-  
+
   const { payment_intent_id } = req.params;
   if (!payment_intent_id) return res.status(400).json({ error: 'payment_intent_id obbligatorio' });
-  
+
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
-    
+
     res.json({
       id: paymentIntent.id,
       status: paymentIntent.status,

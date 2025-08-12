@@ -206,3 +206,4 @@ Per problemi o domande:
 ---
 
 **⚠️ Importante**: In produzione, usa sempre HTTPS e verifica che tutte le chiavi API siano sicure e non esposte nel codice frontend.
+

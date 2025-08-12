@@ -1,10 +1,10 @@
-const API_BASE = 'http://localhost:3002/api';
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
-$(document).ready(function() {
+$(document).ready(function () {
   updateNavbar();
   loadCitta();
   loadServizi();
-  $('#formFiltri').on('submit', function(e) {
+  $('#formFiltri').on('submit', function (e) {
     e.preventDefault();
     cercaSpazi();
   });
@@ -23,7 +23,7 @@ function updateNavbar() {
     `);
   }
 }
-function logout(){ localStorage.removeItem('user'); location.reload(); }
+function logout() { localStorage.removeItem('user'); location.reload(); }
 
 function loadCitta() {
   $.get(`${API_BASE}/sedi`).done(sedi => {

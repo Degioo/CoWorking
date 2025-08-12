@@ -1,3 +1,6 @@
+// Configurazione API
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+
 // Configurazione Stripe
 let stripe;
 let elements;
@@ -8,7 +11,7 @@ let paymentIntentId;
 let prenotazioneData = {};
 
 // Inizializzazione
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     await initializeStripe();
     await loadPrenotazioneData();
     setupEventListeners();
@@ -18,19 +21,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function initializeStripe() {
     try {
         // Recupera la configurazione pubblica di Stripe
-        const response = await fetch('/api/pagamenti/stripe/config');
+        const response = await fetch(`${API_BASE}/pagamenti/stripe/config`);
         const config = await response.json();
-        
+
         if (!config.publishableKey) {
             throw new Error('Chiave pubblica Stripe non configurata');
         }
-        
+
         // Inizializza Stripe
         stripe = Stripe(config.publishableKey);
-        
+
         // Crea gli elementi Stripe
         elements = stripe.elements();
-        
+
         // Crea l'elemento carta
         card = elements.create('card', {
             style: {
@@ -46,12 +49,12 @@ async function initializeStripe() {
                 }
             }
         });
-        
+
         // Monta l'elemento carta
         card.mount('#card-element');
-        
+
         // Gestisci gli eventi della carta
-        card.on('change', function(event) {
+        card.on('change', function (event) {
             const displayError = document.getElementById('card-errors');
             if (event.error) {
                 displayError.textContent = event.error.message;
@@ -63,9 +66,9 @@ async function initializeStripe() {
                 document.getElementById('card-element').classList.remove('invalid');
             }
         });
-        
+
         console.log('Stripe inizializzato con successo');
-        
+
     } catch (error) {
         console.error('Errore inizializzazione Stripe:', error);
         showError('Errore configurazione pagamento. Riprova più tardi.');
@@ -78,22 +81,22 @@ async function loadPrenotazioneData() {
         // Recupera l'ID della prenotazione dall'URL
         const urlParams = new URLSearchParams(window.location.search);
         const prenotazioneId = urlParams.get('id');
-        
+
         if (!prenotazioneId) {
             throw new Error('ID prenotazione non specificato');
         }
-        
+
         // Recupera i dati della prenotazione
-        const response = await fetch(`/api/prenotazioni/${prenotazioneId}`);
+        const response = await fetch(`${API_BASE}/prenotazioni/${prenotazioneId}`);
         if (!response.ok) {
             throw new Error('Errore nel recupero della prenotazione');
         }
-        
+
         prenotazioneData = await response.json();
-        
+
         // Popola i dettagli della prenotazione
         populatePrenotazioneDetails();
-        
+
     } catch (error) {
         console.error('Errore caricamento prenotazione:', error);
         showError('Errore nel caricamento dei dati della prenotazione.');
@@ -103,17 +106,17 @@ async function loadPrenotazioneData() {
 // Popola i dettagli della prenotazione
 function populatePrenotazioneDetails() {
     if (!prenotazioneData) return;
-    
+
     const dataInizio = new Date(prenotazioneData.data_inizio);
     const dataFine = new Date(prenotazioneData.data_fine);
-    
+
     // Calcola la durata
     const durataMs = dataFine - dataInizio;
     const durataOre = Math.round(durataMs / (1000 * 60 * 60));
-    
+
     // Calcola l'importo (10€/ora)
     const importo = durataOre * 10;
-    
+
     // Formatta la data
     const dataFormattata = dataInizio.toLocaleDateString('it-IT', {
         weekday: 'long',
@@ -121,7 +124,7 @@ function populatePrenotazioneDetails() {
         month: 'long',
         day: 'numeric'
     });
-    
+
     // Formatta l'orario
     const orarioInizio = dataInizio.toLocaleTimeString('it-IT', {
         hour: '2-digit',
@@ -131,14 +134,14 @@ function populatePrenotazioneDetails() {
         hour: '2-digit',
         minute: '2-digit'
     });
-    
+
     // Aggiorna l'interfaccia
     document.getElementById('data-prenotazione').textContent = dataFormattata;
     document.getElementById('orario-prenotazione').textContent = `${orarioInizio} - ${orarioFine}`;
     document.getElementById('durata-prenotazione').textContent = `${durataOre} ore`;
-    document.getElementById('posto-prenotazione').textContent = `Posto ${prenotazioneData.id_posto}`;
+    document.getElementById('posto-prenotazione').textContent = `${prenotazioneData.nome_spazio || 'Spazio'} - ${prenotazioneData.nome_sede || 'Sede'}`;
     document.getElementById('totale-prenotazione').textContent = `€${importo.toFixed(2)}`;
-    
+
     // Salva l'importo per il pagamento
     prenotazioneData.importo = importo;
 }
@@ -152,23 +155,23 @@ function setupEventListeners() {
 // Gestisce l'invio del form di pagamento
 async function handlePaymentSubmit(event) {
     event.preventDefault();
-    
+
     if (!stripe || !card) {
         showError('Stripe non è stato inizializzato correttamente.');
         return;
     }
-    
+
     // Disabilita il pulsante e mostra il loading
     setLoadingState(true);
-    
+
     try {
         // Crea il PaymentIntent
         const paymentIntent = await createPaymentIntent();
-        
+
         if (!paymentIntent) {
             throw new Error('Errore nella creazione del pagamento');
         }
-        
+
         // Conferma il pagamento
         const result = await stripe.confirmCardPayment(paymentIntent.clientSecret, {
             payment_method: {
@@ -179,7 +182,7 @@ async function handlePaymentSubmit(event) {
                 }
             }
         });
-        
+
         if (result.error) {
             // Errore nel pagamento
             throw new Error(result.error.message);
@@ -190,7 +193,7 @@ async function handlePaymentSubmit(event) {
             // Pagamento in attesa
             showError('Il pagamento è in elaborazione. Controlla la tua email per conferme.');
         }
-        
+
     } catch (error) {
         console.error('Errore pagamento:', error);
         showError(error.message || 'Errore durante il pagamento. Riprova.');
@@ -202,28 +205,27 @@ async function handlePaymentSubmit(event) {
 // Crea il PaymentIntent
 async function createPaymentIntent() {
     try {
-        const response = await fetch('/api/pagamenti/stripe/intent', {
+        const response = await fetch(`${API_BASE}/pagamenti/stripe/intent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') || '{}').token || ''}`
             },
             body: JSON.stringify({
-                id_prenotazione: prenotazioneData.id_prenotazione,
-                id_utente: prenotazioneData.id_utente
+                id_prenotazione: prenotazioneData.id_prenotazione
             })
         });
-        
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || 'Errore nella creazione del pagamento');
         }
-        
+
         const paymentIntent = await response.json();
         paymentIntentId = paymentIntent.paymentIntentId;
-        
+
         return paymentIntent;
-        
+
     } catch (error) {
         console.error('Errore creazione PaymentIntent:', error);
         throw error;
@@ -235,15 +237,15 @@ async function handlePaymentSuccess(paymentIntent) {
     try {
         // Mostra messaggio di successo
         showSuccess('Pagamento completato con successo! La tua prenotazione è stata confermata.');
-        
+
         // Nascondi il form di pagamento
         document.getElementById('payment-form').style.display = 'none';
-        
+
         // Aggiorna i dettagli della prenotazione
         document.querySelector('.payment-details h3').textContent = '✅ Prenotazione Confermata';
         document.querySelector('.payment-details').style.background = '#d4edda';
         document.querySelector('.payment-details').style.border = '1px solid #c3e6cb';
-        
+
         // Aggiungi pulsante per tornare alla dashboard
         const backButton = document.createElement('a');
         backButton.href = 'dashboard.html';
@@ -251,10 +253,10 @@ async function handlePaymentSuccess(paymentIntent) {
         backButton.style.marginTop = '20px';
         backButton.textContent = 'Torna alla Dashboard';
         document.querySelector('.payment-container').appendChild(backButton);
-        
+
         // Opzionale: invia conferma al backend
         await confirmPaymentToBackend(paymentIntent.id);
-        
+
     } catch (error) {
         console.error('Errore conferma pagamento:', error);
     }
@@ -263,11 +265,11 @@ async function handlePaymentSuccess(paymentIntent) {
 // Conferma il pagamento al backend
 async function confirmPaymentToBackend(paymentIntentId) {
     try {
-        await fetch('/api/pagamenti/stripe/complete', {
+        await fetch(`${API_BASE}/pagamenti/stripe/complete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') || '{}').token || ''}`
             },
             body: JSON.stringify({
                 payment_intent_id: paymentIntentId
@@ -283,7 +285,7 @@ function setLoadingState(loading) {
     const button = document.getElementById('pay-button');
     const spinner = document.getElementById('loading-spinner');
     const buttonText = document.getElementById('button-text');
-    
+
     if (loading) {
         button.disabled = true;
         spinner.style.display = 'inline-block';
@@ -300,7 +302,7 @@ function showError(message) {
     const errorDiv = document.getElementById('error-message');
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
-    
+
     // Nascondi il messaggio dopo 5 secondi
     setTimeout(() => {
         errorDiv.style.display = 'none';
@@ -316,13 +318,26 @@ function showSuccess(message) {
 
 // Verifica se l'utente è autenticato
 function checkAuthentication() {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const user = localStorage.getItem('user');
+    if (!user) {
         // Reindirizza al login
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
         return false;
     }
-    return true;
+
+    try {
+        const userData = JSON.parse(user);
+        if (!userData.token) {
+            // Reindirizza al login
+            window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+            return false;
+        }
+        return true;
+    } catch (error) {
+        // Reindirizza al login
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return false;
+    }
 }
 
 // Verifica l'autenticazione all'avvio

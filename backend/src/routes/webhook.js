@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { stripe, config } = require('../config/stripe');
+const { stripe, config } = require('../../config/stripe');
 const db = require('../db');
 
 // Middleware per gestire il body raw per i webhook

@@ -71,3 +71,4 @@ Tutti gli eventi webhook vengono loggati nella console del server. Controlla i l
 ### Errori di database
 - Verifica la connessione al database
 - Controlla che le tabelle esistano e abbiano la struttura corretta
+

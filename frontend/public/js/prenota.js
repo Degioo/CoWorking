@@ -1,5 +1,5 @@
 // Configurazione API
-const API_BASE = 'http://localhost:3002/api';
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
 // Variabili globali
 let currentStep = 1;
@@ -11,11 +11,11 @@ let disponibilitaVerificata = false;
 let lastCreatedPrenotazioneId = null;
 
 // Inizializzazione
-$(document).ready(function() {
+$(document).ready(function () {
   updateNavbar();
   loadSedi();
   setupEventHandlers();
-  
+
   const urlParams = new URLSearchParams(window.location.search);
   const sedeId = urlParams.get('sede');
   const spazioId = urlParams.get('spazio');
@@ -69,14 +69,14 @@ function logout() {
 // Carica sedi
 function loadSedi() {
   $.get(`${API_BASE}/sedi`)
-    .done(function(sedi) {
+    .done(function (sedi) {
       const select = $('#selectSede');
       select.find('option:not(:first)').remove();
-      
+
       sedi.forEach(sede => {
         select.append(`<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`);
       });
-      
+
       // Se c'è una sede preselezionata, impostala
       const urlParams = new URLSearchParams(window.location.search);
       const sedeId = urlParams.get('sede');
@@ -85,7 +85,7 @@ function loadSedi() {
         onSedeChange();
       }
     })
-    .fail(function() {
+    .fail(function () {
       showAlert('Errore nel caricamento delle sedi', 'danger');
     });
 }
@@ -93,15 +93,15 @@ function loadSedi() {
 // Carica spazi di una sede
 function loadSpazi(idSede) {
   $.get(`${API_BASE}/spazi?id_sede=${idSede}`)
-    .done(function(spazi) {
+    .done(function (spazi) {
       const select = $('#selectSpazio');
       select.find('option:not(:first)').remove();
-      
+
       spazi.forEach(spazio => {
         select.append(`<option value="${spazio.id_spazio}">${spazio.nome} (${spazio.tipologia})</option>`);
       });
     })
-    .fail(function() {
+    .fail(function () {
       showAlert('Errore nel caricamento degli spazi', 'danger');
     });
 }
@@ -109,13 +109,13 @@ function loadSpazi(idSede) {
 // Carica servizi di uno spazio
 function loadServiziSpazio(idSpazio) {
   $.get(`${API_BASE}/spazi/${idSpazio}/servizi`)
-    .done(function(servizi) {
+    .done(function (servizi) {
       const container = $('#spazioInfo');
       if (servizi.length === 0) {
         container.html('<p class="text-muted">Nessun servizio disponibile</p>');
         return;
       }
-      
+
       let html = '<h6>Servizi inclusi:</h6><ul class="list-unstyled">';
       servizi.forEach(servizio => {
         html += `<li><i class="bi bi-check-circle text-success"></i> ${servizio.nome}</li>`;
@@ -123,7 +123,7 @@ function loadServiziSpazio(idSpazio) {
       html += '</ul>';
       container.html(html);
     })
-    .fail(function() {
+    .fail(function () {
       $('#spazioInfo').html('<p class="text-muted">Errore nel caricamento dei servizi</p>');
     });
 }
@@ -132,32 +132,32 @@ function loadServiziSpazio(idSpazio) {
 function validateDates() {
   const dataInizio = $('#dataInizio').val();
   const dataFine = $('#dataFine').val();
-  
+
   if (!dataInizio || !dataFine) {
     return { valid: false, message: 'Seleziona data inizio e fine' };
   }
-  
+
   const now = new Date();
   const inizio = new Date(dataInizio);
   const fine = new Date(dataFine);
-  
+
   if (inizio < now) {
     return { valid: false, message: 'La data di inizio non può essere nel passato' };
   }
-  
+
   if (fine <= inizio) {
     return { valid: false, message: 'La data di fine deve essere successiva alla data di inizio' };
   }
-  
+
   const diffHours = (fine - inizio) / (1000 * 60 * 60);
   if (diffHours < 1) {
     return { valid: false, message: 'La prenotazione deve durare almeno 1 ora' };
   }
-  
+
   if (diffHours > 24 * 7) {
     return { valid: false, message: 'La prenotazione non può durare più di 7 giorni' };
   }
-  
+
   return { valid: true };
 }
 
@@ -166,51 +166,51 @@ function checkDisponibilita() {
   const idSpazio = $('#selectSpazio').val();
   const dataInizio = $('#dataInizio').val();
   const dataFine = $('#dataFine').val();
-  
+
   // Valida le date
   const validation = validateDates();
   if (!validation.valid) {
     showAlert(validation.message, 'warning');
     return;
   }
-  
+
   if (!idSpazio) {
     showAlert('Seleziona uno spazio', 'warning');
     return;
   }
-  
+
   const statusElement = $('#disponibilitaStatus');
   statusElement.html('<span class="text-info">Verificando...</span>');
-  
+
   $.get(`${API_BASE}/spazi/${idSpazio}/disponibilita`, {
     data_inizio: dataInizio,
     data_fine: dataFine
   })
-  .done(function(response) {
-    if (response.disponibile) {
-      statusElement.html('<span class="text-success">✓ Spazio disponibile</span>');
-      selectedDataInizio = dataInizio;
-      selectedDataFine = dataFine;
-      disponibilitaVerificata = true;
-      updateNavigationButtons();
-    } else {
-      statusElement.html('<span class="text-danger">✗ Spazio non disponibile</span>');
+    .done(function (response) {
+      if (response.disponibile) {
+        statusElement.html('<span class="text-success">✓ Spazio disponibile</span>');
+        selectedDataInizio = dataInizio;
+        selectedDataFine = dataFine;
+        disponibilitaVerificata = true;
+        updateNavigationButtons();
+      } else {
+        statusElement.html('<span class="text-danger">✗ Spazio non disponibile</span>');
+        disponibilitaVerificata = false;
+        updateNavigationButtons();
+      }
+    })
+    .fail(function () {
+      statusElement.html('<span class="text-danger">Errore nella verifica</span>');
       disponibilitaVerificata = false;
       updateNavigationButtons();
-    }
-  })
-  .fail(function() {
-    statusElement.html('<span class="text-danger">Errore nella verifica</span>');
-    disponibilitaVerificata = false;
-    updateNavigationButtons();
-  });
+    });
 }
 
 // Aggiorna pulsanti di navigazione
 function updateNavigationButtons() {
   const btnAvanti = $('#btnAvanti');
   const btnIndietro = $('#btnIndietro');
-  
+
   if (currentStep === 3) {
     // Allo step 3, "Avanti" è disponibile solo se la disponibilità è verificata
     if (disponibilitaVerificata) {
@@ -231,7 +231,7 @@ function createPrenotazione() {
     window.location.href = 'login.html';
     return;
   }
-  
+
   const user = JSON.parse(userStr);
   const data = {
     id_utente: user.id_utente,
@@ -239,35 +239,35 @@ function createPrenotazione() {
     data_inizio: selectedDataInizio,
     data_fine: selectedDataFine
   };
-  
+
   $.ajax({
     url: `${API_BASE}/prenotazioni`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(data)
   })
-  .done(async function(response) {
-    lastCreatedPrenotazioneId = response.id_prenotazione;
-    showAlert('Prenotazione creata! Procedi al pagamento...', 'success');
+    .done(async function (response) {
+      lastCreatedPrenotazioneId = response.id_prenotazione;
+      showAlert('Prenotazione creata! Procedi al pagamento...', 'success');
 
-    // MOCK: crea intent e mostra modal
-    try {
-      const intent = await $.ajax({
-        url: `${API_BASE}/pagamenti/intent`,
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ id_prenotazione: lastCreatedPrenotazioneId })
-      });
-      showPaymentModal(intent.id_pagamento, intent.importo);
-      showStep(4);
-    } catch (e) {
-      showAlert('Errore nella creazione del pagamento', 'danger');
-    }
-  })
-  .fail(function(xhr) {
-    const error = xhr.responseJSON?.error || 'Errore durante la creazione della prenotazione';
-    showAlert(error, 'danger');
-  });
+      // MOCK: crea intent e mostra modal
+      try {
+        const intent = await $.ajax({
+          url: `${API_BASE}/pagamenti/intent`,
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ id_prenotazione: lastCreatedPrenotazioneId })
+        });
+        showPaymentModal(intent.id_pagamento, intent.importo);
+        showStep(4);
+      } catch (e) {
+        showAlert('Errore nella creazione del pagamento', 'danger');
+      }
+    })
+    .fail(function (xhr) {
+      const error = xhr.responseJSON?.error || 'Errore durante la creazione della prenotazione';
+      showAlert(error, 'danger');
+    });
 }
 
 function showPaymentModal(idPagamento, importo) {
@@ -295,7 +295,7 @@ function showPaymentModal(idPagamento, importo) {
   const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
   modal.show();
 
-  $('#btnPagaOra').click(async function() {
+  $('#btnPagaOra').click(async function () {
     try {
       await $.post(`${API_BASE}/pagamenti/${idPagamento}/confirm`);
       modal.hide();
@@ -306,7 +306,7 @@ function showPaymentModal(idPagamento, importo) {
     }
   });
 
-  $('#paymentModal').on('hidden.bs.modal', function() {
+  $('#paymentModal').on('hidden.bs.modal', function () {
     $('#paymentModal').remove();
   });
 }
@@ -317,31 +317,31 @@ function showStep(step) {
   for (let i = 1; i <= 4; i++) {
     $(`#step${i}`).hide();
   }
-  
+
   // Mostra lo step corrente
   $(`#step${step}`).show();
-  
+
   // Gestisci pulsanti di navigazione
   if (step > 1) {
     $('#btnIndietro').show();
   } else {
     $('#btnIndietro').hide();
   }
-  
+
   if (step < 4) {
     $('#btnAvanti').show();
   } else {
     $('#btnAvanti').hide();
   }
-  
+
   currentStep = step;
   updateNavigationButtons();
-  
+
   // Aggiorna riepilogo se siamo allo step 4
   if (step === 4) {
     updateRiepilogo();
   }
-  
+
   // Reset disponibilità quando cambiamo step
   if (step !== 3) {
     disponibilitaVerificata = false;
@@ -351,14 +351,14 @@ function showStep(step) {
 // Aggiorna riepilogo prenotazione
 function updateRiepilogo() {
   const container = $('#riepilogoPrenotazione');
-  
+
   // Recupera i dati delle sedi e spazi selezionati
   const sedeText = $('#selectSede option:selected').text();
   const spazioText = $('#selectSpazio option:selected').text();
-  
+
   const dataInizio = new Date(selectedDataInizio).toLocaleString('it-IT');
   const dataFine = new Date(selectedDataFine).toLocaleString('it-IT');
-  
+
   const html = `
     <div class="row">
       <div class="col-md-6">
@@ -371,7 +371,7 @@ function updateRiepilogo() {
       </div>
     </div>
   `;
-  
+
   container.html(html);
 }
 
@@ -379,22 +379,22 @@ function updateRiepilogo() {
 function setupEventHandlers() {
   // Cambio sede
   $('#selectSede').change(onSedeChange);
-  
+
   // Cambio spazio
   $('#selectSpazio').change(onSpazioChange);
-  
+
   // Verifica disponibilità
   $('#btnCheckDisponibilita').click(checkDisponibilita);
-  
+
   // Validazione date in tempo reale
-  $('#dataInizio, #dataFine').change(function() {
+  $('#dataInizio, #dataFine').change(function () {
     disponibilitaVerificata = false;
     $('#disponibilitaStatus').html('');
     updateNavigationButtons();
   });
-  
+
   // Navigazione
-  $('#btnAvanti').click(function() {
+  $('#btnAvanti').click(function () {
     if (currentStep === 1 && !$('#selectSede').val()) {
       showAlert('Seleziona una sede', 'warning');
       return;
@@ -407,16 +407,16 @@ function setupEventHandlers() {
       showAlert('Verifica prima la disponibilità', 'warning');
       return;
     }
-    
+
     showStep(currentStep + 1);
   });
-  
-  $('#btnIndietro').click(function() {
+
+  $('#btnIndietro').click(function () {
     showStep(currentStep - 1);
   });
-  
+
   // Submit form
-  $('#prenotazioneForm').submit(function(e) {
+  $('#prenotazioneForm').submit(function (e) {
     e.preventDefault();
     createPrenotazione();
   });

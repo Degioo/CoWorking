@@ -1,12 +1,12 @@
 // Configurazione API
-const API_BASE = 'http://localhost:3002/api';
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
 // Variabili globali
 let currentUser = null;
 let currentStep = 1;
 
 // Inizializzazione dashboard
-$(document).ready(function() {
+$(document).ready(function () {
   checkAuth();
   setupEventHandlers();
 });
@@ -18,7 +18,7 @@ function checkAuth() {
     window.location.href = 'login.html';
     return;
   }
-  
+
   currentUser = JSON.parse(userStr);
   setupDashboard();
 }
@@ -40,7 +40,7 @@ function updateUserInfo() {
 function createTabs() {
   const tabsContainer = $('#dashboardTabs');
   const contentContainer = $('#dashboardTabsContent');
-  
+
   if (currentUser.ruolo === 'gestore') {
     // Tab per gestore
     tabsContainer.html(`
@@ -60,7 +60,7 @@ function createTabs() {
         </button>
       </li>
     `);
-    
+
     contentContainer.html(`
       <div class="tab-pane fade show active" id="sedi" role="tabpanel">
         <div id="sediContent">Caricamento...</div>
@@ -86,7 +86,7 @@ function createTabs() {
         </button>
       </li>
     `);
-    
+
     contentContainer.html(`
       <div class="tab-pane fade show active" id="prenotazioni" role="tabpanel">
         <div id="prenotazioniContent">Caricamento...</div>
@@ -113,10 +113,10 @@ function loadInitialData() {
 // Carica sedi del gestore
 function loadSediGestore() {
   $.get(`${API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`)
-    .done(function(sedi) {
+    .done(function (sedi) {
       displaySediGestore(sedi);
     })
-    .fail(function() {
+    .fail(function () {
       $('#sediContent').html('<div class="alert alert-danger">Errore nel caricamento delle sedi</div>');
     });
 }
@@ -128,7 +128,7 @@ function displaySediGestore(sedi) {
     container.html('<p>Nessuna sede gestita</p>');
     return;
   }
-  
+
   let html = '<div class="row">';
   sedi.forEach(sede => {
     html += `
@@ -153,10 +153,10 @@ function displaySediGestore(sedi) {
 // Carica prenotazioni gestore
 function loadPrenotazioniGestore() {
   $.get(`${API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`)
-    .done(function(prenotazioni) {
+    .done(function (prenotazioni) {
       displayPrenotazioniGestore(prenotazioni);
     })
-    .fail(function() {
+    .fail(function () {
       $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
     });
 }
@@ -168,10 +168,10 @@ function displayPrenotazioniGestore(prenotazioni) {
     container.html('<p>Nessuna prenotazione trovata</p>');
     return;
   }
-  
+
   let html = '<div class="table-responsive"><table class="table table-striped">';
   html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th></tr></thead><tbody>';
-  
+
   prenotazioni.forEach(p => {
     const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
     html += `
@@ -183,7 +183,7 @@ function displayPrenotazioniGestore(prenotazioni) {
       </tr>
     `;
   });
-  
+
   html += '</tbody></table></div>';
   container.html(html);
 }
@@ -191,10 +191,10 @@ function displayPrenotazioniGestore(prenotazioni) {
 // Carica report gestore
 function loadReportGestore() {
   $.get(`${API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`)
-    .done(function(report) {
+    .done(function (report) {
       displayReportGestore(report);
     })
-    .fail(function() {
+    .fail(function () {
       $('#reportContent').html('<div class="alert alert-danger">Errore nel caricamento del report</div>');
     });
 }
@@ -206,10 +206,10 @@ function displayReportGestore(report) {
     container.html('<p>Nessun dato disponibile</p>');
     return;
   }
-  
+
   let html = '<div class="table-responsive"><table class="table table-striped">';
   html += '<thead><tr><th>Sede</th><th>Spazio</th><th>Prenotazioni</th><th>Incasso</th></tr></thead><tbody>';
-  
+
   report.forEach(r => {
     html += `
       <tr>
@@ -220,7 +220,7 @@ function displayReportGestore(report) {
       </tr>
     `;
   });
-  
+
   html += '</tbody></table></div>';
   container.html(html);
 }
@@ -228,10 +228,10 @@ function displayReportGestore(report) {
 // Carica prenotazioni utente
 function loadPrenotazioniUtente() {
   $.get(`${API_BASE}/prenotazioni?utente=${currentUser.id_utente}`)
-    .done(function(prenotazioni) {
+    .done(function (prenotazioni) {
       displayPrenotazioniUtente(prenotazioni);
     })
-    .fail(function() {
+    .fail(function () {
       $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
     });
 }
@@ -243,17 +243,17 @@ function displayPrenotazioniUtente(prenotazioni) {
     container.html('<p>Nessuna prenotazione trovata</p>');
     return;
   }
-  
+
   let html = '<div class="table-responsive"><table class="table table-striped">';
   html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
-  
+
   prenotazioni.forEach(p => {
     const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
     const dataFine = new Date(p.data_fine);
     const dataInizioObj = new Date(p.data_inizio);
     const durataOre = Math.round((dataFine - dataInizioObj) / (1000 * 60 * 60));
     const importo = durataOre * 10; // 10€/ora
-    
+
     // Determina se mostrare il pulsante di pagamento
     let azioniHtml = '';
     if (p.stato === 'in attesa' || p.stato === 'pendente') {
@@ -267,7 +267,7 @@ function displayPrenotazioniUtente(prenotazioni) {
     } else {
       azioniHtml = '<span class="text-muted">-</span>';
     }
-    
+
     html += `
       <tr>
         <td>${dataInizio}</td>
@@ -278,7 +278,7 @@ function displayPrenotazioniUtente(prenotazioni) {
       </tr>
     `;
   });
-  
+
   html += '</tbody></table></div>';
   container.html(html);
 }
@@ -286,10 +286,10 @@ function displayPrenotazioniUtente(prenotazioni) {
 // Carica pagamenti utente
 function loadPagamentiUtente() {
   $.get(`${API_BASE}/pagamenti?utente=${currentUser.id_utente}`)
-    .done(function(pagamenti) {
+    .done(function (pagamenti) {
       displayPagamentiUtente(pagamenti);
     })
-    .fail(function() {
+    .fail(function () {
       $('#pagamentiContent').html('<div class="alert alert-danger">Errore nel caricamento dei pagamenti</div>');
     });
 }
@@ -301,10 +301,10 @@ function displayPagamentiUtente(pagamenti) {
     container.html('<p>Nessun pagamento trovato</p>');
     return;
   }
-  
+
   let html = '<div class="table-responsive"><table class="table table-striped">';
   html += '<thead><tr><th>Data</th><th>Importo</th><th>Stato</th></tr></thead><tbody>';
-  
+
   pagamenti.forEach(p => {
     const dataPagamento = new Date(p.data_pagamento).toLocaleString('it-IT');
     html += `
@@ -315,14 +315,14 @@ function displayPagamentiUtente(pagamenti) {
       </tr>
     `;
   });
-  
+
   html += '</tbody></table></div>';
   container.html(html);
 }
 
 // Utility functions
 function getStatusColor(stato) {
-  switch(stato) {
+  switch (stato) {
     case 'confermata': return 'success';
     case 'annullata': return 'danger';
     case 'completata': return 'info';
@@ -331,7 +331,7 @@ function getStatusColor(stato) {
 }
 
 function getPaymentStatusColor(stato) {
-  switch(stato) {
+  switch (stato) {
     case 'pagato': return 'success';
     case 'in attesa': return 'warning';
     case 'rimborsato': return 'info';
@@ -341,7 +341,7 @@ function getPaymentStatusColor(stato) {
 
 // Event handlers
 function setupEventHandlers() {
-  $('#btnLogout').click(function() {
+  $('#btnLogout').click(function () {
     localStorage.removeItem('user');
     window.location.href = 'index.html';
   });
@@ -360,7 +360,7 @@ function pagaPrenotazione(idPrenotazione) {
     alert('Devi essere autenticato per procedere al pagamento');
     return;
   }
-  
+
   // Reindirizza alla pagina di pagamento
   window.location.href = `pagamento.html?id=${idPrenotazione}`;
 } 

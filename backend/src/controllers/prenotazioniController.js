@@ -92,7 +92,7 @@ exports.getPrenotazioni = async (req, res) => {
 // Ottiene i dettagli di una singola prenotazione
 exports.getPrenotazioneById = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     const result = await pool.query(
       `SELECT p.*, s.nome AS nome_spazio, se.nome AS nome_sede, 
@@ -104,11 +104,11 @@ exports.getPrenotazioneById = async (req, res) => {
        WHERE p.id_prenotazione = $1`,
       [id]
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Prenotazione non trovata' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Errore recupero prenotazione:', err);

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pagamentiController = require('../controllers/pagamentiController');
+const { authenticateToken } = require('../middleware/auth');
 
 // Legacy
 router.post('/pagamenti', pagamentiController.creaPagamento);
@@ -13,8 +14,8 @@ router.post('/pagamenti/:id/refund', pagamentiController.refundPayment);
 
 // Stripe (reale)
 router.get('/pagamenti/stripe/config', pagamentiController.getStripePublicConfig);
-router.post('/pagamenti/stripe/intent', pagamentiController.createCardIntent);
-router.post('/pagamenti/stripe/complete', pagamentiController.completeCardPayment);
-router.get('/pagamenti/stripe/status/:payment_intent_id', pagamentiController.getPaymentStatus);
+router.post('/pagamenti/stripe/intent', authenticateToken, pagamentiController.createCardIntent);
+router.post('/pagamenti/stripe/complete', authenticateToken, pagamentiController.completeCardPayment);
+router.get('/pagamenti/stripe/status/:payment_intent_id', authenticateToken, pagamentiController.getPaymentStatus);
 
 module.exports = router; 

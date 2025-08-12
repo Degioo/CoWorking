@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,31 +14,31 @@
             padding: 30px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         .payment-header {
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .payment-header h1 {
             color: #2c3e50;
             margin-bottom: 10px;
         }
-        
+
         .payment-details {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 30px;
         }
-        
+
         .payment-details h3 {
             color: #495057;
             margin-bottom: 15px;
         }
-        
+
         .detail-row {
             display: flex;
             justify-content: space-between;
@@ -45,29 +46,29 @@
             padding: 8px 0;
             border-bottom: 1px solid #e9ecef;
         }
-        
+
         .detail-row:last-child {
             border-bottom: none;
             font-weight: bold;
             font-size: 1.1em;
             color: #2c3e50;
         }
-        
+
         .stripe-form {
             margin-top: 20px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #495057;
         }
-        
+
         .stripe-element {
             padding: 12px;
             border: 2px solid #e9ecef;
@@ -75,15 +76,15 @@
             background: white;
             transition: border-color 0.3s ease;
         }
-        
+
         .stripe-element.focused {
             border-color: #007bff;
         }
-        
+
         .stripe-element.invalid {
             border-color: #dc3545;
         }
-        
+
         .pay-button {
             width: 100%;
             padding: 15px;
@@ -96,16 +97,16 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         .pay-button:hover {
             background: #218838;
         }
-        
+
         .pay-button:disabled {
             background: #6c757d;
             cursor: not-allowed;
         }
-        
+
         .error-message {
             color: #dc3545;
             background: #f8d7da;
@@ -115,7 +116,7 @@
             margin-bottom: 20px;
             display: none;
         }
-        
+
         .success-message {
             color: #155724;
             background: #d4edda;
@@ -125,7 +126,7 @@
             margin-bottom: 20px;
             display: none;
         }
-        
+
         .loading {
             display: inline-block;
             width: 20px;
@@ -136,12 +137,17 @@
             animation: spin 1s linear infinite;
             margin-right: 10px;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .back-button {
             display: inline-block;
             padding: 10px 20px;
@@ -152,22 +158,23 @@
             margin-bottom: 20px;
             transition: background-color 0.3s ease;
         }
-        
+
         .back-button:hover {
             background: #5a6268;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <a href="dashboard.html" class="back-button">← Torna alla Dashboard</a>
-        
+
         <div class="payment-container">
             <div class="payment-header">
                 <h1>💳 Pagamento Prenotazione</h1>
                 <p>Completa il pagamento per confermare la tua prenotazione</p>
             </div>
-            
+
             <div class="payment-details">
                 <h3>Dettagli Prenotazione</h3>
                 <div class="detail-row">
@@ -191,17 +198,17 @@
                     <span id="totale-prenotazione">Caricamento...</span>
                 </div>
             </div>
-            
+
             <div class="error-message" id="error-message"></div>
             <div class="success-message" id="success-message"></div>
-            
+
             <form id="payment-form" class="stripe-form">
                 <div class="form-group">
                     <label for="card-element">Dati Carta di Credito</label>
                     <div id="card-element" class="stripe-element"></div>
                     <div id="card-errors" class="error-message" style="margin-top: 10px;"></div>
                 </div>
-                
+
                 <button type="submit" class="pay-button" id="pay-button">
                     <span class="loading" id="loading-spinner" style="display: none;"></span>
                     <span id="button-text">Paga Ora</span>
@@ -210,6 +217,8 @@
         </div>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/pagamento.js"></script>
 </body>
+
 </html>

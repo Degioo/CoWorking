@@ -1,5 +1,5 @@
 // Configurazione API
-const API_BASE = 'http://localhost:3002/api';
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
 // Funzioni di utilità
 function showAlert(message, type = 'info') {
@@ -42,14 +42,14 @@ function logout() {
 function loadSedi(citta = '') {
   console.log('Caricando sedi...', citta ? `Filtro: ${citta}` : 'Tutte');
   const url = citta ? `${API_BASE}/sedi?citta=${citta}` : `${API_BASE}/sedi`;
-  
+
   $.get(url)
-    .done(function(sedi) {
+    .done(function (sedi) {
       console.log('Sedi caricate:', sedi);
       displaySedi(sedi);
       populateCittaFilter(sedi);
     })
-    .fail(function(xhr, status, error) {
+    .fail(function (xhr, status, error) {
       console.error('Errore caricamento sedi:', xhr, status, error);
       showAlert('Errore nel caricamento delle sedi', 'danger');
     });
@@ -59,12 +59,12 @@ function loadSedi(citta = '') {
 function displaySedi(sedi) {
   const container = $('#catalogoSedi');
   container.empty();
-  
+
   if (sedi.length === 0) {
     container.html('<div class="col-12 text-center"><p>Nessuna sede trovata</p></div>');
     return;
   }
-  
+
   sedi.forEach(sede => {
     const card = `
       <div class="col-md-6 col-lg-4 mb-4">
@@ -90,7 +90,7 @@ function populateCittaFilter(sedi) {
   const citta = [...new Set(sedi.map(s => s.citta))];
   const select = $('#filtroCitta');
   select.find('option:not(:first)').remove();
-  
+
   citta.forEach(c => {
     select.append(`<option value="${c}">${c}</option>`);
   });
@@ -105,35 +105,35 @@ function viewSpazi(idSede) {
 // Login
 function handleLogin(event) {
   event.preventDefault();
-  
+
   const data = {
     email: $('#loginEmail').val(),
     password: $('#loginPassword').val()
   };
-  
+
   $.ajax({
     url: `${API_BASE}/login`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(data)
   })
-  .done(function(response) {
-    localStorage.setItem('user', JSON.stringify(response));
-    showAlert('Login effettuato con successo!', 'success');
-    setTimeout(() => {
-      window.location.href = 'dashboard.html';
-    }, 1000);
-  })
-  .fail(function(xhr) {
-    const error = xhr.responseJSON?.error || 'Errore durante il login';
-    showAlert(error, 'danger');
-  });
+    .done(function (response) {
+      localStorage.setItem('user', JSON.stringify(response));
+      showAlert('Login effettuato con successo!', 'success');
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1000);
+    })
+    .fail(function (xhr) {
+      const error = xhr.responseJSON?.error || 'Errore durante il login';
+      showAlert(error, 'danger');
+    });
 }
 
 // Registrazione
 function handleRegistrazione(event) {
   event.preventDefault();
-  
+
   const data = {
     nome: $('#regNome').val(),
     cognome: $('#regCognome').val(),
@@ -142,39 +142,39 @@ function handleRegistrazione(event) {
     ruolo: $('#regRuolo').val(),
     telefono: $('#regTelefono').val() || null
   };
-  
+
   $.ajax({
     url: `${API_BASE}/register`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(data)
   })
-  .done(function(response) {
-    showAlert('Registrazione effettuata con successo!', 'success');
-    // Switch to login tab
-    $('#login-tab').tab('show');
-  })
-  .fail(function(xhr) {
-    const error = xhr.responseJSON?.error || 'Errore durante la registrazione';
-    showAlert(error, 'danger');
-  });
+    .done(function (response) {
+      showAlert('Registrazione effettuata con successo!', 'success');
+      // Switch to login tab
+      $('#login-tab').tab('show');
+    })
+    .fail(function (xhr) {
+      const error = xhr.responseJSON?.error || 'Errore durante la registrazione';
+      showAlert(error, 'danger');
+    });
 }
 
 // Event handlers
-$(document).ready(function() {
+$(document).ready(function () {
   console.log('DOM ready, inizializzazione...');
-  
+
   // Aggiorna navbar se loggato
   updateNavbar();
-  
+
   // Carica sedi all'avvio se siamo sulla home
   if ($('#catalogoSedi').length) {
     console.log('Elemento catalogoSedi trovato, carico le sedi...');
     loadSedi();
   }
-  
+
   // Pulsante Catalogo (ricarica le sedi)
-  $('#btnCatalogo').click(function(e) {
+  $('#btnCatalogo').click(function (e) {
     e.preventDefault();
     console.log('Pulsante Catalogo cliccato');
     loadSedi();
@@ -183,20 +183,20 @@ $(document).ready(function() {
       scrollTop: $('#catalogoSedi').parent().offset().top
     }, 500);
   });
-  
+
   // Filtro sedi
-  $('#btnFiltra').click(function() {
+  $('#btnFiltra').click(function () {
     const citta = $('#filtroCitta').val();
     console.log('Filtro applicato:', citta);
     loadSedi(citta);
   });
-  
+
   // Login form
   $('#loginForm').submit(handleLogin);
-  
+
   // Registrazione form
   $('#registrazioneForm').submit(handleRegistrazione);
-  
+
   // Gestione hash URL per tab registrazione
   if (window.location.hash === '#registrazione') {
     $('#registrazione-tab').tab('show');
