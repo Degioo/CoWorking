@@ -502,7 +502,7 @@ function updateRiepilogo() {
   // Verifica che i select abbiano le opzioni caricate
   const sedeSelect = $('#selectSede');
   const spazioSelect = $('#selectSpazio');
-  
+
   if (sedeSelect.find('option').length <= 1 || spazioSelect.find('option').length <= 1) {
     container.html('<div class="alert alert-warning">Caricamento dati in corso...</div>');
     return;
