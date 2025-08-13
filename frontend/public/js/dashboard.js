@@ -121,12 +121,21 @@ function loadInitialData() {
 
 // Carica sedi del gestore
 function loadSediGestore() {
-  $.get(`${API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`)
+  $.ajax({
+    url: `${API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (sedi) {
       displaySediGestore(sedi);
     })
-    .fail(function () {
-      $('#sediContent').html('<div class="alert alert-danger">Errore nel caricamento delle sedi</div>');
+    .fail(function (xhr) {
+      console.log('loadSediGestore - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#sediContent').html('<div class="alert alert-danger">Errore nel caricamento delle sedi</div>');
+      }
     });
 }
 
@@ -161,12 +170,21 @@ function displaySediGestore(sedi) {
 
 // Carica prenotazioni gestore
 function loadPrenotazioniGestore() {
-  $.get(`${API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`)
+  $.ajax({
+    url: `${API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (prenotazioni) {
       displayPrenotazioniGestore(prenotazioni);
     })
-    .fail(function () {
-      $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
+    .fail(function (xhr) {
+      console.log('loadPrenotazioniGestore - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
+      }
     });
 }
 
@@ -199,12 +217,21 @@ function displayPrenotazioniGestore(prenotazioni) {
 
 // Carica report gestore
 function loadReportGestore() {
-  $.get(`${API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`)
+  $.ajax({
+    url: `${API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (report) {
       displayReportGestore(report);
     })
-    .fail(function () {
-      $('#reportContent').html('<div class="alert alert-danger">Errore nel caricamento del report</div>');
+    .fail(function (xhr) {
+      console.log('loadReportGestore - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#reportContent').html('<div class="alert alert-danger">Errore nel caricamento del report</div>');
+      }
     });
 }
 
@@ -236,12 +263,21 @@ function displayReportGestore(report) {
 
 // Carica prenotazioni utente
 function loadPrenotazioniUtente() {
-  $.get(`${API_BASE}/prenotazioni?utente=${currentUser.id_utente}`)
+  $.ajax({
+    url: `${API_BASE}/prenotazioni?utente=${currentUser.id_utente}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (prenotazioni) {
       displayPrenotazioniUtente(prenotazioni);
     })
-    .fail(function () {
-      $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
+    .fail(function (xhr) {
+      console.log('loadPrenotazioniUtente - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
+      }
     });
 }
 
@@ -294,12 +330,21 @@ function displayPrenotazioniUtente(prenotazioni) {
 
 // Carica pagamenti utente
 function loadPagamentiUtente() {
-  $.get(`${API_BASE}/pagamenti?utente=${currentUser.id_utente}`)
+  $.ajax({
+    url: `${API_BASE}/pagamenti?utente=${currentUser.id_utente}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (pagamenti) {
       displayPagamentiUtente(pagamenti);
     })
-    .fail(function () {
-      $('#pagamentiContent').html('<div class="alert alert-danger">Errore nel caricamento dei pagamenti</div>');
+    .fail(function (xhr) {
+      console.log('loadPagamentiUtente - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#pagamentiContent').html('<div class="alert alert-danger">Errore nel caricamento dei pagamenti</div>');
+      }
     });
 }
 

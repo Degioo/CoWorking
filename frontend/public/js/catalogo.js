@@ -34,7 +34,11 @@ function logout() {
 }
 
 function loadCitta() {
-  $.get(`${API_BASE}/sedi`).done(sedi => {
+  $.ajax({
+    url: `${API_BASE}/sedi`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  }).done(sedi => {
     const unique = [...new Set(sedi.map(s => s.citta))];
     const sel = $('#filtroCitta');
     unique.forEach(c => sel.append(`<option value="${c}">${c}</option>`));
@@ -42,7 +46,11 @@ function loadCitta() {
 }
 
 function loadServizi() {
-  $.get(`${API_BASE}/servizi`).done(servizi => {
+  $.ajax({
+    url: `${API_BASE}/servizi`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  }).done(servizi => {
     const box = $('#filtroServizi');
     servizi.forEach(s => {
       box.append(`
@@ -64,17 +72,29 @@ async function cercaSpazi() {
   const serviziSelezionati = $('.servizio-check:checked').map((i, el) => $(el).val()).get();
 
   // 1) prendo le sedi (eventualmente filtrate per città)
-  const sedi = await $.get(citta ? `${API_BASE}/sedi?citta=${encodeURIComponent(citta)}` : `${API_BASE}/sedi`);
+  const sedi = await $.ajax({
+    url: citta ? `${API_BASE}/sedi?citta=${encodeURIComponent(citta)}` : `${API_BASE}/sedi`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
 
   // 2) per ogni sede, prendo gli spazi (eventuale filtro tipologia)
   const risultati = [];
   for (const sede of sedi) {
-    const spazi = await $.get(tipologia ? `${API_BASE}/spazi?id_sede=${sede.id_sede}&tipologia=${encodeURIComponent(tipologia)}` : `${API_BASE}/spazi?id_sede=${sede.id_sede}`);
+    const spazi = await $.ajax({
+      url: tipologia ? `${API_BASE}/spazi?id_sede=${sede.id_sede}&tipologia=${encodeURIComponent(tipologia)}` : `${API_BASE}/spazi?id_sede=${sede.id_sede}`,
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
 
     for (const spazio of spazi) {
       // 3) filtro per servizi (se selezionati)
       if (serviziSelezionati.length > 0) {
-        const srv = await $.get(`${API_BASE}/spazi/${spazio.id_spazio}/servizi`);
+        const srv = await $.ajax({
+          url: `${API_BASE}/spazi/${spazio.id_spazio}/servizi`,
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
         const ids = srv.map(s => String(s.id_servizio));
         const includeAll = serviziSelezionati.every(id => ids.includes(id));
         if (!includeAll) continue;
@@ -83,7 +103,12 @@ async function cercaSpazi() {
       // 4) controllo disponibilità (se richiesto e se date inserite)
       let disponibile = true;
       if (soloDisponibili && dal && al) {
-        const res = await $.get(`${API_BASE}/spazi/${spazio.id_spazio}/disponibilita`, { data_inizio: dal, data_fine: al });
+        const res = await $.ajax({
+          url: `${API_BASE}/spazi/${spazio.id_spazio}/disponibilita`,
+          method: 'GET',
+          headers: getAuthHeaders(),
+          data: { data_inizio: dal, data_fine: al }
+        });
         disponibile = !!res.disponibile;
       }
       if (soloDisponibili && (!dal || !al)) {

@@ -167,7 +167,11 @@ function logout() {
 
 // Carica sedi
 function loadSedi() {
-  $.get(`${API_BASE}/sedi`)
+  $.ajax({
+    url: `${API_BASE}/sedi`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (sedi) {
       const select = $('#selectSede');
       select.find('option:not(:first)').remove();
@@ -184,14 +188,23 @@ function loadSedi() {
         onSedeChange();
       }
     })
-    .fail(function () {
-      showAlert('Errore nel caricamento delle sedi', 'danger');
+    .fail(function (xhr) {
+      console.log('loadSedi - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        showAlert('Errore nel caricamento delle sedi', 'danger');
+      }
     });
 }
 
 // Carica spazi di una sede
 function loadSpazi(idSede) {
-  $.get(`${API_BASE}/spazi?id_sede=${idSede}`)
+  $.ajax({
+    url: `${API_BASE}/spazi?id_sede=${idSede}`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (spazi) {
       const select = $('#selectSpazio');
       select.find('option:not(:first)').remove();
@@ -200,14 +213,23 @@ function loadSpazi(idSede) {
         select.append(`<option value="${spazio.id_spazio}">${spazio.nome} (${spazio.tipologia})</option>`);
       });
     })
-    .fail(function () {
-      showAlert('Errore nel caricamento degli spazi', 'danger');
+    .fail(function (xhr) {
+      console.log('loadSpazi - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        showAlert('Errore nel caricamento degli spazi', 'danger');
+      }
     });
 }
 
 // Carica servizi di uno spazio
 function loadServiziSpazio(idSpazio) {
-  $.get(`${API_BASE}/spazi/${idSpazio}/servizi`)
+  $.ajax({
+    url: `${API_BASE}/spazi/${idSpazio}/servizi`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
     .done(function (servizi) {
       const container = $('#spazioInfo');
       if (servizi.length === 0) {
@@ -222,8 +244,13 @@ function loadServiziSpazio(idSpazio) {
       html += '</ul>';
       container.html(html);
     })
-    .fail(function () {
-      $('#spazioInfo').html('<p class="text-muted">Errore nel caricamento dei servizi</p>');
+    .fail(function (xhr) {
+      console.log('loadServiziSpazio - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#spazioInfo').html('<p class="text-muted">Errore nel caricamento dei servizi</p>');
+      }
     });
 }
 
@@ -281,9 +308,14 @@ function checkDisponibilita() {
   const statusElement = $('#disponibilitaStatus');
   statusElement.html('<span class="text-info">Verificando...</span>');
 
-  $.get(`${API_BASE}/spazi/${idSpazio}/disponibilita`, {
-    data_inizio: dataInizio,
-    data_fine: dataFine
+  $.ajax({
+    url: `${API_BASE}/spazi/${idSpazio}/disponibilita`,
+    method: 'GET',
+    headers: getAuthHeaders(),
+    data: {
+      data_inizio: dataInizio,
+      data_fine: dataFine
+    }
   })
     .done(function (response) {
       if (response.disponibile) {
@@ -298,10 +330,15 @@ function checkDisponibilita() {
         updateNavigationButtons();
       }
     })
-    .fail(function () {
-      statusElement.html('<span class="text-danger">Errore nella verifica</span>');
-      disponibilitaVerificata = false;
-      updateNavigationButtons();
+    .fail(function (xhr) {
+      console.log('checkDisponibilita - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        statusElement.html('<span class="text-danger">Errore nella verifica</span>');
+        disponibilitaVerificata = false;
+        updateNavigationButtons();
+      }
     });
 }
 
