@@ -18,9 +18,9 @@ console.log('API_BASE:', CONFIG.API_BASE);
 // Funzione per aggiungere l'header di autorizzazione alle richieste API
 function getAuthHeaders() {
     const user = localStorage.getItem('user');
-    
+
     console.log('getAuthHeaders - User:', user);
-    
+
     if (user) {
         try {
             const userData = JSON.parse(user);
@@ -33,7 +33,7 @@ function getAuthHeaders() {
             console.error('Errore parsing user:', error);
         }
     }
-    
+
     return {
         'Content-Type': 'application/json'
     };

@@ -316,7 +316,7 @@ function showSuccess(message) {
 // Verifica se l'utente è autenticato
 function checkAuthentication() {
     const user = localStorage.getItem('user');
-    
+
     if (!user) {
         // Reindirizza al login
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
