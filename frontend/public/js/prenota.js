@@ -41,18 +41,18 @@ $(document).ready(function () {
       loadSpazi(sedeId);
       setTimeout(() => {
         $('#selectSpazio').val(spazioId);
-        
+
         // Nascondi tutti gli step e vai direttamente al pagamento
         for (let i = 1; i <= 4; i++) {
           $(`#step${i}`).hide();
         }
-        
+
         // Mostra solo lo step 4
         $('#step4').show();
-        
+
         // Nascondi i pulsanti di navigazione
         $('#btnAvanti, #btnIndietro').hide();
-        
+
         updateRiepilogo();
         showAlert('Bentornato! I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
       }, 500);
@@ -79,18 +79,18 @@ $(document).ready(function () {
         loadSpazi(selectedSede);
         setTimeout(() => {
           $('#selectSpazio').val(selectedSpazio);
-          
+
           // Nascondi tutti gli step e vai direttamente al pagamento
           for (let i = 1; i <= 4; i++) {
             $(`#step${i}`).hide();
           }
-          
+
           // Mostra solo lo step 4
           $('#step4').show();
-          
+
           // Nascondi i pulsanti di navigazione
           $('#btnAvanti, #btnIndietro').hide();
-          
+
           updateRiepilogo();
           showAlert('I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
         }, 500);
@@ -98,25 +98,7 @@ $(document).ready(function () {
     } else {
       // L'utente è loggato ma non ha prenotazioni in attesa, carica normalmente
       loadSedi();
-      
-      if (sedeId) {
-        selectedSede = sedeId;
-        setTimeout(() => {
-          $('#selectSede').val(sedeId);
-          onSedeChange();
-          if (spazioId) {
-            setTimeout(() => {
-              $('#selectSpazio').val(spazioId);
-              onSpazioChange();
-            }, 500);
-            }
-          }, 500);
-        }
-      }
-    } else {
-      // L'utente non è loggato, carica normalmente
-      loadSedi();
-      
+
       if (sedeId) {
         selectedSede = sedeId;
         setTimeout(() => {
@@ -131,6 +113,24 @@ $(document).ready(function () {
         }, 500);
       }
     }
+  } else {
+    // L'utente non è loggato, carica normalmente
+    loadSedi();
+
+    if (sedeId) {
+      selectedSede = sedeId;
+      setTimeout(() => {
+        $('#selectSede').val(sedeId);
+        onSedeChange();
+        if (spazioId) {
+          setTimeout(() => {
+            $('#selectSpazio').val(spazioId);
+            onSpazioChange();
+          }, 500);
+        }
+      }, 500);
+    }
+  }
 });
 
 // Aggiorna navbar se utente è loggato
