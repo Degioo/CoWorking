@@ -324,6 +324,8 @@ function updateNavigationButtons() {
 
 // Crea prenotazione
 function createPrenotazione() {
+  console.log('createPrenotazione - Inizio funzione');
+  
   // Verifica che tutti i dati necessari siano selezionati
   if (!selectedSede || !selectedSpazio || !selectedDataInizio || !selectedDataFine) {
     showAlert('Completa tutti i passaggi della prenotazione prima di procedere', 'warning');
@@ -333,6 +335,10 @@ function createPrenotazione() {
   // L'utente è già autenticato (controllo fatto in showStep)
   const userStr = localStorage.getItem('user');
   const user = JSON.parse(userStr);
+  
+  console.log('createPrenotazione - User:', user);
+  console.log('createPrenotazione - Dati prenotazione:', { selectedSede, selectedSpazio, selectedDataInizio, selectedDataFine });
+  
   const data = {
     id_utente: user.id_utente,
     id_spazio: selectedSpazio,
@@ -340,10 +346,15 @@ function createPrenotazione() {
     data_fine: selectedDataFine
   };
 
+  const headers = getAuthHeaders();
+  console.log('createPrenotazione - Headers:', headers);
+  console.log('createPrenotazione - URL:', `${API_BASE}/prenotazioni`);
+  console.log('createPrenotazione - Data:', data);
+  
   $.ajax({
     url: `${API_BASE}/prenotazioni`,
     method: 'POST',
-    headers: getAuthHeaders(),
+    headers: headers,
     data: JSON.stringify(data)
   })
     .done(async function (response) {
@@ -369,7 +380,10 @@ function createPrenotazione() {
       }
     })
     .fail(function (xhr) {
+      console.log('createPrenotazione - Errore:', xhr.status, xhr.responseText);
+      
       if (xhr.status === 401) {
+        console.log('createPrenotazione - Errore 401, sessione scaduta');
         handleAuthError();
       } else {
         const error = xhr.responseJSON?.error || 'Errore durante la creazione della prenotazione';

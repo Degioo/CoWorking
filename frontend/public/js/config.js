@@ -18,6 +18,11 @@ console.log('API_BASE:', CONFIG.API_BASE);
 // Funzione per aggiungere l'header di autorizzazione alle richieste API
 function getAuthHeaders() {
     const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('user');
+    
+    console.log('getAuthHeaders - Token:', token);
+    console.log('getAuthHeaders - User:', user);
+    
     if (token) {
         return {
             'Authorization': `Bearer ${token}`,
@@ -44,8 +49,13 @@ async function validateTokenOnStartup() {
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('user');
 
+    console.log('validateTokenOnStartup - Token:', token);
+    console.log('validateTokenOnStartup - User:', user);
+
     if (token && user) {
         try {
+            console.log('validateTokenOnStartup - Verifico token con:', `${CONFIG.API_BASE}/auth/validate`);
+            
             // Verifica la validità del token chiamando un endpoint protetto
             const response = await fetch(`${CONFIG.API_BASE}/auth/validate`, {
                 method: 'GET',
@@ -55,18 +65,25 @@ async function validateTokenOnStartup() {
                 }
             });
 
+            console.log('validateTokenOnStartup - Risposta:', response.status, response.ok);
+
             if (!response.ok) {
                 // Token non valido, pulisci i dati
                 localStorage.removeItem('user');
                 localStorage.removeItem('authToken');
                 console.log('Token non valido, logout automatico effettuato');
+            } else {
+                console.log('validateTokenOnStartup - Token valido, mantengo sessione');
             }
         } catch (error) {
+            console.log('validateTokenOnStartup - Errore:', error);
             // Errore di rete o token non valido, pulisci i dati
             localStorage.removeItem('user');
             localStorage.removeItem('authToken');
             console.log('Errore validazione token, logout automatico effettuato');
         }
+    } else {
+        console.log('validateTokenOnStartup - Nessun token o user trovato');
     }
 }
 
