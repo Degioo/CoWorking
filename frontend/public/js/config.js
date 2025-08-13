@@ -11,6 +11,10 @@ const CONFIG = {
     SUPABASE_ANON_KEY: 'your-supabase-anon-key-here'
 };
 
+// Debug: log della configurazione per verificare che sia caricata
+console.log('Configurazione caricata:', CONFIG);
+console.log('API_BASE:', CONFIG.API_BASE);
+
 // Esporta per uso globale
 window.CONFIG = CONFIG;
 

@@ -1,6 +1,10 @@
 // Configurazione API
 const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
+// Debug: verifica configurazione
+console.log('main.js - window.CONFIG:', window.CONFIG);
+console.log('main.js - API_BASE:', API_BASE);
+
 // Funzioni di utilità
 function showAlert(message, type = 'info') {
   const alertHtml = `
