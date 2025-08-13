@@ -39,7 +39,6 @@ function updateNavbar() {
 // Logout
 function logout() {
   localStorage.removeItem('user');
-  localStorage.removeItem('authToken');
   location.reload();
 }
 
@@ -123,11 +122,8 @@ function handleLogin(event) {
     data: JSON.stringify(data)
   })
     .done(function (response) {
-      // Salva l'utente e il token
+      // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
-      if (response.token) {
-        localStorage.setItem('authToken', response.token);
-      }
       showAlert('Login effettuato con successo!', 'success');
 
       // Controlla se c'è una prenotazione in attesa
@@ -199,11 +195,8 @@ function handleRegistrazione(event) {
         data: JSON.stringify(loginData)
       })
         .done(function (loginResponse) {
-          // Salva l'utente e il token
+          // Salva l'utente
           localStorage.setItem('user', JSON.stringify(loginResponse));
-          if (loginResponse.token) {
-            localStorage.setItem('authToken', response.token);
-          }
 
           // Controlla se c'è una prenotazione in attesa
           const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');

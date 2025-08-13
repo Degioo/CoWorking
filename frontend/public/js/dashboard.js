@@ -29,7 +29,6 @@ function checkAuth() {
 // Logout
 function logout() {
   localStorage.removeItem('user');
-  localStorage.removeItem('authToken');
   window.location.href = 'login.html';
 }
 

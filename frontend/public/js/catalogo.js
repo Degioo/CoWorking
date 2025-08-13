@@ -30,7 +30,6 @@ function updateNavbar() {
 }
 function logout() {
   localStorage.removeItem('user');
-  localStorage.removeItem('authToken');
   location.reload();
 }
 

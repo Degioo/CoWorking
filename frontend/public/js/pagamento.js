@@ -316,9 +316,8 @@ function showSuccess(message) {
 // Verifica se l'utente è autenticato
 function checkAuthentication() {
     const user = localStorage.getItem('user');
-    const token = localStorage.getItem('authToken');
-
-    if (!user || !token) {
+    
+    if (!user) {
         // Reindirizza al login
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
         return false;
@@ -337,6 +336,5 @@ function checkAuthentication() {
 // Logout
 function logout() {
     localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
     window.location.href = 'login.html';
 }
