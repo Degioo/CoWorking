@@ -250,8 +250,11 @@ function handleRegistrazione(event) {
 $(document).ready(function () {
   console.log('DOM ready, inizializzazione...');
 
-  // Aggiorna navbar se loggato
-  updateNavbar();
+  // Verifica validità token all'avvio
+  validateTokenOnStartup().then(() => {
+    // Aggiorna navbar se loggato (dopo la validazione)
+    updateNavbar();
+  });
 
   // Carica sedi all'avvio se siamo sulla home
   if ($('#catalogoSedi').length) {

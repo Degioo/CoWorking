@@ -1,7 +1,12 @@
 const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
 
 $(document).ready(function () {
-  updateNavbar();
+  // Verifica validità token all'avvio
+  validateTokenOnStartup().then(() => {
+    // Aggiorna navbar se loggato (dopo la validazione)
+    updateNavbar();
+  });
+  
   loadCitta();
   loadServizi();
   $('#formFiltri').on('submit', function (e) {
@@ -23,7 +28,11 @@ function updateNavbar() {
     `);
   }
 }
-function logout() { localStorage.removeItem('user'); location.reload(); }
+function logout() { 
+  localStorage.removeItem('user'); 
+  localStorage.removeItem('authToken');
+  location.reload(); 
+}
 
 function loadCitta() {
   $.get(`${API_BASE}/sedi`).done(sedi => {

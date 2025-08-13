@@ -12,7 +12,12 @@ let lastCreatedPrenotazioneId = null;
 
 // Inizializzazione
 $(document).ready(function () {
-  updateNavbar();
+  // Verifica validità token all'avvio
+  validateTokenOnStartup().then(() => {
+    // Aggiorna navbar se loggato (dopo la validazione)
+    updateNavbar();
+  });
+  
   setupEventHandlers();
 
   const urlParams = new URLSearchParams(window.location.search);

@@ -39,8 +39,40 @@ function handleAuthError() {
     }, 2000);
 }
 
+// Funzione per verificare la validità del token all'avvio
+async function validateTokenOnStartup() {
+    const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+        try {
+            // Verifica la validità del token chiamando un endpoint protetto
+            const response = await fetch(`${CONFIG.API_BASE}/auth/validate`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                // Token non valido, pulisci i dati
+                localStorage.removeItem('user');
+                localStorage.removeItem('authToken');
+                console.log('Token non valido, logout automatico effettuato');
+            }
+        } catch (error) {
+            // Errore di rete o token non valido, pulisci i dati
+            localStorage.removeItem('user');
+            localStorage.removeItem('authToken');
+            console.log('Errore validazione token, logout automatico effettuato');
+        }
+    }
+}
+
 // Esporta per uso globale
 window.CONFIG = CONFIG;
 window.getAuthHeaders = getAuthHeaders;
 window.handleAuthError = handleAuthError;
+window.validateTokenOnStartup = validateTokenOnStartup;
 

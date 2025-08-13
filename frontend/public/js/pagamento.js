@@ -12,6 +12,9 @@ let prenotazioneData = {};
 
 // Inizializzazione
 document.addEventListener('DOMContentLoaded', async function () {
+    // Verifica validità token all'avvio
+    await validateTokenOnStartup();
+    
     await initializeStripe();
     await loadPrenotazioneData();
     setupEventListeners();
@@ -207,10 +210,7 @@ async function createPaymentIntent() {
     try {
         const response = await fetch(`${API_BASE}/pagamenti/stripe/intent`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') || '{}').token || ''}`
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 id_prenotazione: prenotazioneData.id_prenotazione
             })
@@ -267,10 +267,7 @@ async function confirmPaymentToBackend(paymentIntentId) {
     try {
         await fetch(`${API_BASE}/pagamenti/stripe/complete`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') || '{}').token || ''}`
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 payment_intent_id: paymentIntentId
             })
@@ -319,7 +316,9 @@ function showSuccess(message) {
 // Verifica se l'utente è autenticato
 function checkAuthentication() {
     const user = localStorage.getItem('user');
-    if (!user) {
+    const token = localStorage.getItem('authToken');
+    
+    if (!user || !token) {
         // Reindirizza al login
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
         return false;
@@ -327,11 +326,6 @@ function checkAuthentication() {
 
     try {
         const userData = JSON.parse(user);
-        if (!userData.token) {
-            // Reindirizza al login
-            window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
-            return false;
-        }
         return true;
     } catch (error) {
         // Reindirizza al login
@@ -340,7 +334,9 @@ function checkAuthentication() {
     }
 }
 
-// Verifica l'autenticazione all'avvio
-if (!checkAuthentication()) {
-    // L'utente verrà reindirizzato al login
+// Logout
+function logout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    window.location.href = 'login.html';
 }

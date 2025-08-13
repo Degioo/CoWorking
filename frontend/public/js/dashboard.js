@@ -7,8 +7,11 @@ let currentStep = 1;
 
 // Inizializzazione dashboard
 $(document).ready(function () {
-  checkAuth();
-  setupEventHandlers();
+  // Verifica validità token all'avvio
+  validateTokenOnStartup().then(() => {
+    checkAuth();
+    setupEventHandlers();
+  });
 });
 
 // Controllo autenticazione
@@ -21,6 +24,13 @@ function checkAuth() {
 
   currentUser = JSON.parse(userStr);
   setupDashboard();
+}
+
+// Logout
+function logout() {
+  localStorage.removeItem('user');
+  localStorage.removeItem('authToken');
+  window.location.href = 'login.html';
 }
 
 // Setup dashboard basato sul ruolo
