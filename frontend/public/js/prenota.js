@@ -38,6 +38,26 @@ $(document).ready(function () {
       }
     }, 500);
   }
+  
+  // Se l'utente è loggato e ha completato i primi step, mostra direttamente lo step 4
+  const userStr = localStorage.getItem('user');
+  if (userStr && sedeId && spazioId && dal && al) {
+    // L'utente è tornato dopo il login, ripristina i dati e vai allo step finale
+    selectedSede = sedeId;
+    selectedSpazio = spazioId;
+    selectedDataInizio = dal;
+    selectedDataFine = al;
+    disponibilitaVerificata = true;
+    
+    // Mostra direttamente lo step 4 per il pagamento
+    setTimeout(() => {
+      showStep(4);
+      updateRiepilogoPrenotazione();
+      
+      // Mostra messaggio informativo
+      showAlert('Bentornato! I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
+    }, 1000);
+  }
 });
 
 // Aggiorna navbar se utente è loggato
@@ -227,8 +247,24 @@ function updateNavigationButtons() {
 function createPrenotazione() {
   const userStr = localStorage.getItem('user');
   if (!userStr) {
-    showAlert('Devi effettuare il login per prenotare', 'warning');
-    window.location.href = 'login.html';
+    // Salva i dati della prenotazione per ripristinarli dopo il login
+    const prenotazioneData = {
+      sede: selectedSede,
+      spazio: selectedSpazio,
+      dataInizio: selectedDataInizio,
+      dataFine: selectedDataFine,
+      returnUrl: window.location.href
+    };
+    localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
+    
+    showAlert('Devi effettuare il login per prenotare. Verrai reindirizzato alla registrazione.', 'warning');
+    window.location.href = 'login.html#registrazione';
+    return;
+  }
+  
+  // Verifica che tutti i dati necessari siano selezionati
+  if (!selectedSede || !selectedSpazio || !selectedDataInizio || !selectedDataFine) {
+    showAlert('Completa tutti i passaggi della prenotazione prima di procedere', 'warning');
     return;
   }
 

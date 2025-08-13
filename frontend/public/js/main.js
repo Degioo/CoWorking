@@ -124,9 +124,34 @@ function handleLogin(event) {
     .done(function (response) {
       localStorage.setItem('user', JSON.stringify(response));
       showAlert('Login effettuato con successo!', 'success');
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 1000);
+      
+      // Controlla se c'è una prenotazione in attesa
+      const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+      if (pendingPrenotazione) {
+        // Rimuovi i dati temporanei e torna alla prenotazione
+        localStorage.removeItem('pendingPrenotazione');
+        const prenotazioneData = JSON.parse(pendingPrenotazione);
+        
+        // Ricostruisci l'URL con i parametri salvati
+        const returnUrl = new URL(prenotazioneData.returnUrl);
+        returnUrl.searchParams.set('sede', prenotazioneData.sede);
+        returnUrl.searchParams.set('spazio', prenotazioneData.spazio);
+        if (prenotazioneData.dataInizio) {
+          returnUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+        }
+        if (prenotazioneData.dataFine) {
+          returnUrl.searchParams.set('al', prenotazioneData.dataFine);
+        }
+        
+        setTimeout(() => {
+          window.location.href = returnUrl.toString();
+        }, 1000);
+      } else {
+        // Nessuna prenotazione in attesa, vai alla dashboard
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1000);
+      }
     })
     .fail(function (xhr) {
       const error = xhr.responseJSON?.error || 'Errore durante il login';
@@ -154,9 +179,57 @@ function handleRegistrazione(event) {
     data: JSON.stringify(data)
   })
     .done(function (response) {
-      showAlert('Registrazione effettuata con successo!', 'success');
-      // Switch to login tab
-      $('#login-tab').tab('show');
+      showAlert('Registrazione effettuata con successo! Ora effettuo il login automatico...', 'success');
+      
+      // Effettua login automatico dopo la registrazione
+      const loginData = {
+        email: data.email,
+        password: data.password
+      };
+      
+      $.ajax({
+        url: `${API_BASE}/login`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(loginData)
+      })
+        .done(function (loginResponse) {
+          localStorage.setItem('user', JSON.stringify(loginResponse));
+          
+          // Controlla se c'è una prenotazione in attesa
+          const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+          if (pendingPrenotazione) {
+            // Rimuovi i dati temporanei e torna alla prenotazione
+            localStorage.removeItem('pendingPrenotazione');
+            const prenotazioneData = JSON.parse(pendingPrenotazione);
+            
+            // Ricostruisci l'URL con i parametri salvati
+            const returnUrl = new URL(prenotazioneData.returnUrl);
+            returnUrl.searchParams.set('sede', prenotazioneData.sede);
+            returnUrl.searchParams.set('spazio', prenotazioneData.spazio);
+            if (prenotazioneData.dataInizio) {
+              returnUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+            }
+            if (prenotazioneData.dataFine) {
+              returnUrl.searchParams.set('al', prenotazioneData.dataFine);
+            }
+            
+            setTimeout(() => {
+              window.location.href = returnUrl.toString();
+            }, 1500);
+          } else {
+            // Nessuna prenotazione in attesa, vai alla dashboard
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 1500);
+          }
+        })
+        .fail(function (xhr) {
+          const error = xhr.responseJSON?.error || 'Errore durante il login automatico';
+          showAlert(error, 'danger');
+          // Se il login automatico fallisce, mostra il tab di login
+          $('#login-tab').tab('show');
+        });
     })
     .fail(function (xhr) {
       const error = xhr.responseJSON?.error || 'Errore durante la registrazione';
