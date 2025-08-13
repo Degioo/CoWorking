@@ -19,10 +19,10 @@ console.log('API_BASE:', CONFIG.API_BASE);
 function getAuthHeaders() {
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('user');
-    
+
     console.log('getAuthHeaders - Token:', token);
     console.log('getAuthHeaders - User:', user);
-    
+
     if (token) {
         return {
             'Authorization': `Bearer ${token}`,
@@ -55,7 +55,7 @@ async function validateTokenOnStartup() {
     if (token && user) {
         try {
             console.log('validateTokenOnStartup - Verifico token con:', `${CONFIG.API_BASE}/auth/validate`);
-            
+
             // Verifica la validità del token chiamando un endpoint protetto
             const response = await fetch(`${CONFIG.API_BASE}/auth/validate`, {
                 method: 'GET',
