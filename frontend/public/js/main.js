@@ -124,14 +124,14 @@ function handleLogin(event) {
     .done(function (response) {
       localStorage.setItem('user', JSON.stringify(response));
       showAlert('Login effettuato con successo!', 'success');
-      
+
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       if (pendingPrenotazione) {
         // Rimuovi i dati temporanei e torna alla prenotazione
         localStorage.removeItem('pendingPrenotazione');
         const prenotazioneData = JSON.parse(pendingPrenotazione);
-        
+
         // Ricostruisci l'URL con i parametri salvati
         const returnUrl = new URL(prenotazioneData.returnUrl);
         returnUrl.searchParams.set('sede', prenotazioneData.sede);
@@ -142,7 +142,7 @@ function handleLogin(event) {
         if (prenotazioneData.dataFine) {
           returnUrl.searchParams.set('al', prenotazioneData.dataFine);
         }
-        
+
         setTimeout(() => {
           window.location.href = returnUrl.toString();
         }, 1000);
@@ -180,13 +180,13 @@ function handleRegistrazione(event) {
   })
     .done(function (response) {
       showAlert('Registrazione effettuata con successo! Ora effettuo il login automatico...', 'success');
-      
+
       // Effettua login automatico dopo la registrazione
       const loginData = {
         email: data.email,
         password: data.password
       };
-      
+
       $.ajax({
         url: `${API_BASE}/login`,
         method: 'POST',
@@ -195,14 +195,14 @@ function handleRegistrazione(event) {
       })
         .done(function (loginResponse) {
           localStorage.setItem('user', JSON.stringify(loginResponse));
-          
+
           // Controlla se c'è una prenotazione in attesa
           const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
           if (pendingPrenotazione) {
             // Rimuovi i dati temporanei e torna alla prenotazione
             localStorage.removeItem('pendingPrenotazione');
             const prenotazioneData = JSON.parse(pendingPrenotazione);
-            
+
             // Ricostruisci l'URL con i parametri salvati
             const returnUrl = new URL(prenotazioneData.returnUrl);
             returnUrl.searchParams.set('sede', prenotazioneData.sede);
@@ -213,7 +213,7 @@ function handleRegistrazione(event) {
             if (prenotazioneData.dataFine) {
               returnUrl.searchParams.set('al', prenotazioneData.dataFine);
             }
-            
+
             setTimeout(() => {
               window.location.href = returnUrl.toString();
             }, 1500);
