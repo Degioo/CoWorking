@@ -15,6 +15,32 @@ const CONFIG = {
 console.log('Configurazione caricata:', CONFIG);
 console.log('API_BASE:', CONFIG.API_BASE);
 
+// Funzione per aggiungere l'header di autorizzazione alle richieste API
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  }
+  return {
+    'Content-Type': 'application/json'
+  };
+}
+
+// Funzione per gestire errori di autenticazione
+function handleAuthError() {
+  localStorage.removeItem('user');
+  localStorage.removeItem('authToken');
+  alert('Sessione scaduta. Effettua nuovamente il login.');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 2000);
+}
+
 // Esporta per uso globale
 window.CONFIG = CONFIG;
+window.getAuthHeaders = getAuthHeaders;
+window.handleAuthError = handleAuthError;
 

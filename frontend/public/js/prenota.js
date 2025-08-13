@@ -337,7 +337,7 @@ function createPrenotazione() {
   $.ajax({
     url: `${API_BASE}/prenotazioni`,
     method: 'POST',
-    contentType: 'application/json',
+    headers: getAuthHeaders(),
     data: JSON.stringify(data)
   })
     .done(async function (response) {
@@ -349,18 +349,26 @@ function createPrenotazione() {
         const intent = await $.ajax({
           url: `${API_BASE}/pagamenti/intent`,
           method: 'POST',
-          contentType: 'application/json',
+          headers: getAuthHeaders(),
           data: JSON.stringify({ id_prenotazione: lastCreatedPrenotazioneId })
         });
         showPaymentModal(intent.id_pagamento, intent.importo);
         showStep(4);
       } catch (e) {
-        showAlert('Errore nella creazione del pagamento', 'danger');
+        if (e.status === 401) {
+          handleAuthError();
+        } else {
+          showAlert('Errore nella creazione del pagamento', 'danger');
+        }
       }
     })
     .fail(function (xhr) {
-      const error = xhr.responseJSON?.error || 'Errore durante la creazione della prenotazione';
-      showAlert(error, 'danger');
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        const error = xhr.responseJSON?.error || 'Errore durante la creazione della prenotazione';
+        showAlert(error, 'danger');
+      }
     });
 }
 
@@ -391,12 +399,20 @@ function showPaymentModal(idPagamento, importo) {
 
   $('#btnPagaOra').click(async function () {
     try {
-      await $.post(`${API_BASE}/pagamenti/${idPagamento}/confirm`);
+      await $.ajax({
+        url: `${API_BASE}/pagamenti/${idPagamento}/confirm`,
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
       modal.hide();
       showAlert('Pagamento effettuato con successo!', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
     } catch (e) {
-      showAlert('Pagamento fallito', 'danger');
+      if (e.status === 401) {
+        handleAuthError();
+      } else {
+        showAlert('Pagamento fallito', 'danger');
+      }
     }
   });
 
