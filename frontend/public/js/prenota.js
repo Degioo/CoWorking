@@ -59,7 +59,6 @@ $(document).ready(function () {
         $('#btnAvanti, #btnIndietro').hide();
 
         updateRiepilogo();
-        showAlert('Bentornato! I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
       }, 500);
     }, 500);
   } else if (userStr) {
@@ -96,8 +95,10 @@ $(document).ready(function () {
           // Nascondi i pulsanti di navigazione
           $('#btnAvanti, #btnIndietro').hide();
 
-          updateRiepilogo();
-          showAlert('I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
+          // Aggiorna il riepilogo dopo aver impostato i valori
+          setTimeout(() => {
+            updateRiepilogo();
+          }, 100);
         }, 500);
       }, 500);
     } else {
@@ -492,9 +493,24 @@ function showStep(step) {
 function updateRiepilogo() {
   const container = $('#riepilogoPrenotazione');
 
+  // Verifica che tutti i dati necessari siano presenti
+  if (!selectedSede || !selectedSpazio || !selectedDataInizio || !selectedDataFine) {
+    container.html('<div class="alert alert-warning">Dati prenotazione incompleti. Completa tutti i passaggi precedenti.</div>');
+    return;
+  }
+
+  // Verifica che i select abbiano le opzioni caricate
+  const sedeSelect = $('#selectSede');
+  const spazioSelect = $('#selectSpazio');
+  
+  if (sedeSelect.find('option').length <= 1 || spazioSelect.find('option').length <= 1) {
+    container.html('<div class="alert alert-warning">Caricamento dati in corso...</div>');
+    return;
+  }
+
   // Recupera i dati delle sedi e spazi selezionati
-  const sedeText = $('#selectSede option:selected').text();
-  const spazioText = $('#selectSpazio option:selected').text();
+  const sedeText = sedeSelect.find('option:selected').text() || 'Sede selezionata';
+  const spazioText = spazioSelect.find('option:selected').text() || 'Spazio selezionato';
 
   const dataInizio = new Date(selectedDataInizio).toLocaleString('it-IT');
   const dataFine = new Date(selectedDataFine).toLocaleString('it-IT');
