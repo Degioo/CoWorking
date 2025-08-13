@@ -17,7 +17,7 @@ $(document).ready(function () {
     // Aggiorna navbar se loggato (dopo la validazione)
     updateNavbar();
   });
-  
+
   setupEventHandlers();
 
   const urlParams = new URLSearchParams(window.location.search);

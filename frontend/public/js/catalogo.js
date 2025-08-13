@@ -6,7 +6,7 @@ $(document).ready(function () {
     // Aggiorna navbar se loggato (dopo la validazione)
     updateNavbar();
   });
-  
+
   loadCitta();
   loadServizi();
   $('#formFiltri').on('submit', function (e) {
@@ -28,10 +28,10 @@ function updateNavbar() {
     `);
   }
 }
-function logout() { 
-  localStorage.removeItem('user'); 
+function logout() {
+  localStorage.removeItem('user');
   localStorage.removeItem('authToken');
-  location.reload(); 
+  location.reload();
 }
 
 function loadCitta() {

@@ -43,7 +43,7 @@ function handleAuthError() {
 async function validateTokenOnStartup() {
     const token = localStorage.getItem('authToken');
     const user = localStorage.getItem('user');
-    
+
     if (token && user) {
         try {
             // Verifica la validità del token chiamando un endpoint protetto
@@ -54,7 +54,7 @@ async function validateTokenOnStartup() {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (!response.ok) {
                 // Token non valido, pulisci i dati
                 localStorage.removeItem('user');

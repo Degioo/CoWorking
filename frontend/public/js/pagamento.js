@@ -14,7 +14,7 @@ let prenotazioneData = {};
 document.addEventListener('DOMContentLoaded', async function () {
     // Verifica validità token all'avvio
     await validateTokenOnStartup();
-    
+
     await initializeStripe();
     await loadPrenotazioneData();
     setupEventListeners();
@@ -317,7 +317,7 @@ function showSuccess(message) {
 function checkAuthentication() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('authToken');
-    
+
     if (!user || !token) {
         // Reindirizza al login
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
