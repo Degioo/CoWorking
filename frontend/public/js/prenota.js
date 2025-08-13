@@ -57,6 +57,28 @@ $(document).ready(function () {
       // Mostra messaggio informativo
       showAlert('Bentornato! I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
     }, 1000);
+  } else if (userStr) {
+    // L'utente è loggato ma non ha parametri URL, controlla se ha una prenotazione in attesa
+    const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+    if (pendingPrenotazione) {
+      const prenotazioneData = JSON.parse(pendingPrenotazione);
+      // Rimuovi i dati temporanei
+      localStorage.removeItem('pendingPrenotazione');
+      
+      // Ripristina i dati e vai allo step finale
+      selectedSede = prenotazioneData.sede;
+      selectedSpazio = prenotazioneData.spazio;
+      selectedDataInizio = prenotazioneData.dataInizio;
+      selectedDataFine = prenotazioneData.dataFine;
+      disponibilitaVerificata = true;
+      
+      // Mostra direttamente lo step 4 per il pagamento
+      setTimeout(() => {
+        showStep(4);
+        updateRiepilogoPrenotazione();
+        showAlert('I tuoi dati di prenotazione sono stati ripristinati. Procedi con il pagamento.', 'info');
+      }, 1000);
+    }
   }
 });
 
@@ -245,29 +267,14 @@ function updateNavigationButtons() {
 
 // Crea prenotazione
 function createPrenotazione() {
-  const userStr = localStorage.getItem('user');
-  if (!userStr) {
-    // Salva i dati della prenotazione per ripristinarli dopo il login
-    const prenotazioneData = {
-      sede: selectedSede,
-      spazio: selectedSpazio,
-      dataInizio: selectedDataInizio,
-      dataFine: selectedDataFine,
-      returnUrl: window.location.href
-    };
-    localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
-
-    showAlert('Devi effettuare il login per prenotare. Verrai reindirizzato alla registrazione.', 'warning');
-    window.location.href = 'login.html#registrazione';
-    return;
-  }
-
   // Verifica che tutti i dati necessari siano selezionati
   if (!selectedSede || !selectedSpazio || !selectedDataInizio || !selectedDataFine) {
     showAlert('Completa tutti i passaggi della prenotazione prima di procedere', 'warning');
     return;
   }
-
+  
+  // L'utente è già autenticato (controllo fatto in showStep)
+  const userStr = localStorage.getItem('user');
   const user = JSON.parse(userStr);
   const data = {
     id_utente: user.id_utente,
@@ -349,6 +356,26 @@ function showPaymentModal(idPagamento, importo) {
 
 // Mostra step specifico
 function showStep(step) {
+  // Controllo autenticazione per lo step 4
+  if (step === 4) {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      // Salva i dati della prenotazione per ripristinarli dopo il login
+      const prenotazioneData = {
+        sede: selectedSede,
+        spazio: selectedSpazio,
+        dataInizio: selectedDataInizio,
+        dataFine: selectedDataFine,
+        returnUrl: window.location.href
+      };
+      localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
+      
+      showAlert('Devi effettuare il login per completare la prenotazione. Verrai reindirizzato alla registrazione.', 'warning');
+      window.location.href = 'login.html#registrazione';
+      return;
+    }
+  }
+  
   // Nascondi tutti gli step
   for (let i = 1; i <= 4; i++) {
     $(`#step${i}`).hide();
