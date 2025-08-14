@@ -24,7 +24,10 @@ exports.checkDisponibilita = async (req, res) => {
 
 // Crea una nuova prenotazione
 exports.creaPrenotazione = async (req, res) => {
-  const { id_utente, id_spazio, data_inizio, data_fine } = req.body;
+  const { id_spazio, data_inizio, data_fine } = req.body;
+  // Prende l'ID utente dal middleware di autenticazione aggiornato
+  const id_utente = req.user.id_utente;
+  
   if (!id_utente || !id_spazio || !data_inizio || !data_fine) {
     return res.status(400).json({ error: 'Tutti i campi sono obbligatori' });
   }

@@ -139,9 +139,11 @@ exports.createCardIntent = async (req, res) => {
   if (!stripe) return res.status(400).json({ error: 'Stripe non configurato' });
 
   const { id_prenotazione } = req.body;
-  const id_utente = req.user.id_utente; // Prende l'ID utente dal token JWT
+  // Prende l'ID utente dal middleware di autenticazione aggiornato
+  const id_utente = req.user.id_utente;
 
   if (!id_prenotazione) return res.status(400).json({ error: 'id_prenotazione obbligatorio' });
+  if (!id_utente) return res.status(400).json({ error: 'utente non autenticato' });
 
   try {
     // Recupera la prenotazione e i dettagli utente
