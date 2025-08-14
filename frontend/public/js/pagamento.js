@@ -513,7 +513,9 @@ async function loadPrenotazioneData() {
         console.log('loadPrenotazioneData - Chiamo API:', `${API_BASE}/prenotazioni/${prenotazioneId}`);
 
         // Recupera i dati della prenotazione
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {}, 15000);
+        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+            headers: getAuthHeaders()
+        }, 15000);
 
         console.log('loadPrenotazioneData - Risposta API ricevuta:', response.status, response.statusText);
 
