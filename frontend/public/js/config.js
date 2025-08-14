@@ -37,7 +37,7 @@ function getAuthHeaders() {
     }
 
     // Se non c'è utente, restituisci solo gli header base
-    // NON reindirizzare automaticamente - lascia che sia la singola API a gestire l'errore
+    // NON interferire con il flusso di prenotazione
     return {
         'Content-Type': 'application/json'
     };
@@ -45,7 +45,7 @@ function getAuthHeaders() {
 
 // Funzione per gestire errori di autenticazione
 function handleAuthError() {
-    console.log('handleAuthError - Utente non autenticato per questa azione, reindirizzamento al login');
+    console.log('handleAuthError - Utente deve loggarsi per completare questa azione');
     
     // Rimuovi solo i dati di sessione corrotti, non tutti
     try {
@@ -64,7 +64,7 @@ function handleAuthError() {
     
     // Personalizza il messaggio in base alla pagina
     if (currentPage === 'prenota.html') {
-        message = 'Devi effettuare il login per prenotare uno spazio.';
+        message = 'Devi effettuare il login per completare la prenotazione.';
     } else if (currentPage === 'pagamento.html') {
         message = 'Devi effettuare il login per completare il pagamento.';
     } else if (currentPage === 'dashboard.html') {
@@ -78,11 +78,11 @@ function handleAuthError() {
 // Funzione centralizzata per il logout
 function logout() {
     console.log('logout - Effettuo logout utente');
-    
+
     // Rimuovi solo i dati di sessione, non tutto
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    
+
     // Reindirizza al login con messaggio chiaro
     window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
 }

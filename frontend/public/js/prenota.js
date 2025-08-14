@@ -221,13 +221,9 @@ function checkDisponibilita() {
     })
     .fail(function (xhr) {
       console.log('checkDisponibilita - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        statusElement.html('<span class="text-danger">Errore nella verifica</span>');
-        disponibilitaVerificata = false;
-        updateNavigationButtons();
-      }
+      statusElement.html('<span class="text-danger">Errore nella verifica</span>');
+      disponibilitaVerificata = false;
+      updateNavigationButtons();
     });
 }
 
@@ -547,4 +543,4 @@ function showAlert(message, type = 'info') {
     </div>
   `;
   $('body').prepend(alertHtml);
-} 
+}
