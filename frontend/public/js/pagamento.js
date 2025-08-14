@@ -203,31 +203,58 @@ async function checkPrenotazioneValidity(prenotazioneId) {
     }
 }
 
-// Inizializzazione
-document.addEventListener('DOMContentLoaded', async function () {
-    console.log('DOM caricato, inizio inizializzazione...');
+// Crea prenotazione dai parametri URL
+async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) {
+    try {
+        console.log('Creo prenotazione dai parametri:', { sede, spazio, dataInizio, dataFine });
 
-    // Verifica autenticazione
-    if (!checkAuthentication()) {
-        console.log('Utente non autenticato, reindirizzamento al login');
-        return;
+        // Verifica autenticazione
+        const user = localStorage.getItem('user');
+        if (!user) {
+            throw new Error('Utente non autenticato');
+        }
+
+        const userData = JSON.parse(user);
+        
+        // Crea la prenotazione
+        const prenotazioneData = {
+            id_utente: userData.id_utente,
+            id_spazio: spazio,
+            data_inizio: dataInizio,
+            data_fine: dataFine
+        };
+
+        console.log('Dati prenotazione da creare:', prenotazioneData);
+
+        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-ID': userData.id_utente
+            },
+            body: JSON.stringify(prenotazioneData)
+        }, 15000);
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Errore nella creazione della prenotazione');
+        }
+
+        const prenotazione = await response.json();
+        console.log('Prenotazione creata:', prenotazione);
+
+        // Salva i dati della prenotazione
+        window.prenotazioneData = prenotazione;
+
+        // Avvia inizializzazione con la nuova prenotazione
+        await initializePage(prenotazione.id_prenotazione);
+
+    } catch (error) {
+        console.error('Errore creazione prenotazione:', error);
+        showError('Errore nella creazione della prenotazione: ' + error.message);
+        addRetryButton();
     }
-
-    // Verifica se l'ID della prenotazione è presente nell'URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const prenotazioneId = urlParams.get('id');
-
-    if (!prenotazioneId) {
-        console.error('ID prenotazione mancante nell\'URL');
-        showError('ID prenotazione mancante. Torna alla dashboard e riprova.');
-        return;
-    }
-
-    console.log('ID prenotazione trovato:', prenotazioneId);
-
-    // Avvia inizializzazione
-    await initializePage(prenotazioneId);
-});
+}
 
 // Funzione principale di inizializzazione
 async function initializePage(prenotazioneId) {
@@ -971,3 +998,42 @@ function logout() {
     localStorage.removeItem('user');
     window.location.href = 'login.html';
 }
+
+// Inizializzazione della pagina
+$(document).ready(async function () {
+    console.log('pagamento.js - Inizializzazione pagina');
+
+    try {
+        // Verifica se abbiamo parametri URL per creare una nuova prenotazione
+        const urlParams = new URLSearchParams(window.location.search);
+        const sede = urlParams.get('sede');
+        const spazio = urlParams.get('spazio');
+        const dataInizio = urlParams.get('dal');
+        const dataFine = urlParams.get('al');
+
+        if (sede && spazio && dataInizio && dataFine) {
+            console.log('Parametri prenotazione trovati nell\'URL:', { sede, spazio, dataInizio, dataFine });
+            
+            // Crea la prenotazione automaticamente
+            await createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine);
+        } else {
+            // Cerca ID prenotazione nell'URL (flusso normale)
+            const prenotazioneId = new URLSearchParams(window.location.search).get('id_prenotazione');
+            
+            if (!prenotazioneId) {
+                console.error('ID prenotazione mancante nell\'URL');
+                showError('ID prenotazione mancante. Torna alla dashboard e riprova.');
+                return;
+            }
+
+            console.log('ID prenotazione trovato:', prenotazioneId);
+
+            // Avvia inizializzazione normale
+            await initializePage(prenotazioneId);
+        }
+    } catch (error) {
+        console.error('Errore durante l\'inizializzazione:', error);
+        showError('Errore durante l\'inizializzazione: ' + error.message);
+        addRetryButton();
+    }
+});

@@ -129,23 +129,19 @@ function handleLogin(event) {
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       if (pendingPrenotazione) {
-        // Rimuovi i dati temporanei e torna alla prenotazione
+        // Rimuovi i dati temporanei e vai direttamente al pagamento
         localStorage.removeItem('pendingPrenotazione');
         const prenotazioneData = JSON.parse(pendingPrenotazione);
 
-        // Ricostruisci l'URL con i parametri salvati
-        const returnUrl = new URL(prenotazioneData.returnUrl);
-        returnUrl.searchParams.set('sede', prenotazioneData.sede);
-        returnUrl.searchParams.set('spazio', prenotazioneData.spazio);
-        if (prenotazioneData.dataInizio) {
-          returnUrl.searchParams.set('dal', prenotazioneData.dataInizio);
-        }
-        if (prenotazioneData.dataFine) {
-          returnUrl.searchParams.set('al', prenotazioneData.dataFine);
-        }
+        // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
+        const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+        pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+        pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+        pagamentoUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+        pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
 
         setTimeout(() => {
-          window.location.href = returnUrl.toString();
+          window.location.href = pagamentoUrl.toString();
         }, 1000);
       } else {
         // Nessuna prenotazione in attesa, vai alla dashboard
@@ -201,23 +197,19 @@ function handleRegistrazione(event) {
           // Controlla se c'è una prenotazione in attesa
           const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
           if (pendingPrenotazione) {
-            // Rimuovi i dati temporanei e torna alla prenotazione
+            // Rimuovi i dati temporanei e vai direttamente al pagamento
             localStorage.removeItem('pendingPrenotazione');
             const prenotazioneData = JSON.parse(pendingPrenotazione);
 
-            // Ricostruisci l'URL con i parametri salvati
-            const returnUrl = new URL(prenotazioneData.returnUrl);
-            returnUrl.searchParams.set('sede', prenotazioneData.sede);
-            returnUrl.searchParams.set('spazio', prenotazioneData.spazio);
-            if (prenotazioneData.dataInizio) {
-              returnUrl.searchParams.set('dal', prenotazioneData.dataInizio);
-            }
-            if (prenotazioneData.dataFine) {
-              returnUrl.searchParams.set('al', prenotazioneData.dataFine);
-            }
+            // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
+            const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+            pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+            pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+            pagamentoUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+            pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
 
             setTimeout(() => {
-              window.location.href = returnUrl.toString();
+              window.location.href = pagamentoUrl.toString();
             }, 1500);
           } else {
             // Nessuna prenotazione in attesa, vai alla dashboard
