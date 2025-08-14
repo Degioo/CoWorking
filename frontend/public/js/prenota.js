@@ -90,8 +90,7 @@ function loadSedi() {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/sedi`,
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     })
       .done(function (sedi) {
         const select = $('#selectSede');
@@ -128,8 +127,7 @@ function loadSpazi(idSede) {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/spazi?id_sede=${idSede}`,
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     })
       .done(function (spazi) {
         const select = $('#selectSpazio');
@@ -166,8 +164,7 @@ function loadServiziSpazio(idSpazio) {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/spazi/${idSpazio}/servizi`,
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     })
       .done(function (servizi) {
         const container = $('#spazioInfo');
