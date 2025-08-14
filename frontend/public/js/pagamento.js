@@ -135,7 +135,9 @@ async function checkPrenotazionePermissions(prenotazioneId) {
         console.log('Utente corrente:', userData);
 
         // Verifica se la prenotazione esiste e appartiene all'utente
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {}, 10000);
+        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+            headers: getAuthHeaders()
+        }, 10000);
 
         if (!response.ok) {
             if (response.status === 404) {
@@ -203,7 +205,9 @@ async function checkPrenotazioneValidity(prenotazioneId) {
         console.log('Verifico validità prenotazione...');
 
         // Recupera i dati della prenotazione
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {}, 10000);
+        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+            headers: getAuthHeaders()
+        }, 10000);
 
         if (!response.ok) {
             throw new Error('Impossibile verificare la validità della prenotazione');
@@ -397,21 +401,28 @@ async function initializeStripe() {
     try {
         console.log('initializeStripe - Inizio');
 
+        // Se Stripe è già inizializzato, non reinizializzarlo
+        if (stripe) {
+            console.log('initializeStripe - Stripe già inizializzato, salto inizializzazione');
+            return;
+        }
+
         // Verifica se Stripe è disponibile
         if (typeof Stripe === 'undefined') {
             throw new Error('Libreria Stripe non caricata. Verifica la connessione internet.');
         }
 
-        // Recupera la configurazione pubblica di Stripe
         console.log('initializeStripe - Chiamo API config Stripe:', `${API_BASE}/pagamenti/stripe/config`);
 
-        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/config`, {}, 15000);
+        // Recupera la configurazione Stripe dal backend
+        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/config`, {}, 10000);
+
         console.log('initializeStripe - Risposta config ricevuta:', response.status, response.statusText);
 
         if (!response.ok) {
             const errorText = await response.text();
             console.error('initializeStripe - Errore API config:', errorText);
-            throw new Error(`Errore configurazione Stripe: ${response.status} ${response.statusText}`);
+            throw new Error('Errore nel recupero della configurazione Stripe');
         }
 
         const config = await response.json();
