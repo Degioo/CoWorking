@@ -209,6 +209,231 @@
             margin: 0;
             font-weight: 500;
         }
+
+        /* Selezione metodo di pagamento */
+        .payment-method-selection {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .payment-method-selection h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            justify-items: center;
+        }
+
+        .payment-method-card {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+
+        .payment-method-card:hover {
+            background: #dee2e6;
+            transform: translateY(-3px);
+        }
+
+        .payment-method-card.selected {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .payment-method-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .payment-method-card h4 {
+            color: #343a40;
+            margin-bottom: 5px;
+        }
+
+        .payment-method-card p {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        /* Form di pagamento (nascosto) */
+        .payment-form {
+            display: none;
+        }
+
+        /* Pulsante per tornare alla selezione metodo */
+        .back-to-methods-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-to-methods-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Dettagli bonifico bancario */
+        .bank-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .bank-details p {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .bank-details strong {
+            color: #343a40;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        /* Dettagli criptovalute */
+        .crypto-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .crypto-details p {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .crypto-details strong {
+            color: #343a40;
+        }
+
+        .crypto-addresses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .crypto-address {
+            display: flex;
+            align-items: center;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        .crypto-address .crypto-symbol {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .crypto-address-text {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+
+        /* Stili per i diversi tipi di pulsanti */
+        .paypal-button {
+            background: #0070ba;
+        }
+
+        .paypal-button:hover {
+            background: #005ea6;
+        }
+
+        .bank-button {
+            background: #28a745;
+        }
+
+        .bank-button:hover {
+            background: #218838;
+        }
+
+        .crypto-button {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .crypto-button:hover {
+            background: #e0a800;
+        }
+
+        /* Form control per PayPal */
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .payment-methods-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .payment-method-card {
+                padding: 10px;
+            }
+
+            .payment-method-icon {
+                font-size: 2em;
+            }
+        }
     </style>
 </head>
 
@@ -260,18 +485,114 @@
             <div class="error-message" id="error-message"></div>
             <div class="success-message" id="success-message"></div>
 
-            <form id="payment-form" class="stripe-form">
-                <div class="form-group">
-                    <label for="card-element">Dati Carta di Credito</label>
-                    <div id="card-element" class="stripe-element"></div>
-                    <div id="card-errors" class="error-message" style="margin-top: 10px;"></div>
+            <!-- Selezione metodo di pagamento -->
+            <div class="payment-method-selection" id="payment-method-selection">
+                <h3>💳 Scegli il metodo di pagamento</h3>
+                <div class="payment-methods-grid">
+                    <div class="payment-method-card" data-method="card">
+                        <div class="payment-method-icon">💳</div>
+                        <h4>Carta di Credito/Debito</h4>
+                        <p>Visa, Mastercard, American Express</p>
+                    </div>
+                    <div class="payment-method-card" data-method="paypal">
+                        <div class="payment-method-icon">📱</div>
+                        <h4>PayPal</h4>
+                        <p>Paga con il tuo account PayPal</p>
+                    </div>
+                    <div class="payment-method-card" data-method="bank-transfer">
+                        <div class="payment-method-icon">🏦</div>
+                        <h4>Bonifico Bancario</h4>
+                        <p>Trasferimento diretto sul conto</p>
+                    </div>
+                    <div class="payment-method-card" data-method="crypto">
+                        <div class="payment-method-icon">₿</div>
+                        <h4>Criptovalute</h4>
+                        <p>Bitcoin, Ethereum, USDC</p>
+                    </div>
                 </div>
+            </div>
 
-                <button type="submit" class="pay-button" id="pay-button">
-                    <span class="loading" id="loading-spinner" style="display: none;"></span>
-                    <span id="button-text">Paga Ora</span>
-                </button>
-            </form>
+            <!-- Form di pagamento (nascosto inizialmente) -->
+            <div id="payment-forms" style="display: none;">
+                <!-- Form carta di credito -->
+                <form id="card-payment-form" class="stripe-form payment-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="card-element">Dati Carta di Credito</label>
+                        <div id="card-element" class="stripe-element"></div>
+                        <div id="card-errors" class="error-message" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <button type="submit" class="pay-button" id="card-pay-button">
+                        <span class="loading" id="card-loading-spinner" style="display: none;"></span>
+                        <span id="card-button-text">Paga con Carta</span>
+                    </button>
+                </form>
+
+                <!-- Form PayPal -->
+                <form id="paypal-payment-form" class="payment-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="paypal-email">Email PayPal</label>
+                        <input type="email" id="paypal-email" class="form-control" placeholder="La tua email PayPal" required>
+                    </div>
+
+                    <button type="submit" class="pay-button paypal-button" id="paypal-pay-button">
+                        <span class="loading" id="paypal-loading-spinner" style="display: none;"></span>
+                        <span id="paypal-button-text">Paga con PayPal</span>
+                    </button>
+                </form>
+
+                <!-- Form bonifico bancario -->
+                <form id="bank-transfer-form" class="payment-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Dettagli Bonifico</label>
+                        <div class="bank-details">
+                            <p><strong>Banca:</strong> Banca Example S.p.A.</p>
+                            <p><strong>IBAN:</strong> IT60 X054 2811 1010 0000 0123 456</p>
+                            <p><strong>Beneficiario:</strong> CoWorking Mio S.r.l.</p>
+                            <p><strong>Causale:</strong> Prenotazione #<span id="bank-reference"></span></p>
+                            <p><strong>Importo:</strong> €<span id="bank-amount"></span></p>
+                        </div>
+                        <p class="info-text">Il pagamento verrà confermato entro 1-3 giorni lavorativi</p>
+                    </div>
+
+                    <button type="button" class="pay-button bank-button" id="bank-confirm-button">
+                        Ho effettuato il bonifico
+                    </button>
+                </form>
+
+                <!-- Form criptovalute -->
+                <form id="crypto-payment-form" class="payment-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Pagamento in Criptovalute</label>
+                        <div class="crypto-details">
+                            <p><strong>Importo:</strong> €<span id="crypto-amount"></span></p>
+                            <p><strong>Indirizzi di pagamento:</strong></p>
+                            <div class="crypto-addresses">
+                                <div class="crypto-address">
+                                    <span class="crypto-symbol">₿</span>
+                                    <span class="crypto-address-text">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+                                    <button type="button" class="copy-btn" data-address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh">📋</button>
+                                </div>
+                                <div class="crypto-address">
+                                    <span class="crypto-symbol">Ξ</span>
+                                    <span class="crypto-address-text">0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6</span>
+                                    <button type="button" class="copy-btn" data-address="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6">📋</button>
+                                </div>
+                            </div>
+                            <p class="info-text">Invia l'importo esatto in criptovalute. Il pagamento verrà confermato automaticamente.</p>
+                        </div>
+                    </div>
+
+                    <button type="button" class="pay-button crypto-button" id="crypto-confirm-button">
+                        Ho inviato il pagamento
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pulsante per tornare alla selezione metodo -->
+            <button id="back-to-methods" class="back-to-methods-btn" style="display: none;">
+                ← Scegli un altro metodo
+            </button>
         </div>
     </div>
 

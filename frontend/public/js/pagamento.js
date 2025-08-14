@@ -473,12 +473,141 @@ function populatePrenotazioneDetails() {
 
 // Configura gli event listener
 function setupEventListeners() {
-    const form = document.getElementById('payment-form');
-    form.addEventListener('submit', handlePaymentSubmit);
+    // Event listener per la selezione del metodo di pagamento
+    const methodCards = document.querySelectorAll('.payment-method-card');
+    methodCards.forEach(card => {
+        card.addEventListener('click', () => selectPaymentMethod(card.dataset.method));
+    });
+
+    // Event listener per tornare alla selezione metodo
+    const backToMethodsBtn = document.getElementById('back-to-methods');
+    if (backToMethodsBtn) {
+        backToMethodsBtn.addEventListener('click', showPaymentMethodSelection);
+    }
+
+    // Event listener per i form di pagamento
+    const cardForm = document.getElementById('card-payment-form');
+    if (cardForm) {
+        cardForm.addEventListener('submit', handleCardPaymentSubmit);
+    }
+
+    const paypalForm = document.getElementById('paypal-payment-form');
+    if (paypalForm) {
+        paypalForm.addEventListener('submit', handlePayPalPaymentSubmit);
+    }
+
+    const bankConfirmBtn = document.getElementById('bank-confirm-button');
+    if (bankConfirmBtn) {
+        bankConfirmBtn.addEventListener('click', handleBankTransferConfirm);
+    }
+
+    const cryptoConfirmBtn = document.getElementById('crypto-confirm-button');
+    if (cryptoConfirmBtn) {
+        cryptoConfirmBtn.addEventListener('click', handleCryptoPaymentConfirm);
+    }
+
+    // Event listener per i pulsanti di copia indirizzi crypto
+    const copyBtns = document.querySelectorAll('.copy-btn');
+    copyBtns.forEach(btn => {
+        btn.addEventListener('click', () => copyToClipboard(btn.dataset.address));
+    });
 }
 
-// Gestisce l'invio del form di pagamento
-async function handlePaymentSubmit(event) {
+// Gestisce la selezione del metodo di pagamento
+function selectPaymentMethod(method) {
+    console.log('Metodo di pagamento selezionato:', method);
+    
+    // Nascondi la selezione del metodo
+    const methodSelection = document.getElementById('payment-method-selection');
+    methodSelection.style.display = 'none';
+    
+    // Mostra i form di pagamento
+    const paymentForms = document.getElementById('payment-forms');
+    paymentForms.style.display = 'block';
+    
+    // Nascondi tutti i form
+    const allForms = document.querySelectorAll('.payment-form');
+    allForms.forEach(form => form.style.display = 'none');
+    
+    // Mostra il form appropriato
+    switch (method) {
+        case 'card':
+            document.getElementById('card-payment-form').style.display = 'block';
+            // Inizializza Stripe se non è già inizializzato
+            if (!stripe) {
+                initializeStripe();
+            }
+            break;
+            
+        case 'paypal':
+            document.getElementById('paypal-payment-form').style.display = 'block';
+            break;
+            
+        case 'bank-transfer':
+            document.getElementById('bank-transfer-form').style.display = 'block';
+            // Popola i dettagli del bonifico
+            populateBankTransferDetails();
+            break;
+            
+        case 'crypto':
+            document.getElementById('crypto-payment-form').style.display = 'block';
+            // Popola i dettagli crypto
+            populateCryptoDetails();
+            break;
+    }
+    
+    // Mostra il pulsante per tornare alla selezione
+    document.getElementById('back-to-methods').style.display = 'block';
+}
+
+// Mostra di nuovo la selezione del metodo di pagamento
+function showPaymentMethodSelection() {
+    // Nascondi i form di pagamento
+    const paymentForms = document.getElementById('payment-forms');
+    paymentForms.style.display = 'none';
+    
+    // Mostra la selezione del metodo
+    const methodSelection = document.getElementById('payment-method-selection');
+    methodSelection.style.display = 'block';
+    
+    // Nascondi il pulsante per tornare
+    document.getElementById('back-to-methods').style.display = 'none';
+}
+
+// Popola i dettagli del bonifico bancario
+function populateBankTransferDetails() {
+    const bankReference = document.getElementById('bank-reference');
+    const bankAmount = document.getElementById('bank-amount');
+    
+    if (bankReference && prenotazioneData.id_prenotazione) {
+        bankReference.textContent = prenotazioneData.id_prenotazione;
+    }
+    
+    if (bankAmount && prenotazioneData.importo) {
+        bankAmount.textContent = prenotazioneData.importo.toFixed(2);
+    }
+}
+
+// Popola i dettagli crypto
+function populateCryptoDetails() {
+    const cryptoAmount = document.getElementById('crypto-amount');
+    
+    if (cryptoAmount && prenotazioneData.importo) {
+        cryptoAmount.textContent = prenotazioneData.importo.toFixed(2);
+    }
+}
+
+// Copia un indirizzo negli appunti
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showSuccess('Indirizzo copiato negli appunti!');
+    }).catch(() => {
+        showError('Impossibile copiare l\'indirizzo');
+    });
+}
+
+// Gestisce l'invio del form di pagamento con carta
+async function handleCardPaymentSubmit(event) {
     event.preventDefault();
 
     if (!stripe || !card) {
@@ -487,7 +616,7 @@ async function handlePaymentSubmit(event) {
     }
 
     // Disabilita il pulsante e mostra il loading
-    setLoadingState(true);
+    setCardLoadingState(true);
 
     try {
         // Crea il PaymentIntent
@@ -513,17 +642,74 @@ async function handlePaymentSubmit(event) {
             throw new Error(result.error.message);
         } else if (result.paymentIntent.status === 'succeeded') {
             // Pagamento completato con successo
-            await handlePaymentSuccess(result.paymentIntent);
+            await handlePaymentSuccess(result.paymentIntent, 'carta');
         } else {
             // Pagamento in attesa
             showError('Il pagamento è in elaborazione. Controlla la tua email per conferme.');
         }
 
     } catch (error) {
-        console.error('Errore pagamento:', error);
+        console.error('Errore pagamento carta:', error);
         showError(error.message || 'Errore durante il pagamento. Riprova.');
     } finally {
-        setLoadingState(false);
+        setCardLoadingState(false);
+    }
+}
+
+// Gestisce il pagamento PayPal
+async function handlePayPalPaymentSubmit(event) {
+    event.preventDefault();
+
+    const paypalEmail = document.getElementById('paypal-email').value;
+    if (!paypalEmail) {
+        showError('Inserisci la tua email PayPal');
+        return;
+    }
+
+    // Disabilita il pulsante e mostra il loading
+    setPayPalLoadingState(true);
+
+    try {
+        // Simula la creazione di un ordine PayPal
+        const paypalOrder = await createPayPalOrder(paypalEmail);
+        
+        if (paypalOrder) {
+            // Simula il successo del pagamento PayPal
+            await handlePaymentSuccess({ id: paypalOrder.id, method: 'paypal' }, 'paypal');
+        }
+    } catch (error) {
+        console.error('Errore pagamento PayPal:', error);
+        showError(error.message || 'Errore durante il pagamento PayPal. Riprova.');
+    } finally {
+        setPayPalLoadingState(false);
+    }
+}
+
+// Gestisce la conferma del bonifico bancario
+async function handleBankTransferConfirm() {
+    try {
+        // Simula la conferma del bonifico
+        await handlePaymentSuccess({ 
+            id: 'bank_' + Date.now(), 
+            method: 'bonifico' 
+        }, 'bonifico');
+    } catch (error) {
+        console.error('Errore conferma bonifico:', error);
+        showError('Errore durante la conferma del bonifico. Riprova.');
+    }
+}
+
+// Gestisce la conferma del pagamento crypto
+async function handleCryptoPaymentConfirm() {
+    try {
+        // Simula la conferma del pagamento crypto
+        await handlePaymentSuccess({ 
+            id: 'crypto_' + Date.now(), 
+            method: 'crypto' 
+        }, 'crypto');
+    } catch (error) {
+        console.error('Errore conferma crypto:', error);
+        showError('Errore durante la conferma del pagamento crypto. Riprova.');
     }
 }
 
@@ -554,14 +740,33 @@ async function createPaymentIntent() {
     }
 }
 
-// Gestisce il successo del pagamento
-async function handlePaymentSuccess(paymentIntent) {
+// Aggiorna la funzione handlePaymentSuccess per gestire i diversi metodi
+async function handlePaymentSuccess(paymentIntent, method) {
     try {
-        // Mostra messaggio di successo
-        showSuccess('Pagamento completato con successo! La tua prenotazione è stata confermata.');
+        let methodText = '';
+        switch (method) {
+            case 'carta':
+                methodText = 'con carta di credito';
+                break;
+            case 'paypal':
+                methodText = 'con PayPal';
+                break;
+            case 'bonifico':
+                methodText = 'con bonifico bancario';
+                break;
+            case 'crypto':
+                methodText = 'in criptovalute';
+                break;
+            default:
+                methodText = '';
+        }
 
-        // Nascondi il form di pagamento
-        document.getElementById('payment-form').style.display = 'none';
+        // Mostra messaggio di successo
+        showSuccess(`Pagamento completato con successo ${methodText}! La tua prenotazione è stata confermata.`);
+
+        // Nascondi tutti i form di pagamento
+        document.getElementById('payment-forms').style.display = 'none';
+        document.getElementById('back-to-methods').style.display = 'none';
 
         // Aggiorna i dettagli della prenotazione
         document.querySelector('.payment-details h3').textContent = '✅ Prenotazione Confermata';
@@ -577,21 +782,23 @@ async function handlePaymentSuccess(paymentIntent) {
         document.querySelector('.payment-container').appendChild(backButton);
 
         // Opzionale: invia conferma al backend
-        await confirmPaymentToBackend(paymentIntent.id);
+        await confirmPaymentToBackend(paymentIntent.id, method);
 
     } catch (error) {
         console.error('Errore conferma pagamento:', error);
     }
 }
 
-// Conferma il pagamento al backend
-async function confirmPaymentToBackend(paymentIntentId) {
+// Aggiorna la funzione confirmPaymentToBackend per gestire i diversi metodi
+async function confirmPaymentToBackend(paymentIntentId, method) {
     try {
-        await fetch(`${API_BASE}/pagamenti/stripe/complete`, {
+        await fetch(`${API_BASE}/pagamenti/confirm`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
-                payment_intent_id: paymentIntentId
+                payment_intent_id: paymentIntentId,
+                method: method,
+                id_prenotazione: prenotazioneData.id_prenotazione
             })
         });
     } catch (error) {
@@ -599,22 +806,42 @@ async function confirmPaymentToBackend(paymentIntentId) {
     }
 }
 
-// Gestisce lo stato di loading
-function setLoadingState(loading) {
-    const button = document.getElementById('pay-button');
-    const spinner = document.getElementById('loading-spinner');
-    const buttonText = document.getElementById('button-text');
+// Gestisce lo stato di loading per la carta
+function setCardLoadingState(loading) {
+    const payButton = document.getElementById('card-pay-button');
+    const spinner = document.getElementById('card-loading-spinner');
+    const buttonText = document.getElementById('card-button-text');
 
     if (loading) {
-        button.disabled = true;
+        payButton.disabled = true;
         spinner.style.display = 'inline-block';
         buttonText.textContent = 'Elaborazione...';
     } else {
-        button.disabled = false;
+        payButton.disabled = false;
         spinner.style.display = 'none';
-        buttonText.textContent = 'Paga Ora';
+        buttonText.textContent = 'Paga con Carta';
     }
 }
+
+// Gestisce lo stato di loading per PayPal
+function setPayPalLoadingState(loading) {
+    const payButton = document.getElementById('paypal-pay-button');
+    const spinner = document.getElementById('paypal-loading-spinner');
+    const buttonText = document.getElementById('paypal-button-text');
+
+    if (loading) {
+        payButton.disabled = true;
+        spinner.style.display = 'inline-block';
+        buttonText.textContent = 'Elaborazione...';
+    } else {
+        payButton.disabled = false;
+        spinner.style.display = 'none';
+        buttonText.textContent = 'Paga con PayPal';
+    }
+}
+
+// Rimuove le funzioni obsolete
+// setLoadingState e handlePaymentSubmit non sono più necessarie
 
 // Mostra/nasconde il loading globale
 function setGlobalLoading(loading) {
