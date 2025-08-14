@@ -372,12 +372,12 @@ function showPaymentModal(idPagamento, importo) {
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Pagamento</h5>
+          <h5 class="modal-title">Conferma Prenotazione</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <p>Importo da pagare: <strong>€ ${importo}</strong></p>
-          <p>Questa è una simulazione di pagamento. Clicca "Paga ora" per confermare.</p>
+          <p>Clicca "Paga ora" per procedere al pagamento e confermare la tua prenotazione.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
@@ -393,20 +393,23 @@ function showPaymentModal(idPagamento, importo) {
 
   $('#btnPagaOra').click(async function () {
     try {
-      await $.ajax({
-        url: `${API_BASE}/pagamenti/${idPagamento}/confirm`,
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
+      // Chiudi il modal
       modal.hide();
-      showAlert('Pagamento effettuato con successo!', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+      
+      // Salva i dati della prenotazione per la pagina di pagamento
+      const prenotazioneData = {
+        sede: selectedSede,
+        spazio: selectedSpazio,
+        dataInizio: selectedDataInizio,
+        dataFine: selectedDataFine
+      };
+      localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
+      
+      // Vai direttamente alla pagina di pagamento
+      window.location.href = 'pagamento.html';
+      
     } catch (e) {
-      if (e.status === 401) {
-        handleAuthError();
-      } else {
-        showAlert('Pagamento fallito', 'danger');
-      }
+      showAlert('Errore durante la preparazione del pagamento', 'danger');
     }
   });
 

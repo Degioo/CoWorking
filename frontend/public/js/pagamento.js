@@ -745,47 +745,26 @@ function copyToClipboard(text) {
 async function handleCardPaymentSubmit(event) {
     event.preventDefault();
 
-    if (!stripe || !card) {
-        showError('Stripe non è stato inizializzato correttamente.');
-        return;
-    }
-
     // Disabilita il pulsante e mostra il loading
     setCardLoadingState(true);
 
     try {
-        // Crea il PaymentIntent
-        const paymentIntent = await createPaymentIntent();
-
-        if (!paymentIntent) {
-            throw new Error('Errore nella creazione del pagamento');
-        }
-
-        // Conferma il pagamento
-        const result = await stripe.confirmCardPayment(paymentIntent.clientSecret, {
-            payment_method: {
-                card: card,
-                billing_details: {
-                    name: prenotazioneData.nome_utente || 'Utente',
-                    email: prenotazioneData.email_utente || ''
-                }
-            }
-        });
-
-        if (result.error) {
-            // Errore nel pagamento
-            throw new Error(result.error.message);
-        } else if (result.paymentIntent.status === 'succeeded') {
-            // Pagamento completato con successo
-            await handlePaymentSuccess(result.paymentIntent, 'carta');
-        } else {
-            // Pagamento in attesa
-            showError('Il pagamento è in elaborazione. Controlla la tua email per conferme.');
-        }
+        // Simula un delay per il pagamento
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Simula il successo del pagamento
+        const simulatedPaymentIntent = {
+            id: 'sim_' + Date.now(),
+            status: 'succeeded',
+            method: 'carta'
+        };
+        
+        // Gestisci il successo del pagamento simulato
+        await handlePaymentSuccess(simulatedPaymentIntent, 'carta');
 
     } catch (error) {
-        console.error('Errore pagamento carta:', error);
-        showError(error.message || 'Errore durante il pagamento. Riprova.');
+        console.error('Errore pagamento carta simulato:', error);
+        showError('Errore durante il pagamento simulato. Riprova.');
     } finally {
         setCardLoadingState(false);
     }
@@ -805,16 +784,19 @@ async function handlePayPalPaymentSubmit(event) {
     setPayPalLoadingState(true);
 
     try {
-        // Simula la creazione di un ordine PayPal
-        const paypalOrder = await createPayPalOrder(paypalEmail);
-
-        if (paypalOrder) {
-            // Simula il successo del pagamento PayPal
-            await handlePaymentSuccess({ id: paypalOrder.id, method: 'paypal' }, 'paypal');
-        }
+        // Simula un delay per il pagamento PayPal
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Simula il successo del pagamento PayPal
+        const simulatedPayPalOrder = {
+            id: 'paypal_' + Date.now(),
+            method: 'paypal'
+        };
+        
+        await handlePaymentSuccess(simulatedPayPalOrder, 'paypal');
     } catch (error) {
-        console.error('Errore pagamento PayPal:', error);
-        showError(error.message || 'Errore durante il pagamento PayPal. Riprova.');
+        console.error('Errore pagamento PayPal simulato:', error);
+        showError('Errore durante il pagamento PayPal simulato. Riprova.');
     } finally {
         setPayPalLoadingState(false);
     }
@@ -951,31 +933,20 @@ async function handlePaymentSuccess(paymentIntent, method) {
 // Aggiorna la funzione confirmPaymentToBackend per gestire i diversi metodi
 async function confirmPaymentToBackend(paymentIntentId, method) {
     try {
-        if (method === 'carta') {
-            // Per pagamenti con carta, usa l'endpoint Stripe
-            await fetch(`${API_BASE}/pagamenti/stripe/complete`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    payment_intent_id: paymentIntentId
-                })
-            });
-        } else {
-            // Per altri metodi, usa l'endpoint generico
-            await fetch(`${API_BASE}/pagamenti/confirm`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    payment_intent_id: paymentIntentId,
-                    method: method,
-                    id_prenotazione: prenotazioneData.id_prenotazione
-                })
-            });
+        // Simula la conferma al backend
+        console.log('Simulo conferma pagamento al backend:', method, paymentIntentId);
+        
+        // Simula un delay per la conferma
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simula aggiornamento stato prenotazione
+        if (prenotazioneData && prenotazioneData.id_prenotazione) {
+            console.log('Simulo aggiornamento stato prenotazione a "confermata"');
         }
-
-        console.log('Pagamento confermato al backend:', method, paymentIntentId);
+        
+        console.log('Pagamento simulato confermato al backend:', method, paymentIntentId);
     } catch (error) {
-        console.error('Errore conferma backend:', error);
+        console.error('Errore conferma backend simulata:', error);
     }
 }
 
