@@ -138,7 +138,7 @@ exports.createCardIntent = async (req, res) => {
   const stripe = getStripe();
   if (!stripe) return res.status(400).json({ error: 'Stripe non configurato' });
 
-  const { id_prenotazione } = req.body;
+  const { id_prenotazione, metadata } = req.body;
   // Prende l'ID utente dal middleware di autenticazione aggiornato
   const id_utente = req.user.id_utente;
 
@@ -193,19 +193,24 @@ exports.createCardIntent = async (req, res) => {
       );
     }
 
+    // Prepara i metadati per Stripe con informazioni complete
+    const stripeMetadata = {
+      prenotazione_id: id_prenotazione,
+      utente_id: id_utente,
+      ore: ore.toString(),
+      data_inizio: data_inizio,
+      data_fine: data_fine,
+      importo: importo.toString(),
+      ...metadata // Include i metadati aggiuntivi dal frontend
+    };
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: 'eur',
       customer: customer.id,
       automatic_payment_methods: { enabled: true },
-      metadata: {
-        prenotazione_id: id_prenotazione,
-        utente_id: id_utente,
-        ore: ore.toString(),
-        data_inizio: data_inizio,
-        data_fine: data_fine
-      },
-      description: `Prenotazione coworking - ${ore}h - ${data_inizio}`
+      metadata: stripeMetadata,
+      description: `Prenotazione coworking - ${ore}h - ${data_inizio} - ${metadata?.sede || 'Sede'} - ${metadata?.spazio || 'Spazio'}`
     });
 
     // Salva record pagamento

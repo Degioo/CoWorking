@@ -215,7 +215,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         }
 
         const userData = JSON.parse(user);
-        
+
         // Crea la prenotazione
         const prenotazioneData = {
             id_utente: userData.id_utente,
@@ -243,15 +243,35 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         const prenotazione = await response.json();
         console.log('Prenotazione creata:', prenotazione);
 
+        // Recupera i nomi di sede e spazio per completare i dati
+        try {
+            const [sedeResponse, spazioResponse] = await Promise.all([
+                fetchWithTimeout(`${API_BASE}/sedi/${sede}`, {}, 5000),
+                fetchWithTimeout(`${API_BASE}/spazi/${spazio}`, {}, 5000)
+            ]);
+
+            if (sedeResponse.ok && spazioResponse.ok) {
+                const sedeData = await sedeResponse.json();
+                const spazioData = await spazioResponse.json();
+                
+                // Completa i dati della prenotazione con i nomi
+                prenotazione.nome_sede = sedeData.nome;
+                prenotazione.nome_spazio = spazioData.nome;
+                prenotazione.citta_sede = sedeData.citta;
+            }
+        } catch (error) {
+            console.warn('Impossibile recuperare nomi sede/spazio:', error);
+        }
+
         // Salva i dati della prenotazione
         window.prenotazioneData = prenotazione;
 
         // Mostra la selezione del metodo di pagamento
         showPaymentMethodSelection();
-        
+
         // Popola i dettagli della prenotazione
         await loadPrenotazioneData();
-        
+
         // Configura gli event listener
         setupEventListeners();
 
@@ -416,13 +436,21 @@ async function initializeStripe() {
 // Carica i dati della prenotazione
 async function loadPrenotazioneData() {
     try {
-        console.log('loadPrenotazioneData - Inizio');
+        console.log('loadPrenotazioneData - Inizio funzione');
 
-        // Recupera l'ID della prenotazione dall'URL
+        // Se abbiamo già i dati della prenotazione (caso creazione automatica)
+        if (window.prenotazioneData && window.prenotazioneData.id_prenotazione) {
+            console.log('loadPrenotazioneData - Usa dati prenotazione già caricati:', window.prenotazioneData);
+            prenotazioneData = window.prenotazioneData;
+            populatePrenotazioneDetails();
+            return;
+        }
+
+        // Altrimenti cerca l'ID della prenotazione nell'URL (flusso normale)
         const urlParams = new URLSearchParams(window.location.search);
-        const prenotazioneId = urlParams.get('id');
+        const prenotazioneId = urlParams.get('id_prenotazione');
 
-        console.log('loadPrenotazioneData - ID prenotazione:', prenotazioneId);
+        console.log('loadPrenotazioneData - ID prenotazione dall\'URL:', prenotazioneId);
 
         if (!prenotazioneId) {
             throw new Error('ID prenotazione non specificato');
@@ -465,6 +493,8 @@ async function loadPrenotazioneData() {
 function populatePrenotazioneDetails() {
     if (!prenotazioneData) return;
 
+    console.log('populatePrenotazioneDetails - Dati prenotazione:', prenotazioneData);
+
     const dataInizio = new Date(prenotazioneData.data_inizio);
     const dataFine = new Date(prenotazioneData.data_fine);
 
@@ -497,18 +527,33 @@ function populatePrenotazioneDetails() {
     document.getElementById('data-prenotazione').textContent = dataFormattata;
     document.getElementById('orario-prenotazione').textContent = `${orarioInizio} - ${orarioFine}`;
     document.getElementById('durata-prenotazione').textContent = `${durataOre} ore`;
-    document.getElementById('posto-prenotazione').textContent = `${prenotazioneData.nome_spazio || 'Spazio'} - ${prenotazioneData.nome_sede || 'Sede'}`;
+
+    // Gestisci il nome dello spazio e della sede
+    let postoText = 'Spazio selezionato';
+    if (prenotazioneData.nome_spazio) {
+        postoText = prenotazioneData.nome_spazio;
+        if (prenotazioneData.nome_sede) {
+            postoText += ` - ${prenotazioneData.nome_sede}`;
+        }
+    } else if (prenotazioneData.id_spazio) {
+        // Se non abbiamo il nome, usa l'ID
+        postoText = `Spazio #${prenotazioneData.id_spazio}`;
+    }
+
+    document.getElementById('posto-prenotazione').textContent = postoText;
     document.getElementById('totale-prenotazione').textContent = `€${importo.toFixed(2)}`;
 
     // Salva l'importo per il pagamento
     prenotazioneData.importo = importo;
+
+    console.log('populatePrenotazioneDetails - Importo calcolato:', importo);
 }
 
 // Configura gli event listener
 function setupEventListeners() {
     // Assicurati che la selezione del metodo di pagamento sia visibile
     showPaymentMethodSelection();
-    
+
     // Event listener per la selezione del metodo di pagamento
     const methodCards = document.querySelectorAll('.payment-method-card');
     methodCards.forEach(card => {
@@ -552,19 +597,19 @@ function setupEventListeners() {
 // Gestisce la selezione del metodo di pagamento
 function selectPaymentMethod(method) {
     console.log('Metodo di pagamento selezionato:', method);
-    
+
     // Nascondi la selezione del metodo
     const methodSelection = document.getElementById('payment-method-selection');
     methodSelection.style.display = 'none';
-    
+
     // Mostra i form di pagamento
     const paymentForms = document.getElementById('payment-forms');
     paymentForms.style.display = 'block';
-    
+
     // Nascondi tutti i form
     const allForms = document.querySelectorAll('.payment-form');
     allForms.forEach(form => form.style.display = 'none');
-    
+
     // Mostra il form appropriato
     switch (method) {
         case 'card':
@@ -574,24 +619,24 @@ function selectPaymentMethod(method) {
                 initializeStripe();
             }
             break;
-            
+
         case 'paypal':
             document.getElementById('paypal-payment-form').style.display = 'block';
             break;
-            
+
         case 'bank-transfer':
             document.getElementById('bank-transfer-form').style.display = 'block';
             // Popola i dettagli del bonifico
             populateBankTransferDetails();
             break;
-            
+
         case 'crypto':
             document.getElementById('crypto-payment-form').style.display = 'block';
             // Popola i dettagli crypto
             populateCryptoDetails();
             break;
     }
-    
+
     // Mostra il pulsante per tornare alla selezione
     document.getElementById('back-to-methods').style.display = 'block';
 }
@@ -601,11 +646,11 @@ function showPaymentMethodSelection() {
     // Nascondi i form di pagamento
     const paymentForms = document.getElementById('payment-forms');
     paymentForms.style.display = 'none';
-    
+
     // Mostra la selezione del metodo
     const methodSelection = document.getElementById('payment-method-selection');
     methodSelection.style.display = 'block';
-    
+
     // Nascondi il pulsante per tornare
     document.getElementById('back-to-methods').style.display = 'none';
 }
@@ -614,11 +659,11 @@ function showPaymentMethodSelection() {
 function populateBankTransferDetails() {
     const bankReference = document.getElementById('bank-reference');
     const bankAmount = document.getElementById('bank-amount');
-    
+
     if (bankReference && prenotazioneData.id_prenotazione) {
         bankReference.textContent = prenotazioneData.id_prenotazione;
     }
-    
+
     if (bankAmount && prenotazioneData.importo) {
         bankAmount.textContent = prenotazioneData.importo.toFixed(2);
     }
@@ -627,7 +672,7 @@ function populateBankTransferDetails() {
 // Popola i dettagli crypto
 function populateCryptoDetails() {
     const cryptoAmount = document.getElementById('crypto-amount');
-    
+
     if (cryptoAmount && prenotazioneData.importo) {
         cryptoAmount.textContent = prenotazioneData.importo.toFixed(2);
     }
@@ -708,7 +753,7 @@ async function handlePayPalPaymentSubmit(event) {
     try {
         // Simula la creazione di un ordine PayPal
         const paypalOrder = await createPayPalOrder(paypalEmail);
-        
+
         if (paypalOrder) {
             // Simula il successo del pagamento PayPal
             await handlePaymentSuccess({ id: paypalOrder.id, method: 'paypal' }, 'paypal');
@@ -725,9 +770,9 @@ async function handlePayPalPaymentSubmit(event) {
 async function handleBankTransferConfirm() {
     try {
         // Simula la conferma del bonifico
-        await handlePaymentSuccess({ 
-            id: 'bank_' + Date.now(), 
-            method: 'bonifico' 
+        await handlePaymentSuccess({
+            id: 'bank_' + Date.now(),
+            method: 'bonifico'
         }, 'bonifico');
     } catch (error) {
         console.error('Errore conferma bonifico:', error);
@@ -739,9 +784,9 @@ async function handleBankTransferConfirm() {
 async function handleCryptoPaymentConfirm() {
     try {
         // Simula la conferma del pagamento crypto
-        await handlePaymentSuccess({ 
-            id: 'crypto_' + Date.now(), 
-            method: 'crypto' 
+        await handlePaymentSuccess({
+            id: 'crypto_' + Date.now(),
+            method: 'crypto'
         }, 'crypto');
     } catch (error) {
         console.error('Errore conferma crypto:', error);
@@ -753,12 +798,26 @@ async function handleCryptoPaymentConfirm() {
 async function createPaymentIntent() {
     try {
         console.log('Creo PaymentIntent per prenotazione:', prenotazioneData.id_prenotazione);
-        
+
+        // Prepara i metadati per Stripe
+        const metadata = {
+            id_prenotazione: prenotazioneData.id_prenotazione,
+            sede: prenotazioneData.nome_sede || `Sede #${prenotazioneData.id_sede}`,
+            spazio: prenotazioneData.nome_spazio || `Spazio #${prenotazioneData.id_spazio}`,
+            data_inizio: prenotazioneData.data_inizio,
+            data_fine: prenotazioneData.data_fine,
+            durata_ore: Math.round((new Date(prenotazioneData.data_fine) - new Date(prenotazioneData.data_inizio)) / (1000 * 60 * 60)),
+            importo: prenotazioneData.importo || 0
+        };
+
+        console.log('Metadati per Stripe:', metadata);
+
         const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/intent`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
-                id_prenotazione: prenotazioneData.id_prenotazione
+                id_prenotazione: prenotazioneData.id_prenotazione,
+                metadata: metadata
             })
         }, 15000);
 
@@ -772,7 +831,7 @@ async function createPaymentIntent() {
 
         const paymentIntent = await response.json();
         console.log('PaymentIntent creato:', paymentIntent);
-        
+
         paymentIntentId = paymentIntent.paymentIntentId;
 
         return paymentIntent;
@@ -856,7 +915,7 @@ async function confirmPaymentToBackend(paymentIntentId, method) {
                 })
             });
         }
-        
+
         console.log('Pagamento confermato al backend:', method, paymentIntentId);
     } catch (error) {
         console.error('Errore conferma backend:', error);
@@ -1022,13 +1081,13 @@ $(document).ready(async function () {
 
         if (sede && spazio && dataInizio && dataFine) {
             console.log('Parametri prenotazione trovati nell\'URL:', { sede, spazio, dataInizio, dataFine });
-            
+
             // Crea la prenotazione automaticamente
             await createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine);
         } else {
             // Cerca ID prenotazione nell'URL (flusso normale)
             const prenotazioneId = new URLSearchParams(window.location.search).get('id_prenotazione');
-            
+
             if (!prenotazioneId) {
                 console.error('ID prenotazione mancante nell\'URL');
                 showError('ID prenotazione mancante. Torna alla dashboard e riprova.');
