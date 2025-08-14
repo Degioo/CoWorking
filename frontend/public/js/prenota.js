@@ -90,7 +90,8 @@ function loadSedi() {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/sedi`,
-      method: 'GET'
+      method: 'GET',
+      headers: getAuthHeaders() // Ripristino per mantenere Content-Type
     })
       .done(function (sedi) {
         const select = $('#selectSede');
@@ -127,7 +128,8 @@ function loadSpazi(idSede) {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/spazi?id_sede=${idSede}`,
-      method: 'GET'
+      method: 'GET',
+      headers: getAuthHeaders() // Ripristino per mantenere Content-Type
     })
       .done(function (spazi) {
         const select = $('#selectSpazio');
@@ -164,7 +166,8 @@ function loadServiziSpazio(idSpazio) {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/spazi/${idSpazio}/servizi`,
-      method: 'GET'
+      method: 'GET',
+      headers: getAuthHeaders() // Ripristino per mantenere Content-Type
     })
       .done(function (servizi) {
         const container = $('#spazioInfo');
