@@ -53,7 +53,7 @@ exports.getPagamenti = async (req, res) => {
       );
     } else if (utente) {
       result = await pool.query(
-        `SELECT pg.*, p.nome_spazio, s.nome AS nome_sede, s.citta AS citta_sede 
+        `SELECT pg.*, sp.nome AS nome_spazio, s.nome AS nome_sede, s.citta AS citta_sede 
          FROM Pagamento pg
          JOIN Prenotazione p ON pg.id_prenotazione = p.id_prenotazione
          JOIN Spazio sp ON p.id_spazio = sp.id_spazio
@@ -67,7 +67,8 @@ exports.getPagamenti = async (req, res) => {
     }
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: 'Errore server' });
+    console.error('Errore getPagamenti:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 };
 
