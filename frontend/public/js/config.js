@@ -46,7 +46,7 @@ function getAuthHeaders() {
 // Funzione per gestire errori di autenticazione
 function handleAuthError() {
     console.log('handleAuthError - Utente deve loggarsi per completare questa azione');
-    
+
     // Rimuovi solo i dati di sessione corrotti, non tutti
     try {
         const user = localStorage.getItem('user');
@@ -57,11 +57,11 @@ function handleAuthError() {
         // Solo se i dati sono corrotti, rimuovili
         localStorage.removeItem('user');
     }
-    
+
     // Reindirizza al login con messaggio chiaro e appropriato
     const currentPage = window.location.pathname.split('/').pop();
     let message = 'Devi effettuare il login per completare questa azione.';
-    
+
     // Personalizza il messaggio in base alla pagina
     if (currentPage === 'prenota.html') {
         message = 'Devi effettuare il login per completare la prenotazione.';
@@ -70,7 +70,7 @@ function handleAuthError() {
     } else if (currentPage === 'dashboard.html') {
         message = 'Devi effettuare il login per accedere alla dashboard.';
     }
-    
+
     const loginUrl = 'login.html?message=' + encodeURIComponent(message);
     window.location.href = loginUrl;
 }

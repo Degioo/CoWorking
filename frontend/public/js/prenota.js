@@ -16,10 +16,41 @@ $(document).ready(function () {
     
     // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
     currentStep = 1;
-    loadSedi();
-    setupEventHandlers();
-    updateNavbar();
-    showStep(1);
+    loadSedi().then(() => {
+        setupEventHandlers();
+        updateNavbar();
+    });
+    
+    // Controlla se ci sono parametri URL per ripristinare lo stato
+    const urlParams = new URLSearchParams(window.location.search);
+    const sedeId = urlParams.get('sede');
+    const spazioId = urlParams.get('spazio');
+    const dataInizio = urlParams.get('dal');
+    const dataFine = urlParams.get('al');
+    
+    if (sedeId && spazioId && dataInizio && dataFine) {
+        // Ripristina lo stato della prenotazione
+        console.log('prenota.js - Ripristino stato da URL:', { sedeId, spazioId, dataInizio, dataFine });
+        
+        // Imposta i valori selezionati
+        selectedSede = sedeId;
+        selectedSpazio = spazioId;
+        selectedDataInizio = dataInizio;
+        selectedDataFine = dataFine;
+        
+        // Imposta i valori nei campi
+        $('#dataInizio').val(dataInizio);
+        $('#dataFine').val(dataFine);
+        
+        // Carica i dati e vai allo step 3
+        loadSedi().then(() => {
+            $('#selectSede').val(sedeId);
+            onSedeChange();
+        });
+    } else {
+        // Nessun parametro, inizia normalmente
+        showStep(1);
+    }
 });
 
 // Aggiorna navbar se utente è loggato
@@ -56,91 +87,112 @@ function logout() {
 
 // Carica sedi
 function loadSedi() {
-  $.ajax({
-    url: `${API_BASE}/sedi`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (sedi) {
-      const select = $('#selectSede');
-      select.find('option:not(:first)').remove();
-
-      sedi.forEach(sede => {
-        select.append(`<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`);
-      });
-
-      // Se c'è una sede preselezionata, impostala
-      const urlParams = new URLSearchParams(window.location.search);
-      const sedeId = urlParams.get('sede');
-      if (sedeId) {
-        select.val(sedeId);
-        onSedeChange();
-      }
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${API_BASE}/sedi`,
+      method: 'GET',
+      headers: getAuthHeaders()
     })
-    .fail(function (xhr) {
-      console.log('loadSedi - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        showAlert('Errore nel caricamento delle sedi', 'danger');
-      }
-    });
+      .done(function (sedi) {
+        const select = $('#selectSede');
+        select.find('option:not(:first)').remove();
+
+        sedi.forEach(sede => {
+          select.append(`<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`);
+        });
+
+        // Se c'è una sede preselezionata, impostala
+        const urlParams = new URLSearchParams(window.location.search);
+        const sedeId = urlParams.get('sede');
+        if (sedeId) {
+          select.val(sedeId);
+          onSedeChange();
+        }
+        
+        resolve(sedi);
+      })
+      .fail(function (xhr) {
+        console.log('loadSedi - Errore:', xhr.status, xhr.responseText);
+        if (xhr.status === 401) {
+          handleAuthError();
+        } else {
+          showAlert('Errore nel caricamento delle sedi', 'danger');
+        }
+        reject(xhr);
+      });
+  });
 }
 
 // Carica spazi di una sede
 function loadSpazi(idSede) {
-  $.ajax({
-    url: `${API_BASE}/spazi?id_sede=${idSede}`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (spazi) {
-      const select = $('#selectSpazio');
-      select.find('option:not(:first)').remove();
-
-      spazi.forEach(spazio => {
-        select.append(`<option value="${spazio.id_spazio}">${spazio.nome} (${spazio.tipologia})</option>`);
-      });
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${API_BASE}/spazi?id_sede=${idSede}`,
+      method: 'GET',
+      headers: getAuthHeaders()
     })
-    .fail(function (xhr) {
-      console.log('loadSpazi - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        showAlert('Errore nel caricamento degli spazi', 'danger');
-      }
-    });
+      .done(function (spazi) {
+        const select = $('#selectSpazio');
+        select.find('option:not(:first)').remove();
+
+        spazi.forEach(spazio => {
+          select.append(`<option value="${spazio.id_spazio}">${spazio.nome} (${spazio.tipologia})</option>`);
+        });
+
+        // Se c'è uno spazio preselezionato, impostalo
+        const urlParams = new URLSearchParams(window.location.search);
+        const spazioId = urlParams.get('spazio');
+        if (spazioId) {
+          select.val(spazioId);
+          onSpazioChange();
+        }
+        
+        resolve(spazi);
+      })
+      .fail(function (xhr) {
+        console.log('loadSpazi - Errore:', xhr.status, xhr.responseText);
+        if (xhr.status === 401) {
+          handleAuthError();
+        } else {
+          showAlert('Errore nel caricamento degli spazi', 'danger');
+        }
+        reject(xhr);
+      });
+  });
 }
 
 // Carica servizi di uno spazio
 function loadServiziSpazio(idSpazio) {
-  $.ajax({
-    url: `${API_BASE}/spazi/${idSpazio}/servizi`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (servizi) {
-      const container = $('#spazioInfo');
-      if (servizi.length === 0) {
-        container.html('<p class="text-muted">Nessun servizio disponibile</p>');
-        return;
-      }
-
-      let html = '<h6>Servizi inclusi:</h6><ul class="list-unstyled">';
-      servizi.forEach(servizio => {
-        html += `<li><i class="bi bi-check-circle text-success"></i> ${servizio.nome}</li>`;
-      });
-      html += '</ul>';
-      container.html(html);
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: `${API_BASE}/spazi/${idSpazio}/servizi`,
+      method: 'GET',
+      headers: getAuthHeaders()
     })
-    .fail(function (xhr) {
-      console.log('loadServiziSpazio - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        $('#spazioInfo').html('<p class="text-muted">Errore nel caricamento dei servizi</p>');
-      }
-    });
+      .done(function (servizi) {
+        const container = $('#spazioInfo');
+        if (servizi.length === 0) {
+          container.html('<p class="text-muted">Nessun servizio disponibile</p>');
+        } else {
+          let html = '<h6>Servizi inclusi:</h6><ul class="list-unstyled">';
+          servizi.forEach(servizio => {
+            html += `<li><i class="bi bi-check-circle text-success"></i> ${servizio.nome}</li>`;
+          });
+          html += '</ul>';
+          container.html(html);
+        }
+        resolve(servizi);
+      })
+      .fail(function (xhr) {
+        console.log('loadServiziSpazio - Errore:', xhr.status, xhr.responseText);
+        if (xhr.status === 401) {
+          handleAuthError();
+        } else {
+          $('#spazioInfo').html('<p class="text-muted">Errore nel caricamento dei servizi</p>');
+        }
+        reject(xhr);
+      });
+  });
 }
 
 // Valida le date
@@ -519,8 +571,17 @@ function onSedeChange() {
   const sedeId = $('#selectSede').val();
   if (sedeId) {
     selectedSede = sedeId;
-    loadSpazi(sedeId);
-    showStep(2);
+    loadSpazi(sedeId).then(() => {
+      // Se c'è uno spazio preselezionato, impostalo
+      const urlParams = new URLSearchParams(window.location.search);
+      const spazioId = urlParams.get('spazio');
+      if (spazioId) {
+        $('#selectSpazio').val(spazioId);
+        onSpazioChange();
+      } else {
+        showStep(2);
+      }
+    });
   }
 }
 
@@ -529,8 +590,21 @@ function onSpazioChange() {
   const spazioId = $('#selectSpazio').val();
   if (spazioId) {
     selectedSpazio = spazioId;
-    loadServiziSpazio(spazioId);
-    showStep(3);
+    loadServiziSpazio(spazioId).then(() => {
+      // Se ci sono date preselezionate, vai allo step 3
+      const urlParams = new URLSearchParams(window.location.search);
+      const dataInizio = urlParams.get('dal');
+      const dataFine = urlParams.get('al');
+      
+      if (dataInizio && dataFine) {
+        // Imposta le date e vai allo step 3
+        $('#dataInizio').val(dataInizio);
+        $('#dataFine').val(dataFine);
+        showStep(3);
+      } else {
+        showStep(3);
+      }
+    });
   }
 }
 
