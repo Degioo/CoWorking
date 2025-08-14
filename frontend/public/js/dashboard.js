@@ -269,7 +269,15 @@ function loadPrenotazioniUtente() {
     headers: getAuthHeaders()
   })
     .done(function (prenotazioni) {
-      displayPrenotazioniUtente(prenotazioni);
+      // Prima sincronizza prenotazioni con pagamenti
+      syncPrenotazioniWithPagamenti().then(() => {
+        // Poi mostra le prenotazioni aggiornate
+        displayPrenotazioniUtente(prenotazioni);
+      }).catch(error => {
+        console.error('Errore sincronizzazione:', error);
+        // Mostra comunque le prenotazioni anche se la sincronizzazione fallisce
+        displayPrenotazioniUtente(prenotazioni);
+      });
     })
     .fail(function (xhr) {
       console.log('loadPrenotazioniUtente - Errore:', xhr.status, xhr.responseText);
@@ -279,6 +287,30 @@ function loadPrenotazioniUtente() {
         $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
       }
     });
+}
+
+// Sincronizza prenotazioni con pagamenti
+async function syncPrenotazioniWithPagamenti() {
+  try {
+    const response = await fetch(`${API_BASE}/prenotazioni/sync-with-pagamenti`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Sincronizzazione completata:', result);
+      
+      // Se ci sono state modifiche, ricarica le prenotazioni
+      if (result.prenotazioni_aggiornate > 0 || result.prenotazioni_duplicate_cancellate > 0) {
+        console.log('Modifiche rilevate, ricarico prenotazioni...');
+        // Ricarica le prenotazioni per mostrare gli aggiornamenti
+        loadPrenotazioniUtente();
+      }
+    }
+  } catch (error) {
+    console.error('Errore sincronizzazione:', error);
+  }
 }
 
 // Visualizza prenotazioni utente

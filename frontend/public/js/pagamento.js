@@ -953,6 +953,9 @@ async function confirmPaymentToBackend(paymentIntentId, method) {
                 
                 // Elimina prenotazioni duplicate nella stessa data/stanza
                 await eliminateDuplicatePrenotazioni();
+                
+                // Gestisce prenotazioni multiple stessa sala
+                await handleMultiplePrenotazioniSala();
             } else {
                 console.error('Errore aggiornamento stato prenotazione:', response.status);
             }
@@ -988,6 +991,33 @@ async function eliminateDuplicatePrenotazioni() {
         }
     } catch (error) {
         console.error('Errore eliminazione duplicate:', error);
+    }
+}
+
+// Gestisce prenotazioni multiple stessa sala
+async function handleMultiplePrenotazioniSala() {
+    try {
+        if (!prenotazioneData || !prenotazioneData.id_spazio || !prenotazioneData.data_inizio || !prenotazioneData.data_fine) {
+            return;
+        }
+        
+        const response = await fetch(`${API_BASE}/prenotazioni/handle-multiple-sala`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                id_spazio: prenotazioneData.id_spazio,
+                data_inizio: prenotazioneData.data_inizio,
+                data_fine: prenotazioneData.data_fine,
+                id_prenotazione_confermata: prenotazioneData.id_prenotazione
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Prenotazioni multiple stessa sala gestite:', result.prenotazioni_cancellate);
+        }
+    } catch (error) {
+        console.error('Errore gestione prenotazioni multiple:', error);
     }
 }
 

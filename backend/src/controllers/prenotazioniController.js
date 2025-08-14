@@ -239,4 +239,113 @@ exports.eliminateDuplicatePrenotazioni = async (req, res) => {
     console.error('Errore eliminazione duplicate:', err);
     res.status(500).json({ error: 'Errore server: ' + err.message });
   }
+};
+
+// Sincronizza lo stato delle prenotazioni con i pagamenti
+exports.syncPrenotazioniWithPagamenti = async (req, res) => {
+  const id_utente = req.user.id_utente;
+
+  try {
+    // Trova prenotazioni che hanno pagamenti ma non sono aggiornate
+    const prenotazioniToUpdate = await pool.query(
+      `SELECT p.id_prenotazione, p.stato, pg.stato as pagamento_stato
+       FROM Prenotazione p
+       JOIN Pagamento pg ON p.id_prenotazione = pg.id_prenotazione
+       WHERE p.id_utente = $1 
+         AND pg.stato = 'pagato' 
+         AND p.stato != 'confermata'`,
+      [id_utente]
+    );
+
+    let updated = 0;
+    let cancelled = 0;
+
+    for (const prenotazione of prenotazioniToUpdate.rows) {
+      // Aggiorna la prenotazione a confermata
+      await pool.query(
+        `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW() WHERE id_prenotazione = $1`,
+        [prenotazione.id_prenotazione]
+      );
+      updated++;
+
+      // Trova e cancella altre prenotazioni della stessa sala nella stessa data
+      const duplicateResult = await pool.query(
+        `SELECT p2.id_prenotazione, p2.data_inizio, p2.data_fine, p2.id_spazio
+         FROM Prenotazione p1
+         JOIN Prenotazione p2 ON p1.id_spazio = p2.id_spazio
+         WHERE p1.id_prenotazione = $1 
+           AND p2.id_prenotazione != $1
+           AND p2.stato IN ('in attesa', 'in sospeso')
+           AND p2.id_utente = $2
+           AND p2.data_inizio = p1.data_inizio
+           AND p2.data_fine = p1.data_fine`,
+        [prenotazione.id_prenotazione, id_utente]
+      );
+
+      if (duplicateResult.rowCount > 0) {
+        // Cancella le prenotazioni duplicate
+        await pool.query(
+          `DELETE FROM Prenotazione WHERE id_prenotazione = ANY($1)`,
+          [duplicateResult.rows.map(p => p.id_prenotazione)]
+        );
+        cancelled += duplicateResult.rowCount;
+      }
+    }
+
+    res.json({
+      message: 'Sincronizzazione completata',
+      prenotazioni_aggiornate: updated,
+      prenotazioni_duplicate_cancellate: cancelled
+    });
+
+  } catch (err) {
+    console.error('Errore sincronizzazione:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
+};
+
+// Gestisce prenotazioni multiple stessa sala (una confermata, le altre cancellate)
+exports.handleMultiplePrenotazioniSala = async (req, res) => {
+  const { id_spazio, data_inizio, data_fine, id_prenotazione_confermata } = req.body;
+  const id_utente = req.user.id_utente;
+
+  if (!id_spazio || !data_inizio || !data_fine || !id_prenotazione_confermata) {
+    return res.status(400).json({ error: 'Parametri mancanti' });
+  }
+
+  try {
+    // Trova tutte le prenotazioni della stessa sala nella stessa data
+    const prenotazioniSala = await pool.query(
+      `SELECT id_prenotazione, stato
+       FROM Prenotazione 
+       WHERE id_spazio = $1 
+         AND data_inizio = $2 
+         AND data_fine = $3 
+         AND id_utente = $4`,
+      [id_spazio, data_inizio, data_fine, id_utente]
+    );
+
+    let cancelled = 0;
+
+    for (const prenotazione of prenotazioniSala.rows) {
+      if (prenotazione.id_prenotazione !== parseInt(id_prenotazione_confermata) && 
+          prenotazione.stato === 'in attesa') {
+        // Cancella le altre prenotazioni in attesa
+        await pool.query(
+          `DELETE FROM Prenotazione WHERE id_prenotazione = $1`,
+          [prenotazione.id_prenotazione]
+        );
+        cancelled++;
+      }
+    }
+
+    res.json({
+      message: 'Gestione prenotazioni multiple completata',
+      prenotazioni_cancellate: cancelled
+    });
+
+  } catch (err) {
+    console.error('Errore gestione prenotazioni multiple:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
 }; 

@@ -24,4 +24,10 @@ router.put('/prenotazioni/:id_prenotazione/confirm', authenticateToken, prenotaz
 // Elimina prenotazioni duplicate nella stessa data/stanza
 router.post('/prenotazioni/eliminate-duplicates', authenticateToken, prenotazioniController.eliminateDuplicatePrenotazioni);
 
+// Sincronizza lo stato delle prenotazioni con i pagamenti
+router.post('/prenotazioni/sync-with-pagamenti', authenticateToken, prenotazioniController.syncPrenotazioniWithPagamenti);
+
+// Gestisce prenotazioni multiple stessa sala
+router.post('/prenotazioni/handle-multiple-sala', authenticateToken, prenotazioniController.handleMultiplePrenotazioniSala);
+
 module.exports = router; 
