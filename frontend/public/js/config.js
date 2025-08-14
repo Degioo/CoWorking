@@ -36,14 +36,8 @@ function getAuthHeaders() {
         }
     }
 
-    // Se non c'è utente o c'è stato un errore, reindirizza al login
-    if (window.location.pathname.split('/').pop() !== 'login.html') {
-        console.log('getAuthHeaders - Utente non autenticato, reindirizzamento al login');
-        setTimeout(() => {
-            handleAuthError();
-        }, 100);
-    }
-
+    // Se non c'è utente, restituisci solo gli header base
+    // NON reindirizzare automaticamente - lascia che sia la singola API a gestire l'errore
     return {
         'Content-Type': 'application/json'
     };
@@ -51,23 +45,33 @@ function getAuthHeaders() {
 
 // Funzione per gestire errori di autenticazione
 function handleAuthError() {
-    console.log('handleAuthError - Sessione scaduta, reindirizzamento al login');
+    console.log('handleAuthError - Utente non autenticato per questa azione, reindirizzamento al login');
     
-    // Rimuovi tutti i dati di sessione
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    sessionStorage.clear();
-    
-    // Mostra messaggio all'utente
-    const currentPage = window.location.pathname.split('/').pop();
-    
-    if (currentPage === 'login.html') {
-        // Se siamo già nella pagina di login, non fare nulla
-        return;
+    // Rimuovi solo i dati di sessione corrotti, non tutti
+    try {
+        const user = localStorage.getItem('user');
+        if (user) {
+            JSON.parse(user); // Testa se è valido
+        }
+    } catch (error) {
+        // Solo se i dati sono corrotti, rimuovili
+        localStorage.removeItem('user');
     }
     
-    // Reindirizza al login con messaggio
-    const loginUrl = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
+    // Reindirizza al login con messaggio chiaro e appropriato
+    const currentPage = window.location.pathname.split('/').pop();
+    let message = 'Devi effettuare il login per completare questa azione.';
+    
+    // Personalizza il messaggio in base alla pagina
+    if (currentPage === 'prenota.html') {
+        message = 'Devi effettuare il login per prenotare uno spazio.';
+    } else if (currentPage === 'pagamento.html') {
+        message = 'Devi effettuare il login per completare il pagamento.';
+    } else if (currentPage === 'dashboard.html') {
+        message = 'Devi effettuare il login per accedere alla dashboard.';
+    }
+    
+    const loginUrl = 'login.html?message=' + encodeURIComponent(message);
     window.location.href = loginUrl;
 }
 
@@ -75,12 +79,11 @@ function handleAuthError() {
 function logout() {
     console.log('logout - Effettuo logout utente');
     
-    // Rimuovi tutti i dati di sessione
+    // Rimuovi solo i dati di sessione, non tutto
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    sessionStorage.clear();
     
-    // Reindirizza al login
+    // Reindirizza al login con messaggio chiaro
     window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
 }
 
@@ -88,7 +91,7 @@ function logout() {
 function isAuthenticated() {
     const user = localStorage.getItem('user');
     if (!user) return false;
-    
+
     try {
         const userData = JSON.parse(user);
         return userData && userData.id_utente;
@@ -108,14 +111,14 @@ async function validateTokenOnStartup() {
         try {
             const userData = JSON.parse(user);
             console.log('validateTokenOnStartup - Sessione valida per utente:', userData.nome, userData.cognome);
-            
+
             // Verifica che l'utente abbia i campi necessari
             if (!userData.id_utente || !userData.nome || !userData.cognome) {
                 console.log('validateTokenOnStartup - Dati utente incompleti, rimuovo sessione');
                 localStorage.removeItem('user');
                 return false;
             }
-            
+
             return true;
         } catch (error) {
             console.log('validateTokenOnStartup - Errore parsing user:', error);

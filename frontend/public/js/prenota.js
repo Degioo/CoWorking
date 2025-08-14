@@ -14,16 +14,7 @@ let lastCreatedPrenotazioneId = null;
 $(document).ready(function () {
     console.log('prenota.js - Inizializzazione pagina');
     
-    // Verifica autenticazione all'avvio
-    if (typeof window.isAuthenticated === 'function' && !window.isAuthenticated()) {
-        console.log('prenota.js - Utente non autenticato, reindirizzamento al login');
-        window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per prenotare uno spazio.');
-        return;
-    }
-    
-    // Se l'utente è autenticato, continua con l'inizializzazione
-    console.log('prenota.js - Utente autenticato, inizializzo pagina');
-    
+    // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
     currentStep = 1;
     loadSedi();
     setupEventHandlers();
