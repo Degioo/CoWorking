@@ -31,7 +31,17 @@ function getAuthHeaders() {
             };
         } catch (error) {
             console.error('Errore parsing user:', error);
+            // Se c'è un errore nel parsing, rimuovi i dati corrotti
+            localStorage.removeItem('user');
         }
+    }
+
+    // Se non c'è utente o c'è stato un errore, reindirizza al login
+    if (window.location.pathname.split('/').pop() !== 'login.html') {
+        console.log('getAuthHeaders - Utente non autenticato, reindirizzamento al login');
+        setTimeout(() => {
+            handleAuthError();
+        }, 100);
     }
 
     return {
@@ -41,11 +51,51 @@ function getAuthHeaders() {
 
 // Funzione per gestire errori di autenticazione
 function handleAuthError() {
+    console.log('handleAuthError - Sessione scaduta, reindirizzamento al login');
+    
+    // Rimuovi tutti i dati di sessione
     localStorage.removeItem('user');
-    alert('Sessione scaduta. Effettua nuovamente il login.');
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 2000);
+    localStorage.removeItem('token');
+    sessionStorage.clear();
+    
+    // Mostra messaggio all'utente
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    if (currentPage === 'login.html') {
+        // Se siamo già nella pagina di login, non fare nulla
+        return;
+    }
+    
+    // Reindirizza al login con messaggio
+    const loginUrl = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
+    window.location.href = loginUrl;
+}
+
+// Funzione centralizzata per il logout
+function logout() {
+    console.log('logout - Effettuo logout utente');
+    
+    // Rimuovi tutti i dati di sessione
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    sessionStorage.clear();
+    
+    // Reindirizza al login
+    window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
+}
+
+// Funzione per verificare se l'utente è autenticato
+function isAuthenticated() {
+    const user = localStorage.getItem('user');
+    if (!user) return false;
+    
+    try {
+        const userData = JSON.parse(user);
+        return userData && userData.id_utente;
+    } catch (error) {
+        console.error('Errore parsing user:', error);
+        return false;
+    }
 }
 
 // Funzione per verificare la validità della sessione all'avvio
@@ -58,7 +108,14 @@ async function validateTokenOnStartup() {
         try {
             const userData = JSON.parse(user);
             console.log('validateTokenOnStartup - Sessione valida per utente:', userData.nome, userData.cognome);
-            // Per ora non facciamo validazione automatica, manteniamo la sessione
+            
+            // Verifica che l'utente abbia i campi necessari
+            if (!userData.id_utente || !userData.nome || !userData.cognome) {
+                console.log('validateTokenOnStartup - Dati utente incompleti, rimuovo sessione');
+                localStorage.removeItem('user');
+                return false;
+            }
+            
             return true;
         } catch (error) {
             console.log('validateTokenOnStartup - Errore parsing user:', error);
@@ -77,4 +134,6 @@ window.CONFIG = CONFIG;
 window.getAuthHeaders = getAuthHeaders;
 window.handleAuthError = handleAuthError;
 window.validateTokenOnStartup = validateTokenOnStartup;
+window.logout = logout;
+window.isAuthenticated = isAuthenticated;
 

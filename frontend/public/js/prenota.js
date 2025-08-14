@@ -12,131 +12,23 @@ let lastCreatedPrenotazioneId = null;
 
 // Inizializzazione
 $(document).ready(function () {
-  // Verifica validità token all'avvio
-  validateTokenOnStartup().then(() => {
-    // Aggiorna navbar se loggato (dopo la validazione)
+    console.log('prenota.js - Inizializzazione pagina');
+    
+    // Verifica autenticazione all'avvio
+    if (typeof window.isAuthenticated === 'function' && !window.isAuthenticated()) {
+        console.log('prenota.js - Utente non autenticato, reindirizzamento al login');
+        window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per prenotare uno spazio.');
+        return;
+    }
+    
+    // Se l'utente è autenticato, continua con l'inizializzazione
+    console.log('prenota.js - Utente autenticato, inizializzo pagina');
+    
+    currentStep = 1;
+    loadSedi();
+    setupEventHandlers();
     updateNavbar();
-  });
-
-  setupEventHandlers();
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const sedeId = urlParams.get('sede');
-  const spazioId = urlParams.get('spazio');
-  const dal = urlParams.get('dal');
-  const al = urlParams.get('al');
-
-  if (dal) $('#dataInizio').val(dal);
-  if (al) $('#dataFine').val(al);
-
-  // Se l'utente è loggato e ha completato i primi step, mostra direttamente lo step 4
-  const userStr = localStorage.getItem('user');
-  if (userStr && sedeId && spazioId && dal && al) {
-    // L'utente è tornato dopo il login, ripristina i dati e vai allo step finale
-    selectedSede = sedeId;
-    selectedSpazio = spazioId;
-    selectedDataInizio = dal;
-    selectedDataFine = al;
-    disponibilitaVerificata = true;
-
-    // Carica le sedi e gli spazi per impostare i valori dei select
-    loadSedi();
-    setTimeout(() => {
-      $('#selectSede').val(sedeId);
-      loadSpazi(sedeId);
-      setTimeout(() => {
-        $('#selectSpazio').val(spazioId);
-
-        // Nascondi tutti gli step e vai direttamente al pagamento
-        for (let i = 1; i <= 4; i++) {
-          $(`#step${i}`).hide();
-        }
-
-        // Mostra solo lo step 4
-        $('#step4').show();
-
-        // Nascondi i pulsanti di navigazione
-        $('#btnAvanti, #btnIndietro').hide();
-
-        updateRiepilogo();
-      }, 500);
-    }, 500);
-  } else if (userStr) {
-    // L'utente è loggato ma non ha parametri URL, controlla se ha una prenotazione in attesa
-    const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
-    if (pendingPrenotazione) {
-      const prenotazioneData = JSON.parse(pendingPrenotazione);
-      // Rimuovi i dati temporanei
-      localStorage.removeItem('pendingPrenotazione');
-
-      // Ripristina i dati e vai allo step finale
-      selectedSede = prenotazioneData.sede;
-      selectedSpazio = prenotazioneData.spazio;
-      selectedDataInizio = prenotazioneData.dataInizio;
-      selectedDataFine = prenotazioneData.dataFine;
-      disponibilitaVerificata = true;
-
-      // Carica le sedi e gli spazi per impostare i valori dei select
-      loadSedi();
-      setTimeout(() => {
-        $('#selectSede').val(selectedSede);
-        loadSpazi(selectedSede);
-        setTimeout(() => {
-          $('#selectSpazio').val(selectedSpazio);
-
-          // Nascondi tutti gli step e vai direttamente al pagamento
-          for (let i = 1; i <= 4; i++) {
-            $(`#step${i}`).hide();
-          }
-
-          // Mostra solo lo step 4
-          $('#step4').show();
-
-          // Nascondi i pulsanti di navigazione
-          $('#btnAvanti, #btnIndietro').hide();
-
-          // Aggiorna il riepilogo dopo aver impostato i valori
-          setTimeout(() => {
-            updateRiepilogo();
-          }, 100);
-        }, 500);
-      }, 500);
-    } else {
-      // L'utente è loggato ma non ha prenotazioni in attesa, carica normalmente
-      loadSedi();
-
-      if (sedeId) {
-        selectedSede = sedeId;
-        setTimeout(() => {
-          $('#selectSede').val(sedeId);
-          onSedeChange();
-          if (spazioId) {
-            setTimeout(() => {
-              $('#selectSpazio').val(spazioId);
-              onSpazioChange();
-            }, 500);
-          }
-        }, 500);
-      }
-    }
-  } else {
-    // L'utente non è loggato, carica normalmente
-    loadSedi();
-
-    if (sedeId) {
-      selectedSede = sedeId;
-      setTimeout(() => {
-        $('#selectSede').val(sedeId);
-        onSedeChange();
-        if (spazioId) {
-          setTimeout(() => {
-            $('#selectSpazio').val(spazioId);
-            onSpazioChange();
-          }, 500);
-        }
-      }, 500);
-    }
-  }
+    showStep(1);
 });
 
 // Aggiorna navbar se utente è loggato
@@ -161,8 +53,14 @@ function updateNavbar() {
 
 // Logout
 function logout() {
-  localStorage.removeItem('user');
-  window.location.href = 'index.html';
+    // Usa la funzione centralizzata di config.js
+    if (typeof window.logout === 'function') {
+        window.logout();
+    } else {
+        // Fallback se la funzione non è disponibile
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
 }
 
 // Carica sedi
