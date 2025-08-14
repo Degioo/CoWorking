@@ -246,8 +246,14 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         // Salva i dati della prenotazione
         window.prenotazioneData = prenotazione;
 
-        // Avvia inizializzazione con la nuova prenotazione
-        await initializePage(prenotazione.id_prenotazione);
+        // Mostra la selezione del metodo di pagamento
+        showPaymentMethodSelection();
+        
+        // Popola i dettagli della prenotazione
+        await loadPrenotazioneData();
+        
+        // Configura gli event listener
+        setupEventListeners();
 
     } catch (error) {
         console.error('Errore creazione prenotazione:', error);
@@ -500,6 +506,9 @@ function populatePrenotazioneDetails() {
 
 // Configura gli event listener
 function setupEventListeners() {
+    // Assicurati che la selezione del metodo di pagamento sia visibile
+    showPaymentMethodSelection();
+    
     // Event listener per la selezione del metodo di pagamento
     const methodCards = document.querySelectorAll('.payment-method-card');
     methodCards.forEach(card => {
