@@ -21,4 +21,7 @@ router.get('/pagamenti/stripe/status/:payment_intent_id', authenticateToken, pag
 // Pagamenti generici (PayPal, bonifico, crypto)
 router.post('/pagamenti/confirm', authenticateToken, pagamentiController.confirmGenericPayment);
 
+// Gestione prenotazioni in sospeso
+router.put('/prenotazioni/:id_prenotazione/suspend', authenticateToken, pagamentiController.suspendPrenotazione);
+
 module.exports = router; 

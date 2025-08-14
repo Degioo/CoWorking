@@ -309,6 +309,12 @@ function displayPrenotazioniUtente(prenotazioni) {
       `;
     } else if (p.stato === 'confermata') {
       azioniHtml = '<span class="badge bg-success">✅ Pagato</span>';
+    } else if (p.stato === 'in sospeso') {
+      azioniHtml = `
+        <button class="btn btn-warning btn-sm" onclick="terminaPagamento(${p.id_prenotazione})">
+          🔄 Termina Pagamento (€${importo.toFixed(2)})
+        </button>
+      `;
     } else {
       azioniHtml = '<span class="text-muted">-</span>';
     }
@@ -316,8 +322,8 @@ function displayPrenotazioniUtente(prenotazioni) {
     html += `
       <tr>
         <td>${dataInizio}</td>
-        <td>${p.nome_sede}</td>
-        <td>${p.nome_spazio}</td>
+        <td>${p.nome_sede || 'Sede'}</td>
+        <td>${p.nome_spazio || 'Spazio'}</td>
         <td><span class="badge bg-${getStatusColor(p.stato)}">${p.stato}</span></td>
         <td>${azioniHtml}</td>
       </tr>
@@ -380,6 +386,9 @@ function getStatusColor(stato) {
     case 'confermata': return 'success';
     case 'annullata': return 'danger';
     case 'completata': return 'info';
+    case 'in sospeso': return 'warning';
+    case 'in attesa': return 'secondary';
+    case 'pendente': return 'secondary';
     default: return 'secondary';
   }
 }
@@ -416,5 +425,17 @@ function pagaPrenotazione(idPrenotazione) {
   }
 
   // Reindirizza alla pagina di pagamento
-  window.location.href = `pagamento.html?id=${idPrenotazione}`;
+  window.location.href = `pagamento.html?id_prenotazione=${idPrenotazione}`;
+}
+
+// Funzione per terminare il pagamento di una prenotazione in sospeso
+function terminaPagamento(idPrenotazione) {
+  // Verifica che l'utente sia autenticato
+  if (!currentUser) {
+    alert('Devi essere autenticato per procedere al pagamento');
+    return;
+  }
+
+  // Reindirizza alla pagina di pagamento
+  window.location.href = `pagamento.html?id_prenotazione=${idPrenotazione}`;
 } 

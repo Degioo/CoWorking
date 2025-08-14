@@ -246,18 +246,24 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         // Recupera i nomi di sede e spazio per completare i dati
         try {
             const [sedeResponse, spazioResponse] = await Promise.all([
-                fetchWithTimeout(`${API_BASE}/sedi/${sede}`, {}, 5000),
-                fetchWithTimeout(`${API_BASE}/spazi/${spazio}`, {}, 5000)
+                fetchWithTimeout(`${API_BASE}/sedi`, {}, 5000),
+                fetchWithTimeout(`${API_BASE}/spazi`, {}, 5000)
             ]);
 
             if (sedeResponse.ok && spazioResponse.ok) {
-                const sedeData = await sedeResponse.json();
-                const spazioData = await spazioResponse.json();
+                const sedi = await sedeResponse.json();
+                const spazi = await spazioResponse.json();
                 
-                // Completa i dati della prenotazione con i nomi
-                prenotazione.nome_sede = sedeData.nome;
-                prenotazione.nome_spazio = spazioData.nome;
-                prenotazione.citta_sede = sedeData.citta;
+                // Trova la sede e lo spazio specifici
+                const sedeData = sedi.find(s => s.id_sede == sede);
+                const spazioData = spazi.find(sp => sp.id_spazio == spazio);
+                
+                if (sedeData && spazioData) {
+                    // Completa i dati della prenotazione con i nomi
+                    prenotazione.nome_sede = sedeData.nome;
+                    prenotazione.nome_spazio = spazioData.nome;
+                    prenotazione.citta_sede = sedeData.citta;
+                }
             }
         } catch (error) {
             console.warn('Impossibile recuperare nomi sede/spazio:', error);
@@ -265,6 +271,12 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
 
         // Salva i dati della prenotazione
         window.prenotazioneData = prenotazione;
+        
+        // Aggiungi le date se non sono presenti (caso creazione automatica)
+        if (!prenotazione.data_inizio) {
+            prenotazione.data_inizio = dataInizio;
+            prenotazione.data_fine = dataFine;
+        }
 
         // Mostra la selezione del metodo di pagamento
         showPaymentMethodSelection();

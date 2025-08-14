@@ -299,7 +299,7 @@ exports.getStripePublicConfig = async (req, res) => {
 // Generico: conferma pagamento per metodi non-Stripe (PayPal, bonifico, crypto)
 exports.confirmGenericPayment = async (req, res) => {
   const { payment_intent_id, method, id_prenotazione } = req.body;
-  const id_utente = req.user.id_utente;
+  const id_utente = req.user.id_utente; // Assumed from authenticateToken middleware
 
   if (!payment_intent_id || !method || !id_prenotazione) {
     return res.status(400).json({ error: 'Tutti i campi sono obbligatori' });
@@ -311,7 +311,7 @@ exports.confirmGenericPayment = async (req, res) => {
       `SELECT data_inizio, data_fine FROM Prenotazione WHERE id_prenotazione = $1`,
       [id_prenotazione]
     );
-    
+
     if (pre.rowCount === 0) {
       return res.status(404).json({ error: 'Prenotazione non trovata' });
     }
@@ -324,7 +324,7 @@ exports.confirmGenericPayment = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency)
        VALUES ($1, $2, NOW(), 'pagato', $3, $3, $4, 'EUR')
-       ON CONFLICT (provider_payment_id) DO UPDATE SET 
+       ON CONFLICT (provider_payment_id) DO UPDATE SET
        stato = 'pagato', data_pagamento = NOW()`,
       [id_prenotazione, importo, method, payment_intent_id]
     );
@@ -347,6 +347,49 @@ exports.confirmGenericPayment = async (req, res) => {
 
   } catch (err) {
     console.error('Errore conferma pagamento generico:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
+};
+
+// Gestisce le prenotazioni in sospeso (quando l'utente interrompe il pagamento)
+exports.suspendPrenotazione = async (req, res) => {
+  const { id_prenotazione } = req.params;
+  const id_utente = req.user.id_utente;
+
+  if (!id_prenotazione) {
+    return res.status(400).json({ error: 'ID prenotazione obbligatorio' });
+  }
+
+  try {
+    // Verifica che la prenotazione appartenga all'utente
+    const pre = await pool.query(
+      `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
+      [id_prenotazione, id_utente]
+    );
+
+    if (pre.rowCount === 0) {
+      return res.status(404).json({ error: 'Prenotazione non trovata' });
+    }
+
+    // Aggiorna lo stato della prenotazione a "in sospeso"
+    await pool.query(
+      `UPDATE Prenotazione SET stato = 'in sospeso' WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    // Aggiorna anche il pagamento se esiste
+    await pool.query(
+      `UPDATE Pagamento SET stato = 'in sospeso' WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    res.json({
+      message: 'Prenotazione messa in sospeso',
+      stato: 'in sospeso'
+    });
+
+  } catch (err) {
+    console.error('Errore sospensione prenotazione:', err);
     res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 }; 
