@@ -46,7 +46,7 @@ exports.creaPrenotazione = async (req, res) => {
     // Inserimento prenotazione
     const result = await pool.query(
       `INSERT INTO Prenotazione (id_utente, id_spazio, data_inizio, data_fine, stato)
-       VALUES ($1, $2, $3, $4, 'confermata') RETURNING id_prenotazione`,
+       VALUES ($1, $2, $3, $4, 'in attesa') RETURNING id_prenotazione`,
       [id_utente, id_spazio, data_inizio, data_fine]
     );
     res.status(201).json({ message: 'Prenotazione creata', id_prenotazione: result.rows[0].id_prenotazione });
@@ -108,13 +108,53 @@ exports.getPrenotazioneById = async (req, res) => {
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Prenotazione non trovata' });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error('Errore recupero prenotazione:', err);
     res.status(500).json({ error: 'Errore server' });
+  }
+};
+
+// Mette in sospeso una prenotazione (quando l'utente interrompe il pagamento)
+exports.suspendPrenotazione = async (req, res) => {
+  const { id_prenotazione } = req.params;
+  const id_utente = req.user.id_utente;
+
+  if (!id_prenotazione) {
+    return res.status(400).json({ error: 'ID prenotazione obbligatorio' });
+  }
+
+  try {
+    // Verifica che la prenotazione appartenga all'utente e sia in attesa
+    const pre = await pool.query(
+      `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
+      [id_prenotazione, id_utente]
+    );
+
+    if (pre.rowCount === 0) {
+      return res.status(404).json({ error: 'Prenotazione non trovata' });
+    }
+
+    if (pre.rows[0].stato !== 'in attesa') {
+      return res.status(400).json({ error: 'Solo prenotazioni in attesa possono essere sospese' });
+    }
+
+    // Aggiorna lo stato della prenotazione a "in sospeso"
+    await pool.query(
+      `UPDATE Prenotazione SET stato = 'in sospeso' WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    res.json({
+      message: 'Prenotazione messa in sospeso',
+      stato: 'in sospeso'
+    });
+
+  } catch (err) {
+    console.error('Errore sospensione prenotazione:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 }; 

@@ -15,4 +15,7 @@ router.get('/prenotazioni', authenticateToken, prenotazioniController.getPrenota
 // Ottiene i dettagli di una singola prenotazione
 router.get('/prenotazioni/:id', authenticateToken, prenotazioniController.getPrenotazioneById);
 
+// Mette in sospeso una prenotazione (quando l'utente interrompe il pagamento)
+router.put('/prenotazioni/:id_prenotazione/suspend', authenticateToken, prenotazioniController.suspendPrenotazione);
+
 module.exports = router; 

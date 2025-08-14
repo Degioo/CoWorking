@@ -10,6 +10,37 @@ let paymentIntentId;
 // Dati della prenotazione
 let prenotazioneData = {};
 
+// Flag per tracciare se il pagamento è stato completato
+let pagamentoCompletato = false;
+
+// Gestione interruzione pagamento
+window.addEventListener('beforeunload', function(e) {
+    // Solo se il pagamento non è stato completato e c'è una prenotazione
+    if (!pagamentoCompletato && prenotazioneData && prenotazioneData.id_prenotazione) {
+        // Metti in sospeso la prenotazione
+        suspendPrenotazioneOnExit(prenotazioneData.id_prenotazione);
+        
+        // Mostra messaggio di conferma
+        e.preventDefault();
+        e.returnValue = 'Sei sicuro di voler uscire? Il pagamento non è stato completato.';
+    }
+});
+
+// Funzione per mettere in sospeso la prenotazione quando l'utente esce
+async function suspendPrenotazioneOnExit(idPrenotazione) {
+    try {
+        // Chiama l'API per mettere in sospeso la prenotazione
+        await fetch(`${API_BASE}/prenotazioni/${idPrenotazione}/suspend`, {
+            method: 'PUT',
+            headers: getAuthHeaders()
+        });
+        
+        console.log('Prenotazione messa in sospeso per interruzione pagamento');
+    } catch (error) {
+        console.error('Errore sospensione prenotazione:', error);
+    }
+}
+
 // Funzione helper per chiamate API con timeout
 async function fetchWithTimeout(url, options = {}, timeout = 10000) {
     const controller = new AbortController();
@@ -857,6 +888,9 @@ async function createPaymentIntent() {
 // Aggiorna la funzione handlePaymentSuccess per gestire i diversi metodi
 async function handlePaymentSuccess(paymentIntent, method) {
     try {
+        // Imposta il flag che il pagamento è stato completato
+        pagamentoCompletato = true;
+        
         let methodText = '';
         switch (method) {
             case 'carta':
