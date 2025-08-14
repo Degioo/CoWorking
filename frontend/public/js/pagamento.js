@@ -716,20 +716,27 @@ async function handleCryptoPaymentConfirm() {
 // Crea il PaymentIntent
 async function createPaymentIntent() {
     try {
-        const response = await fetch(`${API_BASE}/pagamenti/stripe/intent`, {
+        console.log('Creo PaymentIntent per prenotazione:', prenotazioneData.id_prenotazione);
+        
+        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/intent`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
                 id_prenotazione: prenotazioneData.id_prenotazione
             })
-        });
+        }, 15000);
+
+        console.log('Risposta creazione PaymentIntent:', response.status, response.statusText);
 
         if (!response.ok) {
             const error = await response.json();
+            console.error('Errore creazione PaymentIntent:', error);
             throw new Error(error.error || 'Errore nella creazione del pagamento');
         }
 
         const paymentIntent = await response.json();
+        console.log('PaymentIntent creato:', paymentIntent);
+        
         paymentIntentId = paymentIntent.paymentIntentId;
 
         return paymentIntent;
@@ -792,15 +799,29 @@ async function handlePaymentSuccess(paymentIntent, method) {
 // Aggiorna la funzione confirmPaymentToBackend per gestire i diversi metodi
 async function confirmPaymentToBackend(paymentIntentId, method) {
     try {
-        await fetch(`${API_BASE}/pagamenti/confirm`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({
-                payment_intent_id: paymentIntentId,
-                method: method,
-                id_prenotazione: prenotazioneData.id_prenotazione
-            })
-        });
+        if (method === 'carta') {
+            // Per pagamenti con carta, usa l'endpoint Stripe
+            await fetch(`${API_BASE}/pagamenti/stripe/complete`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    payment_intent_id: paymentIntentId
+                })
+            });
+        } else {
+            // Per altri metodi, usa l'endpoint generico
+            await fetch(`${API_BASE}/pagamenti/confirm`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    payment_intent_id: paymentIntentId,
+                    method: method,
+                    id_prenotazione: prenotazioneData.id_prenotazione
+                })
+            });
+        }
+        
+        console.log('Pagamento confermato al backend:', method, paymentIntentId);
     } catch (error) {
         console.error('Errore conferma backend:', error);
     }

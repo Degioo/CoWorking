@@ -18,4 +18,7 @@ router.post('/pagamenti/stripe/intent', authenticateToken, pagamentiController.c
 router.post('/pagamenti/stripe/complete', authenticateToken, pagamentiController.completeCardPayment);
 router.get('/pagamenti/stripe/status/:payment_intent_id', authenticateToken, pagamentiController.getPaymentStatus);
 
+// Pagamenti generici (PayPal, bonifico, crypto)
+router.post('/pagamenti/confirm', authenticateToken, pagamentiController.confirmGenericPayment);
+
 module.exports = router; 

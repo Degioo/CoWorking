@@ -289,4 +289,59 @@ exports.getStripePublicConfig = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Errore configurazione' });
   }
+};
+
+// Generico: conferma pagamento per metodi non-Stripe (PayPal, bonifico, crypto)
+exports.confirmGenericPayment = async (req, res) => {
+  const { payment_intent_id, method, id_prenotazione } = req.body;
+  const id_utente = req.user.id_utente;
+
+  if (!payment_intent_id || !method || !id_prenotazione) {
+    return res.status(400).json({ error: 'Tutti i campi sono obbligatori' });
+  }
+
+  try {
+    // Recupera la prenotazione per calcolare l'importo
+    const pre = await pool.query(
+      `SELECT data_inizio, data_fine FROM Prenotazione WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+    
+    if (pre.rowCount === 0) {
+      return res.status(404).json({ error: 'Prenotazione non trovata' });
+    }
+
+    const { data_inizio, data_fine } = pre.rows[0];
+    const ore = hoursBetween(data_inizio, data_fine);
+    const importo = Math.max(1, Math.round(ore * BASE_RATE_EUR_PER_HOUR));
+
+    // Salva il pagamento generico
+    const result = await pool.query(
+      `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency)
+       VALUES ($1, $2, NOW(), 'pagato', $3, $3, $4, 'EUR')
+       ON CONFLICT (provider_payment_id) DO UPDATE SET 
+       stato = 'pagato', data_pagamento = NOW()`,
+      [id_prenotazione, importo, method, payment_intent_id]
+    );
+
+    // Aggiorna lo stato della prenotazione
+    await pool.query(
+      `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW() WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    res.json({
+      message: 'Pagamento confermato',
+      pagamento: {
+        id_pagamento: result.rows[0]?.id_pagamento,
+        metodo: method,
+        importo: importo,
+        stato: 'pagato'
+      }
+    });
+
+  } catch (err) {
+    console.error('Errore conferma pagamento generico:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
 }; 
