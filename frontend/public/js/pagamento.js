@@ -79,7 +79,7 @@ function checkInternetConnection() {
 function checkRequiredElements() {
     const requiredElements = [
         'card-element',
-        'payment-form',
+        'payment-method-selection',
         'data-prenotazione',
         'orario-prenotazione',
         'durata-prenotazione',
