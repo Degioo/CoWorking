@@ -5,7 +5,39 @@ const app = express();
 const PORT = config.server.port;
 
 // Middleware CORS per permettere richieste dal frontend
-app.use(cors(config.cors));
+app.use(cors({
+    origin: function (origin, callback) {
+        // Lista degli origin permessi
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:5500',
+            'https://coworking-mio-1.onrender.com',
+            'https://coworking-mio-1-backend.onrender.com'
+        ];
+        
+        // Permetti richieste senza origin (es. Postman, mobile apps)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-Requested-With']
+}));
+
+// Gestisci le richieste OPTIONS (preflight)
+app.options('*', cors());
+
+// Middleware per loggare le richieste CORS
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+    next();
+});
 
 app.use(express.json());
 
@@ -38,6 +70,28 @@ app.use('/webhook', webhookRoutes);
 
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong' });
+});
+
+// Endpoint di test CORS
+app.get('/api/test-cors', (req, res) => {
+  res.json({ 
+    message: 'CORS test successful',
+    origin: req.headers.origin,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Endpoint di test disponibilità senza autenticazione (per debug)
+app.get('/api/test-disponibilita', (req, res) => {
+  const { data_inizio, data_fine } = req.query;
+  res.json({ 
+    message: 'Test disponibilità senza auth',
+    data_inizio,
+    data_fine,
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.listen(PORT, () => {

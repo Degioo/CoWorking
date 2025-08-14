@@ -31,7 +31,12 @@ module.exports = {
 
     // Configurazione CORS
     cors: {
-        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'http://127.0.0.1:5500'],
+        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [
+            'http://localhost:3000', 
+            'http://127.0.0.1:5500',
+            'https://coworking-mio-1.onrender.com',  // Frontend su Render
+            'https://coworking-mio-1-backend.onrender.com'  // Backend su Render
+        ],
         credentials: true
     }
 };

@@ -4,7 +4,7 @@ const prenotazioniController = require('../controllers/prenotazioniController');
 const { authenticateToken } = require('../middleware/auth');
 
 // Verifica disponibilità di uno spazio
-router.get('/spazi/:id/disponibilita', prenotazioniController.checkDisponibilita);
+router.get('/spazi/:id/disponibilita', authenticateToken, prenotazioniController.checkDisponibilita);
 
 // Crea una nuova prenotazione
 router.post('/prenotazioni', authenticateToken, prenotazioniController.creaPrenotazione);
