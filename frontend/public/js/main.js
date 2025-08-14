@@ -47,7 +47,11 @@ function loadSedi(citta = '') {
   console.log('Caricando sedi...', citta ? `Filtro: ${citta}` : 'Tutte');
   const url = citta ? `${API_BASE}/sedi?citta=${citta}` : `${API_BASE}/sedi`;
 
-  $.get(url)
+  $.ajax({
+    url: url,
+    method: 'GET',
+    headers: getAuthHeaders() // Aggiungo headers per compatibilità backend
+  })
     .done(function (sedi) {
       console.log('Sedi caricate:', sedi);
       displaySedi(sedi);
