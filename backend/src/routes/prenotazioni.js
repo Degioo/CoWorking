@@ -18,4 +18,10 @@ router.get('/prenotazioni/:id', authenticateToken, prenotazioniController.getPre
 // Mette in sospeso una prenotazione (quando l'utente interrompe il pagamento)
 router.put('/prenotazioni/:id_prenotazione/suspend', authenticateToken, prenotazioniController.suspendPrenotazione);
 
+// Conferma una prenotazione (dopo il pagamento)
+router.put('/prenotazioni/:id_prenotazione/confirm', authenticateToken, prenotazioniController.confirmPrenotazione);
+
+// Elimina prenotazioni duplicate nella stessa data/stanza
+router.post('/prenotazioni/eliminate-duplicates', authenticateToken, prenotazioniController.eliminateDuplicatePrenotazioni);
+
 module.exports = router; 

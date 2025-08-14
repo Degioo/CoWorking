@@ -62,7 +62,7 @@ exports.getPrenotazioni = async (req, res) => {
     let result;
     if (utente) {
       result = await pool.query(
-        `SELECT p.*, s.nome AS nome_spazio, se.nome AS nome_sede
+        `SELECT p.*, s.nome AS nome_spazio, se.nome AS nome_sede, se.indirizzo AS indirizzo_sede
          FROM Prenotazione p
          JOIN Spazio s ON p.id_spazio = s.id_spazio
          JOIN Sede se ON s.id_sede = se.id_sede
@@ -73,7 +73,7 @@ exports.getPrenotazioni = async (req, res) => {
     } else if (gestore) {
       // Trova tutte le prenotazioni degli spazi delle sedi gestite dal gestore
       result = await pool.query(
-        `SELECT p.*, s.nome AS nome_spazio, se.nome AS nome_sede
+        `SELECT p.*, s.nome AS nome_spazio, se.nome AS nome_sede, se.indirizzo AS indirizzo_sede
          FROM Prenotazione p
          JOIN Spazio s ON p.id_spazio = s.id_spazio
          JOIN Sede se ON s.id_sede = se.id_sede
@@ -128,7 +128,7 @@ exports.suspendPrenotazione = async (req, res) => {
   }
 
   try {
-    // Verifica che la prenotazione appartenga all'utente e sia in attesa
+    // Verifica che la prenotazione appartenga all'utente
     const pre = await pool.query(
       `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
       [id_prenotazione, id_utente]
@@ -138,13 +138,15 @@ exports.suspendPrenotazione = async (req, res) => {
       return res.status(404).json({ error: 'Prenotazione non trovata' });
     }
 
-    if (pre.rows[0].stato !== 'in attesa') {
-      return res.status(400).json({ error: 'Solo prenotazioni in attesa possono essere sospese' });
-    }
-
     // Aggiorna lo stato della prenotazione a "in sospeso"
     await pool.query(
       `UPDATE Prenotazione SET stato = 'in sospeso' WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    // Aggiorna anche il pagamento se esiste
+    await pool.query(
+      `UPDATE Pagamento SET stato = 'in sospeso' WHERE id_prenotazione = $1`,
       [id_prenotazione]
     );
 
@@ -155,6 +157,86 @@ exports.suspendPrenotazione = async (req, res) => {
 
   } catch (err) {
     console.error('Errore sospensione prenotazione:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
+};
+
+// Conferma una prenotazione (dopo il pagamento)
+exports.confirmPrenotazione = async (req, res) => {
+  const { id_prenotazione } = req.params;
+  const { method, payment_id } = req.body;
+  const id_utente = req.user.id_utente;
+
+  if (!id_prenotazione) {
+    return res.status(400).json({ error: 'ID prenotazione obbligatorio' });
+  }
+
+  try {
+    // Verifica che la prenotazione appartenga all'utente
+    const pre = await pool.query(
+      `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
+      [id_prenotazione, id_utente]
+    );
+
+    if (pre.rowCount === 0) {
+      return res.status(404).json({ error: 'Prenotazione non trovata' });
+    }
+
+    // Aggiorna lo stato della prenotazione a "confermata"
+    await pool.query(
+      `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW() WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
+    // Aggiorna o crea il record di pagamento
+    await pool.query(
+      `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency)
+       VALUES ($1, $2, NOW(), 'pagato', $3, $3, $4, 'EUR')
+       ON CONFLICT (id_prenotazione) DO UPDATE SET
+       stato = 'pagato', data_pagamento = NOW(), metodo = $3, provider_payment_id = $4`,
+      [id_prenotazione, 30, method, payment_id] // 30€ come importo di default
+    );
+
+    res.json({
+      message: 'Prenotazione confermata',
+      stato: 'confermata'
+    });
+
+  } catch (err) {
+    console.error('Errore conferma prenotazione:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
+};
+
+// Elimina prenotazioni duplicate nella stessa data/stanza
+exports.eliminateDuplicatePrenotazioni = async (req, res) => {
+  const { id_spazio, data_inizio, data_fine, exclude_id } = req.body;
+  const id_utente = req.user.id_utente;
+
+  if (!id_spazio || !data_inizio || !data_fine) {
+    return res.status(400).json({ error: 'Parametri mancanti' });
+  }
+
+  try {
+    // Trova e elimina prenotazioni duplicate (stesso spazio, stesse date, stesso utente)
+    const result = await pool.query(
+      `DELETE FROM Prenotazione 
+       WHERE id_spazio = $1 
+         AND data_inizio = $2 
+         AND data_fine = $3 
+         AND id_utente = $4 
+         AND id_prenotazione != $5 
+         AND stato IN ('in attesa', 'in sospeso')`,
+      [id_spazio, data_inizio, data_fine, id_utente, exclude_id]
+    );
+
+    res.json({
+      message: 'Prenotazioni duplicate eliminate',
+      eliminated: result.rowCount
+    });
+
+  } catch (err) {
+    console.error('Errore eliminazione duplicate:', err);
     res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 }; 

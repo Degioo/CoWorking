@@ -935,20 +935,59 @@ async function handlePaymentSuccess(paymentIntent, method) {
 // Aggiorna la funzione confirmPaymentToBackend per gestire i diversi metodi
 async function confirmPaymentToBackend(paymentIntentId, method) {
     try {
-        // Simula la conferma al backend
-        console.log('Simulo conferma pagamento al backend:', method, paymentIntentId);
+        console.log('Confermo pagamento al backend:', method, paymentIntentId);
         
-        // Simula un delay per la conferma
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simula aggiornamento stato prenotazione
         if (prenotazioneData && prenotazioneData.id_prenotazione) {
-            console.log('Simulo aggiornamento stato prenotazione a "confermata"');
+            // Aggiorna lo stato della prenotazione a "confermata" nel backend
+            const response = await fetch(`${API_BASE}/prenotazioni/${prenotazioneData.id_prenotazione}/confirm`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    method: method,
+                    payment_id: paymentIntentId
+                })
+            });
+            
+            if (response.ok) {
+                console.log('Stato prenotazione aggiornato a "confermata" nel backend');
+                
+                // Elimina prenotazioni duplicate nella stessa data/stanza
+                await eliminateDuplicatePrenotazioni();
+            } else {
+                console.error('Errore aggiornamento stato prenotazione:', response.status);
+            }
         }
         
-        console.log('Pagamento simulato confermato al backend:', method, paymentIntentId);
+        console.log('Pagamento confermato al backend:', method, paymentIntentId);
     } catch (error) {
-        console.error('Errore conferma backend simulata:', error);
+        console.error('Errore conferma backend:', error);
+    }
+}
+
+// Elimina prenotazioni duplicate nella stessa data/stanza
+async function eliminateDuplicatePrenotazioni() {
+    try {
+        if (!prenotazioneData || !prenotazioneData.id_spazio || !prenotazioneData.data_inizio || !prenotazioneData.data_fine) {
+            return;
+        }
+        
+        const response = await fetch(`${API_BASE}/prenotazioni/eliminate-duplicates`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                id_spazio: prenotazioneData.id_spazio,
+                data_inizio: prenotazioneData.data_inizio,
+                data_fine: prenotazioneData.data_fine,
+                exclude_id: prenotazioneData.id_prenotazione // Esclude la prenotazione appena confermata
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Prenotazioni duplicate eliminate:', result.eliminated);
+        }
+    } catch (error) {
+        console.error('Errore eliminazione duplicate:', error);
     }
 }
 

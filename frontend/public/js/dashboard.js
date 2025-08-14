@@ -290,7 +290,7 @@ function displayPrenotazioniUtente(prenotazioni) {
   }
 
   let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
+  html += '<thead><tr><th>Data</th><th>Sede</th><th>Via</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
 
   prenotazioni.forEach(p => {
     const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
@@ -323,7 +323,7 @@ function displayPrenotazioniUtente(prenotazioni) {
       <tr>
         <td>${dataInizio}</td>
         <td>${p.nome_sede || 'Sede'}</td>
-        <td>${p.nome_spazio || 'Spazio'}</td>
+        <td>${p.indirizzo_sede || 'Via non disponibile'}</td>
         <td><span class="badge bg-${getStatusColor(p.stato)}">${p.stato}</span></td>
         <td>${azioniHtml}</td>
       </tr>
@@ -363,14 +363,26 @@ function displayPagamentiUtente(pagamenti) {
   }
 
   let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Data</th><th>Importo</th><th>Stato</th></tr></thead><tbody>';
+  html += '<thead><tr><th>Data</th><th>Importo</th><th>Dettagli</th><th>Stato</th></tr></thead><tbody>';
 
   pagamenti.forEach(p => {
     const dataPagamento = new Date(p.data_pagamento).toLocaleString('it-IT');
+    
+    // Crea i dettagli del pagamento
+    let dettagli = 'N/A';
+    if (p.nome_spazio && p.nome_sede && p.citta_sede) {
+      dettagli = `${p.nome_spazio} - ${p.nome_sede} (${p.citta_sede})`;
+    } else if (p.nome_spazio && p.nome_sede) {
+      dettagli = `${p.nome_spazio} - ${p.nome_sede}`;
+    } else if (p.nome_spazio) {
+      dettagli = p.nome_spazio;
+    }
+    
     html += `
       <tr>
         <td>${dataPagamento}</td>
         <td>€${p.importo}</td>
+        <td>${dettagli}</td>
         <td><span class="badge bg-${getPaymentStatusColor(p.stato)}">${p.stato}</span></td>
       </tr>
     `;

@@ -53,8 +53,11 @@ exports.getPagamenti = async (req, res) => {
       );
     } else if (utente) {
       result = await pool.query(
-        `SELECT pg.* FROM Pagamento pg
+        `SELECT pg.*, p.nome_spazio, s.nome AS nome_sede, s.citta AS citta_sede 
+         FROM Pagamento pg
          JOIN Prenotazione p ON pg.id_prenotazione = p.id_prenotazione
+         JOIN Spazio sp ON p.id_spazio = sp.id_spazio
+         JOIN Sede s ON sp.id_sede = s.id_sede
          WHERE p.id_utente = $1
          ORDER BY pg.data_pagamento DESC`,
         [utente]
