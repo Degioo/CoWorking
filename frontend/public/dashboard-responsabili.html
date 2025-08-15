@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Responsabili - Coworking Mio</title>
+  <meta name="description" content="Dashboard completa per responsabili delle sedi. Gestisci disponibilità, prenotazioni e reportistica.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Stylesheets -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/modern-design.css">
+  <link rel="stylesheet" href="css/dashboard-responsabili.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+  <!-- Skip Link per Accessibilità -->
+  <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
+  
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-building me-2"></i>
+        Coworking Mio - Responsabili
+      </a>
+      
+      <button class="navbar-toggler mobile-menu-toggle" type="button" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <div class="collapse navbar-collapse mobile-menu" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">Dashboard Utente</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="dashboard-responsabili.html">Dashboard Responsabili</a>
+          </li>
+          <li class="nav-item" id="authSection">
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+              <i class="fas fa-sign-in-alt me-1"></i>Accedi
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="mb-2">Dashboard Responsabili Sedi</h1>
+            <p class="lead text-muted">Gestisci disponibilità, prenotazioni e monitora le performance delle tue sedi</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <div class="user-info">
+              <span class="user-role">Responsabile Sede</span>
+              <span class="user-name" id="userName">Caricamento...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="py-4">
+      <div class="container">
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number" id="prenotazioniOggi">0</div>
+              <div class="stat-label">Prenotazioni Oggi</div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number" id="utentiAttivi">0</div>
+              <div class="stat-label">Utenti Attivi</div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-euro-sign"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number" id="fatturatoGiorno">€0</div>
+              <div class="stat-label">Fatturato Giorno</div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number" id="occupazioneMedia">0%</div>
+              <div class="stat-label">Occupazione Media</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Content -->
+    <section class="py-4">
+      <div class="container">
+        <div class="row">
+          <!-- Sidebar Navigation -->
+          <div class="col-lg-3">
+            <div class="dashboard-sidebar">
+              <div class="sidebar-section">
+                <h6 class="sidebar-title">Gestione Sedi</h6>
+                <ul class="sidebar-nav">
+                  <li><a href="#overview" class="sidebar-link active" data-section="overview">
+                    <i class="fas fa-chart-line me-2"></i>Overview
+                  </a></li>
+                  <li><a href="#disponibilita" class="sidebar-link" data-section="disponibilita">
+                    <i class="fas fa-calendar-alt me-2"></i>Disponibilità
+                  </a></li>
+                  <li><a href="#prenotazioni" class="sidebar-link" data-section="prenotazioni">
+                    <i class="fas fa-bookmark me-2"></i>Prenotazioni
+                  </a></li>
+                  <li><a href="#utenti" class="sidebar-link" data-section="utenti">
+                    <i class="fas fa-users me-2"></i>Utenti
+                  </a></li>
+                  <li><a href="#reportistica" class="sidebar-link" data-section="reportistica">
+                    <i class="fas fa-chart-bar me-2"></i>Reportistica
+                  </a></li>
+                  <li><a href="#impostazioni" class="sidebar-link" data-section="impostazioni">
+                    <i class="fas fa-cog me-2"></i>Impostazioni
+                  </a></li>
+                </ul>
+              </div>
+              
+              <div class="sidebar-section">
+                <h6 class="sidebar-title">Sedi Gestite</h6>
+                <div class="sede-selector">
+                  <select class="form-select" id="sedeSelector">
+                    <option value="">Seleziona Sede</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="col-lg-9">
+            <!-- Overview Section -->
+            <div class="dashboard-section active" id="overview">
+              <div class="section-header">
+                <h3>Overview Generale</h3>
+                <div class="section-actions">
+                  <button class="btn btn-outline-primary btn-sm" onclick="refreshOverview()">
+                    <i class="fas fa-sync-alt me-1"></i>Aggiorna
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Charts Row -->
+              <div class="row mb-4">
+                <div class="col-lg-6">
+                  <div class="chart-card">
+                    <h6>Prenotazioni Ultimi 7 Giorni</h6>
+                    <canvas id="prenotazioniChart" width="400" height="200"></canvas>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="chart-card">
+                    <h6>Occupazione per Spazio</h6>
+                    <canvas id="occupazioneChart" width="400" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Recent Activity -->
+              <div class="activity-card">
+                <h6>Attività Recenti</h6>
+                <div class="activity-list" id="activityList">
+                  <!-- Attività verranno caricate dinamicamente -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Disponibilità Section -->
+            <div class="dashboard-section" id="disponibilita">
+              <div class="section-header">
+                <h3>Gestione Disponibilità</h3>
+                <div class="section-actions">
+                  <button class="btn btn-primary btn-sm" onclick="showDisponibilitaModal()">
+                    <i class="fas fa-plus me-1"></i>Nuova Regola
+                  </button>
+                </div>
+              </div>
+              
+              <div class="disponibilita-grid">
+                <div class="calendar-widget">
+                  <div class="calendar-header">
+                    <button class="btn btn-sm btn-outline" onclick="previousMonth()">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h5 id="currentMonth">Gennaio 2025</h5>
+                    <button class="btn btn-sm btn-outline" onclick="nextMonth()">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                  <div class="calendar-body" id="calendarBody">
+                    <!-- Calendario verrà generato dinamicamente -->
+                  </div>
+                </div>
+                
+                <div class="disponibilita-rules">
+                  <h6>Regole di Disponibilità</h6>
+                  <div class="rules-list" id="rulesList">
+                    <!-- Regole verranno caricate dinamicamente -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prenotazioni Section -->
+            <div class="dashboard-section" id="prenotazioni">
+              <div class="section-header">
+                <h3>Gestione Prenotazioni</h3>
+                <div class="section-actions">
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary btn-sm active" data-filter="tutte">Tutte</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="confermate">Confermate</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="in-attesa">In Attesa</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="cancellate">Cancellate</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="prenotazioni-filters">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label class="form-label">Data Inizio</label>
+                    <input type="date" class="form-control" id="filterDataInizio">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Data Fine</label>
+                    <input type="date" class="form-control" id="filterDataFine">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Spazio</label>
+                    <select class="form-select" id="filterSpazio">
+                      <option value="">Tutti gli spazi</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Stato</label>
+                    <select class="form-select" id="filterStato">
+                      <option value="">Tutti gli stati</option>
+                      <option value="confermata">Confermata</option>
+                      <option value="in attesa">In Attesa</option>
+                      <option value="cancellata">Cancellata</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <button class="btn btn-primary" onclick="applicaFiltri()">
+                    <i class="fas fa-search me-1"></i>Applica Filtri
+                  </button>
+                  <button class="btn btn-outline-secondary" onclick="resetFiltri()">
+                    <i class="fas fa-times me-1"></i>Reset
+                  </button>
+                </div>
+              </div>
+              
+              <div class="table-container">
+                <table class="table" id="prenotazioniTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Utente</th>
+                      <th>Spazio</th>
+                      <th>Data Inizio</th>
+                      <th>Data Fine</th>
+                      <th>Stato</th>
+                      <th>Importo</th>
+                      <th>Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody id="prenotazioniTableBody">
+                    <!-- Prenotazioni verranno caricate dinamicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Utenti Section -->
+            <div class="dashboard-section" id="utenti">
+              <div class="section-header">
+                <h3>Gestione Utenti</h3>
+                <div class="section-actions">
+                  <button class="btn btn-primary btn-sm" onclick="showUtenteModal()">
+                    <i class="fas fa-user-plus me-1"></i>Nuovo Utente
+                  </button>
+                </div>
+              </div>
+              
+              <div class="utenti-stats">
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="stat-mini">
+                      <div class="stat-number" id="utentiTotali">0</div>
+                      <div class="stat-label">Utenti Totali</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="stat-mini">
+                      <div class="stat-number" id="utentiAttiviMese">0</div>
+                      <div class="stat-label">Attivi Questo Mese</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="stat-mini">
+                      <div class="stat-number" id="nuoviUtenti">0</div>
+                      <div class="stat-label">Nuovi Questo Mese</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="stat-mini">
+                      <div class="stat-number" id="utentiPremium">0</div>
+                      <div class="stat-label">Utenti Premium</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="table-container">
+                <table class="table" id="utentiTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nome</th>
+                      <th>Email</th>
+                      <th>Ruolo</th>
+                      <th>Data Registrazione</th>
+                      <th>Ultimo Accesso</th>
+                      <th>Stato</th>
+                      <th>Azioni</th>
+                    </tr>
+                  </thead>
+                  <tbody id="utentiTableBody">
+                    <!-- Utenti verranno caricati dinamicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Reportistica Section -->
+            <div class="dashboard-section" id="reportistica">
+              <div class="section-header">
+                <h3>Reportistica e Analytics</h3>
+                <div class="section-actions">
+                  <button class="btn btn-outline-primary btn-sm" onclick="exportReport()">
+                    <i class="fas fa-download me-1"></i>Esporta Report
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm" onclick="scheduleReport()">
+                    <i class="fas fa-clock me-1"></i>Programma Report
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Report Filters -->
+              <div class="report-filters">
+                <div class="row">
+                  <div class="col-md-2">
+                    <label class="form-label">Periodo</label>
+                    <select class="form-select" id="reportPeriodo">
+                      <option value="7">Ultimi 7 giorni</option>
+                      <option value="30" selected>Ultimi 30 giorni</option>
+                      <option value="90">Ultimi 3 mesi</option>
+                      <option value="365">Ultimo anno</option>
+                      <option value="custom">Personalizzato</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Sede</label>
+                    <select class="form-select" id="reportSede">
+                      <option value="">Tutte le sedi</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Tipo Report</label>
+                    <select class="form-select" id="reportTipo">
+                      <option value="prenotazioni">Prenotazioni</option>
+                      <option value="fatturato">Fatturato</option>
+                      <option value="occupazione">Occupazione</option>
+                      <option value="utenti">Utenti</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="col-form-label">Data Inizio</label>
+                    <input type="date" class="form-control" id="reportDataInizio">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="col-form-label">Data Fine</label>
+                    <input type="date" class="form-control" id="reportDataFine">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="col-form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="generaReport()">
+                      <i class="fas fa-chart-bar me-1"></i>Genera
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Report Charts -->
+              <div class="report-charts">
+                <div class="row">
+                  <div class="col-lg-8">
+                    <div class="chart-card">
+                      <h6 id="mainChartTitle">Andamento Prenotazioni</h6>
+                      <canvas id="mainReportChart" width="800" height="400"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="chart-card">
+                      <h6>Distribuzione per Spazio</h6>
+                      <canvas id="spazioChart" width="400" height="400"></canvas>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row mt-4">
+                  <div class="col-lg-6">
+                    <div class="chart-card">
+                      <h6>Performance Sedi</h6>
+                      <canvas id="sedeChart" width="600" height="300"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="chart-card">
+                      <h6>Trend Utenti</h6>
+                      <canvas id="utentiChart" width="600" height="300"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Report Summary -->
+              <div class="report-summary">
+                <h6>Riepilogo Report</h6>
+                <div class="summary-grid" id="reportSummary">
+                  <!-- Riepilogo verrà generato dinamicamente -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Impostazioni Section -->
+            <div class="dashboard-section" id="impostazioni">
+              <div class="section-header">
+                <h3>Impostazioni Dashboard</h3>
+              </div>
+              
+              <div class="settings-grid">
+                <div class="settings-card">
+                  <h6>Notifiche</h6>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifPrenotazioni" checked>
+                    <label class="form-check-label" for="notifPrenotazioni">
+                      Nuove prenotazioni
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifCancellazioni" checked>
+                    <label class="form-check-label" for="notifCancellazioni">
+                      Cancellazioni prenotazioni
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifUtenti" checked>
+                    <label class="form-check-label" for="notifUtenti">
+                      Nuovi utenti registrati
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="notifReport" checked>
+                    <label class="form-check-label" for="notifReport">
+                      Report settimanali
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="settings-card">
+                  <h6>Dashboard</h6>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                    <label class="form-check-label" for="autoRefresh">
+                      Aggiornamento automatico
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="darkMode">
+                    <label class="form-check-label" for="darkMode">
+                      Modalità scura
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="compactView">
+                    <label class="form-check-label" for="compactView">
+                      Vista compatta
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="settings-card">
+                  <h6>Esportazione</h6>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="exportPDF" checked>
+                    <label class="form-check-label" for="exportPDF">
+                      Formato PDF
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="exportExcel" checked>
+                    <label class="form-check-label" for="exportExcel">
+                      Formato Excel
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="exportCSV">
+                    <label class="form-check-label" for="exportCSV">
+                      Formato CSV
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="settings-actions mt-4">
+                <button class="btn btn-primary" onclick="salvaImpostazioni()">
+                  <i class="fas fa-save me-1"></i>Salva Impostazioni
+                </button>
+                <button class="btn btn-outline-secondary" onclick="resetImpostazioni()">
+                  <i class="fas fa-undo me-1"></i>Ripristina Default
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2024 Coworking Mio. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <!-- Disponibilità Modal -->
+  <div class="modal fade" id="disponibilitaModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Gestione Disponibilità</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="disponibilitaForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Spazio</label>
+                  <select class="form-select" id="modalSpazio" required>
+                    <option value="">Seleziona spazio</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Tipo Regola</label>
+                  <select class="form-select" id="modalTipoRegola" required>
+                    <option value="giorni">Giorni specifici</option>
+                    <option value="orari">Orari specifici</option>
+                    <option value="manutenzione">Manutenzione</option>
+                    <option value="eventi">Eventi speciali</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Data Inizio</label>
+                  <input type="date" class="form-control" id="modalDataInizio" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Data Fine</label>
+                  <input type="date" class="form-control" id="modalDataFine" required>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Ora Inizio</label>
+                  <input type="time" class="form-control" id="modalOraInizio">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Ora Fine</label>
+                  <input type="time" class="form-control" id="modalOraFine">
+                </div>
+              </div>
+            </div>
+            <div class="form-group mt-3">
+              <label class="form-label">Motivo</label>
+              <textarea class="form-control" id="modalMotivo" rows="3" placeholder="Spiega il motivo della non disponibilità..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" onclick="salvaDisponibilita()">Salva Regola</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Utente Modal -->
+  <div class="modal fade" id="utenteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Gestione Utente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="utenteForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Nome</label>
+                  <input type="text" class="form-control" id="modalUtenteNome" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Cognome</label>
+                  <input type="text" class="form-control" id="modalUtenteCognome" required>
+                </div>
+              </div>
+            </div>
+            <div class="form-group mt-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="modalUtenteEmail" required>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Ruolo</label>
+                  <select class="form-select" id="modalUtenteRuolo" required>
+                    <option value="cliente">Cliente</option>
+                    <option value="responsabile">Responsabile</option>
+                    <option value="admin">Amministratore</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Stato</label>
+                  <select class="form-select" id="modalUtenteStato" required>
+                    <option value="attivo">Attivo</option>
+                    <option value="sospeso">Sospeso</option>
+                    <option value="cancellato">Cancellato</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" onclick="salvaUtente()">Salva Utente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/dashboard-responsabili.js"></script>
+  <script src="js/modern-ui.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/ab-testing.js"></script>
+</body>
+
+</html>
