@@ -4,92 +4,457 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoWorkSpace - Prenota spazi di coworking</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  <title>Coworking Mio - Spazi di Lavoro Moderni e Flessibili</title>
+  <meta name="description"
+    content="Scopri i migliori spazi di coworking in Italia. Sale riunioni, uffici privati e aree comuni per il tuo business.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Stylesheets -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/modern-design.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <!-- Skip Link per Accessibilità -->
+  <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="index.html">CoWorkSpace</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-building me-2"></i>
+        Coworking Mio
+      </a>
+
+      <button class="navbar-toggler mobile-menu-toggle" type="button" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
+
+      <div class="collapse navbar-collapse mobile-menu" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link active" href="index.html">Home</a>
+            <a class="nav-link" href="#home">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="catalogo.html">Catalogo</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="login.html">Login</a>
+            <a class="nav-link" href="#features">Servizi</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="login.html#registrazione">Registrati</a>
+            <a class="nav-link" href="#locations">Sedi</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">Contatti</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-outline-primary ms-2" href="prenota.html">
+              <i class="fas fa-calendar-plus me-1"></i>
+              Prenota Ora
+            </a>
+          </li>
+          <li class="nav-item" id="authSection">
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+              <i class="fas fa-sign-in-alt me-1"></i>
+              Accedi
+            </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-8 mx-auto text-center">
-        <h1 class="display-4">Benvenuto su CoWorkSpace</h1>
-        <p class="lead">Prenota spazi di coworking professionali in tutta Italia</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filtri -->
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-md-6 mx-auto">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Filtra sedi</h5>
-            <div class="row">
-              <div class="col-md-6">
-                <select class="form-select" id="filtroCitta">
-                  <option value="">Tutte le città</option>
-                </select>
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-6 animate-fade-in-left">
+              <h1>Il Tuo Spazio di Lavoro Ideale</h1>
+              <p class="lead">Scopri spazi di coworking moderni, flessibili e professionali. Sale riunioni, uffici
+                privati e aree comuni per far crescere il tuo business.</p>
+              <div class="hero-buttons">
+                <a href="prenota.html" class="btn btn-secondary btn-lg me-3">
+                  <i class="fas fa-rocket me-2"></i>
+                  Inizia Subito
+                </a>
+                <a href="#features" class="btn btn-outline btn-lg">
+                  <i class="fas fa-info-circle me-2"></i>
+                  Scopri di Più
+                </a>
               </div>
-              <div class="col-md-6">
-                <button class="btn btn-primary w-100" id="btnFiltra">Filtra</button>
+            </div>
+            <div class="col-lg-6 animate-fade-in-right">
+              <div class="hero-image">
+                <div class="floating-card" data-parallax="0.3">
+                  <i class="fas fa-users fa-3x text-primary"></i>
+                  <h4>Team Collaborativo</h4>
+                  <p>Spazi progettati per la creatività e la produttività</p>
+                </div>
+                <div class="floating-card" data-parallax="0.5">
+                  <i class="fas fa-wifi fa-3x text-secondary"></i>
+                  <h4>Connessione Totale</h4>
+                  <p>WiFi veloce e servizi digitali avanzati</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Catalogo Sedi -->
-  <div class="container mt-4">
-    <h2>Le nostre sedi</h2>
-    <div class="row" id="catalogoSedi">
-      <!-- Le cards delle sedi verranno caricate dinamicamente -->
-    </div>
-  </div>
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="animate-fade-in-up">Perché Scegliere Coworking Mio?</h2>
+          <p class="lead text-muted animate-fade-in-up" data-delay="200">Offriamo tutto ciò di cui hai bisogno per
+            lavorare al meglio</p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="100">
+              <div class="feature-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <h4>Ubicazioni Strategiche</h4>
+              <p>Le nostre sedi sono posizionate nei centri città più importanti d'Italia, facilmente raggiungibili con
+                i mezzi pubblici.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="200">
+              <div class="feature-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <h4>Flessibilità Totale</h4>
+              <p>Prenota solo quando ti serve, senza contratti a lungo termine. Orari flessibili 24/7 per le tue
+                esigenze.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="300">
+              <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h4>Sicurezza Garantita</h4>
+              <p>Accesso controllato, sorveglianza 24/7 e sistemi di sicurezza avanzati per la tua tranquillità.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="400">
+              <div class="feature-icon">
+                <i class="fas fa-coffee"></i>
+              </div>
+              <h4>Servizi Premium</h4>
+              <p>Caffè gratuito, area relax, stampanti e tutto il necessario per un'esperienza di lavoro professionale.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="500">
+              <div class="feature-icon">
+                <i class="fas fa-handshake"></i>
+              </div>
+              <h4>Networking</h4>
+              <p>Eventi, workshop e opportunità di networking con altri professionisti e imprenditori.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card card h-100" data-animate="fadeInUp" data-delay="600">
+              <div class="feature-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <h4>App Mobile</h4>
+              <p>Gestisci le tue prenotazioni, accedi agli spazi e controlla i servizi direttamente dal tuo smartphone.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-number" data-count="50">0</div>
+              <div class="stat-label">Sedi in Italia</div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-number" data-count="1000">0</div>
+              <div class="stat-label">Posti di Lavoro</div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-number" data-count="5000">0</div>
+              <div class="stat-label">Utenti Attivi</div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-number" data-count="99">0</div>
+              <div class="stat-label">% Soddisfazione</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h2>Pronto a Iniziare?</h2>
+            <p class="lead mb-4">Unisciti a migliaia di professionisti che hanno già scelto Coworking Mio per il loro
+              spazio di lavoro.</p>
+            <a href="prenota.html" class="btn btn-primary btn-lg">
+              <i class="fas fa-calendar-check me-2"></i>
+              Prenota il Tuo Spazio
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <!-- Footer -->
-  <footer class="bg-light mt-5 py-4">
-    <div class="container text-center">
-      <p>&copy; 2024 CoWorkSpace. Tutti i diritti riservati.</p>
+  <footer class="bg-dark text-light py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h5 class="mb-3">Coworking Mio</h5>
+          <p>Leader italiano negli spazi di coworking, offriamo soluzioni flessibili e professionali per il tuo
+            business.</p>
+          <div class="social-links">
+            <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-light me-3"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="mb-3">Servizi</h6>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-light">Sale Riunioni</a></li>
+            <li><a href="#" class="text-light">Uffici Privati</a></li>
+            <li><a href="#" class="text-light">Aree Comuni</a></li>
+            <li><a href="#" class="text-light">Eventi</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="mb-3">Azienda</h6>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-light">Chi Siamo</a></li>
+            <li><a href="#" class="text-light">Lavora con Noi</a></li>
+            <li><a href="#" class="text-light">Stampa</a></li>
+            <li><a href="#" class="text-light">Blog</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="mb-3">Supporto</h6>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-light">FAQ</a></li>
+            <li><a href="#" class="text-light">Contatti</a></li>
+            <li><a href="#" class="text-light">Privacy</a></li>
+            <li><a href="#" class="text-light">Termini</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="mb-3">App</h6>
+          <div class="app-buttons">
+            <a href="#" class="btn btn-outline-light btn-sm mb-2 w-100">
+              <i class="fab fa-apple me-1"></i> App Store
+            </a>
+            <a href="#" class="btn btn-outline-light btn-sm w-100">
+              <i class="fab fa-google-play me-1"></i> Google Play
+            </a>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2024 Coworking Mio. Tutti i diritti riservati.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="mb-0">Made with <i class="fas fa-heart text-danger"></i> in Italy</p>
+        </div>
+      </div>
     </div>
   </footer>
 
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Accedi al Tuo Account</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="loginEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+              <label for="loginPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Accedi</button>
+            </div>
+          </form>
+          <hr>
+          <p class="text-center mb-0">
+            Non hai un account?
+            <a href="#" onclick="showRegistrationModal()">Registrati</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Modal -->
+  <div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="registrationModalLabel">Crea il Tuo Account</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="registrationForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="regNome" class="form-label">Nome</label>
+                  <input type="text" class="form-control" id="regNome" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="regCognome" class="form-label">Cognome</label>
+                  <input type="text" class="form-control" id="regCognome" required>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="regEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="regEmail" required>
+            </div>
+            <div class="form-group">
+              <label for="regPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="regPassword" required>
+            </div>
+            <div class="form-group">
+              <label for="regConfirmPassword" class="form-label">Conferma Password</label>
+              <input type="password" class="form-control" id="regConfirmPassword" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Registrati</button>
+            </div>
+          </form>
+          <hr>
+          <p class="text-center mb-0">
+            Hai già un account?
+            <a href="#" onclick="showLoginModal()">Accedi</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/modern-ui.js"></script>
+
+  <script>
+    // Anima i numeri delle statistiche
+    function animateNumbers() {
+      const numbers = document.querySelectorAll('[data-count]');
+      numbers.forEach(number => {
+        const target = parseInt(number.getAttribute('data-count'));
+        const increment = target / 100;
+        let current = 0;
+
+        const updateNumber = () => {
+          if (current < target) {
+            current += increment;
+            number.textContent = Math.ceil(current);
+            requestAnimationFrame(updateNumber);
+          } else {
+            number.textContent = target;
+          }
+        };
+
+        updateNumber();
+      });
+    }
+
+    // Anima i numeri quando entrano nella viewport
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateNumbers();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    });
+
+    document.querySelectorAll('.stat-card').forEach(card => {
+      statsObserver.observe(card);
+    });
+
+    // Modal functions
+    function showLoginModal() {
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    }
+
+    function showRegistrationModal() {
+      const registrationModal = new bootstrap.Modal(document.getElementById('registrationModal'));
+      registrationModal.show();
+    }
+
+    // Close registration modal and show login modal
+    function showLoginModal() {
+      const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+      if (registrationModal) {
+        registrationModal.hide();
+      }
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    }
+  </script>
 </body>
 
 </html>
