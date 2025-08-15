@@ -49,8 +49,8 @@ function loadSedi(citta = '') {
 
   $.ajax({
     url: url,
-    method: 'GET',
-    headers: getAuthHeaders() // Aggiungo headers per compatibilità backend
+    method: 'GET'
+    // Rimuovo headers per endpoint pubblico che non richiede autenticazione
   })
     .done(function (sedi) {
       console.log('Sedi caricate:', sedi);

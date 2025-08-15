@@ -12,45 +12,45 @@ let lastCreatedPrenotazioneId = null;
 
 // Inizializzazione
 $(document).ready(function () {
-    console.log('prenota.js - Inizializzazione pagina');
-    
-    // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
-    currentStep = 1;
+  console.log('prenota.js - Inizializzazione pagina');
+
+  // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
+  currentStep = 1;
+  loadSedi().then(() => {
+    setupEventHandlers();
+    updateNavbar();
+  });
+
+  // Controlla se ci sono parametri URL per ripristinare lo stato
+  const urlParams = new URLSearchParams(window.location.search);
+  const sedeId = urlParams.get('sede');
+  const spazioId = urlParams.get('spazio');
+  const dataInizio = urlParams.get('dal');
+  const dataFine = urlParams.get('al');
+
+  if (sedeId && spazioId && dataInizio && dataFine) {
+    // Ripristina lo stato della prenotazione
+    console.log('prenota.js - Ripristino stato da URL:', { sedeId, spazioId, dataInizio, dataFine });
+
+    // Imposta i valori selezionati
+    selectedSede = sedeId;
+    selectedSpazio = spazioId;
+    selectedDataInizio = dataInizio;
+    selectedDataFine = dataFine;
+
+    // Imposta i valori nei campi
+    $('#dataInizio').val(dataInizio);
+    $('#dataFine').val(dataFine);
+
+    // Carica i dati e vai allo step 3
     loadSedi().then(() => {
-        setupEventHandlers();
-        updateNavbar();
+      $('#selectSede').val(sedeId);
+      onSedeChange();
     });
-    
-    // Controlla se ci sono parametri URL per ripristinare lo stato
-    const urlParams = new URLSearchParams(window.location.search);
-    const sedeId = urlParams.get('sede');
-    const spazioId = urlParams.get('spazio');
-    const dataInizio = urlParams.get('dal');
-    const dataFine = urlParams.get('al');
-    
-    if (sedeId && spazioId && dataInizio && dataFine) {
-        // Ripristina lo stato della prenotazione
-        console.log('prenota.js - Ripristino stato da URL:', { sedeId, spazioId, dataInizio, dataFine });
-        
-        // Imposta i valori selezionati
-        selectedSede = sedeId;
-        selectedSpazio = spazioId;
-        selectedDataInizio = dataInizio;
-        selectedDataFine = dataFine;
-        
-        // Imposta i valori nei campi
-        $('#dataInizio').val(dataInizio);
-        $('#dataFine').val(dataFine);
-        
-        // Carica i dati e vai allo step 3
-        loadSedi().then(() => {
-            $('#selectSede').val(sedeId);
-            onSedeChange();
-        });
-    } else {
-        // Nessun parametro, inizia normalmente
-        showStep(1);
-    }
+  } else {
+    // Nessun parametro, inizia normalmente
+    showStep(1);
+  }
 });
 
 // Aggiorna navbar se utente è loggato
@@ -75,14 +75,14 @@ function updateNavbar() {
 
 // Logout
 function logout() {
-    // Usa la funzione centralizzata di config.js
-    if (typeof window.logout === 'function') {
-        window.logout();
-    } else {
-        // Fallback se la funzione non è disponibile
-        localStorage.removeItem('user');
-        window.location.href = 'login.html';
-    }
+  // Usa la funzione centralizzata di config.js
+  if (typeof window.logout === 'function') {
+    window.logout();
+  } else {
+    // Fallback se la funzione non è disponibile
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  }
 }
 
 // Carica sedi
@@ -90,8 +90,8 @@ function loadSedi() {
   return new Promise((resolve, reject) => {
     $.ajax({
       url: `${API_BASE}/sedi`,
-      method: 'GET',
-      headers: getAuthHeaders() // Ripristino per mantenere Content-Type
+      method: 'GET'
+      // Rimuovo headers per endpoint pubblico che non richiede autenticazione
     })
       .done(function (sedi) {
         const select = $('#selectSede');
@@ -108,7 +108,7 @@ function loadSedi() {
           select.val(sedeId);
           onSedeChange();
         }
-        
+
         resolve(sedi);
       })
       .fail(function (xhr) {
@@ -146,7 +146,7 @@ function loadSpazi(idSede) {
           select.val(spazioId);
           onSpazioChange();
         }
-        
+
         resolve(spazi);
       })
       .fail(function (xhr) {
@@ -281,18 +281,37 @@ function checkDisponibilita() {
 
 // Aggiorna pulsanti di navigazione
 function updateNavigationButtons() {
-  const btnAvanti = $('#btnAvanti');
-  const btnIndietro = $('#btnIndietro');
+  const btnNext = $('#btnNext');
+  const btnPrev = $('#btnPrev');
+  const btnConferma = $('#btnConferma');
 
-  if (currentStep === 3) {
-    // Allo step 3, "Avanti" è disponibile solo se la disponibilità è verificata
-    if (disponibilitaVerificata) {
-      btnAvanti.prop('disabled', false).text('Avanti →');
-    } else {
-      btnAvanti.prop('disabled', true).text('Verifica disponibilità prima');
-    }
+  // Gestisci pulsante Precedente
+  if (currentStep > 1) {
+    btnPrev.prop('disabled', false);
   } else {
-    btnAvanti.prop('disabled', false).text('Avanti →');
+    btnPrev.prop('disabled', true);
+  }
+
+  // Gestisci pulsante Successivo/Conferma
+  if (currentStep === 4) {
+    // Allo step finale, mostra solo il pulsante Conferma
+    btnNext.addClass('d-none');
+    btnConferma.removeClass('d-none');
+  } else {
+    // Negli altri step, mostra il pulsante Successivo
+    btnNext.removeClass('d-none');
+    btnConferma.addClass('d-none');
+
+    // Allo step 3, "Successivo" è disponibile solo se la disponibilità è verificata
+    if (currentStep === 3) {
+      if (disponibilitaVerificata) {
+        btnNext.prop('disabled', false);
+      } else {
+        btnNext.prop('disabled', true);
+      }
+    } else {
+      btnNext.prop('disabled', false);
+    }
   }
 }
 
@@ -366,6 +385,11 @@ function createPrenotazione() {
     });
 }
 
+// Conferma prenotazione e procedi al pagamento
+function confermaPrenotazione() {
+  createPrenotazione();
+}
+
 function showPaymentModal(idPagamento, importo) {
   const modalHtml = `
   <div class="modal fade" id="paymentModal" tabindex="-1">
@@ -395,7 +419,7 @@ function showPaymentModal(idPagamento, importo) {
     try {
       // Chiudi il modal
       modal.hide();
-      
+
       // Salva i dati della prenotazione per la pagina di pagamento
       const prenotazioneData = {
         sede: selectedSede,
@@ -404,10 +428,10 @@ function showPaymentModal(idPagamento, importo) {
         dataFine: selectedDataFine
       };
       localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
-      
+
       // Vai direttamente alla pagina di pagamento
       window.location.href = 'pagamento.html';
-      
+
     } catch (e) {
       showAlert('Errore durante la preparazione del pagamento', 'danger');
     }
@@ -453,18 +477,7 @@ function showStep(step) {
     updateRiepilogo();
   }
 
-  // Gestisci pulsanti di navigazione
-  if (step > 1) {
-    $('#btnIndietro').show();
-  } else {
-    $('#btnIndietro').hide();
-  }
-
-  if (step < 4) {
-    $('#btnAvanti').show();
-  } else {
-    $('#btnAvanti').hide();
-  }
+  // I pulsanti di navigazione sono gestiti da updateNavigationButtons()
 
   currentStep = step;
   updateNavigationButtons();
@@ -598,7 +611,7 @@ function onSpazioChange() {
       const urlParams = new URLSearchParams(window.location.search);
       const dataInizio = urlParams.get('dal');
       const dataFine = urlParams.get('al');
-      
+
       if (dataInizio && dataFine) {
         // Imposta le date e vai allo step 3
         $('#dataInizio').val(dataInizio);
@@ -620,4 +633,37 @@ function showAlert(message, type = 'info') {
     </div>
   `;
   $('body').prepend(alertHtml);
+}
+
+// Funzioni di navigazione tra step
+function nextStep() {
+  if (canProceedToNextStep()) {
+    showStep(currentStep + 1);
+  }
+}
+
+function previousStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+// Verifica se si può procedere al prossimo step
+function canProceedToNextStep() {
+  if (currentStep === 1 && !$('#selectSede').val()) {
+    showAlert('Seleziona una sede prima di procedere', 'warning');
+    return false;
+  }
+
+  if (currentStep === 2 && !$('#selectSpazio').val()) {
+    showAlert('Seleziona uno spazio prima di procedere', 'warning');
+    return false;
+  }
+
+  if (currentStep === 3 && !disponibilitaVerificata) {
+    showAlert('Verifica la disponibilità prima di procedere', 'warning');
+    return false;
+  }
+
+  return true;
 }
