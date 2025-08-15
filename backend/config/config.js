@@ -1,8 +1,14 @@
-// require('dotenv').config(); // Commentato temporaneamente per il test
+// Carica variabili d'ambiente
+require('dotenv').config();
+
+// Importa configurazione personalizzata
+const envConfig = require('./env');
 
 module.exports = {
     // Configurazione database
     database: {
+        // Usa DATABASE_URL se disponibile (per Supabase), altrimenti fallback locale
+        url: envConfig.DATABASE_URL && envConfig.DATABASE_URL !== 'null' ? envConfig.DATABASE_URL : null,
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
         name: process.env.DB_NAME || 'coworkspace',
@@ -12,27 +18,28 @@ module.exports = {
 
     // Configurazione server
     server: {
-        port: process.env.PORT || 3002,
-        nodeEnv: process.env.NODE_ENV || 'development'
+        port: envConfig.PORT,
+        nodeEnv: envConfig.NODE_ENV
     },
 
     // Configurazione Stripe
     stripe: {
-        secretKey: process.env.STRIPE_SECRET_KEY || 'sk_test_your_stripe_secret_key_here',
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_your_stripe_publishable_key_here',
-        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || 'whsec_WsLhQ9QXBBUdppq2marA47aOewWctgi9'
+        secretKey: envConfig.STRIPE_SECRET_KEY,
+        publishableKey: envConfig.STRIPE_PUBLISHABLE_KEY,
+        webhookSecret: envConfig.STRIPE_WEBHOOK_SECRET
     },
 
     // Configurazione JWT
     jwt: {
-        secret: process.env.JWT_SECRET || 'your_jwt_secret_here',
-        expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+        secret: envConfig.JWT_SECRET,
+        expiresIn: envConfig.JWT_EXPIRES_IN
     },
 
     // Configurazione CORS
     cors: {
-        origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [
+        origin: envConfig.CORS_ORIGIN ? envConfig.CORS_ORIGIN.split(',') : [
             'http://localhost:3000', 
+            'http://localhost:8000',
             'http://127.0.0.1:5500',
             'https://coworking-mio-1.onrender.com',  // Frontend su Render
             'https://coworking-mio-1-backend.onrender.com'  // Backend su Render

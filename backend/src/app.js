@@ -10,6 +10,7 @@ app.use(cors({
         // Lista degli origin permessi
         const allowedOrigins = [
             'http://localhost:3000',
+            'http://localhost:8000',
             'http://127.0.0.1:5500',
             'https://coworking-mio-1.onrender.com',
             'https://coworking-mio-1-backend.onrender.com'
@@ -92,6 +93,46 @@ app.get('/api/test-disponibilita', (req, res) => {
     origin: req.headers.origin,
     timestamp: new Date().toISOString()
   });
+});
+
+// Endpoint di debug per testare la connessione al database
+app.get('/api/debug/db-test', async (req, res) => {
+  try {
+    const pool = require('./db');
+    const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
+    res.json({ 
+      message: 'Database connection successful',
+      data: result.rows[0],
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({ 
+      error: 'Database connection failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Endpoint di debug per testare le sedi
+app.get('/api/debug/sedi-test', async (req, res) => {
+  try {
+    const pool = require('./db');
+    const result = await pool.query('SELECT COUNT(*) as sede_count FROM Sede');
+    res.json({ 
+      message: 'Sedi query successful',
+      sede_count: result.rows[0].sede_count,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Sedi test error:', error);
+    res.status(500).json({ 
+      error: 'Sedi query failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 app.listen(PORT, () => {

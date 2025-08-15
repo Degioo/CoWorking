@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
 
-// Usa DATABASE_URL se disponibile, altrimenti fallback alle variabili singole
+// Usa DATABASE_URL se disponibile (per Supabase), altrimenti fallback alle variabili singole
 const pool = new Pool(
-  process.env.DATABASE_URL ? {
+  process.env.DATABASE_URL && process.env.DATABASE_URL !== 'null' ? {
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false

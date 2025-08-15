@@ -553,27 +553,7 @@ function setupEventHandlers() {
     updateNavigationButtons();
   });
 
-  // Navigazione
-  $('#btnAvanti').click(function () {
-    if (currentStep === 1 && !$('#selectSede').val()) {
-      showAlert('Seleziona una sede', 'warning');
-      return;
-    }
-    if (currentStep === 2 && !$('#selectSpazio').val()) {
-      showAlert('Seleziona uno spazio', 'warning');
-      return;
-    }
-    if (currentStep === 3 && !disponibilitaVerificata) {
-      showAlert('Verifica prima la disponibilità', 'warning');
-      return;
-    }
-
-    showStep(currentStep + 1);
-  });
-
-  $('#btnIndietro').click(function () {
-    showStep(currentStep - 1);
-  });
+  // I pulsanti sono gestiti tramite onclick nell'HTML (nextStep e previousStep)
 
   // Submit form
   $('#prenotazioneForm').submit(function (e) {
