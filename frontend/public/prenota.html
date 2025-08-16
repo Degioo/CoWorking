@@ -115,7 +115,13 @@
             <!-- Step 1: Scegli Sede -->
             <div class="step-content" id="step1Content">
               <h4 class="mb-4">Seleziona la Sede</h4>
-              <div class="row" id="sediContainer">
+              <div class="form-group">
+                <label for="selectSede" class="form-label">Sede</label>
+                <select class="form-select" id="selectSede" required>
+                  <option value="">Seleziona una sede...</option>
+                </select>
+              </div>
+              <div class="row mt-3" id="sediContainer">
                 <!-- Le sedi verranno caricate dinamicamente -->
               </div>
             </div>
@@ -123,7 +129,13 @@
             <!-- Step 2: Seleziona Spazio -->
             <div class="step-content d-none" id="step2Content">
               <h4 class="mb-4">Scegli lo Spazio</h4>
-              <div class="row" id="spaziContainer">
+              <div class="form-group">
+                <label for="selectSpazio" class="form-label">Spazio</label>
+                <select class="form-select" id="selectSpazio" required>
+                  <option value="">Seleziona prima una sede...</option>
+                </select>
+              </div>
+              <div class="row mt-3" id="spaziContainer">
                 <!-- Gli spazi verranno caricati dinamicamente -->
               </div>
             </div>
