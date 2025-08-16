@@ -37,6 +37,14 @@ app.options('*', cors());
 // Middleware per loggare le richieste CORS
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+    console.log(`CORS Headers - Origin: ${req.headers.origin}, Referer: ${req.headers.referer}`);
+    console.log(`CORS Allowed Origins: ${JSON.stringify([
+        'http://localhost:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:5500',
+        'https://coworking-mio-1.onrender.com',
+        'https://coworking-mio-1-backend.onrender.com'
+    ])}`);
     next();
 });
 
@@ -75,11 +83,24 @@ app.get('/api/ping', (req, res) => {
 
 // Endpoint di test CORS
 app.get('/api/test-cors', (req, res) => {
+  console.log('Test CORS chiamato con origin:', req.headers.origin);
   res.json({ 
     message: 'CORS test successful',
     origin: req.headers.origin,
     method: req.method,
     timestamp: new Date().toISOString()
+  });
+});
+
+// Endpoint di test CORS specifico per sedi
+app.get('/api/test-sedi-cors', (req, res) => {
+  console.log('Test sedi CORS chiamato con origin:', req.headers.origin);
+  res.json({ 
+    message: 'CORS sedi test successful',
+    origin: req.headers.origin,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    test: 'Questo endpoint dovrebbe funzionare come /api/sedi'
   });
 });
 
