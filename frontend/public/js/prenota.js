@@ -12,14 +12,20 @@ let lastCreatedPrenotazioneId = null;
 // Inizializzazione
 $(document).ready(function () {
   console.log('prenota.js - Inizializzazione pagina');
+  console.log('prenota.js - jQuery disponibile:', typeof $ !== 'undefined');
+  console.log('prenota.js - jQuery versione:', $.fn.jquery);
   console.log('prenota.js - window.CONFIG:', window.CONFIG);
   console.log('prenota.js - API_BASE:', window.CONFIG?.API_BASE);
 
   // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
   currentStep = 1;
+  console.log('prenota.js - Prima di chiamare loadSedi()');
   loadSedi().then(() => {
+    console.log('prenota.js - loadSedi completato con successo');
     setupEventHandlers();
     updateNavbar();
+  }).catch(error => {
+    console.error('prenota.js - Errore in loadSedi:', error);
   });
 
   // Controlla se ci sono parametri URL per ripristinare lo stato
