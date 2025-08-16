@@ -662,15 +662,22 @@ function onSedeChange() {
     console.log('onSedeChange - Sede selezionata:', sedeId);
     loadSpazi(sedeId).then(() => {
       console.log('onSedeChange - Spazi caricati per sede:', sedeId);
+      console.log('onSedeChange - Prima di controllare spazio preselezionato');
+      
       // Se c'è uno spazio preselezionato, impostalo
       const urlParams = new URLSearchParams(window.location.search);
       const spazioId = urlParams.get('spazio');
+      console.log('onSedeChange - Spazio preselezionato:', spazioId);
+      
       if (spazioId) {
+        console.log('onSedeChange - Spazio preselezionato trovato, lo imposto');
         $('#selectSpazio').val(spazioId);
         onSpazioChange();
       } else {
         console.log('onSedeChange - Nessuno spazio preselezionato, passo allo step 2');
+        console.log('onSedeChange - Prima di chiamare showStep(2)');
         showStep(2);
+        console.log('onSedeChange - Dopo showStep(2)');
       }
     }).catch(error => {
       console.error('onSedeChange - Errore caricamento spazi:', error);
