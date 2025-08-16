@@ -513,7 +513,7 @@ function showStep(step) {
   // Nascondi tutti gli step tranne quello corrente
   console.log('showStep - Nascondo tutti gli step tranne quello corrente...');
   for (let i = 1; i <= 4; i++) {
-    const stepElement = $(`#step${i}`);
+    const stepElement = $(`#step${i}Content`);
     console.log(`showStep - Step ${i}:`, stepElement.length > 0 ? 'trovato' : 'NON TROVATO');
     if (i === step) {
       // Mostra lo step corrente
