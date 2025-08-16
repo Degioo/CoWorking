@@ -98,7 +98,8 @@ function loadSedi() {
     
     $.ajax({
       url: url,
-      method: 'GET'
+      method: 'GET',
+      timeout: 10000, // 10 secondi di timeout
       // Rimuovo headers per endpoint pubblico che non richiede autenticazione
     })
       .done(function (sedi) {
@@ -136,12 +137,18 @@ function loadSedi() {
         console.error('loadSedi - Errore API:', xhr.status, xhr.responseText);
         console.error('loadSedi - URL chiamata:', url);
         console.error('loadSedi - Headers risposta:', xhr.getAllResponseHeaders());
+        console.error('loadSedi - Stato readyState:', xhr.readyState);
+        console.error('loadSedi - Tipo errore:', xhr.statusText);
+        
         if (xhr.status === 401) {
           handleAuthError();
         } else {
           showAlert('Errore nel caricamento delle sedi', 'danger');
         }
         reject(xhr);
+      })
+      .always(function() {
+        console.log('loadSedi - Chiamata completata (success o fail)');
       });
   });
 }
