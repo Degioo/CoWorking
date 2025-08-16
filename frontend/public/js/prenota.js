@@ -22,7 +22,9 @@ $(document).ready(function () {
   console.log('prenota.js - Prima di chiamare loadSedi()');
   loadSedi().then(() => {
     console.log('prenota.js - loadSedi completato con successo');
+    console.log('prenota.js - Prima di chiamare setupEventHandlers()');
     setupEventHandlers();
+    console.log('prenota.js - Dopo setupEventHandlers()');
     updateNavbar();
   }).catch(error => {
     console.error('prenota.js - Errore in loadSedi:', error);
@@ -578,6 +580,8 @@ function updateRiepilogo() {
 
 // Event handlers
 function setupEventHandlers() {
+  console.log('setupEventHandlers - Inizio funzione');
+  
   // Verifica disponibilità
   $('#btnCheckDisponibilita').click(checkDisponibilita);
 
@@ -589,13 +593,17 @@ function setupEventHandlers() {
   });
 
   // Gestione centralizzata di tutti gli eventi
+  console.log('setupEventHandlers - Prima di chiamare setupAllEventHandlers()');
   setupAllEventHandlers();
+  console.log('setupEventHandlers - Dopo setupAllEventHandlers()');
 
   // Submit form
   $('#prenotazioneForm').submit(function (e) {
     e.preventDefault();
     createPrenotazione();
   });
+  
+  console.log('setupEventHandlers - Fine funzione');
 }
 
 // Setup centralizzato di tutti gli event handler
