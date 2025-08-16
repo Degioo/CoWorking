@@ -578,12 +578,6 @@ function updateRiepilogo() {
 
 // Event handlers
 function setupEventHandlers() {
-  // Cambio sede
-  $('#selectSede').change(onSedeChange);
-
-  // Cambio spazio
-  $('#selectSpazio').change(onSpazioChange);
-
   // Verifica disponibilità
   $('#btnCheckDisponibilita').click(checkDisponibilita);
 
@@ -594,13 +588,54 @@ function setupEventHandlers() {
     updateNavigationButtons();
   });
 
-  // I pulsanti sono gestiti tramite onclick nell'HTML (nextStep e previousStep)
+  // Gestione centralizzata di tutti gli eventi
+  setupAllEventHandlers();
 
   // Submit form
   $('#prenotazioneForm').submit(function (e) {
     e.preventDefault();
     createPrenotazione();
   });
+}
+
+// Setup centralizzato di tutti gli event handler
+function setupAllEventHandlers() {
+  console.log('setupAllEventHandlers - Inizializzazione event handler centralizzati');
+  
+  // Event handler per pulsante Successivo
+  $(document).on('click', '#btnNext', function(e) {
+    e.preventDefault();
+    console.log('btnNext - Click rilevato, chiamando nextStep()');
+    nextStep();
+  });
+  
+  // Event handler per pulsante Precedente
+  $(document).on('click', '#btnPrev', function(e) {
+    e.preventDefault();
+    console.log('btnPrev - Click rilevato, chiamando previousStep()');
+    previousStep();
+  });
+  
+  // Event handler per pulsante Conferma
+  $(document).on('click', '#btnConferma', function(e) {
+    e.preventDefault();
+    console.log('btnConferma - Click rilevato, chiamando confermaPrenotazione()');
+    confermaPrenotazione();
+  });
+  
+  // Event handler per cambio sede
+  $(document).on('change', '#selectSede', function(e) {
+    console.log('selectSede - Change rilevato, chiamando onSedeChange()');
+    onSedeChange();
+  });
+  
+  // Event handler per cambio spazio
+  $(document).on('change', '#selectSpazio', function(e) {
+    console.log('selectSpazio - Change rilevato, chiamando onSpazioChange()');
+    onSpazioChange();
+  });
+  
+  console.log('setupAllEventHandlers - Event handler configurati');
 }
 
 // Callback per cambio sede
@@ -663,8 +698,14 @@ function showAlert(message, type = 'info') {
 
 // Funzioni di navigazione tra step
 function nextStep() {
+  console.log('nextStep - Funzione chiamata, currentStep:', currentStep);
+  console.log('nextStep - Verifico se posso procedere...');
+  
   if (canProceedToNextStep()) {
+    console.log('nextStep - Posso procedere, passo allo step:', currentStep + 1);
     showStep(currentStep + 1);
+  } else {
+    console.log('nextStep - Non posso procedere, rimango allo step:', currentStep);
   }
 }
 
@@ -676,20 +717,36 @@ function previousStep() {
 
 // Verifica se si può procedere al prossimo step
 function canProceedToNextStep() {
-  if (currentStep === 1 && !$('#selectSede').val()) {
-    showAlert('Seleziona una sede prima di procedere', 'warning');
-    return false;
+  console.log('canProceedToNextStep - Verifico step:', currentStep);
+  
+  if (currentStep === 1) {
+    const sedeVal = $('#selectSede').val();
+    console.log('canProceedToNextStep - Step 1, sede selezionata:', sedeVal);
+    if (!sedeVal) {
+      console.log('canProceedToNextStep - Step 1, sede non selezionata, blocco');
+      showAlert('Seleziona una sede prima di procedere', 'warning');
+      return false;
+    }
+    console.log('canProceedToNextStep - Step 1, sede selezionata, posso procedere');
   }
 
-  if (currentStep === 2 && !$('#selectSpazio').val()) {
-    showAlert('Seleziona uno spazio prima di procedere', 'warning');
-    return false;
+  if (currentStep === 2) {
+    const spazioVal = $('#selectSpazio').val();
+    console.log('canProceedToNextStep - Step 2, spazio selezionato:', spazioVal);
+    if (!spazioVal) {
+      console.log('canProceedToNextStep - Step 2, spazio non selezionato, blocco');
+      showAlert('Seleziona uno spazio prima di procedere', 'warning');
+      return false;
+    }
+    console.log('canProceedToNextStep - Step 2, spazio selezionato, posso procedere');
   }
 
   if (currentStep === 3 && !disponibilitaVerificata) {
+    console.log('canProceedToNextStep - Step 3, disponibilità non verificata, blocco');
     showAlert('Verifica la disponibilità prima di procedere', 'warning');
     return false;
   }
 
+  console.log('canProceedToNextStep - Posso procedere al prossimo step');
   return true;
 }
