@@ -507,11 +507,11 @@ function showStep(step) {
 
   // Nascondi tutti gli step
   for (let i = 1; i <= 4; i++) {
-    $(`#step${i}`).hide();
+    $(`#step${i}`).addClass('d-none');
   }
 
   // Mostra lo step corrente
-  $(`#step${step}`).show();
+  $(`#step${step}`).removeClass('d-none');
 
   // Se è lo step 4, aggiorna il riepilogo
   if (step === 4) {
@@ -608,7 +608,9 @@ function onSedeChange() {
   const sedeId = $('#selectSede').val();
   if (sedeId) {
     selectedSede = sedeId;
+    console.log('onSedeChange - Sede selezionata:', sedeId);
     loadSpazi(sedeId).then(() => {
+      console.log('onSedeChange - Spazi caricati per sede:', sedeId);
       // Se c'è uno spazio preselezionato, impostalo
       const urlParams = new URLSearchParams(window.location.search);
       const spazioId = urlParams.get('spazio');
@@ -616,8 +618,11 @@ function onSedeChange() {
         $('#selectSpazio').val(spazioId);
         onSpazioChange();
       } else {
+        console.log('onSedeChange - Nessuno spazio preselezionato, passo allo step 2');
         showStep(2);
       }
+    }).catch(error => {
+      console.error('onSedeChange - Errore caricamento spazi:', error);
     });
   }
 }
