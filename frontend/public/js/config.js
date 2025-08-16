@@ -1,19 +1,25 @@
-// Configurazione API - Backend su Render
+// Configurazione API dinamica per supportare sia sviluppo locale che produzione
 const CONFIG = {
-    // URL del backend su Render
-    API_BASE: 'https://coworking-mio-1-backend.onrender.com/api',
-
-    // Fallback per sviluppo locale
-    // API_BASE: 'http://localhost:3002/api',
+    // URL del backend - può essere configurato tramite variabili d'ambiente o fallback
+    API_BASE: (() => {
+        // Se siamo su Render, usa l'URL di produzione
+        if (window.location.hostname.includes('onrender.com')) {
+            return 'https://coworking-mio-1-backend.onrender.com/api';
+        }
+        // Se siamo in sviluppo locale, usa localhost
+        return 'http://localhost:3002/api';
+    })(),
 
     // Configurazione Supabase (solo per autenticazione se necessario)
     SUPABASE_URL: 'https://czkiuvmhijhxuqzdtnmz.supabase.co',
-    SUPABASE_ANON_KEY: 'your-supabase-anon-key-here'
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6a2l1dm1oaWpoeHVxemR0bm16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MjA5OTEsImV4cCI6MjA3MDQ5Njk5MX0.k2HuloheKebEfOXRYnvHq5smVzNZlnQAWNHZzetKxeY'
 };
 
 // Debug: log della configurazione per verificare che sia caricata
 console.log('Configurazione caricata:', CONFIG);
 console.log('API_BASE:', CONFIG.API_BASE);
+console.log('Hostname corrente:', window.location.hostname);
+console.log('Ambiente rilevato:', window.location.hostname.includes('onrender.com') ? 'PRODUZIONE' : 'SVILUPPO');
 
 // Funzione per aggiungere l'header di autorizzazione alle richieste API
 function getAuthHeaders() {

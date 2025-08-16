@@ -33,7 +33,7 @@ class AnalyticsSystem {
     setupEventTracking() {
         // Track page views
         this.trackPageView();
-        
+
         // Track button clicks
         document.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
@@ -115,10 +115,10 @@ class AnalyticsSystem {
     setupUserBehaviorTracking() {
         // Track mouse movements (heatmap data)
         this.trackMouseMovements();
-        
+
         // Track keyboard interactions
         this.trackKeyboardInteractions();
-        
+
         // Track focus events
         this.trackFocusEvents();
     }
@@ -156,7 +156,7 @@ class AnalyticsSystem {
 
     trackTimeOnPage() {
         let startTime = Date.now();
-        
+
         window.addEventListener('beforeunload', () => {
             const timeOnPage = Date.now() - startTime;
             this.trackEvent('time_on_page', {
@@ -241,7 +241,7 @@ class AnalyticsSystem {
                 const response = await originalFetch(...args);
                 const endTime = Date.now();
                 const duration = endTime - startTime;
-                
+
                 this.trackEvent('api_call', {
                     url: args[0],
                     method: args[1]?.method || 'GET',
@@ -249,19 +249,19 @@ class AnalyticsSystem {
                     status: response.status,
                     success: response.ok
                 });
-                
+
                 return response;
             } catch (error) {
                 const endTime = Date.now();
                 const duration = endTime - startTime;
-                
+
                 this.trackEvent('api_error', {
                     url: args[0],
                     method: args[1]?.method || 'GET',
                     duration: duration,
                     error: error.message
                 });
-                
+
                 throw error;
             }
         };
@@ -285,7 +285,7 @@ class AnalyticsSystem {
         this.events.push(event);
         this.storeEvent(event);
         this.sendEventToServer(event);
-        
+
         // Console log for development
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             console.log('📊 Analytics Event:', event);
@@ -305,7 +305,7 @@ class AnalyticsSystem {
         };
 
         this.trackEvent(eventName, conversionData);
-        
+
         // Send to external analytics if configured
         this.sendToExternalAnalytics(eventName, conversionData);
     }
@@ -350,12 +350,12 @@ class AnalyticsSystem {
         try {
             const storedEvents = JSON.parse(localStorage.getItem('analytics_events') || '[]');
             storedEvents.push(event);
-            
+
             // Keep only last 100 events to prevent localStorage overflow
             if (storedEvents.length > 100) {
                 storedEvents.splice(0, storedEvents.length - 100);
             }
-            
+
             localStorage.setItem('analytics_events', JSON.stringify(storedEvents));
         } catch (error) {
             console.error('Errore salvataggio evento analytics:', error);
@@ -373,7 +373,7 @@ class AnalyticsSystem {
 
     async sendEventToServer(event) {
         try {
-            const response = await fetch(`${API_BASE}/analytics/event`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/analytics/event`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -430,7 +430,7 @@ class AnalyticsSystem {
             const unsyncedEvents = this.events.filter(event => !event.synced);
             if (unsyncedEvents.length === 0) return;
 
-            const response = await fetch(`${API_BASE}/analytics/sync`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/analytics/sync`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -465,42 +465,42 @@ class AnalyticsSystem {
     getConversionRate(period = 30) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - period);
-        
-        const events = this.events.filter(event => 
+
+        const events = this.events.filter(event =>
             new Date(event.timestamp) >= startDate
         );
-        
+
         const pageViews = events.filter(e => e.event_name === 'page_view').length;
         const conversions = events.filter(e => e.event_name.includes('conversion')).length;
-        
+
         return pageViews > 0 ? (conversions / pageViews) * 100 : 0;
     }
 
     getTopPages(period = 30) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - period);
-        
-        const pageViews = this.events.filter(event => 
-            event.event_name === 'page_view' && 
+
+        const pageViews = this.events.filter(event =>
+            event.event_name === 'page_view' &&
             new Date(event.timestamp) >= startDate
         );
-        
+
         const pageCounts = {};
         pageViews.forEach(event => {
             pageCounts[event.page] = (pageCounts[event.page] || 0) + 1;
         });
-        
+
         return Object.entries(pageCounts)
-            .sort(([,a], [,b]) => b - a)
+            .sort(([, a], [, b]) => b - a)
             .slice(0, 10);
     }
 
     getUserJourney(userId = null) {
         const targetUserId = userId || this.userId;
-        const userEvents = this.events.filter(event => 
+        const userEvents = this.events.filter(event =>
             event.user_id === targetUserId
         ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        
+
         return userEvents.map(event => ({
             event: event.event_name,
             page: event.page,
@@ -511,7 +511,7 @@ class AnalyticsSystem {
 
     getSessionAnalytics() {
         const sessions = {};
-        
+
         this.events.forEach(event => {
             if (!sessions[event.session_id]) {
                 sessions[event.session_id] = {
@@ -522,12 +522,12 @@ class AnalyticsSystem {
                     user_id: event.user_id
                 };
             }
-            
+
             sessions[event.session_id].events.push(event);
             sessions[event.session_id].pages.add(event.page);
             sessions[event.session_id].end_time = event.timestamp;
         });
-        
+
         return Object.values(sessions).map(session => ({
             ...session,
             pages: Array.from(session.pages),
@@ -548,7 +548,7 @@ class AnalyticsSystem {
             events: this.events,
             sessions: this.getSessionAnalytics()
         };
-        
+
         switch (format) {
             case 'json':
                 return JSON.stringify(data, null, 2);
@@ -571,7 +571,7 @@ class AnalyticsSystem {
             event.user_id,
             event.session_id
         ]);
-        
+
         return [headers, ...rows]
             .map(row => row.map(cell => `"${cell}"`).join(','))
             .join('\n');
@@ -587,9 +587,9 @@ class AnalyticsSystem {
     clearUserData(userId) {
         this.events = this.events.filter(event => event.user_id !== userId);
         this.updateStoredEvents();
-        
+
         // Clear from server
-        fetch(`${API_BASE}/analytics/clear-user`, {
+        fetch(`${window.CONFIG.API_BASE}/analytics/clear-user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

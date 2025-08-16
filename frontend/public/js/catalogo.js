@@ -1,4 +1,4 @@
-const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+// Configurazione API - usa quella globale da config.js
 
 $(document).ready(function () {
   // Verifica validità token all'avvio
@@ -35,7 +35,7 @@ function logout() {
 
 function loadCitta() {
   $.ajax({
-    url: `${API_BASE}/sedi`,
+    url: `${window.CONFIG.API_BASE}/sedi`,
     method: 'GET',
     headers: getAuthHeaders()
   }).done(sedi => {
@@ -47,7 +47,7 @@ function loadCitta() {
 
 function loadServizi() {
   $.ajax({
-    url: `${API_BASE}/servizi`,
+    url: `${window.CONFIG.API_BASE}/servizi`,
     method: 'GET',
     headers: getAuthHeaders()
   }).done(servizi => {
@@ -73,7 +73,7 @@ async function cercaSpazi() {
 
   // 1) prendo le sedi (eventualmente filtrate per città)
   const sedi = await $.ajax({
-    url: citta ? `${API_BASE}/sedi?citta=${encodeURIComponent(citta)}` : `${API_BASE}/sedi`,
+    url: citta ? `${window.CONFIG.API_BASE}/sedi?citta=${encodeURIComponent(citta)}` : `${window.CONFIG.API_BASE}/sedi`,
     method: 'GET',
     headers: getAuthHeaders()
   });
@@ -82,7 +82,7 @@ async function cercaSpazi() {
   const risultati = [];
   for (const sede of sedi) {
     const spazi = await $.ajax({
-      url: tipologia ? `${API_BASE}/spazi?id_sede=${sede.id_sede}&tipologia=${encodeURIComponent(tipologia)}` : `${API_BASE}/spazi?id_sede=${sede.id_sede}`,
+      url: tipologia ? `${window.CONFIG.API_BASE}/spazi?id_sede=${sede.id_sede}&tipologia=${encodeURIComponent(tipologia)}` : `${window.CONFIG.API_BASE}/spazi?id_sede=${sede.id_sede}`,
       method: 'GET',
       headers: getAuthHeaders()
     });
@@ -91,7 +91,7 @@ async function cercaSpazi() {
       // 3) filtro per servizi (se selezionati)
       if (serviziSelezionati.length > 0) {
         const srv = await $.ajax({
-          url: `${API_BASE}/spazi/${spazio.id_spazio}/servizi`,
+          url: `${window.CONFIG.API_BASE}/spazi/${spazio.id_spazio}/servizi`,
           method: 'GET',
           headers: getAuthHeaders()
         });
@@ -104,7 +104,7 @@ async function cercaSpazi() {
       let disponibile = true;
       if (soloDisponibili && dal && al) {
         const res = await $.ajax({
-          url: `${API_BASE}/spazi/${spazio.id_spazio}/disponibilita`,
+          url: `${window.CONFIG.API_BASE}/spazi/${spazio.id_spazio}/disponibilita`,
           method: 'GET',
           headers: getAuthHeaders(),
           data: { data_inizio: dal, data_fine: al }

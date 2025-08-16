@@ -191,15 +191,15 @@ class ABTestingSystem {
     assignUserVariants() {
         const userId = this.getUserId();
         const sessionId = this.getSessionId();
-        
+
         this.tests.forEach((test, testId) => {
             if (test.status !== 'active') return;
-            
+
             // Check if user should participate in this test
             if (this.shouldUserParticipate(test, userId, sessionId)) {
                 const variant = this.selectVariant(test);
                 this.userVariants.set(testId, variant);
-                
+
                 // Store variant assignment
                 this.storeVariantAssignment(testId, variant.id, userId, sessionId);
             }
@@ -211,27 +211,27 @@ class ABTestingSystem {
         const now = new Date();
         const startDate = new Date(test.startDate);
         const endDate = new Date(test.endDate);
-        
+
         if (now < startDate || now > endDate) return false;
-        
+
         // Check traffic split
         const userHash = this.hashString(`${userId || 'anonymous'}_${sessionId}_${test.id}`);
         const userPercentage = userHash % 100;
-        
+
         return userPercentage < (test.trafficSplit * 100);
     }
 
     selectVariant(test) {
         const random = Math.random();
         let cumulativeWeight = 0;
-        
+
         for (const variant of test.variants) {
             cumulativeWeight += variant.weight;
             if (random <= cumulativeWeight) {
                 return variant;
             }
         }
-        
+
         // Fallback to control
         return test.variants.find(v => v.id === 'control');
     }
@@ -273,7 +273,7 @@ class ABTestingSystem {
             session_id: sessionId,
             timestamp: new Date().toISOString()
         };
-        
+
         try {
             const assignments = JSON.parse(localStorage.getItem('ab_test_assignments') || '[]');
             assignments.push(assignment);
@@ -281,14 +281,14 @@ class ABTestingSystem {
         } catch (error) {
             console.error('Errore salvataggio assegnazione variante:', error);
         }
-        
+
         // Send to server
         this.sendVariantAssignment(assignment);
     }
 
     async sendVariantAssignment(assignment) {
         try {
-            await fetch(`${API_BASE}/ab-testing/assignment`, {
+            await fetch(`${window.CONFIG.API_BASE}/ab-testing/assignment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -304,7 +304,7 @@ class ABTestingSystem {
     runActiveTests() {
         this.tests.forEach((test, testId) => {
             if (test.status !== 'active') return;
-            
+
             const variant = this.userVariants.get(testId);
             if (variant) {
                 this.applyVariant(test, variant);
@@ -314,34 +314,34 @@ class ABTestingSystem {
 
     applyVariant(test, variant) {
         console.log(`🧪 A/B Test "${test.name}": Applicando variante "${variant.name}"`);
-        
+
         // Apply CSS changes
         this.applyCSSChanges(test.id, variant.changes);
-        
+
         // Apply content changes
         this.applyContentChanges(test.id, variant.changes);
-        
+
         // Apply behavior changes
         this.applyBehaviorChanges(test.id, variant.changes);
-        
+
         // Track variant application
         this.trackVariantApplication(test.id, variant.id);
     }
 
     applyCSSChanges(testId, changes) {
         if (!changes.button_color && !changes.hero_alignment) return;
-        
+
         const styleId = `ab-test-${testId}`;
         let style = document.getElementById(styleId);
-        
+
         if (!style) {
             style = document.createElement('style');
             style.id = styleId;
             document.head.appendChild(style);
         }
-        
+
         let css = '';
-        
+
         if (changes.button_color) {
             css += `
                 .hero .btn-primary {
@@ -354,7 +354,7 @@ class ABTestingSystem {
                 }
             `;
         }
-        
+
         if (changes.hero_alignment === 'center') {
             css += `
                 .hero-content {
@@ -365,7 +365,7 @@ class ABTestingSystem {
                 }
             `;
         }
-        
+
         if (changes.hero_layout === 'stacked') {
             css += `
                 .hero .row {
@@ -377,7 +377,7 @@ class ABTestingSystem {
                 }
             `;
         }
-        
+
         style.textContent = css;
     }
 
@@ -388,7 +388,7 @@ class ABTestingSystem {
                 button.textContent = changes.button_text;
             });
         }
-        
+
         if (changes.button_icon) {
             const buttons = document.querySelectorAll('.hero .btn-primary');
             buttons.forEach(button => {
@@ -397,7 +397,7 @@ class ABTestingSystem {
                 button.prepend(icon);
             });
         }
-        
+
         if (changes.hero_media === 'video') {
             const heroImage = document.querySelector('.hero-image');
             if (heroImage) {
@@ -417,7 +417,7 @@ class ABTestingSystem {
             buttons.forEach(button => {
                 button.style.animation = 'pulse 2s infinite';
             });
-            
+
             // Add pulse animation CSS
             if (!document.getElementById('ab-test-pulse-animation')) {
                 const style = document.createElement('style');
@@ -432,11 +432,11 @@ class ABTestingSystem {
                 document.head.appendChild(style);
             }
         }
-        
+
         if (changes.price_urgency === 'limited_time') {
             this.addPriceUrgency();
         }
-        
+
         if (changes.price_popular_badge === 'enabled') {
             this.addPopularBadges();
         }
@@ -450,7 +450,7 @@ class ABTestingSystem {
             urgencyBadge.style.top = '-10px';
             urgencyBadge.style.right = '-10px';
             urgencyBadge.textContent = 'Offerta Limitata!';
-            
+
             const container = element.closest('.card, .pricing-item') || element.parentElement;
             if (container.style.position !== 'relative') {
                 container.style.position = 'relative';
@@ -465,14 +465,14 @@ class ABTestingSystem {
             // Mark middle item as popular
             const middleIndex = Math.floor(pricingItems.length / 2);
             const popularItem = pricingItems[middleIndex];
-            
+
             const popularBadge = document.createElement('div');
             popularBadge.className = 'badge badge-primary position-absolute';
             popularBadge.style.top = '-15px';
             popularBadge.style.left = '50%';
             popularBadge.style.transform = 'translateX(-50%)';
             popularBadge.textContent = 'PIÙ POPOLARE';
-            
+
             if (popularItem.style.position !== 'relative') {
                 popularItem.style.position = 'relative';
             }
@@ -483,7 +483,7 @@ class ABTestingSystem {
     setupEventTracking() {
         this.tests.forEach((test, testId) => {
             if (test.status !== 'active') return;
-            
+
             test.goals.forEach(goal => {
                 this.setupGoalTracking(testId, goal);
             });
@@ -524,17 +524,17 @@ class ABTestingSystem {
     setupNavigationTracking(testId, goal) {
         const originalPushState = history.pushState;
         const originalReplaceState = history.replaceState;
-        
-        history.pushState = function(...args) {
+
+        history.pushState = function (...args) {
             originalPushState.apply(history, args);
             this.checkNavigation(testId, goal, args[2]);
         }.bind(this);
-        
-        history.replaceState = function(...args) {
+
+        history.replaceState = function (...args) {
             originalReplaceState.apply(history, args);
             this.checkNavigation(testId, goal, args[2]);
         }.bind(this);
-        
+
         // Check initial navigation
         this.checkNavigation(testId, goal, window.location.pathname);
     }
@@ -551,7 +551,7 @@ class ABTestingSystem {
     setupScrollTracking(testId, goal) {
         let maxScroll = 0;
         let scrollTimeout;
-        
+
         window.addEventListener('scroll', () => {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
@@ -572,7 +572,7 @@ class ABTestingSystem {
     setupTimeTracking(testId, goal) {
         let startTime = Date.now();
         let goalTracked = false;
-        
+
         const checkTime = () => {
             const timeOnPage = Date.now() - startTime;
             if (timeOnPage >= goal.threshold && !goalTracked) {
@@ -583,10 +583,10 @@ class ABTestingSystem {
                 goalTracked = true;
             }
         };
-        
+
         // Check every 5 seconds
         const interval = setInterval(checkTime, 5000);
-        
+
         // Check on page unload
         window.addEventListener('beforeunload', () => {
             clearInterval(interval);
@@ -597,7 +597,7 @@ class ABTestingSystem {
     trackGoal(testId, goalId, data = {}) {
         const variant = this.userVariants.get(testId);
         if (!variant) return;
-        
+
         const goalEvent = {
             test_id: testId,
             variant_id: variant.id,
@@ -607,18 +607,18 @@ class ABTestingSystem {
             timestamp: new Date().toISOString(),
             data: data
         };
-        
+
         // Store locally
         this.storeGoalEvent(goalEvent);
-        
+
         // Send to server
         this.sendGoalEvent(goalEvent);
-        
+
         // Track with analytics if available
         if (window.analytics) {
             window.analytics.trackEvent('ab_test_goal', goalEvent);
         }
-        
+
         console.log(`🎯 A/B Test Goal raggiunto: ${testId} - ${goalId}`, goalEvent);
     }
 
@@ -634,7 +634,7 @@ class ABTestingSystem {
 
     async sendGoalEvent(goalEvent) {
         try {
-            await fetch(`${API_BASE}/ab-testing/goal`, {
+            await fetch(`${window.CONFIG.API_BASE}/ab-testing/goal`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -652,17 +652,17 @@ class ABTestingSystem {
         setInterval(() => {
             this.collectTestResults();
         }, 300000);
-        
+
         // Initial collection
         this.collectTestResults();
     }
 
     async collectTestResults() {
         try {
-            const response = await fetch(`${API_BASE}/ab-testing/results`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/ab-testing/results`, {
                 headers: getAuthHeaders()
             });
-            
+
             if (response.ok) {
                 const results = await response.json();
                 this.updateTestResults(results);
@@ -676,7 +676,7 @@ class ABTestingSystem {
         results.forEach(result => {
             this.testResults.set(result.test_id, result);
         });
-        
+
         // Update UI if results dashboard is visible
         this.updateResultsUI();
     }
@@ -737,27 +737,27 @@ class ABTestingSystem {
     forceVariant(testId, variantId) {
         const test = this.tests.get(testId);
         if (!test) return false;
-        
+
         const variant = test.variants.find(v => v.id === variantId);
         if (!variant) return false;
-        
+
         this.userVariants.set(testId, variant);
         this.applyVariant(test, variant);
-        
+
         console.log(`🧪 Forzata variante ${variantId} per test ${testId}`);
         return true;
     }
 
     resetTest(testId) {
         this.userVariants.delete(testId);
-        
+
         // Remove applied changes
         const styleId = `ab-test-${testId}`;
         const style = document.getElementById(styleId);
         if (style) {
             style.remove();
         }
-        
+
         console.log(`🧪 Reset test ${testId}`);
     }
 }
@@ -797,6 +797,6 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         forceVariant: (testId, variantId) => window.abTesting?.forceVariant(testId, variantId),
         resetTest: (testId) => window.abTesting?.resetTest(testId)
     };
-    
+
     console.log('🧪 A/B Testing Debug Mode attivo. Usa window.abTestingDebug per controllare i test.');
 }

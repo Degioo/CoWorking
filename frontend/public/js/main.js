@@ -1,9 +1,9 @@
 // Configurazione API
-const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+// Configurazione API - usa quella globale da config.js
 
 // Debug: verifica configurazione
 console.log('main.js - window.CONFIG:', window.CONFIG);
-console.log('main.js - API_BASE:', API_BASE);
+console.log('main.js - API_BASE:', window.CONFIG.API_BASE);
 
 // Funzioni di utilità
 function showAlert(message, type = 'info') {
@@ -45,7 +45,7 @@ function logout() {
 // Caricamento sedi
 function loadSedi(citta = '') {
   console.log('Caricando sedi...', citta ? `Filtro: ${citta}` : 'Tutte');
-  const url = citta ? `${API_BASE}/sedi?citta=${citta}` : `${API_BASE}/sedi`;
+  const url = citta ? `${window.CONFIG.API_BASE}/sedi?citta=${citta}` : `${window.CONFIG.API_BASE}/sedi`;
 
   $.ajax({
     url: url,
@@ -120,7 +120,7 @@ function handleLogin(event) {
   };
 
   $.ajax({
-    url: `${API_BASE}/login`,
+    url: `${window.CONFIG.API_BASE}/login`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(data)
@@ -174,7 +174,7 @@ function handleRegistrazione(event) {
   };
 
   $.ajax({
-    url: `${API_BASE}/register`,
+    url: `${window.CONFIG.API_BASE}/register`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(data)
@@ -189,7 +189,7 @@ function handleRegistrazione(event) {
       };
 
       $.ajax({
-        url: `${API_BASE}/login`,
+        url: `${window.CONFIG.API_BASE}/login`,
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(loginData)

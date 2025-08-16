@@ -1,5 +1,5 @@
 // Configurazione API
-const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+// Configurazione API - usa quella globale da config.js
 
 // Variabili globali
 let currentUser = null;
@@ -122,7 +122,7 @@ function loadInitialData() {
 // Carica sedi del gestore
 function loadSediGestore() {
   $.ajax({
-    url: `${API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`,
+    url: `${window.CONFIG.API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`,
     method: 'GET',
     headers: getAuthHeaders()
   })
@@ -171,7 +171,7 @@ function displaySediGestore(sedi) {
 // Carica prenotazioni gestore
 function loadPrenotazioniGestore() {
   $.ajax({
-    url: `${API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`,
+    url: `${window.CONFIG.API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`,
     method: 'GET',
     headers: getAuthHeaders()
   })
@@ -218,7 +218,7 @@ function displayPrenotazioniGestore(prenotazioni) {
 // Carica report gestore
 function loadReportGestore() {
   $.ajax({
-    url: `${API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`,
+    url: `${window.CONFIG.API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`,
     method: 'GET',
     headers: getAuthHeaders()
   })
@@ -264,7 +264,7 @@ function displayReportGestore(report) {
 // Carica prenotazioni utente
 function loadPrenotazioniUtente() {
   $.ajax({
-    url: `${API_BASE}/prenotazioni?utente=${currentUser.id_utente}`,
+    url: `${window.CONFIG.API_BASE}/prenotazioni?utente=${currentUser.id_utente}`,
     method: 'GET',
     headers: getAuthHeaders()
   })
@@ -292,15 +292,15 @@ function loadPrenotazioniUtente() {
 // Sincronizza prenotazioni con pagamenti
 async function syncPrenotazioniWithPagamenti() {
   try {
-    const response = await fetch(`${API_BASE}/prenotazioni/sync-with-pagamenti`, {
+    const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/sync-with-pagamenti`, {
       method: 'POST',
       headers: getAuthHeaders()
     });
-    
+
     if (response.ok) {
       const result = await response.json();
       console.log('Sincronizzazione completata:', result);
-      
+
       // Se ci sono state modifiche, ricarica le prenotazioni
       if (result.prenotazioni_aggiornate > 0 || result.prenotazioni_duplicate_cancellate > 0) {
         console.log('Modifiche rilevate, ricarico prenotazioni...');
@@ -369,7 +369,7 @@ function displayPrenotazioniUtente(prenotazioni) {
 // Carica pagamenti utente
 function loadPagamentiUtente() {
   $.ajax({
-    url: `${API_BASE}/pagamenti?utente=${currentUser.id_utente}`,
+    url: `${window.CONFIG.API_BASE}/pagamenti?utente=${currentUser.id_utente}`,
     method: 'GET',
     headers: getAuthHeaders()
   })
@@ -399,7 +399,7 @@ function displayPagamentiUtente(pagamenti) {
 
   pagamenti.forEach(p => {
     const dataPagamento = new Date(p.data_pagamento).toLocaleString('it-IT');
-    
+
     // Crea i dettagli del pagamento
     let dettagli = 'N/A';
     if (p.nome_spazio && p.nome_sede && p.citta_sede) {
@@ -409,7 +409,7 @@ function displayPagamentiUtente(pagamenti) {
     } else if (p.nome_spazio) {
       dettagli = p.nome_spazio;
     }
-    
+
     html += `
       <tr>
         <td>${dataPagamento}</td>

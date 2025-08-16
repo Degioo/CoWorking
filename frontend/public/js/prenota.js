@@ -1,5 +1,4 @@
-// Configurazione API
-const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+// Configurazione API - usa quella globale da config.js
 
 // Variabili globali
 let currentStep = 1;
@@ -89,7 +88,7 @@ function logout() {
 function loadSedi() {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `${API_BASE}/sedi`,
+      url: `${window.CONFIG.API_BASE}/sedi`,
       method: 'GET'
       // Rimuovo headers per endpoint pubblico che non richiede autenticazione
     })
@@ -127,7 +126,7 @@ function loadSedi() {
 function loadSpazi(idSede) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `${API_BASE}/spazi?id_sede=${idSede}`,
+      url: `${window.CONFIG.API_BASE}/spazi?id_sede=${idSede}`,
       method: 'GET',
       headers: getAuthHeaders() // Ripristino per mantenere Content-Type
     })
@@ -165,7 +164,7 @@ function loadSpazi(idSede) {
 function loadServiziSpazio(idSpazio) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: `${API_BASE}/spazi/${idSpazio}/servizi`,
+      url: `${window.CONFIG.API_BASE}/spazi/${idSpazio}/servizi`,
       method: 'GET',
       headers: getAuthHeaders() // Ripristino per mantenere Content-Type
     })
@@ -250,7 +249,7 @@ function checkDisponibilita() {
   statusElement.html('<span class="text-info">Verificando...</span>');
 
   $.ajax({
-    url: `${API_BASE}/spazi/${idSpazio}/disponibilita`,
+    url: `${window.CONFIG.API_BASE}/spazi/${idSpazio}/disponibilita`,
     method: 'GET',
     headers: getAuthHeaders(),
     data: {
@@ -341,11 +340,11 @@ function createPrenotazione() {
 
   const headers = getAuthHeaders();
   console.log('createPrenotazione - Headers:', headers);
-  console.log('createPrenotazione - URL:', `${API_BASE}/prenotazioni`);
+  console.log('createPrenotazione - URL:', `${window.CONFIG.API_BASE}/prenotazioni`);
   console.log('createPrenotazione - Data:', data);
 
   $.ajax({
-    url: `${API_BASE}/prenotazioni`,
+    url: `${window.CONFIG.API_BASE}/prenotazioni`,
     method: 'POST',
     headers: headers,
     data: JSON.stringify(data)
@@ -357,7 +356,7 @@ function createPrenotazione() {
       // MOCK: crea intent e mostra modal
       try {
         const intent = await $.ajax({
-          url: `${API_BASE}/pagamenti/intent`,
+          url: `${window.CONFIG.API_BASE}/pagamenti/intent`,
           method: 'POST',
           headers: getAuthHeaders(),
           data: JSON.stringify({ id_prenotazione: lastCreatedPrenotazioneId })

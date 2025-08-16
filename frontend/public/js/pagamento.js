@@ -1,5 +1,5 @@
 // Configurazione API
-const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3002/api';
+// Configurazione API - usa quella globale da config.js
 
 // Configurazione Stripe
 let stripe;
@@ -14,12 +14,12 @@ let prenotazioneData = {};
 let pagamentoCompletato = false;
 
 // Gestione interruzione pagamento
-window.addEventListener('beforeunload', function(e) {
+window.addEventListener('beforeunload', function (e) {
     // Solo se il pagamento non è stato completato e c'è una prenotazione
     if (!pagamentoCompletato && prenotazioneData && prenotazioneData.id_prenotazione) {
         // Metti in sospeso la prenotazione
         suspendPrenotazioneOnExit(prenotazioneData.id_prenotazione);
-        
+
         // Mostra messaggio di conferma
         e.preventDefault();
         e.returnValue = 'Sei sicuro di voler uscire? Il pagamento non è stato completato.';
@@ -30,11 +30,11 @@ window.addEventListener('beforeunload', function(e) {
 async function suspendPrenotazioneOnExit(idPrenotazione) {
     try {
         // Chiama l'API per mettere in sospeso la prenotazione
-        await fetch(`${API_BASE}/prenotazioni/${idPrenotazione}/suspend`, {
+        await fetch(`${window.CONFIG.API_BASE}/prenotazioni/${idPrenotazione}/suspend`, {
             method: 'PUT',
             headers: getAuthHeaders()
         });
-        
+
         console.log('Prenotazione messa in sospeso per interruzione pagamento');
     } catch (error) {
         console.error('Errore sospensione prenotazione:', error);
@@ -106,7 +106,7 @@ function checkRequiredElements() {
 async function checkAPIAvailability() {
     try {
         console.log('Verifico disponibilità API...');
-        const response = await fetchWithTimeout(`${API_BASE}/ping`, {}, 5000);
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/ping`, {}, 5000);
 
         if (!response.ok) {
             throw new Error(`API non disponibile: ${response.status} ${response.statusText}`);
@@ -135,7 +135,7 @@ async function checkPrenotazionePermissions(prenotazioneId) {
         console.log('Utente corrente:', userData);
 
         // Verifica se la prenotazione esiste e appartiene all'utente
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneId}`, {
             headers: getAuthHeaders()
         }, 10000);
 
@@ -172,7 +172,7 @@ async function checkPrenotazionePaymentStatus(prenotazioneId) {
         console.log('Verifico stato pagamento prenotazione...');
 
         // Verifica se esiste già un pagamento per questa prenotazione
-        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/status/${prenotazioneId}`, {}, 10000);
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/pagamenti/stripe/status/${prenotazioneId}`, {}, 10000);
 
         if (response.ok) {
             const paymentStatus = await response.json();
@@ -205,7 +205,7 @@ async function checkPrenotazioneValidity(prenotazioneId) {
         console.log('Verifico validità prenotazione...');
 
         // Recupera i dati della prenotazione
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneId}`, {
             headers: getAuthHeaders()
         }, 10000);
 
@@ -261,7 +261,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
 
         console.log('Dati prenotazione da creare:', prenotazioneData);
 
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni`, {
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -281,18 +281,18 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         // Recupera i nomi di sede e spazio per completare i dati
         try {
             const [sedeResponse, spazioResponse] = await Promise.all([
-                fetchWithTimeout(`${API_BASE}/sedi`, {}, 5000),
-                fetchWithTimeout(`${API_BASE}/spazi`, {}, 5000)
+                fetchWithTimeout(`${window.CONFIG.API_BASE}/sedi`, {}, 5000),
+                fetchWithTimeout(`${window.CONFIG.API_BASE}/spazi`, {}, 5000)
             ]);
 
             if (sedeResponse.ok && spazioResponse.ok) {
                 const sedi = await sedeResponse.json();
                 const spazi = await spazioResponse.json();
-                
+
                 // Trova la sede e lo spazio specifici
                 const sedeData = sedi.find(s => s.id_sede == sede);
                 const spazioData = spazi.find(sp => sp.id_spazio == spazio);
-                
+
                 if (sedeData && spazioData) {
                     // Completa i dati della prenotazione con i nomi
                     prenotazione.nome_sede = sedeData.nome;
@@ -306,7 +306,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
 
         // Salva i dati della prenotazione
         window.prenotazioneData = prenotazione;
-        
+
         // Aggiungi le date se non sono presenti (caso creazione automatica)
         if (!prenotazione.data_inizio) {
             prenotazione.data_inizio = dataInizio;
@@ -412,10 +412,10 @@ async function initializeStripe() {
             throw new Error('Libreria Stripe non caricata. Verifica la connessione internet.');
         }
 
-        console.log('initializeStripe - Chiamo API config Stripe:', `${API_BASE}/pagamenti/stripe/config`);
+        console.log('initializeStripe - Chiamo API config Stripe:', `${window.CONFIG.API_BASE}/pagamenti/stripe/config`);
 
         // Recupera la configurazione Stripe dal backend
-        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/config`, {}, 10000);
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/pagamenti/stripe/config`, {}, 10000);
 
         console.log('initializeStripe - Risposta config ricevuta:', response.status, response.statusText);
 
@@ -510,10 +510,10 @@ async function loadPrenotazioneData() {
             throw new Error('ID prenotazione non specificato');
         }
 
-        console.log('loadPrenotazioneData - Chiamo API:', `${API_BASE}/prenotazioni/${prenotazioneId}`);
+        console.log('loadPrenotazioneData - Chiamo API:', `${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneId}`);
 
         // Recupera i dati della prenotazione
-        const response = await fetchWithTimeout(`${API_BASE}/prenotazioni/${prenotazioneId}`, {
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneId}`, {
             headers: getAuthHeaders()
         }, 15000);
 
@@ -753,14 +753,14 @@ async function handleCardPaymentSubmit(event) {
     try {
         // Simula un delay per il pagamento
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         // Simula il successo del pagamento
         const simulatedPaymentIntent = {
             id: 'sim_' + Date.now(),
             status: 'succeeded',
             method: 'carta'
         };
-        
+
         // Gestisci il successo del pagamento simulato
         await handlePaymentSuccess(simulatedPaymentIntent, 'carta');
 
@@ -788,13 +788,13 @@ async function handlePayPalPaymentSubmit(event) {
     try {
         // Simula un delay per il pagamento PayPal
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
         // Simula il successo del pagamento PayPal
         const simulatedPayPalOrder = {
             id: 'paypal_' + Date.now(),
             method: 'paypal'
         };
-        
+
         await handlePaymentSuccess(simulatedPayPalOrder, 'paypal');
     } catch (error) {
         console.error('Errore pagamento PayPal simulato:', error);
@@ -850,7 +850,7 @@ async function createPaymentIntent() {
 
         console.log('Metadati per Stripe:', metadata);
 
-        const response = await fetchWithTimeout(`${API_BASE}/pagamenti/stripe/intent`, {
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/pagamenti/stripe/intent`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
@@ -885,7 +885,7 @@ async function handlePaymentSuccess(paymentIntent, method) {
     try {
         // Imposta il flag che il pagamento è stato completato
         pagamentoCompletato = true;
-        
+
         let methodText = '';
         switch (method) {
             case 'carta':
@@ -936,10 +936,10 @@ async function handlePaymentSuccess(paymentIntent, method) {
 async function confirmPaymentToBackend(paymentIntentId, method) {
     try {
         console.log('Confermo pagamento al backend:', method, paymentIntentId);
-        
+
         if (prenotazioneData && prenotazioneData.id_prenotazione) {
             // Aggiorna lo stato della prenotazione a "confermata" nel backend
-            const response = await fetch(`${API_BASE}/prenotazioni/${prenotazioneData.id_prenotazione}/confirm`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneData.id_prenotazione}/confirm`, {
                 method: 'PUT',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
@@ -947,20 +947,20 @@ async function confirmPaymentToBackend(paymentIntentId, method) {
                     payment_id: paymentIntentId
                 })
             });
-            
+
             if (response.ok) {
                 console.log('Stato prenotazione aggiornato a "confermata" nel backend');
-                
+
                 // Elimina prenotazioni duplicate nella stessa data/stanza
                 await eliminateDuplicatePrenotazioni();
-                
+
                 // Gestisce prenotazioni multiple stessa sala
                 await handleMultiplePrenotazioniSala();
             } else {
                 console.error('Errore aggiornamento stato prenotazione:', response.status);
             }
         }
-        
+
         console.log('Pagamento confermato al backend:', method, paymentIntentId);
     } catch (error) {
         console.error('Errore conferma backend:', error);
@@ -973,8 +973,8 @@ async function eliminateDuplicatePrenotazioni() {
         if (!prenotazioneData || !prenotazioneData.id_spazio || !prenotazioneData.data_inizio || !prenotazioneData.data_fine) {
             return;
         }
-        
-        const response = await fetch(`${API_BASE}/prenotazioni/eliminate-duplicates`, {
+
+        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/eliminate-duplicates`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
@@ -984,7 +984,7 @@ async function eliminateDuplicatePrenotazioni() {
                 exclude_id: prenotazioneData.id_prenotazione // Esclude la prenotazione appena confermata
             })
         });
-        
+
         if (response.ok) {
             const result = await response.json();
             console.log('Prenotazioni duplicate eliminate:', result.eliminated);
@@ -1000,8 +1000,8 @@ async function handleMultiplePrenotazioniSala() {
         if (!prenotazioneData || !prenotazioneData.id_spazio || !prenotazioneData.data_inizio || !prenotazioneData.data_fine) {
             return;
         }
-        
-        const response = await fetch(`${API_BASE}/prenotazioni/handle-multiple-sala`, {
+
+        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/handle-multiple-sala`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({
@@ -1011,7 +1011,7 @@ async function handleMultiplePrenotazioniSala() {
                 id_prenotazione_confermata: prenotazioneData.id_prenotazione
             })
         });
-        
+
         if (response.ok) {
             const result = await response.json();
             console.log('Prenotazioni multiple stessa sala gestite:', result.prenotazioni_cancellate);

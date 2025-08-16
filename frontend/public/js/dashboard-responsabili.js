@@ -101,14 +101,14 @@ class DashboardResponsabili {
 
     async loadSedi() {
         try {
-            const response = await fetch(`${API_BASE}/sedi`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/sedi`, {
                 headers: getAuthHeaders()
             });
 
             if (response.ok) {
                 const sedi = await response.json();
                 const selector = document.getElementById('sedeSelector');
-                
+
                 selector.innerHTML = '<option value="">Seleziona Sede</option>';
                 sedi.forEach(sede => {
                     const option = document.createElement('option');
@@ -127,7 +127,7 @@ class DashboardResponsabili {
 
     populateSpaziSelectors(sedi) {
         const spaziSelectors = ['modalSpazio', 'filterSpazio'];
-        
+
         spaziSelectors.forEach(selectorId => {
             const selector = document.getElementById(selectorId);
             if (selector) {
@@ -150,10 +150,10 @@ class DashboardResponsabili {
         try {
             // Load quick stats
             await this.loadQuickStats();
-            
+
             // Load charts data
             await this.loadChartsData();
-            
+
             // Load recent activity
             await this.loadRecentActivity();
         } catch (error) {
@@ -163,13 +163,13 @@ class DashboardResponsabili {
 
     async loadQuickStats() {
         try {
-            const response = await fetch(`${API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`, {
                 headers: getAuthHeaders()
             });
 
             if (response.ok) {
                 const stats = await response.json();
-                
+
                 document.getElementById('prenotazioniOggi').textContent = stats.prenotazioni_oggi || 0;
                 document.getElementById('utentiAttivi').textContent = stats.utenti_attivi || 0;
                 document.getElementById('fatturatoGiorno').textContent = `€${stats.fatturato_giorno || 0}`;
@@ -182,7 +182,7 @@ class DashboardResponsabili {
 
     async loadChartsData() {
         try {
-            const response = await fetch(`${API_BASE}/dashboard/charts?tipo=responsabile&sede=${this.currentSede || ''}&periodo=7`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/charts?tipo=responsabile&sede=${this.currentSede || ''}&periodo=7`, {
                 headers: getAuthHeaders()
             });
 
@@ -197,7 +197,7 @@ class DashboardResponsabili {
 
     async loadRecentActivity() {
         try {
-            const response = await fetch(`${API_BASE}/dashboard/activity?tipo=responsabile&sede=${this.currentSede || ''}&limit=10`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/activity?tipo=responsabile&sede=${this.currentSede || ''}&limit=10`, {
                 headers: getAuthHeaders()
             });
 
@@ -217,10 +217,10 @@ class DashboardResponsabili {
         activities.forEach(activity => {
             const activityItem = document.createElement('div');
             activityItem.className = 'activity-item';
-            
+
             const iconClass = this.getActivityIconClass(activity.tipo);
             const iconColor = this.getActivityIconColor(activity.tipo);
-            
+
             activityItem.innerHTML = `
                 <div class="activity-icon ${iconClass}" style="background: ${iconColor}">
                     <i class="fas ${this.getActivityIcon(activity.tipo)}"></i>
@@ -230,7 +230,7 @@ class DashboardResponsabili {
                     <div class="activity-time">${this.formatTime(activity.timestamp)}</div>
                 </div>
             `;
-            
+
             container.appendChild(activityItem);
         });
     }
@@ -269,7 +269,7 @@ class DashboardResponsabili {
         const date = new Date(timestamp);
         const now = new Date();
         const diff = now - date;
-        
+
         if (diff < 60000) return 'Adesso';
         if (diff < 3600000) return `${Math.floor(diff / 60000)} min fa`;
         if (diff < 86400000) return `${Math.floor(diff / 3600000)} ore fa`;
@@ -358,7 +358,7 @@ class DashboardResponsabili {
 
     async loadDisponibilita() {
         try {
-            const response = await fetch(`${API_BASE}/disponibilita?tipo=responsabile&sede=${this.currentSede || ''}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/disponibilita?tipo=responsabile&sede=${this.currentSede || ''}`, {
                 headers: getAuthHeaders()
             });
 
@@ -375,32 +375,32 @@ class DashboardResponsabili {
     generateCalendar(disponibilita) {
         const calendarBody = document.getElementById('calendarBody');
         const currentMonth = this.currentMonth;
-        
+
         // Generate calendar grid
         const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
         const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
         const startDate = new Date(firstDay);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
-        
+
         calendarBody.innerHTML = '';
-        
+
         // Generate 6 weeks of calendar
         for (let week = 0; week < 6; week++) {
             for (let day = 0; day < 7; day++) {
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + (week * 7) + day);
-                
+
                 const dayElement = document.createElement('div');
                 dayElement.className = 'calendar-day';
-                
+
                 if (date.getMonth() === currentMonth.getMonth()) {
                     dayElement.textContent = date.getDate();
-                    
+
                     // Check if today
                     if (this.isToday(date)) {
                         dayElement.classList.add('today');
                     }
-                    
+
                     // Check availability
                     const availability = this.getDayAvailability(date, disponibilita);
                     if (availability === 'unavailable') {
@@ -408,17 +408,17 @@ class DashboardResponsabili {
                     } else if (availability === 'partial') {
                         dayElement.classList.add('partial');
                     }
-                    
+
                     dayElement.addEventListener('click', () => this.showDayDetails(date));
                 } else {
                     dayElement.textContent = '';
                     dayElement.style.visibility = 'hidden';
                 }
-                
+
                 calendarBody.appendChild(dayElement);
             }
         }
-        
+
         // Update month display
         document.getElementById('currentMonth').textContent = currentMonth.toLocaleDateString('it-IT', {
             month: 'long',
@@ -429,16 +429,16 @@ class DashboardResponsabili {
     isToday(date) {
         const today = new Date();
         return date.getDate() === today.getDate() &&
-               date.getMonth() === today.getMonth() &&
-               date.getFullYear() === today.getFullYear();
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear();
     }
 
     getDayAvailability(date, disponibilita) {
         const dateStr = date.toISOString().split('T')[0];
-        const dayRules = disponibilita.regole.filter(rule => 
+        const dayRules = disponibilita.regole.filter(rule =>
             rule.data_inizio <= dateStr && rule.data_fine >= dateStr
         );
-        
+
         if (dayRules.length === 0) return 'available';
         if (dayRules.some(rule => rule.tipo === 'manutenzione')) return 'unavailable';
         return 'partial';
@@ -447,11 +447,11 @@ class DashboardResponsabili {
     displayDisponibilitaRules(regole) {
         const container = document.getElementById('rulesList');
         container.innerHTML = '';
-        
+
         regole.forEach(regola => {
             const ruleItem = document.createElement('div');
             ruleItem.className = 'rule-item';
-            
+
             ruleItem.innerHTML = `
                 <div class="rule-header">
                     <span class="rule-type">${regola.tipo}</span>
@@ -469,7 +469,7 @@ class DashboardResponsabili {
                     ${regola.motivo}
                 </div>
             `;
-            
+
             container.appendChild(ruleItem);
         });
     }
@@ -477,7 +477,7 @@ class DashboardResponsabili {
     async loadPrenotazioni() {
         try {
             const filters = this.getPrenotazioniFilters();
-            const response = await fetch(`${API_BASE}/prenotazioni?tipo=responsabile&sede=${this.currentSede || ''}&${new URLSearchParams(filters)}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni?tipo=responsabile&sede=${this.currentSede || ''}&${new URLSearchParams(filters)}`, {
                 headers: getAuthHeaders()
             });
 
@@ -492,24 +492,24 @@ class DashboardResponsabili {
 
     getPrenotazioniFilters() {
         const filters = {};
-        
+
         const dataInizio = document.getElementById('filterDataInizio').value;
         const dataFine = document.getElementById('filterDataFine').value;
         const spazio = document.getElementById('filterSpazio').value;
         const stato = document.getElementById('filterStato').value;
-        
+
         if (dataInizio) filters.data_inizio = dataInizio;
         if (dataFine) filters.data_fine = dataFine;
         if (spazio) filters.spazio = spazio;
         if (stato) filters.stato = stato;
-        
+
         return filters;
     }
 
     displayPrenotazioni(prenotazioni) {
         const tbody = document.getElementById('prenotazioniTableBody');
         tbody.innerHTML = '';
-        
+
         prenotazioni.forEach(prenotazione => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -561,7 +561,7 @@ class DashboardResponsabili {
 
     async loadUtenti() {
         try {
-            const response = await fetch(`${API_BASE}/utenti?tipo=responsabile&sede=${this.currentSede || ''}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/utenti?tipo=responsabile&sede=${this.currentSede || ''}`, {
                 headers: getAuthHeaders()
             });
 
@@ -585,7 +585,7 @@ class DashboardResponsabili {
     displayUtenti(utenti) {
         const tbody = document.getElementById('utentiTableBody');
         tbody.innerHTML = '';
-        
+
         utenti.forEach(utente => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -632,7 +632,7 @@ class DashboardResponsabili {
     async loadReportistica() {
         try {
             const filters = this.getReportFilters();
-            const response = await fetch(`${API_BASE}/reportistica?tipo=responsabile&sede=${this.currentSede || ''}&${new URLSearchParams(filters)}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/reportistica?tipo=responsabile&sede=${this.currentSede || ''}&${new URLSearchParams(filters)}`, {
                 headers: getAuthHeaders()
             });
 
@@ -648,19 +648,19 @@ class DashboardResponsabili {
 
     getReportFilters() {
         const filters = {};
-        
+
         const periodo = document.getElementById('reportPeriodo').value;
         const sede = document.getElementById('reportSede').value;
         const tipo = document.getElementById('reportTipo').value;
         const dataInizio = document.getElementById('reportDataInizio').value;
         const dataFine = document.getElementById('reportDataFine').value;
-        
+
         if (periodo) filters.periodo = periodo;
         if (sede) filters.sede = sede;
         if (tipo) filters.tipo = tipo;
         if (dataInizio) filters.data_inizio = dataInizio;
         if (dataFine) filters.data_fine = dataFine;
-        
+
         return filters;
     }
 
@@ -669,17 +669,17 @@ class DashboardResponsabili {
         if (data.main_chart) {
             this.updateMainChart(data.main_chart);
         }
-        
+
         // Spazio chart
         if (data.spazio_chart) {
             this.updateSpazioChart(data.spazio_chart);
         }
-        
+
         // Sede chart
         if (data.sede_chart) {
             this.updateSedeChart(data.sede_chart);
         }
-        
+
         // Utenti chart
         if (data.utenti_chart) {
             this.updateUtentiChart(data.utenti_chart);
@@ -689,11 +689,11 @@ class DashboardResponsabili {
     updateMainChart(data) {
         const ctx = document.getElementById('mainReportChart');
         if (!ctx) return;
-        
+
         if (this.charts.mainReport) {
             this.charts.mainReport.destroy();
         }
-        
+
         this.charts.mainReport = new Chart(ctx, {
             type: 'line',
             data: {
@@ -726,11 +726,11 @@ class DashboardResponsabili {
     updateSpazioChart(data) {
         const ctx = document.getElementById('spazioChart');
         if (!ctx) return;
-        
+
         if (this.charts.spazio) {
             this.charts.spazio.destroy();
         }
-        
+
         this.charts.spazio = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -761,11 +761,11 @@ class DashboardResponsabili {
     updateSedeChart(data) {
         const ctx = document.getElementById('sedeChart');
         if (!ctx) return;
-        
+
         if (this.charts.sede) {
             this.charts.sede.destroy();
         }
-        
+
         this.charts.sede = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -796,11 +796,11 @@ class DashboardResponsabili {
     updateUtentiChart(data) {
         const ctx = document.getElementById('utentiChart');
         if (!ctx) return;
-        
+
         if (this.charts.utenti) {
             this.charts.utenti.destroy();
         }
-        
+
         this.charts.utenti = new Chart(ctx, {
             type: 'line',
             data: {
@@ -833,16 +833,16 @@ class DashboardResponsabili {
     displayReportSummary(summary) {
         const container = document.getElementById('reportSummary');
         container.innerHTML = '';
-        
+
         Object.entries(summary).forEach(([key, value]) => {
             const summaryItem = document.createElement('div');
             summaryItem.className = 'summary-item';
-            
+
             summaryItem.innerHTML = `
                 <div class="summary-value">${value}</div>
                 <div class="summary-label">${this.formatSummaryLabel(key)}</div>
             `;
-            
+
             container.appendChild(summaryItem);
         });
     }
@@ -927,9 +927,9 @@ class DashboardResponsabili {
             exportExcel: document.getElementById('exportExcel').checked,
             exportCSV: document.getElementById('exportCSV').checked
         };
-        
+
         localStorage.setItem('dashboardSettings', JSON.stringify(settings));
-        
+
         // Show success message
         if (window.modernUI) {
             window.modernUI.showToast('Impostazioni salvate con successo!', 'success');
@@ -948,7 +948,7 @@ class DashboardResponsabili {
         document.getElementById('exportPDF').checked = true;
         document.getElementById('exportExcel').checked = true;
         document.getElementById('exportCSV').checked = false;
-        
+
         this.salvaImpostazioni();
     }
 }
