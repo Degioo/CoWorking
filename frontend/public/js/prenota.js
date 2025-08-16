@@ -105,7 +105,7 @@ function loadSedi() {
     $.ajax({
       url: url,
       method: 'GET',
-      timeout: 10000, // 10 secondi di timeout
+      timeout: 30000, // 30 secondi di timeout
       // Rimuovo headers per endpoint pubblico che non richiede autenticazione
     })
       .done(function (sedi) {
@@ -149,7 +149,12 @@ function loadSedi() {
         if (xhr.status === 401) {
           handleAuthError();
         } else {
-          showAlert('Errore nel caricamento delle sedi', 'danger');
+          console.log('loadSedi - Errore generico, riprovo in 5 secondi...');
+          setTimeout(() => {
+            console.log('loadSedi - Retry automatico...');
+            loadSedi().then(resolve).catch(reject);
+          }, 5000);
+          return; // Non chiamare reject subito, aspetta il retry
         }
         reject(xhr);
       })
