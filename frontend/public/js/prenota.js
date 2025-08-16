@@ -103,12 +103,23 @@ function loadSedi() {
     })
       .done(function (sedi) {
         console.log('loadSedi - Risposta ricevuta:', sedi);
+        console.log('loadSedi - Numero sedi ricevute:', sedi.length);
+        
         const select = $('#selectSede');
+        console.log('loadSedi - Elemento select trovato:', select.length > 0);
+        console.log('loadSedi - Select prima della pulizia:', select.html());
+        
         select.find('option:not(:first)').remove();
-
-        sedi.forEach(sede => {
-          select.append(`<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`);
+        console.log('loadSedi - Select dopo la pulizia:', select.html());
+        
+        sedi.forEach((sede, index) => {
+          const option = `<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`;
+          console.log(`loadSedi - Aggiungo opzione ${index}:`, option);
+          select.append(option);
         });
+        
+        console.log('loadSedi - Select finale:', select.html());
+        console.log('loadSedi - Numero opzioni finali:', select.find('option').length);
 
         // Se c'è una sede preselezionata, impostala
         const urlParams = new URLSearchParams(window.location.search);
@@ -118,6 +129,7 @@ function loadSedi() {
           onSedeChange();
         }
 
+        console.log('loadSedi - Chiamando resolve con sedi:', sedi);
         resolve(sedi);
       })
       .fail(function (xhr) {
