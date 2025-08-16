@@ -510,18 +510,21 @@ function showStep(step) {
     }
   }
 
-  // Nascondi tutti gli step
-  console.log('showStep - Nascondo tutti gli step...');
+  // Nascondi tutti gli step tranne quello corrente
+  console.log('showStep - Nascondo tutti gli step tranne quello corrente...');
   for (let i = 1; i <= 4; i++) {
     const stepElement = $(`#step${i}`);
     console.log(`showStep - Step ${i}:`, stepElement.length > 0 ? 'trovato' : 'NON TROVATO');
-    stepElement.addClass('d-none');
+    if (i === step) {
+      // Mostra lo step corrente
+      stepElement.removeClass('d-none');
+      console.log(`showStep - Step ${i} reso visibile`);
+    } else {
+      // Nascondi gli altri step
+      stepElement.addClass('d-none');
+      console.log(`showStep - Step ${i} nascosto`);
+    }
   }
-
-  // Mostra lo step corrente
-  const currentStepElement = $(`#step${step}`);
-  console.log(`showStep - Mostro step ${step}:`, currentStepElement.length > 0 ? 'trovato' : 'NON TROVATO');
-  currentStepElement.removeClass('d-none');
 
   // Se è lo step 4, aggiorna il riepilogo
   if (step === 4) {
