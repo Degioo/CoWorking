@@ -487,6 +487,9 @@ function showPaymentModal(idPagamento, importo) {
 
 // Mostra step specifico
 function showStep(step) {
+  console.log('showStep - Inizio funzione, step richiesto:', step);
+  console.log('showStep - currentStep attuale:', currentStep);
+  
   // Controllo autenticazione per lo step 4
   if (step === 4) {
     const userStr = localStorage.getItem('user');
@@ -508,12 +511,17 @@ function showStep(step) {
   }
 
   // Nascondi tutti gli step
+  console.log('showStep - Nascondo tutti gli step...');
   for (let i = 1; i <= 4; i++) {
-    $(`#step${i}`).addClass('d-none');
+    const stepElement = $(`#step${i}`);
+    console.log(`showStep - Step ${i}:`, stepElement.length > 0 ? 'trovato' : 'NON TROVATO');
+    stepElement.addClass('d-none');
   }
 
   // Mostra lo step corrente
-  $(`#step${step}`).removeClass('d-none');
+  const currentStepElement = $(`#step${step}`);
+  console.log(`showStep - Mostro step ${step}:`, currentStepElement.length > 0 ? 'trovato' : 'NON TROVATO');
+  currentStepElement.removeClass('d-none');
 
   // Se è lo step 4, aggiorna il riepilogo
   if (step === 4) {
