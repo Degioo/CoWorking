@@ -12,6 +12,8 @@ let lastCreatedPrenotazioneId = null;
 // Inizializzazione
 $(document).ready(function () {
   console.log('prenota.js - Inizializzazione pagina');
+  console.log('prenota.js - window.CONFIG:', window.CONFIG);
+  console.log('prenota.js - API_BASE:', window.CONFIG?.API_BASE);
 
   // Inizializza la pagina normalmente - l'autenticazione sarà richiesta solo quando necessario
   currentStep = 1;
@@ -86,13 +88,21 @@ function logout() {
 
 // Carica sedi
 function loadSedi() {
+  console.log('loadSedi - Inizio funzione');
+  console.log('loadSedi - window.CONFIG:', window.CONFIG);
+  console.log('loadSedi - API_BASE:', window.CONFIG?.API_BASE);
+  
   return new Promise((resolve, reject) => {
+    const url = `${window.CONFIG.API_BASE}/sedi`;
+    console.log('loadSedi - Chiamata API:', url);
+    
     $.ajax({
-      url: `${window.CONFIG.API_BASE}/sedi`,
+      url: url,
       method: 'GET'
       // Rimuovo headers per endpoint pubblico che non richiede autenticazione
     })
       .done(function (sedi) {
+        console.log('loadSedi - Risposta ricevuta:', sedi);
         const select = $('#selectSede');
         select.find('option:not(:first)').remove();
 
@@ -111,7 +121,9 @@ function loadSedi() {
         resolve(sedi);
       })
       .fail(function (xhr) {
-        console.log('loadSedi - Errore:', xhr.status, xhr.responseText);
+        console.error('loadSedi - Errore API:', xhr.status, xhr.responseText);
+        console.error('loadSedi - URL chiamata:', url);
+        console.error('loadSedi - Headers risposta:', xhr.getAllResponseHeaders());
         if (xhr.status === 401) {
           handleAuthError();
         } else {
