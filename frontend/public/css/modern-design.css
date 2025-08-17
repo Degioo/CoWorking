@@ -2021,41 +2021,56 @@ a:hover {
     color: #ffffff !important;
 }
 
-/* Titoli del footer - bianchi con CSS molto aggressivo */
-.footer h5,
-.footer h6,
-.footer .col h5,
-.footer .col h6 {
-    color: #ffffff !important;
-    color: var(--white) !important;
+/* Firma elegante in corsivo - ULTRA-AGGRESSIVO con fallback */
+.footer .signature,
+footer .signature,
+.footer p .signature,
+footer p .signature,
+.footer .col-md-6 .signature,
+footer .col-md-6 .signature {
+    font-family: 'Dancing Script', 'Brush Script MT', 'Lucida Handwriting', cursive, serif !important;
+    font-size: 1.6rem !important;
     font-weight: 600 !important;
-    margin-bottom: var(--space-lg) !important;
-    text-align: center !important;
-    font-size: 1.1rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-}
-
-/* Override per qualsiasi stato o stile esistente sui titoli footer */
-.footer h5 *,
-.footer h6 *,
-.footer .col h5 *,
-.footer .col h6 * {
     color: #ffffff !important;
-}
-
-/* Firma elegante in corsivo - più corsiva e visibile */
-.footer .signature {
-    font-family: 'Dancing Script', cursive, serif !important;
-    font-size: 1.4rem !important;
-    font-weight: 500 !important;
-    color: #ffffff !important;
+    color: white !important;
     color: var(--white) !important;
     font-style: italic !important;
-    letter-spacing: 0.15em !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 0.2em !important;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
     display: inline-block !important;
-    transform: skew(-5deg) !important;
+    transform: skew(-8deg) !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+}
+
+/* Override per qualsiasi stato della firma */
+.footer .signature *,
+footer .signature *,
+.footer p .signature *,
+footer p .signature * {
+    font-family: 'Dancing Script', 'Brush Script MT', 'Lucida Handwriting', cursive, serif !important;
+    font-style: italic !important;
+    color: #ffffff !important;
+}
+
+/* Fallback per browser che non supportano Dancing Script */
+@font-face {
+    font-family: 'Dancing Script Fallback';
+    src: local('Brush Script MT'), local('Lucida Handwriting'), local('cursive');
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* CSS di emergenza per la firma */
+.footer .signature {
+    font-family: 'Dancing Script Fallback', 'Brush Script MT', 'Lucida Handwriting', cursive, serif !important;
+    font-style: italic !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+    transform: skew(-8deg) !important;
 }
 
 /* CSS ULTRA-AGGRESSIVO per titoli footer - sovrascrive tutto */
@@ -2094,7 +2109,7 @@ footer h6 *,
 footer .col h5 *,
 footer .col h6 *,
 .footer .col h5 *,
-.footer .col h6 *,
+footer .col h6 *,
 footer .col-lg-4 h5 *,
 footer .col-lg-2 h6 *,
 .footer .col-lg-4 h5 *,
