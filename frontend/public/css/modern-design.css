@@ -210,7 +210,7 @@ a:hover {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4f8bf7 0%, #6ba0ff 100%);
+    background: linear-gradient(135deg, #6ba0ff 0%, #8bb5ff 100%);
     color: var(--white);
     box-shadow: var(--shadow-md);
     font-weight: 600;
@@ -218,7 +218,7 @@ a:hover {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #3b7df0 0%, #5a8ff0 100%);
+    background: linear-gradient(135deg, #5a8ff0 0%, #7aa0f0 100%);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
@@ -433,17 +433,29 @@ a:hover {
     transition: all var(--transition-normal);
 }
 
+.feature-card h3 {
+    color: var(--white) !important;
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+}
+
+.feature-card p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
 .feature-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, var(--white) 0%, #f8f9fa 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto var(--space-lg);
-    color: var(--white);
+    color: var(--primary);
     font-size: 2rem;
+    border: 3px solid var(--white);
+    box-shadow: var(--shadow-md);
 }
 
 .feature-card:hover {
@@ -1909,3 +1921,53 @@ a:hover {
     .stripe-element .StripeElement::after {
         display: none !important;
     }
+
+/* ===== FOOTER STYLES ===== */
+.footer {
+    background: var(--gray-900);
+    color: var(--white);
+    padding: var(--space-3xl) 0 var(--space-xl);
+}
+
+.footer h5 {
+    color: var(--white) !important;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    text-align: center;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.footer p,
+.footer a {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    transition: color var(--transition-fast);
+}
+
+.footer a:hover {
+    color: var(--white);
+}
+
+.footer .col {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.footer .row {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .footer h5 {
+        font-size: 1rem;
+        margin-bottom: var(--space-md);
+    }
+    
+    .footer .col {
+        margin-bottom: var(--space-md);
+    }
+}
