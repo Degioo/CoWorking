@@ -478,7 +478,45 @@ async function initializeStripe() {
         });
 
         console.log('initializeStripe - Stripe inizializzato con successo');
-
+        
+        // Rimuovi elementi sovrapposti e forza la visibilità
+        setTimeout(() => {
+            // Rimuovi eventuali elementi neri sovrapposti
+            const stripeContainer = document.querySelector('.stripe-element');
+            if (stripeContainer) {
+                const blackElements = stripeContainer.querySelectorAll('*');
+                blackElements.forEach(element => {
+                    if (element.style.backgroundColor === 'rgb(0, 0, 0)' || 
+                        element.style.backgroundColor === '#000000' ||
+                        element.style.backgroundColor === 'black') {
+                        element.style.display = 'none';
+                        element.remove();
+                    }
+                });
+            }
+            
+            // Forza la visibilità degli input
+            const stripeInputs = document.querySelectorAll('.stripe-element input');
+            stripeInputs.forEach(input => {
+                input.style.zIndex = '9999';
+                input.style.position = 'relative';
+                input.style.background = '#ffffff';
+                input.style.color = '#000000';
+                input.style.opacity = '1';
+                input.style.visibility = 'visible';
+            });
+            
+            // Forza la visibilità degli elementi Stripe
+            const stripeElements = document.querySelectorAll('.stripe-element .StripeElement');
+            stripeElements.forEach(element => {
+                element.style.zIndex = '9998';
+                element.style.position = 'relative';
+                element.style.background = '#ffffff';
+                element.style.color = '#000000';
+                element.style.opacity = '1';
+                element.style.visibility = 'visible';
+            });
+        }, 500);
     } catch (error) {
         console.error('Errore inizializzazione Stripe:', error);
         showError('Errore configurazione pagamento: ' + error.message);
