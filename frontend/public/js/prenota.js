@@ -76,14 +76,14 @@ function updateNavbar() {
         <a class="nav-link" href="dashboard.html">Dashboard</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#" onclick="logout()">Logout</a>
+        <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
       </li>
     `);
   }
 }
 
-// Logout
-function logout() {
+// Logout locale - chiama la funzione centralizzata
+function handleLogout() {
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();

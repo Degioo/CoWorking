@@ -24,19 +24,20 @@ function updateNavbar() {
     $('#navbarUserArea').html(`
       <li class="nav-item"><span class="nav-link text-light">${user.nome} ${user.cognome}</span></li>
       <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Logout</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="handleLogout()">Logout</a></li>
     `);
   }
 }
-function logout() {
+// Logout locale - chiama la funzione centralizzata
+function handleLogout() {
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();
-  } else {
-    // Fallback se la funzione non è disponibile
-    localStorage.removeItem('user');
-    location.reload();
+    return;
   }
+  // Fallback se la funzione non è disponibile
+  localStorage.removeItem('user');
+  location.reload();
 }
 
 function loadCitta() {

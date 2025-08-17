@@ -1160,10 +1160,16 @@ function checkAuthentication() {
     }
 }
 
-// Logout
-function logout() {
-    localStorage.removeItem('user');
-    window.location.href = 'login.html';
+// Logout locale - chiama la funzione centralizzata
+function handleLogout() {
+    // Usa la funzione centralizzata di config.js
+    if (typeof window.logout === 'function') {
+        window.logout();
+    } else {
+        // Fallback se la funzione non è disponibile
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
 }
 
 // Inizializzazione della pagina

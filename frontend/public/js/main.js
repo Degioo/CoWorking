@@ -36,8 +36,8 @@ function updateNavbar() {
   }
 }
 
-// Logout
-function logout() {
+// Logout locale - chiama la funzione centralizzata
+function handleLogout() {
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();

@@ -26,8 +26,8 @@ function checkAuth() {
   setupDashboard();
 }
 
-// Logout
-function logout() {
+// Logout locale - chiama la funzione centralizzata
+function handleLogout() {
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();
@@ -454,10 +454,7 @@ function getPaymentStatusColor(stato) {
 
 // Event handlers
 function setupEventHandlers() {
-  $('#btnLogout').click(function () {
-    localStorage.removeItem('user');
-    window.location.href = 'index.html';
-  });
+  // Non è più necessario gestire il logout qui, viene gestito dall'onclick HTML
 }
 
 // Funzioni globali
