@@ -479,98 +479,38 @@ async function initializeStripe() {
 
         console.log('initializeStripe - Stripe inizializzato con successo');
         
-        // JavaScript aggressivo per forzare la visibilità dei numeri
+        // JavaScript delicato per la visibilità dei numeri
         setTimeout(() => {
             const stripeContainer = document.querySelector('.stripe-element');
             if (stripeContainer) {
-                console.log('Rimuovo elementi problematici...');
+                console.log('Configuro Stripe per la visibilità...');
                 
-                // Rimuovi tutti gli elementi con background nero o scuro
+                // Rimuovi solo elementi neri evidenti
                 const allElements = stripeContainer.querySelectorAll('*');
                 allElements.forEach(element => {
                     const computedStyle = window.getComputedStyle(element);
                     const bgColor = computedStyle.backgroundColor;
-                    const color = computedStyle.color;
                     
-                    // Rimuovi elementi neri o molto scuri
-                    if (bgColor === 'rgb(0, 0, 0)' || 
-                        bgColor === 'rgba(0, 0, 0, 1)' ||
-                        bgColor === 'rgba(0, 0, 0, 0.9)' ||
-                        bgColor === 'rgba(0, 0, 0, 0.8)' ||
-                        color === 'rgb(0, 0, 0)' ||
-                        color === 'rgba(0, 0, 0, 1)') {
+                    // Rimuovi solo elementi completamente neri
+                    if (bgColor === 'rgb(0, 0, 0)' || bgColor === 'rgba(0, 0, 0, 1)') {
                         console.log('Rimuovo elemento nero:', element);
                         element.remove();
                     }
                 });
                 
-                // Forza la visibilità di tutti gli input
+                // Configura gli input senza rompere la funzionalità
                 const inputs = stripeContainer.querySelectorAll('input');
                 inputs.forEach(input => {
-                    input.style.cssText = `
-                        color: #000000 !important;
-                        background: #ffffff !important;
-                        background-color: #ffffff !important;
-                        opacity: 1 !important;
-                        visibility: visible !important;
-                        display: block !important;
-                        position: relative !important;
-                        z-index: 10000 !important;
-                        font-size: 16px !important;
-                        font-weight: 500 !important;
-                        width: 100% !important;
-                        height: 100% !important;
-                    `;
+                    input.style.color = '#000000';
+                    input.style.background = 'transparent';
+                    input.style.fontSize = '16px';
+                    input.style.fontWeight = '500';
                     console.log('Input configurato:', input);
                 });
-                
-                // Forza la visibilità degli elementi Stripe
-                const stripeElements = stripeContainer.querySelectorAll('.StripeElement');
-                stripeElements.forEach(element => {
-                    element.style.cssText = `
-                        color: #000000 !important;
-                        background: transparent !important;
-                        background-color: transparent !important;
-                        opacity: 1 !important;
-                        visibility: visible !important;
-                        position: relative !important;
-                        z-index: 9999 !important;
-                    `;
-                    console.log('Elemento Stripe configurato:', element);
-                });
-                
-                // Rimuovi eventuali pseudo-elementi
-                const style = document.createElement('style');
-                style.textContent = `
-                    .stripe-element .StripeElement::before,
-                    .stripe-element .StripeElement::after,
-                    .stripe-element .StripeElement *::before,
-                    .stripe-element .StripeElement *::after {
-                        display: none !important;
-                        content: none !important;
-                    }
-                `;
-                document.head.appendChild(style);
                 
                 console.log('Configurazione completata');
             }
         }, 1000);
-        
-        // Controllo periodico per mantenere la visibilità
-        setInterval(() => {
-            const stripeContainer = document.querySelector('.stripe-element');
-            if (stripeContainer) {
-                const inputs = stripeContainer.querySelectorAll('input');
-                inputs.forEach(input => {
-                    if (input.style.color !== '#000000') {
-                        input.style.color = '#000000';
-                        input.style.background = '#ffffff';
-                        input.style.opacity = '1';
-                        input.style.visibility = 'visible';
-                    }
-                });
-            }
-        }, 2000);
     } catch (error) {
         console.error('Errore inizializzazione Stripe:', error);
         showError('Errore configurazione pagamento: ' + error.message);

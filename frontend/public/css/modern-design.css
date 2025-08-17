@@ -1860,69 +1860,52 @@ a:hover {
     visibility: visible !important;
 }
 
-/* CSS aggressivo per forzare la visibilità */
-.stripe-element,
-.stripe-element *,
-.stripe-element .StripeElement,
-.stripe-element .StripeElement *,
-.stripe-element .StripeElement input,
-.stripe-element .StripeElement div,
-.stripe-element .StripeElement span {
-    color: #000000 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
-    position: relative !important;
-    z-index: 9999 !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-    text-shadow: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-    transform: none !important;
-}
-
-/* Nascondi elementi che potrebbero nascondere i numeri */
-.stripe-element .StripeElement::before,
-.stripe-element .StripeElement::after,
-.stripe-element .StripeElement *::before,
-.stripe-element .StripeElement *::after {
-    display: none !important;
-    content: none !important;
-}
-
-/* Forza il colore del testo per tutti gli stati */
-.stripe-element .StripeElement--focus,
-.stripe-element .StripeElement--complete,
-.stripe-element .StripeElement--invalid,
-.stripe-element .StripeElement--empty,
-.stripe-element .StripeElement--webkit-autofill {
-    color: #000000 !important;
-    background: transparent !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Stili specifici per l'input del numero carta */
-.stripe-element .StripeElement input[type="text"],
-.stripe-element .StripeElement input[type="number"],
-.stripe-element .StripeElement input[type="tel"] {
-    color: #000000 !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    z-index: 10000 !important;
-}
+    /* Stili delicati per Stripe - mantiene la funzionalità */
+    .stripe-element {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        background: #ffffff;
+        min-height: 50px;
+        position: relative;
+    }
+    
+    .stripe-element .StripeElement {
+        background: transparent;
+        color: #000000;
+        font-size: 16px;
+        font-weight: 500;
+        min-height: 20px;
+    }
+    
+    /* Stili per gli input interni - non troppo aggressivi */
+    .stripe-element .StripeElement input {
+        color: #000000 !important;
+        background: transparent !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        border: none !important;
+        outline: none !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Stili per i diversi stati di Stripe */
+    .stripe-element .StripeElement--focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .stripe-element .StripeElement--complete {
+        border-color: #28a745;
+    }
+    
+    .stripe-element .StripeElement--invalid {
+        border-color: #dc3545;
+    }
+    
+    /* Rimuovi solo gli elementi neri problematici */
+    .stripe-element .StripeElement::before,
+    .stripe-element .StripeElement::after {
+        display: none !important;
+    }
