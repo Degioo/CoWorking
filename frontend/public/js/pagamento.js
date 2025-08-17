@@ -79,11 +79,11 @@ function checkInternetConnection() {
 function checkRequiredElements() {
     const requiredElements = [
         'card-element',
-        'payment-method-selection',
-        'data-prenotazione',
-        'orario-prenotazione',
+        'sede-prenotazione',
+        'spazio-prenotazione',
+        'data-inizio-prenotazione',
+        'data-fine-prenotazione',
         'durata-prenotazione',
-        'posto-prenotazione',
         'totale-prenotazione'
     ];
 
@@ -313,8 +313,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
             prenotazione.data_fine = dataFine;
         }
 
-        // Mostra la selezione del metodo di pagamento
-        showPaymentMethodSelection();
+        // Non è più necessario mostrare la selezione del metodo di pagamento
 
         // Popola i dettagli della prenotazione
         await loadPrenotazioneData();
@@ -537,10 +536,11 @@ async function loadPrenotazioneData() {
         showError('Errore nel caricamento dei dati della prenotazione: ' + error.message);
 
         // Mostra un messaggio più specifico all'utente
-        document.getElementById('data-prenotazione').textContent = 'Errore caricamento';
-        document.getElementById('orario-prenotazione').textContent = 'Errore caricamento';
+        document.getElementById('data-inizio-prenotazione').textContent = 'Errore caricamento';
+        document.getElementById('data-fine-prenotazione').textContent = 'Errore caricamento';
         document.getElementById('durata-prenotazione').textContent = 'Errore caricamento';
-        document.getElementById('posto-prenotazione').textContent = 'Errore caricamento';
+        document.getElementById('sede-prenotazione').textContent = 'Errore caricamento';
+        document.getElementById('spazio-prenotazione').textContent = 'Errore caricamento';
         document.getElementById('totale-prenotazione').textContent = 'Errore caricamento';
     }
 }
@@ -580,23 +580,33 @@ function populatePrenotazioneDetails() {
     });
 
     // Aggiorna l'interfaccia
-    document.getElementById('data-prenotazione').textContent = dataFormattata;
-    document.getElementById('orario-prenotazione').textContent = `${orarioInizio} - ${orarioFine}`;
+    document.getElementById('data-inizio-prenotazione').textContent = dataFormattata;
+    document.getElementById('data-fine-prenotazione').textContent = dataFine.toLocaleDateString('it-IT', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
     document.getElementById('durata-prenotazione').textContent = `${durataOre} ore`;
 
     // Gestisci il nome dello spazio e della sede
-    let postoText = 'Spazio selezionato';
+    let sedeText = 'Sede selezionata';
+    let spazioText = 'Spazio selezionato';
+    
+    if (prenotazioneData.nome_sede) {
+        sedeText = prenotazioneData.nome_sede;
+    } else if (prenotazioneData.id_sede) {
+        sedeText = `Sede #${prenotazioneData.id_sede}`;
+    }
+    
     if (prenotazioneData.nome_spazio) {
-        postoText = prenotazioneData.nome_spazio;
-        if (prenotazioneData.nome_sede) {
-            postoText += ` - ${prenotazioneData.nome_sede}`;
-        }
+        spazioText = prenotazioneData.nome_spazio;
     } else if (prenotazioneData.id_spazio) {
-        // Se non abbiamo il nome, usa l'ID
-        postoText = `Spazio #${prenotazioneData.id_spazio}`;
+        spazioText = `Spazio #${prenotazioneData.id_spazio}`;
     }
 
-    document.getElementById('posto-prenotazione').textContent = postoText;
+    document.getElementById('sede-prenotazione').textContent = sedeText;
+    document.getElementById('spazio-prenotazione').textContent = spazioText;
     document.getElementById('totale-prenotazione').textContent = `€${importo.toFixed(2)}`;
 
     // Salva l'importo per il pagamento
@@ -607,109 +617,60 @@ function populatePrenotazioneDetails() {
 
 // Configura gli event listener
 function setupEventListeners() {
-    // Assicurati che la selezione del metodo di pagamento sia visibile
-    showPaymentMethodSelection();
-
-    // Event listener per la selezione del metodo di pagamento
-    const methodCards = document.querySelectorAll('.payment-method-card');
-    methodCards.forEach(card => {
-        card.addEventListener('click', () => selectPaymentMethod(card.dataset.method));
-    });
-
-    // Event listener per tornare alla selezione metodo
-    const backToMethodsBtn = document.getElementById('back-to-methods');
-    if (backToMethodsBtn) {
-        backToMethodsBtn.addEventListener('click', showPaymentMethodSelection);
+    // Event listener per il form di pagamento Stripe
+    const paymentForm = document.getElementById('payment-form');
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', handleStripePaymentSubmit);
     }
-
-    // Event listener per i form di pagamento
-    const cardForm = document.getElementById('card-payment-form');
-    if (cardForm) {
-        cardForm.addEventListener('submit', handleCardPaymentSubmit);
-    }
-
-    const paypalForm = document.getElementById('paypal-payment-form');
-    if (paypalForm) {
-        paypalForm.addEventListener('submit', handlePayPalPaymentSubmit);
-    }
-
-    const bankConfirmBtn = document.getElementById('bank-confirm-button');
-    if (bankConfirmBtn) {
-        bankConfirmBtn.addEventListener('click', handleBankTransferConfirm);
-    }
-
-    const cryptoConfirmBtn = document.getElementById('crypto-confirm-button');
-    if (cryptoConfirmBtn) {
-        cryptoConfirmBtn.addEventListener('click', handleCryptoPaymentConfirm);
-    }
-
-    // Event listener per i pulsanti di copia indirizzi crypto
-    const copyBtns = document.querySelectorAll('.copy-btn');
-    copyBtns.forEach(btn => {
-        btn.addEventListener('click', () => copyToClipboard(btn.dataset.address));
-    });
 }
 
-// Gestisce la selezione del metodo di pagamento
-function selectPaymentMethod(method) {
-    console.log('Metodo di pagamento selezionato:', method);
-
-    // Nascondi la selezione del metodo
-    const methodSelection = document.getElementById('payment-method-selection');
-    methodSelection.style.display = 'none';
-
-    // Mostra i form di pagamento
-    const paymentForms = document.getElementById('payment-forms');
-    paymentForms.style.display = 'block';
-
-    // Nascondi tutti i form
-    const allForms = document.querySelectorAll('.payment-form');
-    allForms.forEach(form => form.style.display = 'none');
-
-    // Mostra il form appropriato
-    switch (method) {
-        case 'card':
-            document.getElementById('card-payment-form').style.display = 'block';
-            // Inizializza Stripe se non è già inizializzato
-            if (!stripe) {
-                initializeStripe();
-            }
-            break;
-
-        case 'paypal':
-            document.getElementById('paypal-payment-form').style.display = 'block';
-            break;
-
-        case 'bank-transfer':
-            document.getElementById('bank-transfer-form').style.display = 'block';
-            // Popola i dettagli del bonifico
-            populateBankTransferDetails();
-            break;
-
-        case 'crypto':
-            document.getElementById('crypto-payment-form').style.display = 'block';
-            // Popola i dettagli crypto
-            populateCryptoDetails();
-            break;
+// Gestisce l'invio del form di pagamento Stripe
+async function handleStripePaymentSubmit(event) {
+    event.preventDefault();
+    
+    console.log('handleStripePaymentSubmit - Inizio gestione pagamento Stripe');
+    
+    // Verifica che Stripe sia inizializzato
+    if (!stripe) {
+        console.error('Stripe non inizializzato');
+        showError('Errore di configurazione pagamento. Ricarica la pagina.');
+        return;
     }
-
-    // Mostra il pulsante per tornare alla selezione
-    document.getElementById('back-to-methods').style.display = 'block';
+    
+    // Disabilita il pulsante di pagamento
+    const payButton = document.getElementById('pay-button');
+    payButton.disabled = true;
+    payButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Elaborazione...';
+    
+    try {
+        // Crea l'intent di pagamento
+        const paymentIntent = await createPaymentIntent();
+        console.log('Payment Intent creato:', paymentIntent);
+        
+        // Conferma il pagamento con Stripe
+        const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.client_secret);
+        
+        if (error) {
+            console.error('Errore conferma pagamento:', error);
+            showError('Errore durante il pagamento: ' + error.message);
+        } else {
+            console.log('Pagamento confermato:', confirmedIntent);
+            await handlePaymentSuccess(confirmedIntent, 'stripe');
+        }
+        
+    } catch (error) {
+        console.error('Errore pagamento Stripe:', error);
+        showError('Errore durante il pagamento: ' + error.message);
+    } finally {
+        // Riabilita il pulsante di pagamento
+        payButton.disabled = false;
+        payButton.innerHTML = '<i class="fas fa-lock me-2"></i>Paga in Sicurezza';
+    }
 }
 
-// Mostra di nuovo la selezione del metodo di pagamento
-function showPaymentMethodSelection() {
-    // Nascondi i form di pagamento
-    const paymentForms = document.getElementById('payment-forms');
-    paymentForms.style.display = 'none';
+// Funzione rimossa: non più necessaria con design semplificato
 
-    // Mostra la selezione del metodo
-    const methodSelection = document.getElementById('payment-method-selection');
-    methodSelection.style.display = 'block';
-
-    // Nascondi il pulsante per tornare
-    document.getElementById('back-to-methods').style.display = 'none';
-}
+// Funzione rimossa: non più necessaria con design semplificato
 
 // Popola i dettagli del bonifico bancario
 function populateBankTransferDetails() {
@@ -886,43 +847,20 @@ async function handlePaymentSuccess(paymentIntent, method) {
         // Imposta il flag che il pagamento è stato completato
         pagamentoCompletato = true;
 
-        let methodText = '';
-        switch (method) {
-            case 'carta':
-                methodText = 'con carta di credito';
-                break;
-            case 'paypal':
-                methodText = 'con PayPal';
-                break;
-            case 'bonifico':
-                methodText = 'con bonifico bancario';
-                break;
-            case 'crypto':
-                methodText = 'in criptovalute';
-                break;
-            default:
-                methodText = '';
-        }
-
         // Mostra messaggio di successo
-        showSuccess(`Pagamento completato con successo ${methodText}! La tua prenotazione è stata confermata.`);
-
-        // Nascondi tutti i form di pagamento
-        document.getElementById('payment-forms').style.display = 'none';
-        document.getElementById('back-to-methods').style.display = 'none';
+        showSuccess('Pagamento completato con successo! La tua prenotazione è stata confermata.');
 
         // Aggiorna i dettagli della prenotazione
-        document.querySelector('.payment-details h3').textContent = '✅ Prenotazione Confermata';
-        document.querySelector('.payment-details').style.background = '#d4edda';
-        document.querySelector('.payment-details').style.border = '1px solid #c3e6cb';
+        document.querySelector('.payment-details h4').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Prenotazione Confermata';
+        document.querySelector('.payment-details').style.background = 'var(--gray-50)';
+        document.querySelector('.payment-details').style.border = '2px solid var(--success)';
 
         // Aggiungi pulsante per tornare alla dashboard
         const backButton = document.createElement('a');
         backButton.href = 'dashboard.html';
-        backButton.className = 'pay-button';
-        backButton.style.marginTop = '20px';
+        backButton.className = 'btn btn-outline-primary mt-3';
         backButton.textContent = 'Torna alla Dashboard';
-        document.querySelector('.payment-container').appendChild(backButton);
+        document.querySelector('.card-body').appendChild(backButton);
 
         // Opzionale: invia conferma al backend
         await confirmPaymentToBackend(paymentIntent.id, method);
@@ -1060,40 +998,41 @@ function setPayPalLoadingState(loading) {
 
 // Mostra/nasconde il loading globale
 function setGlobalLoading(loading) {
-    const loadingDiv = document.getElementById('global-loading');
-    if (loadingDiv) {
-        loadingDiv.style.display = loading ? 'block' : 'none';
-    }
-
-    // Mostra anche un messaggio di caricamento
-    const loadingMessage = document.getElementById('loading-message');
-    if (loadingMessage) {
-        loadingMessage.style.display = loading ? 'block' : 'none';
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        if (loading) {
+            loadingOverlay.classList.remove('d-none');
+        } else {
+            loadingOverlay.classList.add('d-none');
+        }
     }
 }
 
 // Mostra messaggio di errore
 function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-
-    // Nascondi il messaggio dopo 5 secondi
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    // Crea un alert temporaneo usando la funzione globale se disponibile
+    if (typeof window.showAlert === 'function') {
+        window.showAlert(message, 'error');
+    } else {
+        // Fallback: mostra alert nativo
+        alert('Errore: ' + message);
+    }
 }
 
 // Mostra messaggio di successo
 function showSuccess(message) {
-    const successDiv = document.getElementById('success-message');
-    successDiv.textContent = message;
-    successDiv.style.display = 'block';
+    // Crea un alert temporaneo usando la funzione globale se disponibile
+    if (typeof window.showAlert === 'function') {
+        window.showAlert(message, 'success');
+    } else {
+        // Fallback: mostra alert nativo
+        alert('Successo: ' + message);
+    }
 }
 
 // Aggiunge pulsante di retry
 function addRetryButton() {
-    const container = document.querySelector('.payment-container');
+    const container = document.querySelector('.card-body');
 
     // Rimuovi pulsante retry esistente se presente
     const existingRetry = document.getElementById('retry-button');
@@ -1103,8 +1042,7 @@ function addRetryButton() {
 
     const retryButton = document.createElement('button');
     retryButton.id = 'retry-button';
-    retryButton.className = 'pay-button';
-    retryButton.style.marginTop = '20px';
+    retryButton.className = 'btn btn-outline-primary mt-3';
     retryButton.textContent = '🔄 Riprova';
     retryButton.onclick = retryInitialization;
 
@@ -1121,11 +1059,7 @@ async function retryInitialization() {
         retryButton.remove();
     }
 
-    // Nascondi messaggi di errore
-    const errorDiv = document.getElementById('error-message');
-    if (errorDiv) {
-        errorDiv.style.display = 'none';
-    }
+    // Non è più necessario nascondere messaggi di errore specifici
 
     // Recupera l'ID della prenotazione dall'URL
     const urlParams = new URLSearchParams(window.location.search);
