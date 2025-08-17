@@ -99,11 +99,11 @@ function loadSedi() {
   console.log('loadSedi - Inizio funzione');
   console.log('loadSedi - window.CONFIG:', window.CONFIG);
   console.log('loadSedi - API_BASE:', window.CONFIG?.API_BASE);
-  
+
   return new Promise((resolve, reject) => {
     const url = `${window.CONFIG.API_BASE}/sedi`;
     console.log('loadSedi - Chiamata API:', url);
-    
+
     $.ajax({
       url: url,
       method: 'GET',
@@ -113,20 +113,20 @@ function loadSedi() {
       .done(function (sedi) {
         console.log('loadSedi - Risposta ricevuta:', sedi);
         console.log('loadSedi - Numero sedi ricevute:', sedi.length);
-        
+
         const select = $('#selectSede');
         console.log('loadSedi - Elemento select trovato:', select.length > 0);
         console.log('loadSedi - Select prima della pulizia:', select.html());
-        
+
         select.find('option:not(:first)').remove();
         console.log('loadSedi - Select dopo la pulizia:', select.html());
-        
+
         sedi.forEach((sede, index) => {
           const option = `<option value="${sede.id_sede}">${sede.nome} - ${sede.citta}</option>`;
           console.log(`loadSedi - Aggiungo opzione ${index}:`, option);
           select.append(option);
         });
-        
+
         console.log('loadSedi - Select finale:', select.html());
         console.log('loadSedi - Numero opzioni finali:', select.find('option').length);
 
@@ -147,7 +147,7 @@ function loadSedi() {
         console.error('loadSedi - Headers risposta:', xhr.getAllResponseHeaders());
         console.error('loadSedi - Stato readyState:', xhr.readyState);
         console.error('loadSedi - Tipo errore:', xhr.statusText);
-        
+
         if (xhr.status === 401) {
           handleAuthError();
         } else {
@@ -160,7 +160,7 @@ function loadSedi() {
         }
         reject(xhr);
       })
-      .always(function() {
+      .always(function () {
         console.log('loadSedi - Chiamata completata (success o fail)');
       });
   });
@@ -489,7 +489,7 @@ function showPaymentModal(idPagamento, importo) {
 function showStep(step) {
   console.log('showStep - Inizio funzione, step richiesto:', step);
   console.log('showStep - currentStep attuale:', currentStep);
-  
+
   // Controllo autenticazione per lo step 4
   if (step === 4) {
     const userStr = localStorage.getItem('user');
@@ -545,6 +545,27 @@ function showStep(step) {
   if (step !== 3) {
     disponibilitaVerificata = false;
   }
+
+  // Aggiorna indicatori degli step
+  updateStepIndicators(step);
+}
+
+// Aggiorna indicatori degli step
+function updateStepIndicators(currentStep) {
+  console.log('updateStepIndicators - Aggiorno step corrente:', currentStep);
+
+  // Rimuovi tutte le classi dagli step
+  $('.step').removeClass('active completed');
+
+  // Aggiungi classe 'active' allo step corrente
+  $(`#step${currentStep}`).addClass('active');
+
+  // Aggiungi classe 'completed' agli step precedenti
+  for (let i = 1; i < currentStep; i++) {
+    $(`#step${i}`).addClass('completed');
+  }
+
+  console.log('updateStepIndicators - Step', currentStep, 'reso attivo, step precedenti completati');
 }
 
 // Aggiorna riepilogo prenotazione
@@ -592,7 +613,7 @@ function updateRiepilogo() {
 // Event handlers
 function setupEventHandlers() {
   console.log('setupEventHandlers - Inizio funzione');
-  
+
   // Verifica disponibilità
   $('#btnCheckDisponibilita').click(checkDisponibilita);
 
@@ -613,47 +634,47 @@ function setupEventHandlers() {
     e.preventDefault();
     createPrenotazione();
   });
-  
+
   console.log('setupEventHandlers - Fine funzione');
 }
 
 // Setup centralizzato di tutti gli event handler
 function setupAllEventHandlers() {
   console.log('setupAllEventHandlers - Inizializzazione event handler centralizzati');
-  
+
   // Event handler per pulsante Successivo
-  $(document).on('click', '#btnNext', function(e) {
+  $(document).on('click', '#btnNext', function (e) {
     e.preventDefault();
     console.log('btnNext - Click rilevato, chiamando nextStep()');
     nextStep();
   });
-  
+
   // Event handler per pulsante Precedente
-  $(document).on('click', '#btnPrev', function(e) {
+  $(document).on('click', '#btnPrev', function (e) {
     e.preventDefault();
     console.log('btnPrev - Click rilevato, chiamando previousStep()');
     previousStep();
   });
-  
+
   // Event handler per pulsante Conferma
-  $(document).on('click', '#btnConferma', function(e) {
+  $(document).on('click', '#btnConferma', function (e) {
     e.preventDefault();
     console.log('btnConferma - Click rilevato, chiamando confermaPrenotazione()');
     confermaPrenotazione();
   });
-  
+
   // Event handler per cambio sede
-  $(document).on('change', '#selectSede', function(e) {
+  $(document).on('change', '#selectSede', function (e) {
     console.log('selectSede - Change rilevato, chiamando onSedeChange()');
     onSedeChange();
   });
-  
+
   // Event handler per cambio spazio
-  $(document).on('change', '#selectSpazio', function(e) {
+  $(document).on('change', '#selectSpazio', function (e) {
     console.log('selectSpazio - Change rilevato, chiamando onSpazioChange()');
     onSpazioChange();
   });
-  
+
   console.log('setupAllEventHandlers - Event handler configurati');
 }
 
@@ -666,12 +687,12 @@ function onSedeChange() {
     loadSpazi(sedeId).then(() => {
       console.log('onSedeChange - Spazi caricati per sede:', sedeId);
       console.log('onSedeChange - Prima di controllare spazio preselezionato');
-      
+
       // Se c'è uno spazio preselezionato, impostalo
       const urlParams = new URLSearchParams(window.location.search);
       const spazioId = urlParams.get('spazio');
       console.log('onSedeChange - Spazio preselezionato:', spazioId);
-      
+
       if (spazioId) {
         console.log('onSedeChange - Spazio preselezionato trovato, lo imposto');
         $('#selectSpazio').val(spazioId);
@@ -726,7 +747,7 @@ function showAlert(message, type = 'info') {
 function nextStep() {
   console.log('nextStep - Funzione chiamata, currentStep:', currentStep);
   console.log('nextStep - Verifico se posso procedere...');
-  
+
   if (canProceedToNextStep()) {
     console.log('nextStep - Posso procedere, passo allo step:', currentStep + 1);
     showStep(currentStep + 1);
@@ -744,7 +765,7 @@ function previousStep() {
 // Verifica se si può procedere al prossimo step
 function canProceedToNextStep() {
   console.log('canProceedToNextStep - Verifico step:', currentStep);
-  
+
   if (currentStep === 1) {
     const sedeVal = $('#selectSede').val();
     console.log('canProceedToNextStep - Step 1, sede selezionata:', sedeVal);
