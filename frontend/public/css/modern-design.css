@@ -1740,3 +1740,71 @@ a:hover {
         justify-content: center;
     }
 }
+
+/* Stili per correggere la direzione del testo e l'allineamento */
+.stripe-element .StripeElement {
+    color: #000000 !important;
+    background: transparent !important;
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+    unicode-bidi: normal !important;
+}
+
+/* Stili per gli input interni di Stripe */
+.stripe-element .StripeElement input,
+.stripe-element .StripeElement input[type="text"],
+.stripe-element .StripeElement input[type="number"],
+.stripe-element .StripeElement input[type="tel"] {
+    color: #000000 !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+    unicode-bidi: normal !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Stili per il container dell'input Stripe */
+.stripe-element {
+    text-align: left !important;
+    direction: ltr !important;
+    unicode-bidi: normal !important;
+}
+
+/* Stili per forzare l'allineamento a sinistra */
+.stripe-element .StripeElement * {
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+    unicode-bidi: normal !important;
+}
+
+/* Stili per il focus e gli stati attivi */
+.stripe-element .StripeElement--focus,
+.stripe-element .StripeElement--complete,
+.stripe-element .StripeElement--invalid,
+.stripe-element .StripeElement--empty {
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+    unicode-bidi: normal !important;
+}
+
+/* Stili per il placeholder */
+.stripe-element .StripeElement::placeholder {
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+}
+
+/* Stili per l'input quando è attivo */
+.stripe-element .StripeElement:focus-within {
+    text-align: left !important;
+    direction: ltr !important;
+}
