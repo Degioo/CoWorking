@@ -1280,6 +1280,77 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
+/* Stili per gli input di Stripe - rende i numeri visibili */
+.stripe-element input,
+.stripe-element .StripeElement {
+    color: #000000 !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+}
+
+.stripe-element .StripeElement--focus {
+    color: #000000 !important;
+}
+
+.stripe-element .StripeElement--invalid {
+    color: #000000 !important;
+}
+
+.stripe-element .StripeElement--complete {
+    color: #000000 !important;
+}
+
+/* Stili aggiuntivi per elementi Stripe */
+.stripe-element .StripeElement--empty {
+    color: #000000 !important;
+}
+
+.stripe-element .StripeElement--webkit-autofill {
+    color: #000000 !important;
+    background-color: transparent !important;
+}
+
+.stripe-element .StripeElement--webkit-autofill:focus {
+    color: #000000 !important;
+}
+
+/* Stili per i placeholder di Stripe */
+.stripe-element .StripeElement::placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+}
+
+.stripe-element .StripeElement::-webkit-input-placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+}
+
+.stripe-element .StripeElement::-moz-placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+}
+
+/* Stili globali per tutti gli elementi Stripe */
+.stripe-element * {
+    color: #000000 !important;
+}
+
+.stripe-element .StripeElement {
+    color: #000000 !important;
+    background: transparent !important;
+}
+
+/* Override per qualsiasi stato di Stripe */
+.stripe-element .StripeElement--focus,
+.stripe-element .StripeElement--invalid,
+.stripe-element .StripeElement--complete,
+.stripe-element .StripeElement--empty,
+.stripe-element .StripeElement--webkit-autofill {
+    color: #000000 !important;
+    background: transparent !important;
+}
+
 #pay-button {
     padding: var(--space-md) var(--space-xl);
     font-size: 1.1rem;
