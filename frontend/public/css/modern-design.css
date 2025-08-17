@@ -2020,3 +2020,28 @@ a:hover {
     color: var(--white) !important;
     color: #ffffff !important;
 }
+
+/* Titoli del footer - bianchi */
+.footer h5,
+.footer h6 {
+    color: var(--white) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    margin-bottom: var(--space-lg) !important;
+    text-align: center !important;
+    font-size: 1.1rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Firma elegante in corsivo */
+.footer .signature {
+    font-family: 'Dancing Script', cursive, serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--white);
+    color: #ffffff;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
