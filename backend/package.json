@@ -4,8 +4,10 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
+    "start-scadenze": "node start-scadenze-service.js",
     "install-deps": "npm install pg bcrypt express cors stripe",
-    "setup-db": "node setup-postgres.js"
+    "setup-db": "node setup-postgres.js",
+    "migrate-stripe": "node run-migration-stripe.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

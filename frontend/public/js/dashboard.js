@@ -100,6 +100,11 @@ function createTabs() {
           I miei pagamenti
         </button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="scadute-tab" data-bs-toggle="tab" data-bs-target="#scadute" type="button" role="tab">
+          <i class="fas fa-clock me-2"></i>Scadute
+        </button>
+      </li>
     `);
 
     contentContainer.html(`
@@ -108,6 +113,9 @@ function createTabs() {
       </div>
       <div class="tab-pane fade" id="pagamenti" role="tabpanel">
         <div id="pagamentiContent">Caricamento...</div>
+      </div>
+      <div class="tab-pane fade" id="scadute" role="tabpanel">
+        <div id="scaduteContent">Caricamento...</div>
       </div>
     `);
   }
@@ -122,6 +130,7 @@ function loadInitialData() {
   } else {
     loadPrenotazioniUtente();
     loadPagamentiUtente();
+    loadPrenotazioniScadute();
   }
 }
 
@@ -295,6 +304,26 @@ function loadPrenotazioniUtente() {
     });
 }
 
+// Carica prenotazioni scadute utente
+function loadPrenotazioniScadute() {
+  $.ajax({
+    url: `${window.CONFIG.API_BASE}/scadenze/prenotazioni-scadute`,
+    method: 'GET',
+    headers: getAuthHeaders()
+  })
+    .done(function (data) {
+      displayPrenotazioniScadute(data.prenotazioni);
+    })
+    .fail(function (xhr) {
+      console.log('loadPrenotazioniScadute - Errore:', xhr.status, xhr.responseText);
+      if (xhr.status === 401) {
+        handleAuthError();
+      } else {
+        $('#scaduteContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni scadute</div>');
+      }
+    });
+}
+
 // Sincronizza prenotazioni con pagamenti
 async function syncPrenotazioniWithPagamenti() {
   try {
@@ -339,7 +368,16 @@ function displayPrenotazioniUtente(prenotazioni) {
 
     // Determina se mostrare il pulsante di pagamento
     let azioniHtml = '';
-    if (p.stato === 'in attesa' || p.stato === 'pendente') {
+    let rowClass = '';
+    
+    if (p.stato === 'scaduta') {
+      rowClass = 'table-danger';
+      azioniHtml = `
+        <span class="badge bg-danger">
+          <i class="fas fa-clock me-1"></i>Scaduta
+        </span>
+      `;
+    } else if (p.stato === 'in attesa' || p.stato === 'pendente') {
       azioniHtml = `
         <button class="btn btn-success btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
           💳 Paga Ora (€${importo.toFixed(2)})
@@ -353,12 +391,19 @@ function displayPrenotazioniUtente(prenotazioni) {
           🔄 Termina Pagamento (€${importo.toFixed(2)})
         </button>
       `;
+    } else if (p.stato === 'pagamento_fallito') {
+      rowClass = 'table-warning';
+      azioniHtml = `
+        <button class="btn btn-warning btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
+          🔄 Riprova Pagamento (€${importo.toFixed(2)})
+        </button>
+      `;
     } else {
       azioniHtml = '<span class="text-muted">-</span>';
     }
 
     html += `
-      <tr>
+      <tr class="${rowClass}">
         <td>${dataInizio}</td>
         <td>${p.nome_sede || 'Sede'}</td>
         <td>${p.indirizzo_sede || 'Via non disponibile'}</td>
@@ -430,6 +475,68 @@ function displayPagamentiUtente(pagamenti) {
   container.html(html);
 }
 
+// Visualizza prenotazioni scadute utente
+function displayPrenotazioniScadute(prenotazioni) {
+  const container = $('#scaduteContent');
+  if (prenotazioni.length === 0) {
+    container.html(`
+      <div class="dashboard-empty">
+        <i class="fas fa-check-circle"></i>
+        <h3>Nessuna prenotazione scaduta</h3>
+        <p>Ottimo! Non hai prenotazioni scadute.</p>
+      </div>
+    `);
+    return;
+  }
+
+  let html = `
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Attenzione:</strong> Le seguenti prenotazioni sono scadute e non sono più saldabili.
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Data Prenotazione</th>
+            <th>Sede</th>
+            <th>Spazio</th>
+            <th>Durata</th>
+            <th>Stato</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  prenotazioni.forEach(p => {
+    const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
+    const dataFine = new Date(p.data_fine);
+    const dataInizioObj = new Date(p.data_inizio);
+    const durataOre = Math.round((dataFine - dataInizioObj) / (1000 * 60 * 60));
+    const importo = durataOre * 10; // 10€/ora
+
+    html += `
+      <tr class="table-danger">
+        <td>${dataInizio}</td>
+        <td>${p.nome_spazio || 'Spazio non disponibile'}</td>
+        <td>${p.nome_sede || 'Sede non disponibile'}</td>
+        <td>${durataOre}h (€${importo.toFixed(2)})</td>
+        <td><span class="badge bg-danger">Scaduta</span></td>
+        <td>
+          <small class="text-muted">
+            <i class="fas fa-clock me-1"></i>
+            Scaduta il ${new Date(p.data_fine).toLocaleString('it-IT')}
+          </small>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += '</tbody></table></div>';
+  container.html(html);
+}
+
 // Utility functions
 function getStatusColor(stato) {
   switch (stato) {
@@ -439,6 +546,8 @@ function getStatusColor(stato) {
     case 'in sospeso': return 'warning';
     case 'in attesa': return 'secondary';
     case 'pendente': return 'secondary';
+    case 'scaduta': return 'danger';
+    case 'pagamento_fallito': return 'warning';
     default: return 'secondary';
   }
 }
@@ -448,6 +557,8 @@ function getPaymentStatusColor(stato) {
     case 'pagato': return 'success';
     case 'in attesa': return 'warning';
     case 'rimborsato': return 'info';
+    case 'in sospeso': return 'warning';
+    case 'fallito': return 'danger';
     default: return 'secondary';
   }
 }

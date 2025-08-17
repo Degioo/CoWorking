@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Prenotazione (
     id_spazio INTEGER NOT NULL REFERENCES Spazio(id_spazio),
     data_inizio TIMESTAMP NOT NULL,
     data_fine TIMESTAMP NOT NULL,
-    stato TEXT NOT NULL CHECK (stato IN ('pendente', 'in attesa', 'confermata', 'annullata', 'completata', 'pagamento_fallito')),
+    stato TEXT NOT NULL CHECK (stato IN ('pendente', 'in attesa', 'confermata', 'annullata', 'completata', 'pagamento_fallito', 'scaduta')),
     data_pagamento TIMESTAMP
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS Pagamento (
     id_prenotazione INTEGER NOT NULL REFERENCES Prenotazione(id_prenotazione),
     importo NUMERIC(10,2) NOT NULL,
     data_pagamento TIMESTAMP NOT NULL,
-    stato TEXT NOT NULL CHECK (stato IN ('pagato', 'in attesa', 'rimborsato', 'fallito')),
+    stato TEXT NOT NULL CHECK (stato IN ('pagato', 'in attesa', 'rimborsato', 'fallito', 'in sospeso')),
     -- estensioni provider
     metodo TEXT,
     provider TEXT,

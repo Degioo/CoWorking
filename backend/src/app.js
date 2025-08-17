@@ -77,6 +77,10 @@ app.use('/api', gestoreRoutes);
 const webhookRoutes = require('./routes/webhook');
 app.use('/webhook', webhookRoutes);
 
+// Rotte per gestione scadenze
+const scadenzeRoutes = require('./routes/scadenze');
+app.use('/api', scadenzeRoutes);
+
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong' });
 });
