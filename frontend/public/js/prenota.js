@@ -273,24 +273,41 @@ function validateDates() {
 
 // Verifica disponibilità
 function checkDisponibilita() {
+  console.log('checkDisponibilita - Inizio funzione');
+  
   const idSpazio = $('#selectSpazio').val();
   const dataInizio = $('#dataInizio').val();
   const dataFine = $('#dataFine').val();
 
+  console.log('checkDisponibilita - Valori letti:', { idSpazio, dataInizio, dataFine });
+
   // Valida le date
+  console.log('checkDisponibilita - Chiamando validateDates()');
   const validation = validateDates();
+  console.log('checkDisponibilita - Risultato validazione:', validation);
+  
   if (!validation.valid) {
+    console.log('checkDisponibilita - Date non valide, mostro alert:', validation.message);
     showAlert(validation.message, 'warning');
     return;
   }
 
   if (!idSpazio) {
+    console.log('checkDisponibilita - Spazio non selezionato, mostro alert');
     showAlert('Seleziona uno spazio', 'warning');
     return;
   }
 
+  console.log('checkDisponibilita - Tutti i controlli superati, procedo con AJAX');
+  
   const statusElement = $('#disponibilitaStatus');
+  console.log('checkDisponibilita - Elemento status trovato:', statusElement.length > 0);
+  
   statusElement.html('<span class="text-info">Verificando...</span>');
+
+  console.log('checkDisponibilita - Chiamata AJAX a:', `${window.CONFIG.API_BASE}/spazi/${idSpazio}/disponibilita`);
+  console.log('checkDisponibilita - Headers:', getAuthHeaders());
+  console.log('checkDisponibilita - Data:', { data_inizio: dataInizio, data_fine: dataFine });
 
   $.ajax({
     url: `${window.CONFIG.API_BASE}/spazi/${idSpazio}/disponibilita`,
@@ -302,20 +319,23 @@ function checkDisponibilita() {
     }
   })
     .done(function (response) {
+      console.log('checkDisponibilita - AJAX success, risposta:', response);
       if (response.disponibile) {
         statusElement.html('<span class="text-success">✓ Spazio disponibile</span>');
         selectedDataInizio = dataInizio;
         selectedDataFine = dataFine;
         disponibilitaVerificata = true;
         updateNavigationButtons();
+        console.log('checkDisponibilita - Spazio disponibile, aggiornato stato');
       } else {
         statusElement.html('<span class="text-danger">✗ Spazio non disponibile</span>');
         disponibilitaVerificata = false;
         updateNavigationButtons();
+        console.log('checkDisponibilita - Spazio non disponibile, aggiornato stato');
       }
     })
-    .fail(function (xhr) {
-      console.log('checkDisponibilita - Errore:', xhr.status, xhr.responseText);
+    .fail(function (xhr, status, error) {
+      console.log('checkDisponibilita - AJAX fail:', xhr.status, xhr.responseText, status, error);
       statusElement.html('<span class="text-danger">Errore nella verifica</span>');
       disponibilitaVerificata = false;
       updateNavigationButtons();
@@ -734,13 +754,32 @@ function onSpazioChange() {
 
 // Utility function per alert
 function showAlert(message, type = 'info') {
+  console.log('showAlert - Chiamata con:', message, type);
+  
+  // Crea un alert semplice senza dipendenze Bootstrap
   const alertHtml = `
-    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-      ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="alert alert-${type}" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>${message}</span>
+        <button type="button" onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 10px;">&times;</button>
+      </div>
     </div>
   `;
-  $('body').prepend(alertHtml);
+  
+  // Rimuovi alert precedenti
+  $('.alert').remove();
+  
+  // Aggiungi il nuovo alert
+  $('body').append(alertHtml);
+  
+  // Auto-remove dopo 5 secondi
+  setTimeout(() => {
+    $('.alert').fadeOut(500, function() {
+      $(this).remove();
+    });
+  }, 5000);
+  
+  console.log('showAlert - Alert creato e mostrato');
 }
 
 // Funzioni di navigazione tra step

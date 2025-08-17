@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Verifica Disponibilità - Coworking Mio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/modern-design.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Debug Verifica Disponibilità</h1>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Test Verifica Disponibilità</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="testSpazio">ID Spazio:</label>
+                                    <select class="form-select" id="testSpazio">
+                                        <option value="">Seleziona uno spazio...</option>
+                                        <option value="1">Spazio 1</option>
+                                        <option value="2">Spazio 2</option>
+                                        <option value="3">Spazio 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="testSede">ID Sede:</label>
+                                    <select class="form-select" id="testSede">
+                                        <option value="">Seleziona una sede...</option>
+                                        <option value="1">Sede 1</option>
+                                        <option value="2">Sede 2</option>
+                                        <option value="3">Sede 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="testDataInizio">Data Inizio:</label>
+                                    <input type="datetime-local" class="form-control" id="testDataInizio">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="testDataFine">Data Fine:</label>
+                                    <input type="datetime-local" class="form-control" id="testDataFine">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-primary" onclick="testCheckDisponibilita()">
+                                <i class="fas fa-search me-2"></i>
+                                Test Verifica Disponibilità
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="testValidateDates()">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Test Valida Date
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="testConfig()">
+                                <i class="fas fa-cog me-2"></i>
+                                Test Config
+                            </button>
+                        </div>
+                        
+                        <div id="testDisponibilitaResult" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Console Debug</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="debugConsole" class="bg-dark text-light p-3" style="height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                            Inizializzazione debug...
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-warning btn-sm" onclick="clearDebug()">Pulisci Console</button>
+                            <button class="btn btn-danger btn-sm" onclick="testError()">Test Errore</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/prenota.js"></script>
+    
+    <script>
+        // Override console.log per catturare i messaggi
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToDebug(message, type = 'log') {
+            const debugConsole = document.getElementById('debugConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-danger' : type === 'warn' ? 'text-warning' : 'text-light';
+            
+            debugConsole.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToDebug(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToDebug(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToDebug(args.join(' '), 'warn');
+        };
+        
+        // Imposta date di test (domani)
+        document.addEventListener('DOMContentLoaded', function() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+            
+            const dayAfter = new Date();
+            dayAfter.setDate(dayAfter.getDate() + 1);
+            dayAfter.setHours(17, 0, 0, 0);
+            
+            document.getElementById('testDataInizio').value = tomorrow.toISOString().slice(0, 16);
+            document.getElementById('testDataFine').value = dayAfter.toISOString().slice(0, 16);
+            
+            addToDebug('=== PAGINA CARICATA ===');
+            addToDebug('jQuery caricato: ' + (typeof $ !== 'undefined'));
+            addToDebug('config.js caricato: ' + (typeof window.CONFIG !== 'undefined'));
+            addToDebug('prenota.js caricato: ' + (typeof checkDisponibilita !== 'undefined'));
+            addToDebug('validateDates caricato: ' + (typeof validateDates !== 'undefined'));
+            addToDebug('showAlert caricato: ' + (typeof showAlert !== 'undefined'));
+            addToDebug('getAuthHeaders caricato: ' + (typeof getAuthHeaders !== 'undefined'));
+        });
+        
+        function testCheckDisponibilita() {
+            addToDebug('=== TEST CHECK DISPONIBILITA ===');
+            
+            const idSpazio = document.getElementById('testSpazio').value;
+            const dataInizio = document.getElementById('testDataInizio').value;
+            const dataFine = document.getElementById('testDataFine').value;
+            
+            addToDebug(`ID Spazio: ${idSpazio}`);
+            addToDebug(`Data Inizio: ${dataInizio}`);
+            addToDebug(`Data Fine: ${dataFine}`);
+            
+            if (!idSpazio || !dataInizio || !dataFine) {
+                addToDebug('❌ Dati mancanti per il test');
+                document.getElementById('testDisponibilitaResult').innerHTML = 
+                    '<div class="alert alert-warning">Compila tutti i campi prima di testare</div>';
+                return;
+            }
+            
+            try {
+                // Simula i valori nei campi HTML
+                $('#selectSpazio').val(idSpazio);
+                $('#dataInizio').val(dataInizio);
+                $('#dataFine').val(dataFine);
+                
+                addToDebug('✅ Campi HTML simulati, chiamando checkDisponibilita()...');
+                
+                // Esegui la funzione
+                checkDisponibilita();
+                
+                document.getElementById('testDisponibilitaResult').innerHTML = 
+                    '<div class="alert alert-info">Funzione checkDisponibilita eseguita, controlla la console per i dettagli</div>';
+                
+            } catch (error) {
+                addToDebug('❌ Errore durante l\'esecuzione: ' + error.message);
+                document.getElementById('testDisponibilitaResult').innerHTML = 
+                    `<div class="alert alert-danger">Errore: ${error.message}</div>`;
+            }
+        }
+        
+        function testValidateDates() {
+            addToDebug('=== TEST VALIDATE DATES ===');
+            
+            const dataInizio = document.getElementById('testDataInizio').value;
+            const dataFine = document.getElementById('testDataFine').value;
+            
+            addToDebug(`Data Inizio: ${dataInizio}`);
+            addToDebug(`Data Fine: ${dataFine}`);
+            
+            try {
+                // Simula i valori nei campi HTML
+                $('#dataInizio').val(dataInizio);
+                $('#dataFine').val(dataFine);
+                
+                const result = validateDates();
+                addToDebug(`Risultato validazione: ${JSON.stringify(result)}`);
+                
+                if (result.valid) {
+                    document.getElementById('testDisponibilitaResult').innerHTML = 
+                        '<div class="alert alert-success">✅ Date valide</div>';
+                } else {
+                    document.getElementById('testDisponibilitaResult').innerHTML = 
+                        `<div class="alert alert-warning">⚠️ Date non valide: ${result.message}</div>`;
+                }
+                
+            } catch (error) {
+                addToDebug('❌ Errore durante la validazione: ' + error.message);
+                document.getElementById('testDisponibilitaResult').innerHTML = 
+                    `<div class="alert alert-danger">Errore: ${error.message}</div>`;
+            }
+        }
+        
+        function testConfig() {
+            addToDebug('=== TEST CONFIGURAZIONE ===');
+            
+            if (window.CONFIG) {
+                addToDebug(`✅ CONFIG trovato`);
+                addToDebug(`API_BASE: ${window.CONFIG.API_BASE || 'MANCANTE'}`);
+                addToDebug(`HOSTNAME: ${window.CONFIG.HOSTNAME || 'MANCANTE'}`);
+                addToDebug(`ENVIRONMENT: ${window.CONFIG.ENVIRONMENT || 'MANCANTE'}`);
+            } else {
+                addToDebug(`❌ CONFIG non trovato`);
+            }
+            
+            if (typeof getAuthHeaders === 'function') {
+                addToDebug(`✅ getAuthHeaders: OK`);
+                try {
+                    const headers = getAuthHeaders();
+                    addToDebug(`Headers: ${JSON.stringify(headers)}`);
+                } catch (error) {
+                    addToDebug(`❌ Errore getAuthHeaders: ${error.message}`);
+                }
+            } else {
+                addToDebug(`❌ getAuthHeaders: MANCANTE`);
+            }
+        }
+        
+        function clearDebug() {
+            document.getElementById('debugConsole').innerHTML = 'Console pulita...';
+        }
+        
+        function testError() {
+            addToDebug('=== TEST ERROR HANDLING ===');
+            try {
+                throw new Error('Test error handling');
+            } catch (error) {
+                addToDebug('❌ Errore catturato: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
