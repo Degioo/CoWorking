@@ -2057,3 +2057,61 @@ a:hover {
     display: inline-block !important;
     transform: skew(-5deg) !important;
 }
+
+/* CSS ULTRA-AGGRESSIVO per titoli footer - sovrascrive tutto */
+footer h5,
+footer h6,
+.footer h5,
+.footer h6,
+footer .col h5,
+footer .col h6,
+.footer .col h5,
+.footer .col h6,
+footer .col-lg-4 h5,
+footer .col-lg-2 h6,
+.footer .col-lg-4 h5,
+.footer .col-lg-2 h6,
+footer .col-md-6 h6,
+.footer .col-md-6 h6,
+footer .app-column h6,
+.footer .app-column h6 {
+    color: #ffffff !important;
+    color: white !important;
+    color: var(--white) !important;
+    font-weight: 600 !important;
+    margin-bottom: var(--space-lg) !important;
+    text-align: center !important;
+    font-size: 1.1rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Override per qualsiasi stato o stile esistente sui titoli footer - ULTRA-AGGRESSIVO */
+footer h5 *,
+footer h6 *,
+.footer h5 *,
+.footer h6 *,
+footer .col h5 *,
+footer .col h6 *,
+.footer .col h5 *,
+.footer .col h6 *,
+footer .col-lg-4 h5 *,
+footer .col-lg-2 h6 *,
+.footer .col-lg-4 h5 *,
+.footer .col-lg-2 h6 *,
+footer .col-md-6 h6 *,
+.footer .col-md-6 h6 *,
+footer .app-column h6 *,
+.footer .app-column h6 * {
+    color: #ffffff !important;
+    color: white !important;
+}
+
+/* Override per Bootstrap e qualsiasi altro framework */
+.bg-dark h5,
+.bg-dark h6,
+.text-light h5,
+.text-light h6 {
+    color: #ffffff !important;
+    color: white !important;
+}
