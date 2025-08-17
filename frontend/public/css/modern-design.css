@@ -1920,7 +1920,30 @@ a:hover {
     display: none !important;
 }
 
-/* ===== FOOTER STYLES ===== */
+/* ===== NAVBAR USER INFO ===== */
+.user-info-display {
+    color: var(--gray-800) !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.user-info-display:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Override per navbar scura */
+.navbar .user-info-display {
+    color: var(--gray-800) !important;
+    color: #1f2937 !important;
+}
+
+/* ===== FOOTER STYLING - ULTRA-AGGRESSIVO ===== */
 .footer {
     background: var(--gray-900);
     color: var(--white);
