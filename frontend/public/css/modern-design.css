@@ -534,6 +534,12 @@ a:hover {
     font-weight: bold;
 }
 
+.step.completed .step-number {
+    background: var(--success);
+    transform: scale(1.05);
+    color: transparent;
+}
+
 .step span {
     font-size: 0.875rem;
     font-weight: 500;
