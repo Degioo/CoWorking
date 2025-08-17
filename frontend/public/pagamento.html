@@ -4,604 +4,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento - CoWorking</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Pagamento - Coworking Mio</title>
+    <meta name="description" content="Completa il pagamento per la tua prenotazione di coworking">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/modern-design.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- Stripe -->
     <script src="https://js.stripe.com/v3/"></script>
-    <style>
-        .payment-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .payment-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .payment-header h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .payment-details {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-
-        .payment-details h3 {
-            color: #495057;
-            margin-bottom: 15px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            color: #2c3e50;
-        }
-
-        .stripe-form {
-            margin-top: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .stripe-element {
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            background: white;
-            transition: border-color 0.3s ease;
-        }
-
-        .stripe-element.focused {
-            border-color: #007bff;
-        }
-
-        .stripe-element.invalid {
-            border-color: #dc3545;
-        }
-
-        .pay-button {
-            width: 100%;
-            padding: 15px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .pay-button:hover {
-            background: #218838;
-        }
-
-        .pay-button:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .error-message {
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .success-message {
-            color: #155724;
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .back-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s ease;
-        }
-
-        .back-button:hover {
-            background: #5a6268;
-        }
-
-        /* Loading globale */
-        .global-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .global-loading .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        .global-loading p {
-            font-size: 18px;
-            color: #333;
-            margin: 0;
-        }
-
-        /* Messaggio di caricamento */
-        .loading-message {
-            background: #e3f2fd;
-            border: 1px solid #2196f3;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: center;
-            color: #1976d2;
-        }
-
-        .loading-message p {
-            margin: 0;
-            font-weight: 500;
-        }
-
-        /* Selezione metodo di pagamento */
-        .payment-method-selection {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .payment-method-selection h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .payment-methods-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            justify-items: center;
-        }
-
-        .payment-method-card {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            border: 1px solid #dee2e6;
-        }
-
-        .payment-method-card:hover {
-            background: #dee2e6;
-            transform: translateY(-3px);
-        }
-
-        .payment-method-card.selected {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .payment-method-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        .payment-method-card h4 {
-            color: #343a40;
-            margin-bottom: 5px;
-        }
-
-        .payment-method-card p {
-            font-size: 0.9em;
-            color: #6c757d;
-        }
-
-        /* Form di pagamento (nascosto) */
-        .payment-form {
-            display: none;
-        }
-
-        /* Pulsante per tornare alla selezione metodo */
-        .back-to-methods-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .back-to-methods-btn:hover {
-            background: #5a6268;
-        }
-
-        /* Dettagli bonifico bancario */
-        .bank-details {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #e9ecef;
-        }
-
-        .bank-details p {
-            margin-bottom: 5px;
-            color: #495057;
-        }
-
-        .bank-details strong {
-            color: #343a40;
-        }
-
-        .info-text {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 10px;
-        }
-
-        /* Dettagli criptovalute */
-        .crypto-details {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #e9ecef;
-        }
-
-        .crypto-details p {
-            margin-bottom: 5px;
-            color: #495057;
-        }
-
-        .crypto-details strong {
-            color: #343a40;
-        }
-
-        .crypto-addresses {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .crypto-address {
-            display: flex;
-            align-items: center;
-            background: #e9ecef;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-        }
-
-        .crypto-address .crypto-symbol {
-            font-size: 1.2em;
-            margin-right: 8px;
-        }
-
-        .crypto-address-text {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .copy-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: #0056b3;
-        }
-
-        /* Stili per i diversi tipi di pulsanti */
-        .paypal-button {
-            background: #0070ba;
-        }
-
-        .paypal-button:hover {
-            background: #005ea6;
-        }
-
-        .bank-button {
-            background: #28a745;
-        }
-
-        .bank-button:hover {
-            background: #218838;
-        }
-
-        .crypto-button {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .crypto-button:hover {
-            background: #e0a800;
-        }
-
-        /* Form control per PayPal */
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .payment-methods-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .payment-method-card {
-                padding: 10px;
-            }
-
-            .payment-method-icon {
-                font-size: 2em;
-            }
-        }
-    </style>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Loading globale -->
-        <div id="global-loading" class="global-loading" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Caricamento in corso...</p>
+    <!-- Skip Link per Accessibilità -->
+    <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-building me-2"></i>
+                Coworking Mio
+            </a>
+
+            <button class="navbar-toggler mobile-menu-toggle" type="button" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse mobile-menu" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="prenota.html">Prenota</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-light" id="userInfo"></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="btnLogout">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </nav>
 
-        <a href="dashboard.html" class="back-button">← Torna alla Dashboard</a>
-
-        <div class="payment-container">
-            <div class="payment-header">
-                <h1>💳 Pagamento Prenotazione</h1>
-                <p>Completa il pagamento per confermare la tua prenotazione</p>
-            </div>
-
-            <!-- Messaggio di caricamento -->
-            <div id="loading-message" class="loading-message" style="display: none;">
-                <p>Caricamento dati prenotazione...</p>
-            </div>
-
-            <div class="payment-details">
-                <h3>Dettagli Prenotazione</h3>
-                <div class="detail-row">
-                    <span>Data:</span>
-                    <span id="data-prenotazione">Caricamento...</span>
-                </div>
-                <div class="detail-row">
-                    <span>Orario:</span>
-                    <span id="orario-prenotazione">Caricamento...</span>
-                </div>
-                <div class="detail-row">
-                    <span>Durata:</span>
-                    <span id="durata-prenotazione">Caricamento...</span>
-                </div>
-                <div class="detail-row">
-                    <span>Posto:</span>
-                    <span id="posto-prenotazione">Caricamento...</span>
-                </div>
-                <div class="detail-row">
-                    <span>Totale:</span>
-                    <span id="totale-prenotazione">Caricamento...</span>
-                </div>
-            </div>
-
-            <div class="error-message" id="error-message"></div>
-            <div class="success-message" id="success-message"></div>
-
-            <!-- Selezione metodo di pagamento -->
-            <div class="payment-method-selection" id="payment-method-selection">
-                <h3>💳 Scegli il metodo di pagamento</h3>
-                <div class="payment-methods-grid">
-                    <div class="payment-method-card" data-method="card">
-                        <div class="payment-method-icon">💳</div>
-                        <h4>Carta di Credito/Debito</h4>
-                        <p>Visa, Mastercard, American Express</p>
-                    </div>
-                    <div class="payment-method-card" data-method="paypal">
-                        <div class="payment-method-icon">📱</div>
-                        <h4>PayPal</h4>
-                        <p>Paga con il tuo account PayPal</p>
-                    </div>
-                    <div class="payment-method-card" data-method="bank-transfer">
-                        <div class="payment-method-icon">🏦</div>
-                        <h4>Bonifico Bancario</h4>
-                        <p>Trasferimento diretto sul conto</p>
-                    </div>
-                    <div class="payment-method-card" data-method="crypto">
-                        <div class="payment-method-icon">₿</div>
-                        <h4>Criptovalute</h4>
-                        <p>Bitcoin, Ethereum, USDC</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form di pagamento (nascosto inizialmente) -->
-            <div id="payment-forms" style="display: none;">
-                <!-- Form carta di credito -->
-                <form id="card-payment-form" class="stripe-form payment-form" style="display: none;">
-                    <div class="form-group">
-                        <label for="card-element">Dati Carta di Credito</label>
-                        <div id="card-element" class="stripe-element"></div>
-                        <div id="card-errors" class="error-message" style="margin-top: 10px;"></div>
-                    </div>
-
-                    <button type="submit" class="pay-button" id="card-pay-button">
-                        <span class="loading" id="card-loading-spinner" style="display: none;"></span>
-                        <span id="card-button-text">Paga con Carta</span>
-                    </button>
-                </form>
-
-                <!-- Form PayPal -->
-                <form id="paypal-payment-form" class="payment-form" style="display: none;">
-                    <div class="form-group">
-                        <label for="paypal-email">Email PayPal</label>
-                        <input type="email" id="paypal-email" class="form-control" placeholder="La tua email PayPal" required>
-                    </div>
-
-                    <button type="submit" class="pay-button paypal-button" id="paypal-pay-button">
-                        <span class="loading" id="paypal-loading-spinner" style="display: none;"></span>
-                        <span id="paypal-button-text">Paga con PayPal</span>
-                    </button>
-                </form>
-
-                <!-- Form bonifico bancario -->
-                <form id="bank-transfer-form" class="payment-form" style="display: none;">
-                    <div class="form-group">
-                        <label>Dettagli Bonifico</label>
-                        <div class="bank-details">
-                            <p><strong>Banca:</strong> Banca Example S.p.A.</p>
-                            <p><strong>IBAN:</strong> IT60 X054 2811 1010 0000 0123 456</p>
-                            <p><strong>Beneficiario:</strong> CoWorking Mio S.r.l.</p>
-                            <p><strong>Causale:</strong> Prenotazione #<span id="bank-reference"></span></p>
-                            <p><strong>Importo:</strong> €<span id="bank-amount"></span></p>
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Page Header -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <div class="mb-4">
+                            <a href="dashboard.html" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Torna alla Dashboard
+                            </a>
                         </div>
-                        <p class="info-text">Il pagamento verrà confermato entro 1-3 giorni lavorativi</p>
+                        <h1 class="mb-3">Completa il Pagamento</h1>
+                        <p class="lead text-muted">Finalizza la tua prenotazione con un pagamento sicuro</p>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <button type="button" class="pay-button bank-button" id="bank-confirm-button">
-                        Ho effettuato il bonifico
-                    </button>
-                </form>
-
-                <!-- Form criptovalute -->
-                <form id="crypto-payment-form" class="payment-form" style="display: none;">
-                    <div class="form-group">
-                        <label>Pagamento in Criptovalute</label>
-                        <div class="crypto-details">
-                            <p><strong>Importo:</strong> €<span id="crypto-amount"></span></p>
-                            <p><strong>Indirizzi di pagamento:</strong></p>
-                            <div class="crypto-addresses">
-                                <div class="crypto-address">
-                                    <span class="crypto-symbol">₿</span>
-                                    <span class="crypto-address-text">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
-                                    <button type="button" class="copy-btn" data-address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh">📋</button>
+        <!-- Payment Content -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Payment Header -->
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                                    <h3>Dettagli Pagamento</h3>
+                                    <p class="text-muted">Inserisci i dati della tua carta per completare la prenotazione</p>
                                 </div>
-                                <div class="crypto-address">
-                                    <span class="crypto-symbol">Ξ</span>
-                                    <span class="crypto-address-text">0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6</span>
-                                    <button type="button" class="copy-btn" data-address="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6">📋</button>
+
+                                <!-- Payment Details -->
+                                <div class="payment-details mb-4">
+                                    <h4 class="mb-3">
+                                        <i class="fas fa-info-circle me-2 text-info"></i>
+                                        Riepilogo Prenotazione
+                                    </h4>
+                                    <div id="prenotazioneDetails" class="payment-summary">
+                                        <!-- Dettagli prenotazione dinamici -->
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Sede:</span>
+                                            <span class="payment-summary-value" id="sede-prenotazione">Caricamento...</span>
+                                        </div>
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Spazio:</span>
+                                            <span class="payment-summary-value" id="spazio-prenotazione">Caricamento...</span>
+                                        </div>
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Data Inizio:</span>
+                                            <span class="payment-summary-value" id="data-inizio-prenotazione">Caricamento...</span>
+                                        </div>
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Data Fine:</span>
+                                            <span class="payment-summary-value" id="data-fine-prenotazione">Caricamento...</span>
+                                        </div>
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Durata:</span>
+                                            <span class="payment-summary-value" id="durata-prenotazione">Caricamento...</span>
+                                        </div>
+                                        <div class="payment-summary-row">
+                                            <span class="payment-summary-label">Totale:</span>
+                                            <span class="payment-summary-value" id="totale-prenotazione">Caricamento...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stripe Form -->
+                                <div class="stripe-form">
+                                    <form id="payment-form">
+                                        <div class="form-group">
+                                            <label for="card-element" class="form-label">
+                                                <i class="fas fa-credit-card me-2"></i>
+                                                Dati Carta
+                                            </label>
+                                            <div id="card-element" class="form-control stripe-element">
+                                                <!-- Stripe Elements si inserirà qui -->
+                                            </div>
+                                            <div id="card-errors" class="invalid-feedback" role="alert"></div>
+                                        </div>
+
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg" id="pay-button">
+                                                <i class="fas fa-lock me-2"></i>
+                                                Paga in Sicurezza
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Security Notice -->
+                                <div class="text-center mt-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        I tuoi dati sono protetti da crittografia SSL e gestiti da Stripe
+                                    </small>
                                 </div>
                             </div>
-                            <p class="info-text">Invia l'importo esatto in criptovalute. Il pagamento verrà confermato automaticamente.</p>
                         </div>
                     </div>
-
-                    <button type="button" class="pay-button crypto-button" id="crypto-confirm-button">
-                        Ho inviato il pagamento
-                    </button>
-                </form>
+                </div>
             </div>
+        </section>
+    </main>
 
-            <!-- Pulsante per tornare alla selezione metodo -->
-            <button id="back-to-methods" class="back-to-methods-btn" style="display: none;">
-                ← Scegli un altro metodo
-            </button>
-        </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="loading-spinner"></div>
+        <p class="mt-3 text-muted">Elaborazione in corso...</p>
     </div>
 
-    <!-- Libreria Stripe -->
-    <script src="https://js.stripe.com/v3/"></script>
-
-    <!-- jQuery -->
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
     <script src="js/config.js"></script>
     <script src="js/pagamento.js"></script>
 </body>
