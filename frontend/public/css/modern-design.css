@@ -1987,3 +1987,25 @@ a:hover {
 .app-column .app-buttons {
     text-align: center;
 }
+
+/* Titoli specifici delle floating cards nella hero - bianchi con più spazio dalle immagini */
+.hero .floating-card .team-title,
+.hero .floating-card .connessione-title {
+    color: var(--white) !important;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+/* Titoli specifici delle feature cards - bianchi con più spazio dalle immagini */
+.feature-card h3.team-title,
+.feature-card h3.connessione-title {
+    color: var(--white) !important;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.feature-card p {
+    color: var(--gray-800) !important;
+}
