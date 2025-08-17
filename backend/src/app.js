@@ -81,6 +81,10 @@ app.use('/webhook', webhookRoutes);
 const scadenzeRoutes = require('./routes/scadenze');
 app.use('/api', scadenzeRoutes);
 
+// Rotte analytics
+const analyticsRoutes = require('./routes/analytics');
+app.use('/api', analyticsRoutes);
+
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong' });
 });

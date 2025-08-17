@@ -1,5 +1,75 @@
 /* ===== DASHBOARD RESPONSABILI - FUNZIONALITÀ COMPLETE ===== */
 
+// Controllo autenticazione
+function checkAuth() {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (!user || !token) {
+        console.log('Utente non autenticato, redirect al login');
+        window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
+        return;
+    }
+    
+    try {
+        const userData = JSON.parse(user);
+        // Verifica che l'utente abbia i permessi di gestore o amministratore
+        if (!userData.ruolo || !['gestore', 'amministratore'].includes(userData.ruolo)) {
+            console.log('Utente non autorizzato, redirect alla dashboard utente');
+            window.location.href = 'dashboard.html?message=' + encodeURIComponent('Non hai i permessi per accedere alla dashboard responsabili. Solo gestori e amministratori possono accedere.');
+            return;
+        }
+    } catch (error) {
+        console.error('Errore parsing user data:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html?message=' + encodeURIComponent('Errore nei dati utente. Effettua nuovamente il login.');
+        return;
+    }
+}
+
+// Esegui controllo autenticazione all'avvio
+checkAuth();
+
+// Funzioni per gestire l'UI dell'autenticazione
+function updateAuthUI() {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    const loginBtn = document.getElementById('loginBtn');
+    const userSection = document.getElementById('userSection');
+    const navUserName = document.getElementById('navUserName');
+    
+    if (user && token) {
+        try {
+            const userData = JSON.parse(user);
+            if (userData.nome && userData.cognome) {
+                navUserName.textContent = `${userData.nome} ${userData.cognome}`;
+            }
+            loginBtn.classList.add('d-none');
+            userSection.classList.remove('d-none');
+        } catch (error) {
+            console.error('Errore parsing user data in updateAuthUI:', error);
+            handleLogout();
+        }
+    } else {
+        loginBtn.classList.remove('d-none');
+        userSection.classList.add('d-none');
+    }
+}
+
+function handleLogout() {
+    console.log('Logout dalla dashboard responsabili');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    window.location.href = 'index.html?message=' + encodeURIComponent('Logout effettuato con successo.');
+}
+
+// Funzione per mostrare il modal di login
+function showLoginModal() {
+    // Reindirizza alla pagina di login
+    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+}
+
 class DashboardResponsabili {
     constructor() {
         this.currentSection = 'overview';
@@ -16,6 +86,9 @@ class DashboardResponsabili {
         this.loadOverviewData();
         this.setupCharts();
         this.startAutoRefresh();
+        
+        // Aggiorna l'UI dell'autenticazione
+        updateAuthUI();
     }
 
     setupEventListeners() {
@@ -90,12 +163,38 @@ class DashboardResponsabili {
 
     async loadUserInfo() {
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-                document.getElementById('userName').textContent = `${user.nome} ${user.cognome}`;
+            const user = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            
+            if (!user || !token) {
+                console.log('Utente non autenticato in loadUserInfo');
+                return;
             }
+            
+            const userData = JSON.parse(user);
+            if (userData && userData.nome && userData.cognome) {
+                document.getElementById('userName').textContent = `${userData.nome} ${userData.cognome}`;
+                
+                // Imposta il ruolo corretto
+                const userRoleElement = document.getElementById('userRole');
+                if (userRoleElement) {
+                    if (userData.ruolo === 'amministratore') {
+                        userRoleElement.textContent = 'Amministratore';
+                    } else if (userData.ruolo === 'gestore') {
+                        userRoleElement.textContent = 'Gestore Sede';
+                    } else {
+                        userRoleElement.textContent = 'Utente';
+                    }
+                }
+            } else {
+                console.warn('Dati utente incompleti:', userData);
+            }
+            
+            // Aggiorna anche l'UI della navbar
+            updateAuthUI();
         } catch (error) {
             console.error('Errore caricamento info utente:', error);
+            // Non fare redirect qui, lascia che checkAuth gestisca
         }
     }
 

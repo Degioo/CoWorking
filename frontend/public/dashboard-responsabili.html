@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Responsabili - Coworking Mio</title>
-  <meta name="description" content="Dashboard completa per responsabili delle sedi. Gestisci disponibilità, prenotazioni e reportistica.">
+  <title>Dashboard Gestori - Coworking Mio</title>
+  <meta name="description" content="Dashboard completa per gestori delle sedi. Gestisci disponibilità, prenotazioni e reportistica.">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,12 +52,24 @@
             <a class="nav-link" href="dashboard.html">Dashboard Utente</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="dashboard-responsabili.html">Dashboard Responsabili</a>
+            <a class="nav-link active" href="dashboard-responsabili.html">Dashboard Gestori</a>
           </li>
           <li class="nav-item" id="authSection">
-            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+            <!-- Login button (shown when not authenticated) -->
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()" id="loginBtn">
               <i class="fas fa-sign-in-alt me-1"></i>Accedi
             </a>
+            <!-- User info and logout (shown when authenticated) -->
+            <div class="nav-item dropdown d-none" id="userSection">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i><span id="navUserName">Utente</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="dashboard.html">Dashboard Utente</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="handleLogout()">Logout</a></li>
+              </ul>
+            </div>
           </li>
         </ul>
       </div>
@@ -71,12 +83,12 @@
       <div class="container">
         <div class="row align-items-center">
           <div class="col-lg-8">
-            <h1 class="mb-2">Dashboard Responsabili Sedi</h1>
+            <h1 class="mb-2">Dashboard Gestori Sedi</h1>
             <p class="lead text-muted">Gestisci disponibilità, prenotazioni e monitora le performance delle tue sedi</p>
           </div>
           <div class="col-lg-4 text-lg-end">
             <div class="user-info">
-              <span class="user-role">Responsabile Sede</span>
+              <span class="user-role" id="userRole">Gestore Sede</span>
               <span class="user-name" id="userName">Caricamento...</span>
             </div>
           </div>
