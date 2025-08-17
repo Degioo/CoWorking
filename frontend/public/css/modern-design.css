@@ -256,6 +256,18 @@ a:hover {
     font-size: 0.75rem;
 }
 
+/* Bottone "Scopri di più" specifico - più chiaro */
+.btn-discover {
+    background: linear-gradient(135deg, #9dc7ff 0%, #b8d9ff 100%) !important;
+    color: var(--white) !important;
+    border: none !important;
+}
+
+.btn-discover:hover {
+    background: linear-gradient(135deg, #8bb5ff 0%, #a8c9ff 100%) !important;
+    color: var(--white) !important;
+}
+
 /* ===== CARDS ===== */
 .card {
     background: var(--white);
@@ -1970,4 +1982,22 @@ a:hover {
     .footer .col {
         margin-bottom: var(--space-md);
     }
+}
+
+/* Icona wi-fi bianca */
+.wifi-icon {
+    color: var(--white) !important;
+}
+
+/* Footer - solo "App" centrato */
+.app-column {
+    text-align: center;
+}
+
+.app-column h6 {
+    text-align: center;
+}
+
+.app-column .app-buttons {
+    text-align: center;
 }
