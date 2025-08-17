@@ -2021,11 +2021,13 @@ a:hover {
     color: #ffffff !important;
 }
 
-/* Titoli del footer - bianchi */
+/* Titoli del footer - bianchi con CSS molto aggressivo */
 .footer h5,
-.footer h6 {
-    color: var(--white) !important;
+.footer h6,
+.footer .col h5,
+.footer .col h6 {
     color: #ffffff !important;
+    color: var(--white) !important;
     font-weight: 600 !important;
     margin-bottom: var(--space-lg) !important;
     text-align: center !important;
@@ -2034,14 +2036,24 @@ a:hover {
     letter-spacing: 0.05em !important;
 }
 
-/* Firma elegante in corsivo */
+/* Override per qualsiasi stato o stile esistente sui titoli footer */
+.footer h5 *,
+.footer h6 *,
+.footer .col h5 *,
+.footer .col h6 * {
+    color: #ffffff !important;
+}
+
+/* Firma elegante in corsivo - più corsiva e visibile */
 .footer .signature {
-    font-family: 'Dancing Script', cursive, serif;
-    font-size: 1.2rem;
-    font-weight: 400;
-    color: var(--white);
-    color: #ffffff;
-    font-style: italic;
-    letter-spacing: 0.1em;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'Dancing Script', cursive, serif !important;
+    font-size: 1.4rem !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    color: var(--white) !important;
+    font-style: italic !important;
+    letter-spacing: 0.15em !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+    display: inline-block !important;
+    transform: skew(-5deg) !important;
 }
