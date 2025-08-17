@@ -479,44 +479,98 @@ async function initializeStripe() {
 
         console.log('initializeStripe - Stripe inizializzato con successo');
         
-        // Rimuovi elementi sovrapposti e forza la visibilità
+        // JavaScript aggressivo per forzare la visibilità dei numeri
         setTimeout(() => {
-            // Rimuovi eventuali elementi neri sovrapposti
             const stripeContainer = document.querySelector('.stripe-element');
             if (stripeContainer) {
-                const blackElements = stripeContainer.querySelectorAll('*');
-                blackElements.forEach(element => {
-                    if (element.style.backgroundColor === 'rgb(0, 0, 0)' || 
-                        element.style.backgroundColor === '#000000' ||
-                        element.style.backgroundColor === 'black') {
-                        element.style.display = 'none';
+                console.log('Rimuovo elementi problematici...');
+                
+                // Rimuovi tutti gli elementi con background nero o scuro
+                const allElements = stripeContainer.querySelectorAll('*');
+                allElements.forEach(element => {
+                    const computedStyle = window.getComputedStyle(element);
+                    const bgColor = computedStyle.backgroundColor;
+                    const color = computedStyle.color;
+                    
+                    // Rimuovi elementi neri o molto scuri
+                    if (bgColor === 'rgb(0, 0, 0)' || 
+                        bgColor === 'rgba(0, 0, 0, 1)' ||
+                        bgColor === 'rgba(0, 0, 0, 0.9)' ||
+                        bgColor === 'rgba(0, 0, 0, 0.8)' ||
+                        color === 'rgb(0, 0, 0)' ||
+                        color === 'rgba(0, 0, 0, 1)') {
+                        console.log('Rimuovo elemento nero:', element);
                         element.remove();
                     }
                 });
+                
+                // Forza la visibilità di tutti gli input
+                const inputs = stripeContainer.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.style.cssText = `
+                        color: #000000 !important;
+                        background: #ffffff !important;
+                        background-color: #ffffff !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        display: block !important;
+                        position: relative !important;
+                        z-index: 10000 !important;
+                        font-size: 16px !important;
+                        font-weight: 500 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                    `;
+                    console.log('Input configurato:', input);
+                });
+                
+                // Forza la visibilità degli elementi Stripe
+                const stripeElements = stripeContainer.querySelectorAll('.StripeElement');
+                stripeElements.forEach(element => {
+                    element.style.cssText = `
+                        color: #000000 !important;
+                        background: transparent !important;
+                        background-color: transparent !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        position: relative !important;
+                        z-index: 9999 !important;
+                    `;
+                    console.log('Elemento Stripe configurato:', element);
+                });
+                
+                // Rimuovi eventuali pseudo-elementi
+                const style = document.createElement('style');
+                style.textContent = `
+                    .stripe-element .StripeElement::before,
+                    .stripe-element .StripeElement::after,
+                    .stripe-element .StripeElement *::before,
+                    .stripe-element .StripeElement *::after {
+                        display: none !important;
+                        content: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                console.log('Configurazione completata');
             }
-            
-            // Forza la visibilità degli input
-            const stripeInputs = document.querySelectorAll('.stripe-element input');
-            stripeInputs.forEach(input => {
-                input.style.zIndex = '9999';
-                input.style.position = 'relative';
-                input.style.background = '#ffffff';
-                input.style.color = '#000000';
-                input.style.opacity = '1';
-                input.style.visibility = 'visible';
-            });
-            
-            // Forza la visibilità degli elementi Stripe
-            const stripeElements = document.querySelectorAll('.stripe-element .StripeElement');
-            stripeElements.forEach(element => {
-                element.style.zIndex = '9998';
-                element.style.position = 'relative';
-                element.style.background = '#ffffff';
-                element.style.color = '#000000';
-                element.style.opacity = '1';
-                element.style.visibility = 'visible';
-            });
-        }, 500);
+        }, 1000);
+        
+        // Controllo periodico per mantenere la visibilità
+        setInterval(() => {
+            const stripeContainer = document.querySelector('.stripe-element');
+            if (stripeContainer) {
+                const inputs = stripeContainer.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (input.style.color !== '#000000') {
+                        input.style.color = '#000000';
+                        input.style.background = '#ffffff';
+                        input.style.opacity = '1';
+                        input.style.visibility = 'visible';
+                    }
+                });
+            }
+        }, 2000);
     } catch (error) {
         console.error('Errore inizializzazione Stripe:', error);
         showError('Errore configurazione pagamento: ' + error.message);
