@@ -48,7 +48,35 @@ function setupDashboard() {
 // Aggiorna info utente nella navbar
 function updateUserInfo() {
   $('#userInfo').text(`${currentUser.nome} ${currentUser.cognome} (${currentUser.ruolo})`);
-  $('#welcomeTitle').text(`Benvenuto, ${currentUser.nome}!`);
+  
+  // Aggiorna il titolo di benvenuto in base al ruolo
+  if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
+    $('#welcomeTitle').text(`Benvenuto Gestore, ${currentUser.nome}!`);
+    $('#welcomeSubtitle').text('Gestisci le tue sedi e monitora le performance');
+  } else {
+    $('#welcomeTitle').text(`Benvenuto, ${currentUser.nome}!`);
+    $('#welcomeSubtitle').text('Gestisci le tue prenotazioni e attività');
+  }
+  
+  // Aggiorna il link della navbar in base al ruolo
+  updateNavbarLink();
+}
+
+// Aggiorna il link della navbar in base al ruolo
+function updateNavbarLink() {
+  const prenotaLink = $('#prenotaLink');
+  
+  if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
+    // Per gestori e amministratori, mostra il link "Gestore" invece di "Prenota"
+    prenotaLink.attr('href', 'dashboard-responsabili.html');
+    prenotaLink.html('<i class="fas fa-chart-line me-1"></i>Gestore');
+    prenotaLink.removeClass('nav-link').addClass('nav-link btn btn-primary ms-2');
+  } else {
+    // Per i clienti, mantieni il link "Prenota"
+    prenotaLink.attr('href', 'prenota.html');
+    prenotaLink.html('<i class="fas fa-calendar-plus me-1"></i>Prenota');
+    prenotaLink.removeClass('btn btn-primary ms-2').addClass('nav-link');
+  }
 }
 
 // Crea tab dinamici basati sul ruolo
@@ -56,32 +84,54 @@ function createTabs() {
   const tabsContainer = $('#dashboardTabs');
   const contentContainer = $('#dashboardTabsContent');
 
-  if (currentUser.ruolo === 'gestore') {
-    // Tab per gestore
+  if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
+    // Tab per gestore e amministratore
     tabsContainer.html(`
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="sedi-tab" data-bs-toggle="tab" data-bs-target="#sedi" type="button" role="tab">
-          Le mie sedi
+        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+          <i class="fas fa-chart-line me-2"></i>Overview
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="sedi-tab" data-bs-toggle="tab" data-bs-target="#sedi" type="button" role="tab">
+          <i class="fas fa-building me-2"></i>Le mie sedi
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="prenotazioni-tab" data-bs-toggle="tab" data-bs-target="#prenotazioni" type="button" role="tab">
-          Prenotazioni
+          <i class="fas fa-calendar-check me-2"></i>Prenotazioni
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="utenti-tab" data-bs-toggle="tab" data-bs-target="#utenti" type="button" role="tab">
+          <i class="fas fa-users me-2"></i>Utenti
         </button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab">
-          Report
+          <i class="fas fa-chart-bar me-2"></i>Report
         </button>
       </li>
     `);
 
     contentContainer.html(`
-      <div class="tab-pane fade show active" id="sedi" role="tabpanel">
+      <div class="tab-pane fade show active" id="overview" role="tabpanel">
+        <div class="text-center py-5">
+          <h3>Dashboard Gestore</h3>
+          <p class="text-muted">Benvenuto nella tua dashboard di gestione</p>
+          <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
+            <i class="fas fa-chart-line me-2"></i>Accedi alla Dashboard Completa
+          </a>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="sedi" role="tabpanel">
         <div id="sediContent">Caricamento...</div>
       </div>
       <div class="tab-pane fade" id="prenotazioni" role="tabpanel">
         <div id="prenotazioniContent">Caricamento...</div>
+      </div>
+      <div class="tab-pane fade" id="utenti" role="tabpanel">
+        <div id="utentiContent">Caricamento...</div>
       </div>
       <div class="tab-pane fade" id="report" role="tabpanel">
         <div id="reportContent">Caricamento...</div>
@@ -123,10 +173,10 @@ function createTabs() {
 
 // Carica dati iniziali
 function loadInitialData() {
-  if (currentUser.ruolo === 'gestore') {
-    loadSediGestore();
-    loadPrenotazioniGestore();
-    loadReportGestore();
+  if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
+    // Per gestori e amministratori, mostra solo un messaggio di benvenuto
+    // I dati completi sono disponibili nella dashboard responsabili
+    console.log('Dashboard gestore - dati completi disponibili in dashboard-responsabili.html');
   } else {
     loadPrenotazioniUtente();
     loadPagamentiUtente();
@@ -136,144 +186,62 @@ function loadInitialData() {
 
 // Carica sedi del gestore
 function loadSediGestore() {
-  $.ajax({
-    url: `${window.CONFIG.API_BASE}/gestore/sedi?id_gestore=${currentUser.id_utente}`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (sedi) {
-      displaySediGestore(sedi);
-    })
-    .fail(function (xhr) {
-      console.log('loadSediGestore - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        $('#sediContent').html('<div class="alert alert-danger">Errore nel caricamento delle sedi</div>');
-      }
-    });
-}
-
-// Visualizza sedi del gestore
-function displaySediGestore(sedi) {
   const container = $('#sediContent');
-  if (sedi.length === 0) {
-    container.html('<p>Nessuna sede gestita</p>');
-    return;
-  }
-
-  let html = '<div class="row">';
-  sedi.forEach(sede => {
-    html += `
-      <div class="col-md-6 mb-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">${sede.nome}</h5>
-            <p class="card-text"><strong>Città:</strong> ${sede.citta}</p>
-            <p class="card-text"><strong>Indirizzo:</strong> ${sede.indirizzo}</p>
-            <button class="btn btn-primary btn-sm" onclick="viewSpaziSede(${sede.id_sede})">
-              Gestisci spazi
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-  html += '</div>';
-  container.html(html);
+  container.html(`
+    <div class="text-center py-4">
+      <h4>Gestione Sedi</h4>
+      <p class="text-muted">Per gestire sedi, spazi e disponibilità</p>
+      <a href="dashboard-responsabili.html" class="btn btn-primary">
+        <i class="fas fa-building me-2"></i>Dashboard Completa
+      </a>
+    </div>
+  `);
 }
+
+
 
 // Carica prenotazioni gestore
 function loadPrenotazioniGestore() {
-  $.ajax({
-    url: `${window.CONFIG.API_BASE}/gestore/prenotazioni?id_gestore=${currentUser.id_utente}`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (prenotazioni) {
-      displayPrenotazioniGestore(prenotazioni);
-    })
-    .fail(function (xhr) {
-      console.log('loadPrenotazioniGestore - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        $('#prenotazioniContent').html('<div class="alert alert-danger">Errore nel caricamento delle prenotazioni</div>');
-      }
-    });
-}
-
-// Visualizza prenotazioni gestore
-function displayPrenotazioniGestore(prenotazioni) {
   const container = $('#prenotazioniContent');
-  if (prenotazioni.length === 0) {
-    container.html('<p>Nessuna prenotazione trovata</p>');
-    return;
-  }
-
-  let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Data</th><th>Sede</th><th>Spazio</th><th>Stato</th></tr></thead><tbody>';
-
-  prenotazioni.forEach(p => {
-    const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
-    html += `
-      <tr>
-        <td>${dataInizio}</td>
-        <td>${p.nome_sede}</td>
-        <td>${p.nome_spazio}</td>
-        <td><span class="badge bg-${getStatusColor(p.stato)}">${p.stato}</span></td>
-      </tr>
-    `;
-  });
-
-  html += '</tbody></table></div>';
-  container.html(html);
+  container.html(`
+    <div class="text-center py-4">
+      <h4>Gestione Prenotazioni</h4>
+      <p class="text-muted">Per gestire prenotazioni, conferme e cancellazioni</p>
+      <a href="dashboard-responsabili.html" class="btn btn-primary">
+        <i class="fas fa-calendar-check me-2"></i>Dashboard Completa
+      </a>
+    </div>
+  `);
 }
+
+
 
 // Carica report gestore
 function loadReportGestore() {
-  $.ajax({
-    url: `${window.CONFIG.API_BASE}/gestore/report?id_gestore=${currentUser.id_utente}`,
-    method: 'GET',
-    headers: getAuthHeaders()
-  })
-    .done(function (report) {
-      displayReportGestore(report);
-    })
-    .fail(function (xhr) {
-      console.log('loadReportGestore - Errore:', xhr.status, xhr.responseText);
-      if (xhr.status === 401) {
-        handleAuthError();
-      } else {
-        $('#reportContent').html('<div class="alert alert-danger">Errore nel caricamento del report</div>');
-      }
-    });
+  const container = $('#reportContent');
+  container.html(`
+    <div class="text-center py-4">
+      <h4>Report e Analytics</h4>
+      <p class="text-muted">Per accedere ai report completi e alle statistiche avanzate</p>
+      <a href="dashboard-responsabili.html" class="btn btn-primary">
+        <i class="fas fa-chart-bar me-2"></i>Dashboard Completa
+      </a>
+    </div>
+  `);
 }
 
-// Visualizza report gestore
-function displayReportGestore(report) {
-  const container = $('#reportContent');
-  if (report.length === 0) {
-    container.html('<p>Nessun dato disponibile</p>');
-    return;
-  }
-
-  let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Sede</th><th>Spazio</th><th>Prenotazioni</th><th>Incasso</th></tr></thead><tbody>';
-
-  report.forEach(r => {
-    html += `
-      <tr>
-        <td>${r.nome_sede}</td>
-        <td>${r.nome_spazio}</td>
-        <td>${r.num_prenotazioni}</td>
-        <td>€${r.incasso_totale}</td>
-      </tr>
-    `;
-  });
-
-  html += '</tbody></table></div>';
-  container.html(html);
+// Carica utenti gestore
+function loadUtentiGestore() {
+  const container = $('#utentiContent');
+  container.html(`
+    <div class="text-center py-4">
+      <h4>Gestione Utenti</h4>
+      <p class="text-muted">Per gestire utenti, ruoli e permessi</p>
+      <a href="dashboard-responsabili.html" class="btn btn-primary">
+        <i class="fas fa-users me-2"></i>Dashboard Completa
+      </a>
+    </div>
+  `);
 }
 
 // Carica prenotazioni utente
@@ -566,6 +534,36 @@ function getPaymentStatusColor(stato) {
 // Event handlers
 function setupEventHandlers() {
   // Non è più necessario gestire il logout qui, viene gestito dall'onclick HTML
+  
+  // Gestione tab per gestori
+  if (currentUser && (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore')) {
+    setupGestoreTabHandlers();
+  }
+}
+
+// Setup event handlers per i tab dei gestori
+function setupGestoreTabHandlers() {
+  // Tab Overview - già gestito nell'HTML
+  
+  // Tab Sedi
+  $('#sedi-tab').on('click', function() {
+    loadSediGestore();
+  });
+  
+  // Tab Prenotazioni
+  $('#prenotazioni-tab').on('click', function() {
+    loadPrenotazioniGestore();
+  });
+  
+  // Tab Utenti
+  $('#utenti-tab').on('click', function() {
+    loadUtentiGestore();
+  });
+  
+  // Tab Report
+  $('#report-tab').on('click', function() {
+    loadReportGestore();
+  });
 }
 
 // Funzioni globali
