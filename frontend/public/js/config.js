@@ -85,12 +85,45 @@ function handleAuthError() {
 function logout() {
     console.log('logout - Effettuo logout utente');
 
+    // Salva la pagina corrente per il redirect dopo il login
+    const currentPage = window.location.pathname.split('/').pop();
+    const currentUrl = window.location.href;
+    
+    // Determina se la pagina corrente richiede autenticazione
+    const requiresAuth = isPageRequiringAuth(currentPage);
+    
+    if (requiresAuth) {
+        // Se la pagina richiede autenticazione, salva l'URL per il redirect
+        localStorage.setItem('redirectAfterLogin', currentUrl);
+        console.log('logout - Pagina richiede auth, salvo URL per redirect:', currentUrl);
+    } else {
+        // Se la pagina non richiede auth, non salvare nulla
+        localStorage.removeItem('redirectAfterLogin');
+        console.log('logout - Pagina non richiede auth, rimango qui');
+    }
+
+    // Pulisci i dati della prenotazione in corso se siamo su prenota.html
+    if (currentPage === 'prenota.html') {
+        localStorage.removeItem('selectedSede');
+        localStorage.removeItem('selectedSpazio');
+        localStorage.removeItem('selectedDataInizio');
+        localStorage.removeItem('selectedDataFine');
+        localStorage.removeItem('disponibilitaVerificata');
+        console.log('logout - Puliti dati prenotazione in corso');
+    }
+
     // Rimuovi solo i dati di sessione, non tutto
     localStorage.removeItem('user');
     localStorage.removeItem('token');
 
-    // Reindirizza al login con messaggio chiaro
-    window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
+    if (requiresAuth) {
+        // Reindirizza al login se la pagina richiede autenticazione
+        window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
+    } else {
+        // Rimani nella pagina corrente se non richiede autenticazione
+        // Ricarica la pagina per aggiornare la navbar
+        window.location.reload();
+    }
 }
 
 // Funzione per verificare se l'utente è autenticato
@@ -138,11 +171,35 @@ async function validateTokenOnStartup() {
     }
 }
 
+// Funzione per verificare se una pagina richiede autenticazione
+function isPageRequiringAuth(pageName) {
+    const pagesRequiringAuth = [
+        'dashboard.html',
+        'pagamento.html',
+        'dashboard-responsabili.html'
+    ];
+    
+    // La pagina prenota.html non richiede autenticazione iniziale
+    // ma potrebbe richiederla per completare la prenotazione
+    // In questo caso, salviamo comunque l'URL per il redirect
+    if (pageName === 'prenota.html') {
+        // Controlla se c'è una prenotazione in corso
+        const hasPrenotazioneInCorso = localStorage.getItem('selectedSede') || 
+                                      localStorage.getItem('selectedSpazio') || 
+                                      localStorage.getItem('selectedDataInizio') || 
+                                      localStorage.getItem('selectedDataFine');
+        return hasPrenotazioneInCorso;
+    }
+    
+    return pagesRequiringAuth.includes(pageName);
+}
+
 // Esporta per uso globale
 window.CONFIG = CONFIG;
 window.getAuthHeaders = getAuthHeaders;
 window.handleAuthError = handleAuthError;
-window.validateTokenOnStartup = validateTokenOnStartup;
 window.logout = logout;
 window.isAuthenticated = isAuthenticated;
+window.validateTokenOnStartup = validateTokenOnStartup;
+window.isPageRequiringAuth = isPageRequiringAuth;
 

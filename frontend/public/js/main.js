@@ -38,8 +38,14 @@ function updateNavbar() {
 
 // Logout
 function logout() {
-  localStorage.removeItem('user');
-  location.reload();
+  // Usa la funzione centralizzata di config.js
+  if (typeof window.logout === 'function') {
+    window.logout();
+  } else {
+    // Fallback se la funzione non è disponibile
+    localStorage.removeItem('user');
+    location.reload();
+  }
 }
 
 // Caricamento sedi
@@ -130,6 +136,28 @@ function handleLogin(event) {
       localStorage.setItem('user', JSON.stringify(response));
       showAlert('Login effettuato con successo!', 'success');
 
+      // Controlla se c'è un redirect specifico salvato
+      const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+      if (redirectAfterLogin) {
+        // Rimuovi l'URL salvato e vai alla pagina originale
+        localStorage.removeItem('redirectAfterLogin');
+        console.log('handleLogin - Redirect alla pagina originale:', redirectAfterLogin);
+        
+        // Se il redirect è verso prenota.html, vai alla dashboard invece
+        // perché prenota.html non richiede autenticazione
+        if (redirectAfterLogin.includes('prenota.html')) {
+          console.log('handleLogin - Redirect verso prenota.html, vado alla dashboard');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            window.location.href = redirectAfterLogin;
+          }, 1000);
+        }
+        return;
+      }
+
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       if (pendingPrenotazione) {
@@ -197,6 +225,28 @@ function handleRegistrazione(event) {
         .done(function (loginResponse) {
           // Salva l'utente
           localStorage.setItem('user', JSON.stringify(loginResponse));
+
+          // Controlla se c'è un redirect specifico salvato
+          const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+          if (redirectAfterLogin) {
+            // Rimuovi l'URL salvato e vai alla pagina originale
+            localStorage.removeItem('redirectAfterLogin');
+            console.log('handleRegistrazione - Redirect alla pagina originale:', redirectAfterLogin);
+            
+            // Se il redirect è verso prenota.html, vai alla dashboard invece
+            // perché prenota.html non richiede autenticazione
+            if (redirectAfterLogin.includes('prenota.html')) {
+              console.log('handleRegistrazione - Redirect verso prenota.html, vado alla dashboard');
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1500);
+            } else {
+              setTimeout(() => {
+                window.location.href = redirectAfterLogin;
+              }, 1500);
+            }
+            return;
+          }
 
           // Controlla se c'è una prenotazione in attesa
           const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');

@@ -28,8 +28,14 @@ function checkAuth() {
 
 // Logout
 function logout() {
-  localStorage.removeItem('user');
-  window.location.href = 'login.html';
+  // Usa la funzione centralizzata di config.js
+  if (typeof window.logout === 'function') {
+    window.logout();
+  } else {
+    // Fallback se la funzione non è disponibile
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  }
 }
 
 // Setup dashboard basato sul ruolo
