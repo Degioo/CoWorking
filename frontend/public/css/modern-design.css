@@ -1997,15 +1997,20 @@ a:hover {
     margin-top: var(--space-md);
 }
 
-/* Titoli specifici delle feature cards - bianchi con più spazio dalle immagini */
-.feature-card h3.team-title,
-.feature-card h3.connessione-title {
+/* Forza il colore bianco sui titoli specifici - CSS più aggressivo */
+.hero .floating-card h4.team-title,
+.hero .floating-card h4.connessione-title {
+    color: #ffffff !important;
     color: var(--white) !important;
-    font-weight: 600;
-    margin-bottom: var(--space-lg);
-    margin-top: var(--space-md);
+    font-weight: 600 !important;
+    margin-bottom: var(--space-lg) !important;
+    margin-top: var(--space-md) !important;
 }
 
-.feature-card p {
-    color: var(--gray-800) !important;
+/* Override per qualsiasi stato o stile esistente */
+.hero .floating-card h4.team-title *,
+.hero .floating-card h4.connessione-title *,
+.hero .floating-card .team-title *,
+.hero .floating-card .connessione-title * {
+    color: #ffffff !important;
 }
