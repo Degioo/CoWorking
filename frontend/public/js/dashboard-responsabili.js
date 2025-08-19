@@ -5,31 +5,35 @@ function checkAuth() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     
-    if (!user || !token) {
-        console.log('Utente non autenticato, redirect al login');
-        window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
-        return;
-    }
-    
-    try {
-        const userData = JSON.parse(user);
-        // Verifica che l'utente abbia i permessi di gestore o amministratore
-        if (!userData.ruolo || !['gestore', 'amministratore'].includes(userData.ruolo)) {
-            console.log('Utente non autorizzato, redirect alla dashboard utente');
-            window.location.href = 'dashboard.html?message=' + encodeURIComponent('Non hai i permessi per accedere alla dashboard responsabili. Solo gestori e amministratori possono accedere.');
+    // Se l'utente è già autenticato, non reindirizzare al login
+    if (user && token) {
+        try {
+            const userData = JSON.parse(user);
+            // Verifica che l'utente abbia i permessi di gestore o amministratore
+            if (!userData.ruolo || !['gestore', 'amministratore'].includes(userData.ruolo)) {
+                console.log('Utente non autorizzato, redirect alla dashboard utente');
+                window.location.href = 'dashboard.html?message=' + encodeURIComponent('Non hai i permessi per accedere alla dashboard responsabili. Solo gestori e amministratori possono accedere.');
+                return;
+            }
+            // Utente autenticato e autorizzato, continua
+            console.log('Utente autenticato e autorizzato:', userData.nome, userData.cognome, userData.ruolo);
+            return;
+        } catch (error) {
+            console.error('Errore parsing user data:', error);
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            window.location.href = 'login.html?message=' + encodeURIComponent('Errore nei dati utente. Effettua nuovamente il login.');
             return;
         }
-    } catch (error) {
-        console.error('Errore parsing user data:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        window.location.href = 'login.html?message=' + encodeURIComponent('Errore nei dati utente. Effettua nuovamente il login.');
-        return;
     }
+    
+    // Se non è autenticato, reindirizza al login
+    console.log('Utente non autenticato, redirect al login');
+    window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
 }
 
 // Esegui controllo autenticazione all'avvio
-checkAuth();
+// checkAuth(); // Rimosso - ora controllato dalla classe DashboardResponsabili
 
 // Funzioni per gestire l'UI dell'autenticazione
 function updateAuthUI() {
@@ -76,7 +80,33 @@ class DashboardResponsabili {
         this.currentSede = null;
         this.charts = {};
         this.currentMonth = new Date();
-        this.init();
+        
+        // Controlla autenticazione prima di inizializzare
+        if (this.checkAuthBeforeInit()) {
+            this.init();
+        }
+    }
+    
+    checkAuthBeforeInit() {
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        
+        if (!user || !token) {
+            console.log('Dashboard responsabili: utente non autenticato, non inizializzo');
+            return false;
+        }
+        
+        try {
+            const userData = JSON.parse(user);
+            if (!userData.ruolo || !['gestore', 'amministratore'].includes(userData.ruolo)) {
+                console.log('Dashboard responsabili: utente non autorizzato, non inizializzo');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Dashboard responsabili: errore parsing user data:', error);
+            return false;
+        }
     }
 
     init() {

@@ -65,7 +65,7 @@ function updateUserInfo() {
 // Aggiorna il link della navbar in base al ruolo
 function updateNavbarLink() {
   const prenotaLink = $('#prenotaLink');
-  
+
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
     // Per gestori e amministratori, mostra il link "Gestore" invece di "Prenota"
     prenotaLink.attr('href', 'dashboard-responsabili.html');
