@@ -63,7 +63,7 @@
             </a>
           </li>
           <li class="nav-item" id="authSection">
-            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()" style="color: black !important;">
               <i class="fas fa-sign-in-alt me-1"></i>
               Accedi
             </a>
@@ -87,8 +87,12 @@
                 privati e aree comuni per far crescere il tuo business.</p>
               <div class="hero-buttons">
                 <a href="prenota.html" class="btn btn-secondary btn-lg me-3">
-                  <i class="fas fa-rocket me-2"></i>
-                  Inizia Subito
+                  <i class="fas fa-calendar-plus me-2"></i>
+                  Prenota
+                </a>
+                <a href="#" onclick="showLoginModal()" class="btn btn-primary btn-lg me-3" style="color: black !important;">
+                  <i class="fas fa-sign-in-alt me-2"></i>
+                  Accedi
                 </a>
                 <a href="#features" class="btn btn-outline btn-lg btn-discover">
                   <i class="fas fa-info-circle me-2"></i>
@@ -308,113 +312,114 @@
     </div>
   </footer>
 
-  <!-- Login Modal -->
+  <!-- Login/Registration Modal -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Accedi al Tuo Account</h5>
+          <h5 class="modal-title" id="loginModalLabel">Accedi o Registrati</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="loginForm">
-            <div class="form-group">
-              <label for="loginEmail" class="form-label">Email</label>
-              <input type="email" class="form-control" id="loginEmail" required>
+          <!-- Tab Navigation -->
+          <ul class="nav nav-tabs nav-fill mb-4" id="authTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+                <i class="fas fa-sign-in-alt me-2"></i>Accedi
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="registrazione-tab" data-bs-toggle="tab" data-bs-target="#registrazione" type="button" role="tab">
+                <i class="fas fa-user-plus me-2"></i>Registrati
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab Content -->
+          <div class="tab-content" id="authTabsContent">
+            <!-- Login Tab -->
+            <div class="tab-pane fade show active" id="login" role="tabpanel">
+              <form id="loginForm">
+                <div class="form-group">
+                  <label for="loginEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                  <label for="loginPassword" class="form-label">Password</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="loginPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
+                      <i class="fas fa-eye" id="loginPasswordIcon"></i>
+                    </button>
+                  </div>
+                  <div class="invalid-feedback" id="loginPassword-error"></div>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary">Accedi</button>
+                </div>
+              </form>
             </div>
-            <div class="form-group">
-              <label for="loginPassword" class="form-label">Password</label>
-              <div class="input-group">
-                <input type="password" class="form-control" id="loginPassword" required>
-                <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
-                  <i class="fas fa-eye" id="loginPasswordIcon"></i>
-                </button>
-              </div>
-              <div class="invalid-feedback" id="loginPassword-error"></div>
+
+            <!-- Registration Tab -->
+            <div class="tab-pane fade" id="registrazione" role="tabpanel">
+              <form id="registrationForm">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="regNome" class="form-label">Nome</label>
+                      <input type="text" class="form-control" id="regNome" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="regCognome" class="form-label">Cognome</label>
+                      <input type="text" class="form-control" id="regCognome" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="regEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                  <label for="regPassword" class="form-label">Password</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="regPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword">
+                      <i class="fas fa-eye" id="regPasswordIcon"></i>
+                    </button>
+                  </div>
+                  <div class="invalid-feedback" id="regPassword-error"></div>
+                </div>
+                <div class="form-group">
+                  <label for="regConfirmPassword" class="form-label">Conferma Password</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="regConfirmPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword">
+                      <i class="fas fa-eye" id="regConfirmPasswordIcon"></i>
+                    </button>
+                  </div>
+                  <div class="invalid-feedback" id="regConfirmPassword-error"></div>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary">Registrati</button>
+                </div>
+              </form>
             </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">Accedi</button>
-            </div>
-          </form>
-          <hr>
-          <p class="text-center mb-0">
-            Non hai un account?
-            <a href="#" onclick="showRegistrationModal()">Registrati</a>
-          </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Registration Modal -->
-  <div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="registrationModalLabel">Crea il Tuo Account</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="registrationForm">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="regNome" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="regNome" required>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label for="regCognome" class="form-label">Cognome</label>
-                  <input type="text" class="form-control" id="regCognome" required>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="regEmail" class="form-label">Email</label>
-              <input type="email" class="form-control" id="regEmail" required>
-            </div>
-            <div class="form-group">
-              <label for="regPassword" class="form-label">Password</label>
-              <div class="input-group">
-                <input type="password" class="form-control" id="regPassword" required>
-                <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword">
-                  <i class="fas fa-eye" id="regPasswordIcon"></i>
-                </button>
-              </div>
-              <div class="invalid-feedback" id="regPassword-error"></div>
-            </div>
-            <div class="form-group">
-              <label for="regConfirmPassword" class="form-label">Conferma Password</label>
-              <div class="input-group">
-                <input type="password" class="form-control" id="regConfirmPassword" required>
-                <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword">
-                  <i class="fas fa-eye" id="regConfirmPasswordIcon"></i>
-                </button>
-              </div>
-              <div class="invalid-feedback" id="regConfirmPassword-error"></div>
-            </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">Registrati</button>
-            </div>
-          </form>
-          <hr>
-          <p class="text-center mb-0">
-            Hai già un account?
-            <a href="#" onclick="showLoginModal()">Accedi</a>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/modern-ui.js"></script>
+  <script src="js/config.js?v=1.1"></script>
+  <script src="js/main.js?v=1.1"></script>
+  <script src="js/modern-ui.js?v=1.1"></script>
 
   <script>
     // Anima i numeri delle statistiche
@@ -453,23 +458,8 @@
       statsObserver.observe(card);
     });
 
-    // Modal functions
+    // Modal function
     function showLoginModal() {
-      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-    }
-
-    function showRegistrationModal() {
-      const registrationModal = new bootstrap.Modal(document.getElementById('registrationModal'));
-      registrationModal.show();
-    }
-
-    // Close registration modal and show login modal
-    function showLoginModal() {
-      const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
-      if (registrationModal) {
-        registrationModal.hide();
-      }
       const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
       loginModal.show();
     }
