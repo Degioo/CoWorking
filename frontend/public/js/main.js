@@ -622,4 +622,193 @@ function showPasswordSuccess(inputGroup, field) {
   if (!field.getAttribute('aria-describedby')) {
     field.removeAttribute('aria-describedby');
   }
+}
+
+// ===== AUTH MODALS SYSTEM =====
+function setupAuthModals() {
+  // Inizializza i modal di autenticazione
+  const loginModal = document.getElementById('loginModal');
+  const registerModal = document.getElementById('registerModal');
+  
+  if (loginModal) {
+    // Gestione apertura modal login
+    const loginButtons = document.querySelectorAll('[data-bs-target="#loginModal"]');
+    loginButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Reset form login
+        const loginForm = loginModal.querySelector('form');
+        if (loginForm) loginForm.reset();
+        
+        // Rimuovi messaggi di errore
+        const errorElements = loginModal.querySelectorAll('.invalid-feedback');
+        errorElements.forEach(el => el.remove());
+        
+        // Rimuovi classi di validazione
+        const inputs = loginModal.querySelectorAll('input');
+        inputs.forEach(input => {
+          input.classList.remove('is-valid', 'is-invalid');
+          input.removeAttribute('aria-invalid');
+        });
+      });
+    });
+  }
+  
+  if (registerModal) {
+    // Gestione apertura modal registrazione
+    const registerButtons = document.querySelectorAll('[data-bs-target="#registerModal"]');
+    registerButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Reset form registrazione
+        const registerForm = registerModal.querySelector('form');
+        if (registerForm) registerForm.reset();
+        
+        // Rimuovi messaggi di errore
+        const errorElements = registerModal.querySelectorAll('.invalid-feedback');
+        errorElements.forEach(el => el.remove());
+        
+        // Rimuovi classi di validazione
+        const inputs = registerModal.querySelectorAll('input');
+        inputs.forEach(input => {
+          input.classList.remove('is-valid', 'is-invalid');
+          input.removeAttribute('aria-invalid');
+        });
+      });
+    });
+  }
+  
+  // Gestione chiusura modal
+  const modals = [loginModal, registerModal].filter(Boolean);
+  modals.forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', () => {
+      // Reset form quando si chiude il modal
+      const form = modal.querySelector('form');
+      if (form) form.reset();
+      
+      // Rimuovi messaggi di errore
+      const errorElements = modal.querySelectorAll('.invalid-feedback');
+      errorElements.forEach(el => el.remove());
+      
+      // Rimuovi classi di validazione
+      const inputs = modal.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid');
+        input.removeAttribute('aria-invalid');
+      });
+    });
+  });
+}
+
+// ===== FORM VALIDATION SYSTEM =====
+function setupFormValidation() {
+  // Inizializza la validazione dei form
+  const forms = document.querySelectorAll('form');
+  
+  forms.forEach(form => {
+    // Gestione submit form
+    form.addEventListener('submit', (e) => {
+      if (!validateForm(form)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Validazione in tempo reale per i campi input
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.addEventListener('blur', () => validateField(input));
+      input.addEventListener('input', () => validateField(input));
+    });
+  });
+}
+
+// Funzione per validare un singolo campo
+function validateField(field) {
+  const inputGroup = field.closest('.input-group') || field.parentElement;
+  
+  // Rimuovi stati precedenti
+  inputGroup.classList.remove('is-valid', 'is-invalid');
+  field.classList.remove('is-valid', 'is-invalid');
+  
+  // Validazione base per campi obbligatori
+  if (field.hasAttribute('required') && !field.value.trim()) {
+    showFieldError(inputGroup, field, 'Questo campo è obbligatorio');
+    return false;
+  }
+  
+  // Validazione email
+  if (field.type === 'email' && field.value.trim()) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(field.value)) {
+      showFieldError(inputGroup, field, 'Inserisci un indirizzo email valido');
+      return false;
+    }
+  }
+  
+  // Validazione telefono
+  if (field.name === 'telefono' && field.value.trim()) {
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
+    if (!phoneRegex.test(field.value)) {
+      showFieldError(inputGroup, field, 'Inserisci un numero di telefono valido');
+      return false;
+    }
+  }
+  
+  // Se tutto è valido
+  if (field.value.trim()) {
+    showFieldSuccess(inputGroup, field);
+    return true;
+  }
+  
+  return true;
+}
+
+// Funzione per validare un intero form
+function validateForm(form) {
+  let isValid = true;
+  const requiredFields = form.querySelectorAll('[required]');
+  
+  requiredFields.forEach(field => {
+    if (!validateField(field)) {
+      isValid = false;
+    }
+  });
+  
+  return isValid;
+}
+
+// Funzione per mostrare errori nei campi
+function showFieldError(inputGroup, field, message) {
+  inputGroup.classList.add('is-invalid');
+  field.classList.add('is-invalid');
+  field.setAttribute('aria-invalid', 'true');
+  
+  // Crea o aggiorna il messaggio di errore
+  let errorElement = inputGroup.querySelector('.invalid-feedback');
+  if (!errorElement) {
+    errorElement = document.createElement('div');
+    errorElement.className = 'invalid-feedback';
+    errorElement.id = `${field.id || field.name}-error`;
+    inputGroup.appendChild(errorElement);
+  }
+  
+  errorElement.textContent = message;
+  field.setAttribute('aria-describedby', errorElement.id);
+}
+
+// Funzione per mostrare successo nei campi
+function showFieldSuccess(inputGroup, field) {
+  inputGroup.classList.add('is-valid');
+  field.classList.add('is-valid');
+  field.setAttribute('aria-invalid', 'false');
+  
+  // Rimuovi messaggi di errore
+  const errorElement = inputGroup.querySelector('.invalid-feedback');
+  if (errorElement) {
+    errorElement.remove();
+  }
+  
+  // Rimuovi aria-describedby se non ci sono errori
+  if (!field.getAttribute('aria-describedby')) {
+    field.removeAttribute('aria-describedby');
+  }
 } 
