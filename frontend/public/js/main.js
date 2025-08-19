@@ -454,9 +454,6 @@ $(document).ready(function () {
   setupFormValidation();
 
   // Inizializza il sistema di notifiche
-  if (window.modernUI) {
-    window.modernUI.showToast('Benvenuto su Coworking Mio!', 'info');
-  }
 
   // Verifica token all'avvio e aggiorna navbar se necessario
   if (typeof window.validateTokenOnStartup === 'function') {

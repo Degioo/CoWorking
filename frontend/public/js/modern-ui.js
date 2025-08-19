@@ -377,17 +377,6 @@ class ModernUI {
 
     // ===== RESPONSIVE HELPERS =====
     setupResponsiveHelpers() {
-        // Mobile menu toggle
-        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-        const mobileMenu = document.querySelector('.mobile-menu');
-
-        if (mobileMenuToggle && mobileMenu) {
-            mobileMenuToggle.addEventListener('click', () => {
-                mobileMenu.classList.toggle('show');
-                mobileMenuToggle.classList.toggle('active');
-            });
-        }
-
         // Resize handler
         window.addEventListener('resize', this.debounce(() => {
             this.handleResize();
@@ -575,36 +564,7 @@ const dynamicStyles = `
             outline-offset: 2px;
         }
         
-        /* Mobile Menu */
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--gray-600);
-            cursor: pointer;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: block;
-            }
-            
-            .mobile-menu {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: var(--white);
-                border-top: 1px solid var(--gray-200);
-                box-shadow: var(--shadow-lg);
-            }
-            
-            .mobile-menu.show {
-                display: block;
-            }
-        }
+
     </style>
 `;
 
