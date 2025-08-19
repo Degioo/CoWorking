@@ -73,7 +73,7 @@ function updateNavbar() {
         <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#" onclick="navigateToProtectedPage('dashboard.html')">Dashboard</a>
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
@@ -274,7 +274,7 @@ function validateDates() {
 // Verifica disponibilità
 function checkDisponibilita() {
   console.log('checkDisponibilita - Inizio funzione');
-  
+
   const idSpazio = $('#selectSpazio').val();
   const dataInizio = $('#dataInizio').val();
   const dataFine = $('#dataFine').val();
@@ -285,7 +285,7 @@ function checkDisponibilita() {
   console.log('checkDisponibilita - Chiamando validateDates()');
   const validation = validateDates();
   console.log('checkDisponibilita - Risultato validazione:', validation);
-  
+
   if (!validation.valid) {
     console.log('checkDisponibilita - Date non valide, mostro alert:', validation.message);
     showAlert(validation.message, 'warning');
@@ -299,10 +299,10 @@ function checkDisponibilita() {
   }
 
   console.log('checkDisponibilita - Tutti i controlli superati, procedo con AJAX');
-  
+
   const statusElement = $('#disponibilitaStatus');
   console.log('checkDisponibilita - Elemento status trovato:', statusElement.length > 0);
-  
+
   statusElement.html('<span class="text-info">Verificando...</span>');
 
   console.log('checkDisponibilita - Chiamata AJAX a:', `${window.CONFIG.API_BASE}/spazi/${idSpazio}/disponibilita`);
@@ -755,7 +755,7 @@ function onSpazioChange() {
 // Utility function per alert
 function showAlert(message, type = 'info') {
   console.log('showAlert - Chiamata con:', message, type);
-  
+
   // Crea un alert semplice senza dipendenze Bootstrap
   const alertHtml = `
     <div class="alert alert-${type}" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;">
@@ -765,20 +765,20 @@ function showAlert(message, type = 'info') {
       </div>
     </div>
   `;
-  
+
   // Rimuovi alert precedenti
   $('.alert').remove();
-  
+
   // Aggiungi il nuovo alert
   $('body').append(alertHtml);
-  
+
   // Auto-remove dopo 5 secondi
   setTimeout(() => {
-    $('.alert').fadeOut(500, function() {
+    $('.alert').fadeOut(500, function () {
       $(this).remove();
     });
   }, 5000);
-  
+
   console.log('showAlert - Alert creato e mostrato');
 }
 

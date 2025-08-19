@@ -478,26 +478,26 @@ async function initializeStripe() {
         });
 
         console.log('initializeStripe - Stripe inizializzato con successo');
-        
+
         // JavaScript delicato per la visibilità dei numeri
         setTimeout(() => {
             const stripeContainer = document.querySelector('.stripe-element');
             if (stripeContainer) {
                 console.log('Configuro Stripe per la visibilità...');
-                
+
                 // Rimuovi solo elementi neri evidenti
                 const allElements = stripeContainer.querySelectorAll('*');
                 allElements.forEach(element => {
                     const computedStyle = window.getComputedStyle(element);
                     const bgColor = computedStyle.backgroundColor;
-                    
+
                     // Rimuovi solo elementi completamente neri
                     if (bgColor === 'rgb(0, 0, 0)' || bgColor === 'rgba(0, 0, 0, 1)') {
                         console.log('Rimuovo elemento nero:', element);
                         element.remove();
                     }
                 });
-                
+
                 // Configura gli input senza rompere la funzionalità
                 const inputs = stripeContainer.querySelectorAll('input');
                 inputs.forEach(input => {
@@ -507,7 +507,7 @@ async function initializeStripe() {
                     input.style.fontWeight = '500';
                     console.log('Input configurato:', input);
                 });
-                
+
                 console.log('Configurazione completata');
             }
         }, 1000);
@@ -624,13 +624,13 @@ function populatePrenotazioneDetails() {
     // Gestisci il nome dello spazio e della sede
     let sedeText = 'Sede selezionata';
     let spazioText = 'Spazio selezionato';
-    
+
     if (prenotazioneData.nome_sede) {
         sedeText = prenotazioneData.nome_sede;
     } else if (prenotazioneData.id_sede) {
         sedeText = `Sede #${prenotazioneData.id_sede}`;
     }
-    
+
     if (prenotazioneData.nome_spazio) {
         spazioText = prenotazioneData.nome_spazio;
     } else if (prenotazioneData.id_spazio) {
@@ -659,29 +659,29 @@ function setupEventListeners() {
 // Gestisce l'invio del form di pagamento Stripe
 async function handleStripePaymentSubmit(event) {
     event.preventDefault();
-    
+
     console.log('handleStripePaymentSubmit - Inizio gestione pagamento Stripe');
-    
+
     // Verifica che Stripe sia inizializzato
     if (!stripe) {
         console.error('Stripe non inizializzato');
         showError('Errore di configurazione pagamento. Ricarica la pagina.');
         return;
     }
-    
+
     // Disabilita il pulsante di pagamento
     const payButton = document.getElementById('pay-button');
     payButton.disabled = true;
     payButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Elaborazione...';
-    
+
     try {
         // Crea l'intent di pagamento
         const paymentIntent = await createPaymentIntent();
         console.log('Payment Intent creato:', paymentIntent);
-        
+
         // Conferma il pagamento con Stripe
         const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.client_secret);
-        
+
         if (error) {
             console.error('Errore conferma pagamento:', error);
             showError('Errore durante il pagamento: ' + error.message);
@@ -689,7 +689,7 @@ async function handleStripePaymentSubmit(event) {
             console.log('Pagamento confermato:', confirmedIntent);
             await handlePaymentSuccess(confirmedIntent, 'stripe');
         }
-        
+
     } catch (error) {
         console.error('Errore pagamento Stripe:', error);
         showError('Errore durante il pagamento: ' + error.message);
@@ -889,10 +889,9 @@ async function handlePaymentSuccess(paymentIntent, method) {
 
         // Aggiungi pulsante per tornare alla dashboard
         const backButton = document.createElement('a');
-        backButton.href = '#';
+        backButton.href = 'dashboard.html';
         backButton.className = 'btn btn-outline-primary mt-3';
         backButton.textContent = 'Torna alla Dashboard';
-        backButton.onclick = () => navigateToProtectedPage('dashboard.html');
         document.querySelector('.card-body').appendChild(backButton);
 
         // Opzionale: invia conferma al backend

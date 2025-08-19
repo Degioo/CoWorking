@@ -48,7 +48,7 @@ function setupDashboard() {
 // Aggiorna info utente nella navbar
 function updateUserInfo() {
   $('#userInfo').text(`${currentUser.nome} ${currentUser.cognome} (${currentUser.ruolo})`);
-  
+
   // Aggiorna il titolo di benvenuto in base al ruolo
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
     $('#welcomeTitle').text(`Benvenuto Gestore, ${currentUser.nome}!`);
@@ -57,7 +57,7 @@ function updateUserInfo() {
     $('#welcomeTitle').text(`Benvenuto, ${currentUser.nome}!`);
     $('#welcomeSubtitle').text('Gestisci le tue prenotazioni e attività');
   }
-  
+
   // Aggiorna il link della navbar in base al ruolo
   updateNavbarLink();
 }
@@ -68,16 +68,14 @@ function updateNavbarLink() {
   
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
     // Per gestori e amministratori, mostra il link "Gestore" invece di "Prenota"
-    prenotaLink.attr('href', '#');
+    prenotaLink.attr('href', 'dashboard-responsabili.html');
     prenotaLink.html('<i class="fas fa-chart-line me-1"></i>Gestore');
     prenotaLink.removeClass('nav-link').addClass('nav-link btn btn-primary ms-2');
-    prenotaLink.attr('onclick', 'navigateToProtectedPage("dashboard-responsabili.html")');
   } else {
     // Per i clienti, mantieni il link "Prenota"
     prenotaLink.attr('href', 'prenota.html');
     prenotaLink.html('<i class="fas fa-calendar-plus me-1"></i>Prenota');
     prenotaLink.removeClass('btn btn-primary ms-2').addClass('nav-link');
-    prenotaLink.removeAttr('onclick');
   }
 }
 
@@ -339,7 +337,7 @@ function displayPrenotazioniUtente(prenotazioni) {
     // Determina se mostrare il pulsante di pagamento
     let azioniHtml = '';
     let rowClass = '';
-    
+
     if (p.stato === 'scaduta') {
       rowClass = 'table-danger';
       azioniHtml = `
@@ -536,7 +534,7 @@ function getPaymentStatusColor(stato) {
 // Event handlers
 function setupEventHandlers() {
   // Non è più necessario gestire il logout qui, viene gestito dall'onclick HTML
-  
+
   // Gestione tab per gestori
   if (currentUser && (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore')) {
     setupGestoreTabHandlers();
@@ -546,24 +544,24 @@ function setupEventHandlers() {
 // Setup event handlers per i tab dei gestori
 function setupGestoreTabHandlers() {
   // Tab Overview - già gestito nell'HTML
-  
+
   // Tab Sedi
-  $('#sedi-tab').on('click', function() {
+  $('#sedi-tab').on('click', function () {
     loadSediGestore();
   });
-  
+
   // Tab Prenotazioni
-  $('#prenotazioni-tab').on('click', function() {
+  $('#prenotazioni-tab').on('click', function () {
     loadPrenotazioniGestore();
   });
-  
+
   // Tab Utenti
-  $('#utenti-tab').on('click', function() {
+  $('#utenti-tab').on('click', function () {
     loadUtentiGestore();
   });
-  
+
   // Tab Report
-  $('#report-tab').on('click', function() {
+  $('#report-tab').on('click', function () {
     loadReportGestore();
   });
 }
