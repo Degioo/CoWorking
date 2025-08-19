@@ -18,32 +18,112 @@ function showAlert(message, type = 'info') {
 
 // Aggiorna navbar se utente è loggato
 function updateNavbar() {
+  console.log('Aggiornamento navbar...');
   const userStr = localStorage.getItem('user');
+  
   if (userStr) {
-    const user = JSON.parse(userStr);
-    // Sostituisci i link Login/Registrati con info utente
-    $('.navbar-nav').last().html(`
-      <li class="nav-item">
-        <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="dashboard.html">Dashboard</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" onclick="logout()">Logout</a>
-      </li>
-    `);
+    try {
+      const user = JSON.parse(userStr);
+      console.log('Utente autenticato:', user.nome, user.cognome);
+      
+      // Sostituisci i link Login/Registrati con info utente
+      $('.navbar-nav').last().html(`
+        <li class="nav-item">
+          <span class="nav-link text-light">
+            <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
+            <small class="d-block text-muted">${user.ruolo}</small>
+          </span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="navigateToProtectedPage('dashboard.html')">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </a>
+        </li>
+      `);
+    } catch (error) {
+      console.error('Errore parsing user:', error);
+      localStorage.removeItem('user');
+      showDefaultNavbar();
+    }
+  } else {
+    console.log('Nessun utente autenticato');
+    showDefaultNavbar();
+  }
+}
+
+// Mostra navbar di default per utenti non autenticati
+function showDefaultNavbar() {
+  $('.navbar-nav').last().html(`
+    <li class="nav-item">
+      <a class="nav-link" href="login.html">
+        <i class="fas fa-sign-in-alt me-2"></i>Login
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="login.html#registrazione">
+        <i class="fas fa-user-plus me-2"></i>Registrati
+      </a>
+    </li>
+  `);
+}
+
+// Funzione per navigare alle pagine protette verificando l'autenticazione
+function navigateToProtectedPage(pageUrl) {
+  console.log('Tentativo di navigazione a:', pageUrl);
+  
+  // Verifica se l'utente è autenticato
+  if (typeof window.isAuthenticated === 'function' && window.isAuthenticated()) {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        console.log('Utente autenticato:', user.nome, user.cognome, 'Ruolo:', user.ruolo);
+        
+        // Verifica permessi per pagine specifiche
+        if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
+          showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
+          return;
+        }
+        
+        console.log('Navigazione consentita a:', pageUrl);
+        window.location.href = pageUrl;
+      } catch (error) {
+        console.error('Errore parsing user:', error);
+        localStorage.removeItem('user');
+        showAlert('Errore nei dati utente. Effettua nuovamente il login.', 'danger');
+        window.location.href = 'login.html';
+      }
+    } else {
+      console.log('Utente non autenticato, reindirizzamento al login');
+      localStorage.setItem('redirectAfterLogin', pageUrl);
+      window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere a questa pagina.');
+    }
+  } else {
+    console.log('Utente non autenticato, reindirizzamento al login');
+    // Salva la pagina di destinazione per il redirect dopo il login
+    localStorage.setItem('redirectAfterLogin', pageUrl);
+    // Reindirizza al login
+    window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere a questa pagina.');
   }
 }
 
 // Logout locale - chiama la funzione centralizzata
 function handleLogout() {
+  console.log('handleLogout chiamato');
+  
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();
   } else {
     // Fallback se la funzione non è disponibile
     localStorage.removeItem('user');
+    // Aggiorna navbar per mostrare i link di login/registrazione
+    updateNavbar();
     location.reload();
   }
 }
@@ -155,6 +235,9 @@ function handleLogin(event) {
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
       showAlert('Login effettuato con successo!', 'success');
+
+      // Aggiorna la navbar per mostrare le informazioni dell'utente
+      updateNavbar();
 
       // Controlla se c'è un redirect specifico salvato
       const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
@@ -285,6 +368,9 @@ function handleRegistrazione(event) {
       localStorage.setItem('user', JSON.stringify(response));
       showAlert('Login automatico effettuato! Reindirizzamento alla dashboard...', 'success');
 
+      // Aggiorna la navbar per mostrare le informazioni dell'utente
+      updateNavbar();
+
       // Vai alla dashboard
       setTimeout(() => {
         window.location.href = 'dashboard.html';
@@ -355,10 +441,13 @@ $(document).ready(function () {
   // Test connessione API
   testAPIConnection();
 
+  // Aggiorna navbar in base allo stato di autenticazione
+  updateNavbar();
+
   // Inizializza il sistema di toggle password
   setupPasswordToggles();
 
-  // Inizializza i modali di login e registrazione
+  // Inizializza i modali di autenticazione
   setupAuthModals();
 
   // Inizializza la validazione dei form
@@ -367,6 +456,18 @@ $(document).ready(function () {
   // Inizializza il sistema di notifiche
   if (window.modernUI) {
     window.modernUI.showToast('Benvenuto su Coworking Mio!', 'info');
+  }
+  
+  // Verifica token all'avvio e aggiorna navbar se necessario
+  if (typeof window.validateTokenOnStartup === 'function') {
+    window.validateTokenOnStartup().then(isValid => {
+      if (isValid) {
+        console.log('Token valido, aggiorno navbar');
+        updateNavbar();
+      } else {
+        console.log('Token non valido, navbar già aggiornata');
+      }
+    });
   }
 });
 
@@ -400,7 +501,7 @@ function testAPIConnection() {
 // ===== PASSWORD TOGGLE SYSTEM =====
 function setupPasswordToggles() {
   console.log('Setup password toggles...');
-  
+
   // Toggle per login password
   const toggleLoginPassword = document.getElementById('toggleLoginPassword');
   const loginPassword = document.getElementById('loginPassword');
@@ -495,7 +596,7 @@ function setupPasswordToggles() {
 // Funzione per toggle della visibilità password
 function togglePasswordVisibility(passwordInput, iconElement) {
   console.log('togglePasswordVisibility chiamata per:', passwordInput.id);
-  
+
   if (passwordInput.type === 'password') {
     passwordInput.type = 'text';
     iconElement.className = 'fas fa-eye-slash';
@@ -550,7 +651,7 @@ function setupAuthModals() {
   // Inizializza i modal di autenticazione
   const loginModal = document.getElementById('loginModal');
   const registerModal = document.getElementById('registerModal');
-  
+
   if (loginModal) {
     // Gestione apertura modal login
     const loginButtons = document.querySelectorAll('[data-bs-target="#loginModal"]');
@@ -559,11 +660,11 @@ function setupAuthModals() {
         // Reset form login
         const loginForm = loginModal.querySelector('form');
         if (loginForm) loginForm.reset();
-        
+
         // Rimuovi messaggi di errore
         const errorElements = loginModal.querySelectorAll('.invalid-feedback');
         errorElements.forEach(el => el.remove());
-        
+
         // Rimuovi classi di validazione
         const inputs = loginModal.querySelectorAll('input');
         inputs.forEach(input => {
@@ -573,7 +674,7 @@ function setupAuthModals() {
       });
     });
   }
-  
+
   if (registerModal) {
     // Gestione apertura modal registrazione
     const registerButtons = document.querySelectorAll('[data-bs-target="#registerModal"]');
@@ -582,11 +683,11 @@ function setupAuthModals() {
         // Reset form registrazione
         const registerForm = registerModal.querySelector('form');
         if (registerForm) registerForm.reset();
-        
+
         // Rimuovi messaggi di errore
         const errorElements = registerModal.querySelectorAll('.invalid-feedback');
         errorElements.forEach(el => el.remove());
-        
+
         // Rimuovi classi di validazione
         const inputs = registerModal.querySelectorAll('input');
         inputs.forEach(input => {
@@ -596,7 +697,7 @@ function setupAuthModals() {
       });
     });
   }
-  
+
   // Gestione chiusura modal
   const modals = [loginModal, registerModal].filter(Boolean);
   modals.forEach(modal => {
@@ -604,11 +705,11 @@ function setupAuthModals() {
       // Reset form quando si chiude il modal
       const form = modal.querySelector('form');
       if (form) form.reset();
-      
+
       // Rimuovi messaggi di errore
       const errorElements = modal.querySelectorAll('.invalid-feedback');
       errorElements.forEach(el => el.remove());
-      
+
       // Rimuovi classi di validazione
       const inputs = modal.querySelectorAll('input');
       inputs.forEach(input => {
@@ -623,7 +724,7 @@ function setupAuthModals() {
 function setupFormValidation() {
   // Inizializza la validazione dei form
   const forms = document.querySelectorAll('form');
-  
+
   forms.forEach(form => {
     // Gestione submit form
     form.addEventListener('submit', (e) => {
@@ -632,7 +733,7 @@ function setupFormValidation() {
         return false;
       }
     });
-    
+
     // Validazione in tempo reale per i campi input
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
