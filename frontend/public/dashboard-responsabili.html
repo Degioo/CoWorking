@@ -49,10 +49,10 @@
             <a class="nav-link" href="index.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="dashboard.html">Dashboard Utente</a>
+            <a class="nav-link" href="#" onclick="navigateToProtectedPage('dashboard.html')">Dashboard Utente</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="dashboard-responsabili.html">Dashboard Gestori</a>
+            <a class="nav-link active" href="#" onclick="navigateToProtectedPage('dashboard-responsabili.html')">Dashboard Gestori</a>
           </li>
           <li class="nav-item" id="authSection">
             <!-- Login button (shown when not authenticated) -->
@@ -65,7 +65,7 @@
                 <i class="fas fa-user me-1"></i><span id="navUserName">Utente</span>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="dashboard.html">Dashboard Utente</a></li>
+                <li><a class="dropdown-item" href="#" onclick="navigateToProtectedPage('dashboard.html')">Dashboard Utente</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" onclick="handleLogout()">Logout</a></li>
               </ul>

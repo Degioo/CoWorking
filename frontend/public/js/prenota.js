@@ -73,7 +73,7 @@ function updateNavbar() {
         <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="#" onclick="navigateToProtectedPage('dashboard.html')">Dashboard</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>

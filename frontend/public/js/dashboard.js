@@ -68,14 +68,16 @@ function updateNavbarLink() {
   
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
     // Per gestori e amministratori, mostra il link "Gestore" invece di "Prenota"
-    prenotaLink.attr('href', 'dashboard-responsabili.html');
+    prenotaLink.attr('href', '#');
     prenotaLink.html('<i class="fas fa-chart-line me-1"></i>Gestore');
     prenotaLink.removeClass('nav-link').addClass('nav-link btn btn-primary ms-2');
+    prenotaLink.attr('onclick', 'navigateToProtectedPage("dashboard-responsabili.html")');
   } else {
     // Per i clienti, mantieni il link "Prenota"
     prenotaLink.attr('href', 'prenota.html');
     prenotaLink.html('<i class="fas fa-calendar-plus me-1"></i>Prenota');
     prenotaLink.removeClass('btn btn-primary ms-2').addClass('nav-link');
+    prenotaLink.removeAttr('onclick');
   }
 }
 
@@ -119,9 +121,9 @@ function createTabs() {
         <div class="text-center py-5">
           <h3>Dashboard Gestore</h3>
           <p class="text-muted">Benvenuto nella tua dashboard di gestione</p>
-          <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
+          <button onclick="navigateToProtectedPage('dashboard-responsabili.html')" class="btn btn-primary btn-lg">
             <i class="fas fa-chart-line me-2"></i>Accedi alla Dashboard Completa
-          </a>
+          </button>
         </div>
       </div>
       <div class="tab-pane fade" id="sedi" role="tabpanel">
@@ -191,9 +193,9 @@ function loadSediGestore() {
     <div class="text-center py-4">
       <h4>Gestione Sedi</h4>
       <p class="text-muted">Per gestire sedi, spazi e disponibilità</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
+      <button onclick="navigateToProtectedPage('dashboard-responsabili.html')" class="btn btn-primary">
         <i class="fas fa-building me-2"></i>Dashboard Completa
-      </a>
+      </button>
     </div>
   `);
 }
@@ -207,9 +209,9 @@ function loadPrenotazioniGestore() {
     <div class="text-center py-4">
       <h4>Gestione Prenotazioni</h4>
       <p class="text-muted">Per gestire prenotazioni, conferme e cancellazioni</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
+      <button onclick="navigateToProtectedPage('dashboard-responsabili.html')" class="btn btn-primary">
         <i class="fas fa-calendar-check me-2"></i>Dashboard Completa
-      </a>
+      </button>
     </div>
   `);
 }
@@ -223,9 +225,9 @@ function loadReportGestore() {
     <div class="text-center py-4">
       <h4>Report e Analytics</h4>
       <p class="text-muted">Per accedere ai report completi e alle statistiche avanzate</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
+      <button onclick="navigateToProtectedPage('dashboard-responsabili.html')" class="btn btn-primary">
         <i class="fas fa-chart-bar me-2"></i>Dashboard Completa
-      </a>
+      </button>
     </div>
   `);
 }
@@ -237,9 +239,9 @@ function loadUtentiGestore() {
     <div class="text-center py-4">
       <h4>Gestione Utenti</h4>
       <p class="text-muted">Per gestire utenti, ruoli e permessi</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
+      <button onclick="navigateToProtectedPage('dashboard-responsabili.html')" class="btn btn-primary">
         <i class="fas fa-users me-2"></i>Dashboard Completa
-      </a>
+      </button>
     </div>
   `);
 }

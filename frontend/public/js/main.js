@@ -20,12 +20,12 @@ function showAlert(message, type = 'info') {
 function updateNavbar() {
   console.log('Aggiornamento navbar...');
   const userStr = localStorage.getItem('user');
-  
+
   if (userStr) {
     try {
       const user = JSON.parse(userStr);
       console.log('Utente autenticato:', user.nome, user.cognome);
-      
+
       // Sostituisci i link Login/Registrati con info utente
       $('.navbar-nav').last().html(`
         <li class="nav-item">
@@ -75,7 +75,7 @@ function showDefaultNavbar() {
 // Funzione per navigare alle pagine protette verificando l'autenticazione
 function navigateToProtectedPage(pageUrl) {
   console.log('Tentativo di navigazione a:', pageUrl);
-  
+
   // Verifica se l'utente è autenticato
   if (typeof window.isAuthenticated === 'function' && window.isAuthenticated()) {
     const userStr = localStorage.getItem('user');
@@ -83,13 +83,13 @@ function navigateToProtectedPage(pageUrl) {
       try {
         const user = JSON.parse(userStr);
         console.log('Utente autenticato:', user.nome, user.cognome, 'Ruolo:', user.ruolo);
-        
+
         // Verifica permessi per pagine specifiche
         if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
           showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
           return;
         }
-        
+
         console.log('Navigazione consentita a:', pageUrl);
         window.location.href = pageUrl;
       } catch (error) {
@@ -115,7 +115,7 @@ function navigateToProtectedPage(pageUrl) {
 // Logout locale - chiama la funzione centralizzata
 function handleLogout() {
   console.log('handleLogout chiamato');
-  
+
   // Usa la funzione centralizzata di config.js
   if (typeof window.logout === 'function') {
     window.logout();
@@ -457,7 +457,7 @@ $(document).ready(function () {
   if (window.modernUI) {
     window.modernUI.showToast('Benvenuto su Coworking Mio!', 'info');
   }
-  
+
   // Verifica token all'avvio e aggiorna navbar se necessario
   if (typeof window.validateTokenOnStartup === 'function') {
     window.validateTokenOnStartup().then(isValid => {

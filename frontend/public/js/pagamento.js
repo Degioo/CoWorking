@@ -889,9 +889,10 @@ async function handlePaymentSuccess(paymentIntent, method) {
 
         // Aggiungi pulsante per tornare alla dashboard
         const backButton = document.createElement('a');
-        backButton.href = 'dashboard.html';
+        backButton.href = '#';
         backButton.className = 'btn btn-outline-primary mt-3';
         backButton.textContent = 'Torna alla Dashboard';
+        backButton.onclick = () => navigateToProtectedPage('dashboard.html');
         document.querySelector('.card-body').appendChild(backButton);
 
         // Opzionale: invia conferma al backend
