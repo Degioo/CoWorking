@@ -4,7 +4,7 @@
 function checkAuth() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     // Se l'utente è già autenticato, non reindirizzare al login
     if (user && token) {
         try {
@@ -26,7 +26,7 @@ function checkAuth() {
             return;
         }
     }
-    
+
     // Se non è autenticato, reindirizza al login
     console.log('Utente non autenticato, redirect al login');
     window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
@@ -42,7 +42,7 @@ function updateAuthUI() {
     const loginBtn = document.getElementById('loginBtn');
     const userSection = document.getElementById('userSection');
     const navUserName = document.getElementById('navUserName');
-    
+
     if (user && token) {
         try {
             const userData = JSON.parse(user);
@@ -80,22 +80,22 @@ class DashboardResponsabili {
         this.currentSede = null;
         this.charts = {};
         this.currentMonth = new Date();
-        
+
         // Controlla autenticazione prima di inizializzare
         if (this.checkAuthBeforeInit()) {
             this.init();
         }
     }
-    
+
     checkAuthBeforeInit() {
         const user = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        
+
         if (!user || !token) {
             console.log('Dashboard responsabili: utente non autenticato, non inizializzo');
             return false;
         }
-        
+
         try {
             const userData = JSON.parse(user);
             if (!userData.ruolo || !['gestore', 'amministratore'].includes(userData.ruolo)) {
@@ -116,31 +116,48 @@ class DashboardResponsabili {
         this.loadOverviewData();
         this.setupCharts();
         this.startAutoRefresh();
-        
+
         // Aggiorna l'UI dell'autenticazione
         updateAuthUI();
     }
 
     setupEventListeners() {
+        console.log('setupEventListeners chiamata');
+
         // Sidebar navigation
-        document.querySelectorAll('.sidebar-link').forEach(link => {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        console.log('Link sidebar trovati:', sidebarLinks.length);
+
+        sidebarLinks.forEach(link => {
+            console.log('Aggiungo event listener a:', link.getAttribute('data-section'));
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = link.getAttribute('data-section');
+                console.log('Click su sezione:', section);
                 this.showSection(section);
             });
         });
 
         // Sede selector
-        document.getElementById('sedeSelector').addEventListener('change', (e) => {
-            this.currentSede = e.target.value;
-            this.loadOverviewData();
-            this.loadPrenotazioni();
-            this.loadUtenti();
-        });
+        const sedeSelector = document.getElementById('sedeSelector');
+        if (sedeSelector) {
+            console.log('Sede selector trovato, aggiungo event listener');
+            sedeSelector.addEventListener('change', (e) => {
+                console.log('Sede selezionata:', e.target.value);
+                this.currentSede = e.target.value;
+                this.loadOverviewData();
+                this.loadPrenotazioni();
+                this.loadUtenti();
+            });
+        } else {
+            console.error('Sede selector non trovato!');
+        }
 
         // Filter buttons
-        document.querySelectorAll('[data-filter]').forEach(btn => {
+        const filterButtons = document.querySelectorAll('[data-filter]');
+        console.log('Pulsanti filtro trovati:', filterButtons.length);
+
+        filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -149,45 +166,76 @@ class DashboardResponsabili {
         });
 
         // Dark mode toggle
-        document.getElementById('darkMode').addEventListener('change', (e) => {
-            this.toggleDarkMode(e.target.checked);
-        });
+        const darkModeToggle = document.getElementById('darkMode');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('change', (e) => {
+                this.toggleDarkMode(e.target.checked);
+            });
+        }
+
+        console.log('Event listeners impostati completati');
     }
 
     showSection(sectionName) {
+        console.log('showSection chiamata con:', sectionName);
+
         // Hide all sections
-        document.querySelectorAll('.dashboard-section').forEach(section => {
+        const allSections = document.querySelectorAll('.dashboard-section');
+        console.log('Sezioni trovate:', allSections.length);
+
+        allSections.forEach(section => {
             section.classList.remove('active');
         });
 
         // Show selected section
-        document.getElementById(sectionName).classList.add('active');
+        const targetSection = document.getElementById(sectionName);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            console.log('Sezione attivata:', sectionName);
+        } else {
+            console.error('Sezione non trovata:', sectionName);
+        }
 
         // Update sidebar active state
-        document.querySelectorAll('.sidebar-link').forEach(link => {
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        sidebarLinks.forEach(link => {
             link.classList.remove('active');
         });
-        document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+        const activeLink = document.querySelector(`[data-section="${sectionName}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+            console.log('Link sidebar attivato:', sectionName);
+        } else {
+            console.error('Link sidebar non trovato per sezione:', sectionName);
+        }
 
         this.currentSection = sectionName;
 
         // Load section-specific data
         switch (sectionName) {
             case 'overview':
+                console.log('Caricamento dati overview');
                 this.loadOverviewData();
                 break;
             case 'disponibilita':
+                console.log('Caricamento dati disponibilità');
                 this.loadDisponibilita();
                 break;
             case 'prenotazioni':
+                console.log('Caricamento dati prenotazioni');
                 this.loadPrenotazioni();
                 break;
             case 'utenti':
+                console.log('Caricamento dati utenti');
                 this.loadUtenti();
                 break;
             case 'reportistica':
+                console.log('Caricamento dati reportistica');
                 this.loadReportistica();
                 break;
+            default:
+                console.log('Sezione non gestita:', sectionName);
         }
     }
 
@@ -195,16 +243,16 @@ class DashboardResponsabili {
         try {
             const user = localStorage.getItem('user');
             const token = localStorage.getItem('token');
-            
+
             if (!user || !token) {
                 console.log('Utente non autenticato in loadUserInfo');
                 return;
             }
-            
+
             const userData = JSON.parse(user);
             if (userData && userData.nome && userData.cognome) {
                 document.getElementById('userName').textContent = `${userData.nome} ${userData.cognome}`;
-                
+
                 // Imposta il ruolo corretto
                 const userRoleElement = document.getElementById('userRole');
                 if (userRoleElement) {
@@ -219,7 +267,7 @@ class DashboardResponsabili {
             } else {
                 console.warn('Dati utente incompleti:', userData);
             }
-            
+
             // Aggiorna anche l'UI della navbar
             updateAuthUI();
         } catch (error) {
@@ -229,14 +277,23 @@ class DashboardResponsabili {
     }
 
     async loadSedi() {
+        console.log('loadSedi chiamata');
         try {
+            console.log('API_BASE:', window.CONFIG.API_BASE);
+            console.log('getAuthHeaders disponibile:', typeof getAuthHeaders);
+
             const response = await fetch(`${window.CONFIG.API_BASE}/sedi`, {
                 headers: getAuthHeaders()
             });
 
+            console.log('Risposta API sedi:', response.status, response.statusText);
+
             if (response.ok) {
                 const sedi = await response.json();
+                console.log('Sedi ricevute:', sedi);
+
                 const selector = document.getElementById('sedeSelector');
+                console.log('Selector trovato:', selector);
 
                 selector.innerHTML = '<option value="">Seleziona Sede</option>';
                 sedi.forEach(sede => {
@@ -246,8 +303,12 @@ class DashboardResponsabili {
                     selector.appendChild(option);
                 });
 
+                console.log('Dropdown sedi popolato con', sedi.length, 'opzioni');
+
                 // Populate other selectors
                 this.populateSpaziSelectors(sedi);
+            } else {
+                console.error('Errore API sedi:', response.status, response.statusText);
             }
         } catch (error) {
             console.error('Errore caricamento sedi:', error);
@@ -1150,5 +1211,19 @@ function scheduleReport() {
 
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.dashboardResponsabili = new DashboardResponsabili();
+    console.log('DOM Content Loaded - Inizializzazione dashboard responsabili');
+
+    // Debug: verifica disponibilità funzioni e variabili
+    console.log('getAuthHeaders disponibile:', typeof getAuthHeaders);
+    console.log('window.CONFIG disponibile:', typeof window.CONFIG);
+    if (window.CONFIG) {
+        console.log('API_BASE:', window.CONFIG.API_BASE);
+    }
+
+    try {
+        window.dashboardResponsabili = new DashboardResponsabili();
+        console.log('Dashboard responsabili inizializzata con successo');
+    } catch (error) {
+        console.error('Errore inizializzazione dashboard responsabili:', error);
+    }
 });
