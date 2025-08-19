@@ -395,13 +395,6 @@ class ModernUI {
 
     // ===== ACCESSIBILITY =====
     setupAccessibility() {
-        // Skip to main content
-        const skipLink = document.createElement('a');
-        skipLink.href = '#main-content';
-        skipLink.textContent = 'Salta al contenuto principale';
-        skipLink.className = 'skip-link';
-        document.body.insertBefore(skipLink, document.body.firstChild);
-
         // Focus management
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
@@ -538,24 +531,6 @@ const dynamicStyles = `
         .loading-text {
             margin-top: var(--space-md);
             font-weight: 500;
-        }
-        
-        /* Skip Link */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--primary);
-            color: var(--white);
-            padding: 8px;
-            text-decoration: none;
-            border-radius: var(--radius-sm);
-            z-index: 10001;
-            transition: top 0.3s;
-        }
-        
-        .skip-link:focus {
-            top: 6px;
         }
         
         /* Keyboard Navigation */
