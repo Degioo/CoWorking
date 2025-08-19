@@ -62,8 +62,15 @@
               Prenota Ora
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showLoginModal()">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showLoginModal()">Registrati</a>
+          </li>
           <li class="nav-item" id="authSection">
-            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()" style="color: black !important;">
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()"
+              style="color: black !important;">
               <i class="fas fa-sign-in-alt me-1"></i>
               Accedi
             </a>
@@ -90,7 +97,8 @@
                   <i class="fas fa-calendar-plus me-2"></i>
                   Prenota
                 </a>
-                <a href="#" onclick="showLoginModal()" class="btn btn-primary btn-lg me-3" style="color: black !important;">
+                <a href="#" onclick="showLoginModal()" class="btn btn-primary btn-lg me-3"
+                  style="color: black !important;">
                   <i class="fas fa-sign-in-alt me-2"></i>
                   Accedi
                 </a>
@@ -324,12 +332,14 @@
           <!-- Tab Navigation -->
           <ul class="nav nav-tabs nav-fill mb-4" id="authTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+              <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button"
+                role="tab">
                 <i class="fas fa-sign-in-alt me-2"></i>Accedi
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="registrazione-tab" data-bs-toggle="tab" data-bs-target="#registrazione" type="button" role="tab">
+              <button class="nav-link" id="registrazione-tab" data-bs-toggle="tab" data-bs-target="#registrazione"
+                type="button" role="tab">
                 <i class="fas fa-user-plus me-2"></i>Registrati
               </button>
             </li>
@@ -385,11 +395,8 @@
                   <label for="regRole" class="form-label">Ruolo</label>
                   <select class="form-control" id="regRole" required>
                     <option value="">Seleziona il tuo ruolo</option>
-                    <option value="freelancer">Freelancer</option>
-                    <option value="startup">Startup</option>
-                    <option value="enterprise">Enterprise</option>
-                    <option value="student">Studente</option>
-                    <option value="other">Altro</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="gestore">Gestore</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -423,7 +430,7 @@
     </div>
   </div>
 
-  
+
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -476,12 +483,12 @@
     }
 
     // Password toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Toggle login password
-      document.getElementById('toggleLoginPassword').addEventListener('click', function() {
+      document.getElementById('toggleLoginPassword').addEventListener('click', function () {
         const passwordInput = document.getElementById('loginPassword');
         const passwordIcon = document.getElementById('loginPasswordIcon');
-        
+
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
           passwordIcon.classList.remove('fa-eye');
@@ -494,10 +501,10 @@
       });
 
       // Toggle registration password
-      document.getElementById('toggleRegPassword').addEventListener('click', function() {
+      document.getElementById('toggleRegPassword').addEventListener('click', function () {
         const passwordInput = document.getElementById('regPassword');
         const passwordIcon = document.getElementById('regPasswordIcon');
-        
+
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
           passwordIcon.classList.remove('fa-eye');
@@ -510,10 +517,10 @@
       });
 
       // Toggle registration confirm password
-      document.getElementById('toggleRegConfirmPassword').addEventListener('click', function() {
+      document.getElementById('toggleRegConfirmPassword').addEventListener('click', function () {
         const passwordInput = document.getElementById('regConfirmPassword');
         const passwordIcon = document.getElementById('regConfirmPasswordIcon');
-        
+
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
           passwordIcon.classList.remove('fa-eye');
