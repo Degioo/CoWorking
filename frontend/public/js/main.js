@@ -142,7 +142,7 @@ function handleLogin(event) {
         // Rimuovi l'URL salvato e vai alla pagina originale
         localStorage.removeItem('redirectAfterLogin');
         console.log('handleLogin - Redirect alla pagina originale:', redirectAfterLogin);
-        
+
         // Se il redirect è verso prenota.html, vai alla dashboard invece
         // perché prenota.html non richiede autenticazione
         if (redirectAfterLogin.includes('prenota.html')) {
@@ -232,7 +232,7 @@ function handleRegistrazione(event) {
             // Rimuovi l'URL salvato e vai alla pagina originale
             localStorage.removeItem('redirectAfterLogin');
             console.log('handleRegistrazione - Redirect alla pagina originale:', redirectAfterLogin);
-            
+
             // Se il redirect è verso prenota.html, vai alla dashboard invece
             // perché prenota.html non richiede autenticazione
             if (redirectAfterLogin.includes('prenota.html')) {
@@ -329,4 +329,297 @@ $(document).ready(function () {
   if (window.location.hash === '#registrazione') {
     $('#registrazione-tab').tab('show');
   }
-}); 
+});
+
+// Inizializzazione quando il DOM è pronto
+$(document).ready(function () {
+  console.log('main.js - DOM ready, inizializzazione...');
+
+  // Inizializza il sistema di toggle password
+  setupPasswordToggles();
+
+  // Inizializza i modali di login e registrazione
+  setupAuthModals();
+
+  // Inizializza la validazione dei form
+  setupFormValidation();
+
+  // Inizializza il sistema di notifiche
+  if (window.modernUI) {
+    window.modernUI.showToast('Benvenuto su Coworking Mio!', 'info');
+  }
+});
+
+// ===== PASSWORD TOGGLE SYSTEM =====
+function setupPasswordToggles() {
+  // Toggle per login password
+  const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginPasswordIcon = document.getElementById('loginPasswordIcon');
+
+  if (toggleLoginPassword && loginPassword && loginPasswordIcon) {
+    // Aggiungi attributi ARIA
+    toggleLoginPassword.setAttribute('aria-label', 'Mostra password');
+    toggleLoginPassword.setAttribute('type', 'button');
+    toggleLoginPassword.setAttribute('tabindex', '0');
+
+    toggleLoginPassword.addEventListener('click', () => {
+      togglePasswordVisibility(loginPassword, loginPasswordIcon);
+    });
+
+    // Supporto per tastiera
+    toggleLoginPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePasswordVisibility(loginPassword, loginPasswordIcon);
+      }
+    });
+  }
+
+  // Toggle per registrazione password
+  const toggleRegPassword = document.getElementById('toggleRegPassword');
+  const regPassword = document.getElementById('regPassword');
+  const regPasswordIcon = document.getElementById('regPasswordIcon');
+
+  if (toggleRegPassword && regPassword && regPasswordIcon) {
+    // Aggiungi attributi ARIA
+    toggleRegPassword.setAttribute('aria-label', 'Mostra password');
+    toggleRegPassword.setAttribute('type', 'button');
+    toggleRegPassword.setAttribute('tabindex', '0');
+
+    toggleRegPassword.addEventListener('click', () => {
+      togglePasswordVisibility(regPassword, regPasswordIcon);
+    });
+
+    // Supporto per tastiera
+    toggleRegPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePasswordVisibility(regPassword, regPasswordIcon);
+      }
+    });
+  }
+
+  // Toggle per conferma password
+  const toggleRegConfirmPassword = document.getElementById('toggleRegConfirmPassword');
+  const regConfirmPassword = document.getElementById('regConfirmPassword');
+  const regConfirmPasswordIcon = document.getElementById('regConfirmPasswordIcon');
+
+  if (toggleRegConfirmPassword && regConfirmPassword && regConfirmPasswordIcon) {
+    // Aggiungi attributi ARIA
+    toggleRegConfirmPassword.setAttribute('aria-label', 'Mostra password');
+    toggleRegConfirmPassword.setAttribute('type', 'button');
+    toggleRegConfirmPassword.setAttribute('tabindex', '0');
+
+    toggleRegConfirmPassword.addEventListener('click', () => {
+      togglePasswordVisibility(regConfirmPassword, regConfirmPasswordIcon);
+    });
+
+    // Supporto per tastiera
+    toggleRegConfirmPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePasswordVisibility(regConfirmPassword, regConfirmPasswordIcon);
+      }
+    });
+  }
+}
+
+// Funzione per toggle della visibilità password
+function togglePasswordVisibility(passwordInput, iconElement) {
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    iconElement.className = 'fas fa-eye-slash';
+    iconElement.title = 'Nascondi password';
+    iconElement.setAttribute('aria-label', 'Nascondi password');
+    // Aggiungi classe per styling
+    passwordInput.parentElement.classList.add('password-visible');
+  } else {
+    passwordInput.type = 'password';
+    iconElement.className = 'fas fa-eye';
+    iconElement.title = 'Mostra password';
+    iconElement.setAttribute('aria-label', 'Mostra password');
+    // Rimuovi classe per styling
+    passwordInput.parentElement.classList.remove('password-visible');
+  }
+
+  // Focus sul campo password per migliorare l'UX
+  passwordInput.focus();
+}
+
+// Gestione specifica per la pagina login.html
+function setupLoginPagePasswordToggles() {
+  // Toggle per login password nella pagina login.html
+  const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginPasswordIcon = document.getElementById('loginPasswordIcon');
+
+  if (toggleLoginPassword && loginPassword && loginPasswordIcon) {
+    // Aggiungi attributi ARIA
+    toggleLoginPassword.setAttribute('aria-label', 'Mostra password');
+    toggleLoginPassword.setAttribute('type', 'button');
+    toggleLoginPassword.setAttribute('tabindex', '0');
+
+    toggleLoginPassword.addEventListener('click', () => {
+      togglePasswordVisibility(loginPassword, loginPasswordIcon);
+    });
+
+    // Supporto per tastiera
+    toggleLoginPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePasswordVisibility(loginPassword, loginPasswordIcon);
+      }
+    });
+  }
+
+  // Toggle per registrazione password nella pagina login.html
+  const toggleRegPassword = document.getElementById('toggleRegPassword');
+  const regPassword = document.getElementById('regPassword');
+  const regPasswordIcon = document.getElementById('regPasswordIcon');
+
+  if (toggleRegPassword && regPassword && regPasswordIcon) {
+    // Aggiungi attributi ARIA
+    toggleRegPassword.setAttribute('aria-label', 'Mostra password');
+    toggleRegPassword.setAttribute('type', 'button');
+    toggleRegPassword.setAttribute('tabindex', '0');
+
+    toggleRegPassword.addEventListener('click', () => {
+      togglePasswordVisibility(regPassword, regPasswordIcon);
+    });
+
+    // Supporto per tastiera
+    toggleRegPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePasswordVisibility(regPassword, regPasswordIcon);
+      }
+    });
+  }
+}
+
+// Inizializzazione specifica per la pagina login
+if (document.getElementById('loginForm') && document.getElementById('registrazioneForm')) {
+  // Siamo nella pagina login.html
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log('Login page - inizializzazione toggle password...');
+    setupLoginPagePasswordToggles();
+  });
+}
+
+// Gestione per tutte le pagine che hanno campi password
+document.addEventListener('DOMContentLoaded', function () {
+  // Inizializza i toggle password per tutti i campi presenti
+  setupPasswordToggles();
+
+  // Inizializza anche per la pagina login se siamo lì
+  if (document.getElementById('loginForm') && document.getElementById('registrazioneForm')) {
+    setupLoginPagePasswordToggles();
+  }
+
+  // Migliora l'accessibilità dei campi password
+  setupPasswordAccessibility();
+});
+
+// Funzione per migliorare l'accessibilità dei campi password
+function setupPasswordAccessibility() {
+  const passwordFields = document.querySelectorAll('input[type="password"]');
+
+  passwordFields.forEach(field => {
+    // Aggiungi aria-describedby se c'è un messaggio di errore
+    const errorElement = field.parentElement.querySelector('.invalid-feedback');
+    if (errorElement) {
+      field.setAttribute('aria-describedby', errorElement.id);
+    }
+
+    // Aggiungi aria-invalid se il campo ha errori
+    if (field.classList.contains('is-invalid')) {
+      field.setAttribute('aria-invalid', 'true');
+    }
+
+    // Aggiungi aria-required se il campo è obbligatorio
+    if (field.hasAttribute('required')) {
+      field.setAttribute('aria-required', 'true');
+    }
+
+    // Aggiungi validazione in tempo reale
+    field.addEventListener('input', () => validatePasswordField(field));
+    field.addEventListener('blur', () => validatePasswordField(field));
+  });
+}
+
+// Funzione per validare i campi password
+function validatePasswordField(field) {
+  const inputGroup = field.closest('.input-group');
+  const errorElement = inputGroup.querySelector('.invalid-feedback');
+
+  // Rimuovi stati precedenti
+  inputGroup.classList.remove('is-valid', 'is-invalid');
+  field.classList.remove('is-valid', 'is-invalid');
+
+  // Validazione base
+  if (field.hasAttribute('required') && !field.value.trim()) {
+    showPasswordError(inputGroup, field, 'Questo campo è obbligatorio');
+    return false;
+  }
+
+  // Validazione lunghezza minima
+  if (field.value.length > 0 && field.value.length < 6) {
+    showPasswordError(inputGroup, field, 'La password deve essere di almeno 6 caratteri');
+    return false;
+  }
+
+  // Validazione per conferma password
+  if (field.id === 'regConfirmPassword') {
+    const passwordField = document.getElementById('regPassword');
+    if (passwordField && field.value !== passwordField.value) {
+      showPasswordError(inputGroup, field, 'Le password non coincidono');
+      return false;
+    }
+  }
+
+  // Se tutto è valido
+  if (field.value.length > 0) {
+    showPasswordSuccess(inputGroup, field);
+    return true;
+  }
+
+  return true;
+}
+
+// Funzione per mostrare errori password
+function showPasswordError(inputGroup, field, message) {
+  inputGroup.classList.add('is-invalid');
+  field.classList.add('is-invalid');
+  field.setAttribute('aria-invalid', 'true');
+
+  // Crea o aggiorna il messaggio di errore
+  let errorElement = inputGroup.querySelector('.invalid-feedback');
+  if (!errorElement) {
+    errorElement = document.createElement('div');
+    errorElement.className = 'invalid-feedback';
+    errorElement.id = `${field.id}-error`;
+    inputGroup.appendChild(errorElement);
+  }
+
+  errorElement.textContent = message;
+  field.setAttribute('aria-describedby', errorElement.id);
+}
+
+// Funzione per mostrare successo password
+function showPasswordSuccess(inputGroup, field) {
+  inputGroup.classList.add('is-valid');
+  field.classList.add('is-valid');
+  field.setAttribute('aria-invalid', 'false');
+
+  // Rimuovi messaggi di errore
+  const errorElement = inputGroup.querySelector('.invalid-feedback');
+  if (errorElement) {
+    errorElement.remove();
+  }
+
+  // Rimuovi aria-describedby se non ci sono errori
+  if (!field.getAttribute('aria-describedby')) {
+    field.removeAttribute('aria-describedby');
+  }
+} 

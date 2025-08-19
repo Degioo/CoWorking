@@ -28,7 +28,7 @@
 
 <body>
   <!-- Skip Link per Accessibilità -->
-  
+
 
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg">
@@ -293,7 +293,13 @@
             </div>
             <div class="form-group">
               <label for="loginPassword" class="form-label">Password</label>
-              <input type="password" class="form-control" id="loginPassword" required>
+              <div class="input-group">
+                <input type="password" class="form-control" id="loginPassword" required>
+                <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
+                  <i class="fas fa-eye" id="loginPasswordIcon"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback" id="loginPassword-error"></div>
             </div>
             <div class="d-grid">
               <button type="submit" class="btn btn-primary">Accedi</button>
@@ -340,11 +346,23 @@
             </div>
             <div class="form-group">
               <label for="regPassword" class="form-label">Password</label>
-              <input type="password" class="form-control" id="regPassword" required>
+              <div class="input-group">
+                <input type="password" class="form-control" id="regPassword" required>
+                <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword">
+                  <i class="fas fa-eye" id="regPasswordIcon"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback" id="regPassword-error"></div>
             </div>
             <div class="form-group">
               <label for="regConfirmPassword" class="form-label">Conferma Password</label>
-              <input type="password" class="form-control" id="regConfirmPassword" required>
+              <div class="input-group">
+                <input type="password" class="form-control" id="regConfirmPassword" required>
+                <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword">
+                  <i class="fas fa-eye" id="regConfirmPasswordIcon"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback" id="regConfirmPassword-error"></div>
             </div>
             <div class="d-grid">
               <button type="submit" class="btn btn-primary">Registrati</button>
