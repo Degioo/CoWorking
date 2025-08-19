@@ -382,6 +382,17 @@
                   <input type="email" class="form-control" id="regEmail" required>
                 </div>
                 <div class="form-group">
+                  <label for="regRole" class="form-label">Ruolo</label>
+                  <select class="form-control" id="regRole" required>
+                    <option value="">Seleziona il tuo ruolo</option>
+                    <option value="freelancer">Freelancer</option>
+                    <option value="startup">Startup</option>
+                    <option value="enterprise">Enterprise</option>
+                    <option value="student">Studente</option>
+                    <option value="other">Altro</option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label for="regPassword" class="form-label">Password</label>
                   <div class="input-group">
                     <input type="password" class="form-control" id="regPassword" required>
@@ -463,6 +474,57 @@
       const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
       loginModal.show();
     }
+
+    // Password toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Toggle login password
+      document.getElementById('toggleLoginPassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('loginPassword');
+        const passwordIcon = document.getElementById('loginPasswordIcon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          passwordIcon.classList.remove('fa-eye');
+          passwordIcon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          passwordIcon.classList.remove('fa-eye-slash');
+          passwordIcon.classList.add('fa-eye');
+        }
+      });
+
+      // Toggle registration password
+      document.getElementById('toggleRegPassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('regPassword');
+        const passwordIcon = document.getElementById('regPasswordIcon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          passwordIcon.classList.remove('fa-eye');
+          passwordIcon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          passwordIcon.classList.remove('fa-eye-slash');
+          passwordIcon.classList.add('fa-eye');
+        }
+      });
+
+      // Toggle registration confirm password
+      document.getElementById('toggleRegConfirmPassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('regConfirmPassword');
+        const passwordIcon = document.getElementById('regConfirmPasswordIcon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          passwordIcon.classList.remove('fa-eye');
+          passwordIcon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          passwordIcon.classList.remove('fa-eye-slash');
+          passwordIcon.classList.add('fa-eye');
+        }
+      });
+    });
   </script>
 </body>
 
