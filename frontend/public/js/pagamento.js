@@ -79,17 +79,17 @@ function checkInternetConnection() {
 async function testStripeConnection() {
     try {
         console.log('Test connessione Stripe...');
-        
+
         // Verifica che Stripe sia funzionante
         if (!stripe || !elements) {
             throw new Error('Stripe non inizializzato correttamente');
         }
-        
+
         // Verifica che l'elemento carta sia stato creato
         if (!card) {
             throw new Error('Elemento carta Stripe non creato');
         }
-        
+
         console.log('✅ Connessione Stripe OK');
         return true;
     } catch (error) {
@@ -432,15 +432,15 @@ async function initializeStripe() {
         // Verifica se Stripe è disponibile
         if (typeof Stripe === 'undefined') {
             console.error('Stripe non è definito. Verifico se la libreria è caricata...');
-            
+
             // Aspetta un po' e riprova
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             if (typeof Stripe === 'undefined') {
                 throw new Error('Libreria Stripe non caricata. Verifica la connessione internet e ricarica la pagina.');
             }
         }
-        
+
         console.log('Stripe disponibile:', typeof Stripe);
         console.log('Stripe versione:', Stripe.version);
 
@@ -496,27 +496,27 @@ async function initializeStripe() {
 
         // Pulisci l'elemento prima di montare
         cardElement.innerHTML = '';
-        
+
         // Monta l'elemento carta
         card.mount('#card-element');
-        
+
         // Verifica che l'elemento sia stato montato correttamente
         setTimeout(() => {
             const stripeInputs = cardElement.querySelectorAll('input');
             if (stripeInputs.length === 0) {
                 console.error('Stripe Elements non montato correttamente');
-                
+
                 // Mostra messaggio di errore all'utente
                 const cardErrors = document.getElementById('card-errors');
                 if (cardErrors) {
                     cardErrors.textContent = 'Errore nel caricamento del form di pagamento. Ricarica la pagina.';
                     cardErrors.style.display = 'block';
                 }
-                
+
                 throw new Error('Errore nel montaggio di Stripe Elements');
             }
             console.log('Stripe Elements montato correttamente con', stripeInputs.length, 'input');
-            
+
             // Nascondi eventuali errori precedenti
             const cardErrors = document.getElementById('card-errors');
             if (cardErrors) {

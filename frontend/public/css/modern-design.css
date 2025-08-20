@@ -360,7 +360,7 @@ a:hover {
 }
 
 .nav-link {
-    color: var(--gray-600) !important;
+    color: #000000 !important;
     text-decoration: none;
     padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-md);
@@ -372,14 +372,16 @@ a:hover {
 }
 
 .nav-link:hover {
-    color: var(--primary);
+    color: #000000 !important;
     background: var(--gray-100);
+    text-decoration: underline !important;
 }
 
 .nav-link.active {
-    color: var(--primary);
-    background: var(--primary);
-    color: var(--white);
+    color: #000000 !important;
+    background: var(--gray-100);
+    font-weight: 700 !important;
+    border-bottom: 2px solid #000000 !important;
 }
 
 /* ===== NAVBAR BUTTONS ===== */
@@ -393,6 +395,7 @@ a:hover {
     text-decoration: none !important;
     transition: all 0.3s ease !important;
     margin: 0 5px !important;
+    color: #000000 !important;
 }
 
 /* ===== STRIPE ELEMENTS ===== */
@@ -1111,12 +1114,14 @@ a:hover {
         border-radius: 8px !important;
         width: 100% !important;
         text-align: center !important;
+        color: #000000 !important;
     }
 
     .navbar-nav .btn {
         margin: 10px 0 !important;
         width: 100% !important;
         text-align: center !important;
+        color: #000000 !important;
     }
 
     #authSection {
