@@ -75,7 +75,7 @@ function updateNavbar() {
           <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
         `);
       }
-      
+
       // Aggiungi link Dashboard e Logout dopo la sezione auth
       const newItems = `
         <li class="nav-item">
@@ -85,7 +85,7 @@ function updateNavbar() {
           <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
         </li>
       `;
-      
+
       // Inserisci dopo authSection
       authSection.after(newItems);
     } catch (error) {
