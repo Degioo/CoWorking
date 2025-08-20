@@ -26,14 +26,19 @@ function updateNavbar() {
       const user = JSON.parse(userStr);
       console.log('Utente autenticato:', user.nome, user.cognome);
 
-      // Sostituisci i link Login/Registrati con info utente
-      $('.navbar-nav').last().html(`
-        <li class="nav-item">
+      // Sostituisci SOLO la sezione auth, non tutta la navbar
+      const authSection = $('#authSection');
+      if (authSection.length) {
+        authSection.html(`
           <span class="nav-link text-light">
             <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
             <small class="d-block text-muted">${user.ruolo}</small>
           </span>
-        </li>
+        `);
+      }
+      
+      // Aggiungi link Dashboard e Logout dopo la sezione auth
+      const newItems = `
         <li class="nav-item">
           <a class="nav-link" href="#" onclick="navigateToProtectedPage('dashboard.html')">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
@@ -44,32 +49,28 @@ function updateNavbar() {
             <i class="fas fa-sign-out-alt me-2"></i>Logout
           </a>
         </li>
-      `);
+      `;
+      
+      // Inserisci dopo authSection
+      authSection.after(newItems);
     } catch (error) {
       console.error('Errore parsing user:', error);
       localStorage.removeItem('user');
-      showDefaultNavbar();
+      // NON chiamare showDefaultNavbar() - mantieni navbar originale
+      console.log('Errore parsing user - mantieni navbar originale');
     }
   } else {
-    console.log('Nessun utente autenticato');
-    showDefaultNavbar();
+    console.log('Nessun utente autenticato - mantieni navbar originale');
+    // NON chiamare showDefaultNavbar() - mantieni la navbar dell'HTML
   }
 }
 
 // Mostra navbar di default per utenti non autenticati
 function showDefaultNavbar() {
-  $('.navbar-nav').last().html(`
-    <li class="nav-item">
-      <a class="nav-link" href="login.html">
-        <i class="fas fa-sign-in-alt me-2"></i>Login
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="login.html#registrazione">
-        <i class="fas fa-user-plus me-2"></i>Registrati
-      </a>
-    </li>
-  `);
+  // NON sostituire la navbar originale - mantieni quella dell'HTML
+  // La navbar è già corretta nell'HTML con il tasto "Accedi"
+  console.log('Navbar di default mantenuta - non modificare HTML esistente');
+  return;
 }
 
 // Funzione per navigare alle pagine protette verificando l'autenticazione
@@ -122,8 +123,7 @@ function handleLogout() {
   } else {
     // Fallback se la funzione non è disponibile
     localStorage.removeItem('user');
-    // Aggiorna navbar per mostrare i link di login/registrazione
-    updateNavbar();
+    // Ricarica la pagina per mostrare la navbar originale
     location.reload();
   }
 }
@@ -394,8 +394,12 @@ $(document).ready(function () {
 
   // Verifica validità token all'avvio
   validateTokenOnStartup().then(() => {
-    // Aggiorna navbar se loggato (dopo la validazione)
-    updateNavbar();
+    // Aggiorna navbar SOLO se loggato (dopo la validazione)
+    // Se non loggato, mantieni navbar originale
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      updateNavbar();
+    }
   });
 
   // Carica sedi all'avvio se siamo sulla home
@@ -441,8 +445,8 @@ $(document).ready(function () {
   // Test connessione API
   testAPIConnection();
 
-  // Aggiorna navbar in base allo stato di autenticazione
-  updateNavbar();
+  // Aggiorna navbar SOLO se necessario (non chiamare sempre)
+  // La navbar originale è già corretta nell'HTML
 
   // Inizializza il sistema di toggle password
   setupPasswordToggles();
@@ -462,7 +466,7 @@ $(document).ready(function () {
         console.log('Token valido, aggiorno navbar');
         updateNavbar();
       } else {
-        console.log('Token non valido, navbar già aggiornata');
+        console.log('Token non valido - mantieni navbar originale');
       }
     });
   }

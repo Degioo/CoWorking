@@ -66,19 +66,32 @@ $(document).ready(function () {
 function updateNavbar() {
   const userStr = localStorage.getItem('user');
   if (userStr) {
-    const user = JSON.parse(userStr);
-    // Sostituisci il link Login con Dashboard
-    $('.navbar-nav').last().html(`
-      <li class="nav-item">
-        <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="dashboard.html">Dashboard</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
-      </li>
-    `);
+    try {
+      const user = JSON.parse(userStr);
+      // Sostituisci SOLO la sezione auth, non tutta la navbar
+      const authSection = $('#authSection');
+      if (authSection.length) {
+        authSection.html(`
+          <span class="nav-link text-light">${user.nome} ${user.cognome}</span>
+        `);
+      }
+      
+      // Aggiungi link Dashboard e Logout dopo la sezione auth
+      const newItems = `
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
+        </li>
+      `;
+      
+      // Inserisci dopo authSection
+      authSection.after(newItems);
+    } catch (error) {
+      console.error('Errore parsing user in prenota.js:', error);
+      localStorage.removeItem('user');
+    }
   }
 }
 
