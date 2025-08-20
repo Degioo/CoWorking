@@ -195,7 +195,9 @@ async function checkPrenotazionePaymentStatus(prenotazioneId) {
         console.log('Verifico stato pagamento prenotazione...');
 
         // Verifica se esiste già un pagamento per questa prenotazione
-        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/pagamenti/stripe/status/${prenotazioneId}`, {}, 10000);
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/pagamenti/stripe/status/${prenotazioneId}`, {
+            headers: getAuthHeaders()
+        }, 10000);
 
         if (response.ok) {
             const paymentStatus = await response.json();
