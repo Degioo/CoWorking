@@ -497,10 +497,7 @@ async function initializeStripe() {
         // Pulisci l'elemento prima di montare
         cardElement.innerHTML = '';
 
-        // Assicurati che l'elemento abbia le dimensioni corrette
-        cardElement.style.minHeight = '40px';
-        cardElement.style.maxHeight = '40px';
-        cardElement.style.overflow = 'hidden';
+        // Le dimensioni sono gestite dal CSS pulito
 
         // Monta l'elemento carta
         card.mount('#card-element');

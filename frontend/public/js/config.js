@@ -88,10 +88,10 @@ function logout() {
     // Salva la pagina corrente per il redirect dopo il login
     const currentPage = window.location.pathname.split('/').pop();
     const currentUrl = window.location.href;
-    
+
     // Determina se la pagina corrente richiede autenticazione
     const requiresAuth = isPageRequiringAuth(currentPage);
-    
+
     if (requiresAuth) {
         // Se la pagina richiede autenticazione, salva l'URL per il redirect
         localStorage.setItem('redirectAfterLogin', currentUrl);
@@ -178,19 +178,19 @@ function isPageRequiringAuth(pageName) {
         'pagamento.html',
         'dashboard-responsabili.html'
     ];
-    
+
     // La pagina prenota.html non richiede autenticazione iniziale
     // ma potrebbe richiederla per completare la prenotazione
     // In questo caso, salviamo comunque l'URL per il redirect
     if (pageName === 'prenota.html') {
         // Controlla se c'è una prenotazione in corso
-        const hasPrenotazioneInCorso = localStorage.getItem('selectedSede') || 
-                                      localStorage.getItem('selectedSpazio') || 
-                                      localStorage.getItem('selectedDataInizio') || 
-                                      localStorage.getItem('selectedDataFine');
+        const hasPrenotazioneInCorso = localStorage.getItem('selectedSede') ||
+            localStorage.getItem('selectedSpazio') ||
+            localStorage.getItem('selectedDataInizio') ||
+            localStorage.getItem('selectedDataFine');
         return hasPrenotazioneInCorso;
     }
-    
+
     return pagesRequiringAuth.includes(pageName);
 }
 
@@ -211,30 +211,30 @@ const NAVBAR_CONFIG = {
 // Funzione universale per aggiornare la navbar
 function updateNavbarUniversal() {
     console.log('updateNavbarUniversal - Inizio aggiornamento navbar');
-    
+
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const config = NAVBAR_CONFIG[currentPage] || NAVBAR_CONFIG['index.html'];
     const userStr = localStorage.getItem('user');
-    
+
     console.log('updateNavbarUniversal - Pagina corrente:', currentPage);
     console.log('updateNavbarUniversal - Config:', config);
     console.log('updateNavbarUniversal - Utente:', userStr ? 'loggato' : 'non loggato');
-    
+
     // Trova la sezione auth
     const authSection = $('#authSection');
     if (!authSection.length) {
         console.log('updateNavbarUniversal - Sezione auth non trovata, navbar non aggiornata');
         return;
     }
-    
+
     // Rimuovi tutti i link dinamici esistenti (Dashboard, Logout, Accedi)
     $('.nav-item.dynamic-nav-item').remove();
-    
+
     if (userStr) {
         try {
             const user = JSON.parse(userStr);
             console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
-            
+
             // Aggiorna la sezione auth con info utente
             authSection.html(`
                 <span class="nav-link text-light">
@@ -242,7 +242,7 @@ function updateNavbarUniversal() {
                     <small class="d-block text-muted">${user.ruolo}</small>
                 </span>
             `);
-            
+
             // Aggiungi Dashboard se richiesto dalla configurazione
             if (config.mostraDashboard) {
                 const dashboardItem = `
@@ -254,7 +254,7 @@ function updateNavbarUniversal() {
                 `;
                 authSection.after(dashboardItem);
             }
-            
+
             // Aggiungi Logout se richiesto dalla configurazione
             if (config.mostraLogout) {
                 const logoutItem = `
@@ -268,7 +268,7 @@ function updateNavbarUniversal() {
                 const targetElement = config.mostraDashboard ? authSection.next() : authSection;
                 targetElement.after(logoutItem);
             }
-            
+
         } catch (error) {
             console.error('updateNavbarUniversal - Errore parsing user:', error);
             localStorage.removeItem('user');
@@ -285,7 +285,7 @@ function updateNavbarUniversal() {
 // Funzione per mostrare navbar per utenti non autenticati
 function showNavbarForUnauthenticatedUser(config) {
     const authSection = $('#authSection');
-    
+
     // Mostra il tasto Accedi se richiesto dalla configurazione
     if (config.mostraAccedi) {
         authSection.html(`
@@ -303,7 +303,7 @@ function showNavbarForUnauthenticatedUser(config) {
 // Funzione per inizializzare la navbar all'avvio
 function initializeNavbar() {
     console.log('initializeNavbar - Inizializzazione navbar universale');
-    
+
     // Verifica token all'avvio
     validateTokenOnStartup().then(() => {
         // Aggiorna navbar dopo la validazione
