@@ -494,41 +494,41 @@ async function initializeStripe() {
             throw new Error('Elemento DOM per la carta non trovato');
         }
 
-                // Pulisci l'elemento prima di montare
+        // Pulisci l'elemento prima di montare
         cardElement.innerHTML = '';
-        
+
         // Assicurati che l'elemento abbia le dimensioni corrette
         cardElement.style.minHeight = '40px';
         cardElement.style.maxHeight = '40px';
         cardElement.style.overflow = 'hidden';
-        
+
         // Monta l'elemento carta
         card.mount('#card-element');
-        
+
         // Verifica che l'elemento sia stato montato correttamente
         setTimeout(() => {
             const stripeInputs = cardElement.querySelectorAll('input');
             if (stripeInputs.length === 0) {
                 console.error('Stripe Elements non montato correttamente');
-                
+
                 // Mostra messaggio di errore all'utente
                 const cardErrors = document.getElementById('card-errors');
                 if (cardErrors) {
                     cardErrors.textContent = 'Errore nel caricamento del form di pagamento. Ricarica la pagina.';
                     cardErrors.style.display = 'block';
                 }
-                
+
                 throw new Error('Errore nel montaggio di Stripe Elements');
             }
             console.log('Stripe Elements montato correttamente con', stripeInputs.length, 'input');
-            
+
             // Nascondi eventuali errori precedenti
             const cardErrors = document.getElementById('card-errors');
             if (cardErrors) {
                 cardErrors.textContent = '';
                 cardErrors.style.display = 'none';
             }
-            
+
             // Verifica che gli input siano visibili e funzionali
             stripeInputs.forEach((input, index) => {
                 console.log(`Input ${index}:`, {
@@ -1221,6 +1221,13 @@ function handleLogout() {
 // Inizializzazione della pagina
 $(document).ready(async function () {
     console.log('pagamento.js - Inizializzazione pagina');
+
+    // Inizializza la navbar universale
+    if (typeof window.initializeNavbar === 'function') {
+        window.initializeNavbar();
+    } else {
+        console.log('pagamento.js - Sistema navbar universale non disponibile');
+    }
 
     try {
         // Verifica se abbiamo parametri URL per creare una nuova prenotazione

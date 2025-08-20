@@ -1,11 +1,16 @@
 // Configurazione API - usa quella globale da config.js
 
 $(document).ready(function () {
-  // Verifica validità token all'avvio
-  validateTokenOnStartup().then(() => {
-    // Aggiorna navbar se loggato (dopo la validazione)
-    updateNavbar();
-  });
+  // Inizializza la navbar universale
+  if (typeof window.initializeNavbar === 'function') {
+    window.initializeNavbar();
+  } else {
+    console.log('catalogo.js - Sistema navbar universale non disponibile, fallback alla vecchia logica');
+    // Fallback alla vecchia logica
+    validateTokenOnStartup().then(() => {
+      updateNavbar();
+    });
+  }
 
   loadCitta();
   loadServizi();
@@ -18,11 +23,22 @@ $(document).ready(function () {
 });
 
 function updateNavbar() {
+  if (typeof window.updateNavbarUniversal === 'function') {
+    window.updateNavbarUniversal();
+  } else {
+    console.log('updateNavbar in catalogo.js - Sistema universale non disponibile, fallback alla vecchia logica');
+    // Fallback alla vecchia logica se il sistema universale non è disponibile
+    updateNavbarFallback();
+  }
+}
+
+// Funzione di fallback per compatibilità
+function updateNavbarFallback() {
+  console.log('updateNavbarFallback in catalogo.js - Usando logica legacy');
   const userStr = localStorage.getItem('user');
   if (userStr) {
     try {
       const user = JSON.parse(userStr);
-      // Sostituisci SOLO la sezione auth, non tutta la navbar
       const authSection = $('#authSection');
       if (authSection.length) {
         authSection.html(`
@@ -30,7 +46,6 @@ function updateNavbar() {
         `);
       }
 
-      // Aggiungi link Dashboard e Logout dopo la sezione auth
       const newItems = `
         <li class="nav-item">
           <a class="nav-link" href="dashboard.html">Dashboard</a>
@@ -40,7 +55,6 @@ function updateNavbar() {
         </li>
       `;
 
-      // Inserisci dopo authSection
       authSection.after(newItems);
     } catch (error) {
       console.error('Errore parsing user in catalogo.js:', error);

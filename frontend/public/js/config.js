@@ -194,6 +194,127 @@ function isPageRequiringAuth(pageName) {
     return pagesRequiringAuth.includes(pageName);
 }
 
+// ===== NAVBAR UNIVERSALE =====
+// Sistema centralizzato per gestire la navbar in tutte le pagine
+
+// Configurazione navbar per diverse pagine
+const NAVBAR_CONFIG = {
+    // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean }
+    'index.html': { mostraDashboard: false, mostraLogout: false, mostraAccedi: true },
+    'prenota.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
+    'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
+    'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
+    'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false },
+    'dashboard-responsabili.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false }
+};
+
+// Funzione universale per aggiornare la navbar
+function updateNavbarUniversal() {
+    console.log('updateNavbarUniversal - Inizio aggiornamento navbar');
+    
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const config = NAVBAR_CONFIG[currentPage] || NAVBAR_CONFIG['index.html'];
+    const userStr = localStorage.getItem('user');
+    
+    console.log('updateNavbarUniversal - Pagina corrente:', currentPage);
+    console.log('updateNavbarUniversal - Config:', config);
+    console.log('updateNavbarUniversal - Utente:', userStr ? 'loggato' : 'non loggato');
+    
+    // Trova la sezione auth
+    const authSection = $('#authSection');
+    if (!authSection.length) {
+        console.log('updateNavbarUniversal - Sezione auth non trovata, navbar non aggiornata');
+        return;
+    }
+    
+    // Rimuovi tutti i link dinamici esistenti (Dashboard, Logout, Accedi)
+    $('.nav-item.dynamic-nav-item').remove();
+    
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
+            
+            // Aggiorna la sezione auth con info utente
+            authSection.html(`
+                <span class="nav-link text-light">
+                    <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
+                    <small class="d-block text-muted">${user.ruolo}</small>
+                </span>
+            `);
+            
+            // Aggiungi Dashboard se richiesto dalla configurazione
+            if (config.mostraDashboard) {
+                const dashboardItem = `
+                    <li class="nav-item dynamic-nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                `;
+                authSection.after(dashboardItem);
+            }
+            
+            // Aggiungi Logout se richiesto dalla configurazione
+            if (config.mostraLogout) {
+                const logoutItem = `
+                    <li class="nav-item dynamic-nav-item">
+                        <a class="nav-link" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                `;
+                // Inserisci dopo Dashboard o dopo authSection se Dashboard non è presente
+                const targetElement = config.mostraDashboard ? authSection.next() : authSection;
+                targetElement.after(logoutItem);
+            }
+            
+        } catch (error) {
+            console.error('updateNavbarUniversal - Errore parsing user:', error);
+            localStorage.removeItem('user');
+            // Fallback: mostra navbar per utenti non autenticati
+            showNavbarForUnauthenticatedUser(config);
+        }
+    } else {
+        // Utente non autenticato
+        console.log('updateNavbarUniversal - Utente non autenticato');
+        showNavbarForUnauthenticatedUser(config);
+    }
+}
+
+// Funzione per mostrare navbar per utenti non autenticati
+function showNavbarForUnauthenticatedUser(config) {
+    const authSection = $('#authSection');
+    
+    // Mostra il tasto Accedi se richiesto dalla configurazione
+    if (config.mostraAccedi) {
+        authSection.html(`
+            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+                <i class="fas fa-sign-in-alt me-1"></i>
+                Accedi
+            </a>
+        `);
+    } else {
+        // Nascondi completamente la sezione auth se non serve
+        authSection.hide();
+    }
+}
+
+// Funzione per inizializzare la navbar all'avvio
+function initializeNavbar() {
+    console.log('initializeNavbar - Inizializzazione navbar universale');
+    
+    // Verifica token all'avvio
+    validateTokenOnStartup().then(() => {
+        // Aggiorna navbar dopo la validazione
+        updateNavbarUniversal();
+    }).catch(error => {
+        console.error('initializeNavbar - Errore validazione token:', error);
+        // Fallback: aggiorna navbar senza validazione
+        updateNavbarUniversal();
+    });
+}
+
 // Esporta per uso globale
 window.CONFIG = CONFIG;
 window.getAuthHeaders = getAuthHeaders;
@@ -202,4 +323,6 @@ window.logout = logout;
 window.isAuthenticated = isAuthenticated;
 window.validateTokenOnStartup = validateTokenOnStartup;
 window.isPageRequiringAuth = isPageRequiringAuth;
+window.updateNavbarUniversal = updateNavbarUniversal;
+window.initializeNavbar = initializeNavbar;
 

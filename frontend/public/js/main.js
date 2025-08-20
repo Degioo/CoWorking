@@ -16,9 +16,20 @@ function showAlert(message, type = 'info') {
   $('body').prepend(alertHtml);
 }
 
-// Aggiorna navbar se utente è loggato
+// Aggiorna navbar usando il sistema universale
 function updateNavbar() {
-  console.log('Aggiornamento navbar...');
+  if (typeof window.updateNavbarUniversal === 'function') {
+    window.updateNavbarUniversal();
+  } else {
+    console.log('updateNavbar - Sistema universale non disponibile, fallback alla vecchia logica');
+    // Fallback alla vecchia logica se il sistema universale non è disponibile
+    updateNavbarFallback();
+  }
+}
+
+// Funzione di fallback per compatibilità
+function updateNavbarFallback() {
+  console.log('updateNavbarFallback - Usando logica legacy');
   const userStr = localStorage.getItem('user');
 
   if (userStr) {
@@ -26,7 +37,6 @@ function updateNavbar() {
       const user = JSON.parse(userStr);
       console.log('Utente autenticato:', user.nome, user.cognome);
 
-      // Sostituisci SOLO la sezione auth, non tutta la navbar
       const authSection = $('#authSection');
       if (authSection.length) {
         authSection.html(`
@@ -51,24 +61,17 @@ function updateNavbar() {
         </li>
       `;
 
-      // Inserisci dopo authSection
       authSection.after(newItems);
     } catch (error) {
       console.error('Errore parsing user:', error);
       localStorage.removeItem('user');
-      // NON chiamare showDefaultNavbar() - mantieni navbar originale
-      console.log('Errore parsing user - mantieni navbar originale');
     }
-  } else {
-    console.log('Nessun utente autenticato - mantieni navbar originale');
-    // NON chiamare showDefaultNavbar() - mantieni la navbar dell'HTML
   }
 }
 
 // Mostra navbar di default per utenti non autenticati
 function showDefaultNavbar() {
   // NON sostituire la navbar originale - mantieni quella dell'HTML
-  // La navbar è già corretta nell'HTML con il tasto "Accedi"
   console.log('Navbar di default mantenuta - non modificare HTML esistente');
   return;
 }
@@ -392,15 +395,19 @@ function handleRegistrazione(event) {
 $(document).ready(function () {
   console.log('DOM ready, inizializzazione...');
 
-  // Verifica validità token all'avvio
-  validateTokenOnStartup().then(() => {
-    // Aggiorna navbar SOLO se loggato (dopo la validazione)
-    // Se non loggato, mantieni navbar originale
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      updateNavbar();
-    }
-  });
+  // Inizializza la navbar universale
+  if (typeof window.initializeNavbar === 'function') {
+    window.initializeNavbar();
+  } else {
+    console.log('main.js - Sistema navbar universale non disponibile, fallback alla vecchia logica');
+    // Fallback alla vecchia logica
+    validateTokenOnStartup().then(() => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        updateNavbar();
+      }
+    });
+  }
 
   // Carica sedi all'avvio se siamo sulla home
   if ($('#catalogoSedi').length) {
@@ -445,8 +452,23 @@ $(document).ready(function () {
   // Test connessione API
   testAPIConnection();
 
-  // Aggiorna navbar SOLO se necessario (non chiamare sempre)
-  // La navbar originale è già corretta nell'HTML
+  // Inizializza la navbar universale
+  if (typeof window.initializeNavbar === 'function') {
+    window.initializeNavbar();
+  } else {
+    console.log('main.js - Sistema navbar universale non disponibile, fallback alla vecchia logica');
+    // Fallback alla vecchia logica
+    if (typeof window.validateTokenOnStartup === 'function') {
+      window.validateTokenOnStartup().then(isValid => {
+        if (isValid) {
+          console.log('Token valido, aggiorno navbar');
+          updateNavbar();
+        } else {
+          console.log('Token non valido - mantieni navbar originale');
+        }
+      });
+    }
+  }
 
   // Inizializza il sistema di toggle password
   setupPasswordToggles();
@@ -458,18 +480,6 @@ $(document).ready(function () {
   setupFormValidation();
 
   // Inizializza il sistema di notifiche
-
-  // Verifica token all'avvio e aggiorna navbar se necessario
-  if (typeof window.validateTokenOnStartup === 'function') {
-    window.validateTokenOnStartup().then(isValid => {
-      if (isValid) {
-        console.log('Token valido, aggiorno navbar');
-        updateNavbar();
-      } else {
-        console.log('Token non valido - mantieni navbar originale');
-      }
-    });
-  }
 });
 
 // Funzione per testare la connessione API
