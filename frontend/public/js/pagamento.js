@@ -75,6 +75,29 @@ function checkInternetConnection() {
     }).then(() => true).catch(() => false);
 }
 
+// Testa la connessione Stripe
+async function testStripeConnection() {
+    try {
+        console.log('Test connessione Stripe...');
+        
+        // Verifica che Stripe sia funzionante
+        if (!stripe || !elements) {
+            throw new Error('Stripe non inizializzato correttamente');
+        }
+        
+        // Verifica che l'elemento carta sia stato creato
+        if (!card) {
+            throw new Error('Elemento carta Stripe non creato');
+        }
+        
+        console.log('✅ Connessione Stripe OK');
+        return true;
+    } catch (error) {
+        console.error('❌ Errore connessione Stripe:', error);
+        throw error;
+    }
+}
+
 // Verifica elementi DOM necessari
 function checkRequiredElements() {
     const requiredElements = [
@@ -408,8 +431,18 @@ async function initializeStripe() {
 
         // Verifica se Stripe è disponibile
         if (typeof Stripe === 'undefined') {
-            throw new Error('Libreria Stripe non caricata. Verifica la connessione internet.');
+            console.error('Stripe non è definito. Verifico se la libreria è caricata...');
+            
+            // Aspetta un po' e riprova
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            if (typeof Stripe === 'undefined') {
+                throw new Error('Libreria Stripe non caricata. Verifica la connessione internet e ricarica la pagina.');
+            }
         }
+        
+        console.log('Stripe disponibile:', typeof Stripe);
+        console.log('Stripe versione:', Stripe.version);
 
         console.log('initializeStripe - Chiamo API config Stripe:', `${window.CONFIG.API_BASE}/pagamenti/stripe/config`);
 
@@ -461,7 +494,36 @@ async function initializeStripe() {
             throw new Error('Elemento DOM per la carta non trovato');
         }
 
+        // Pulisci l'elemento prima di montare
+        cardElement.innerHTML = '';
+        
+        // Monta l'elemento carta
         card.mount('#card-element');
+        
+        // Verifica che l'elemento sia stato montato correttamente
+        setTimeout(() => {
+            const stripeInputs = cardElement.querySelectorAll('input');
+            if (stripeInputs.length === 0) {
+                console.error('Stripe Elements non montato correttamente');
+                
+                // Mostra messaggio di errore all'utente
+                const cardErrors = document.getElementById('card-errors');
+                if (cardErrors) {
+                    cardErrors.textContent = 'Errore nel caricamento del form di pagamento. Ricarica la pagina.';
+                    cardErrors.style.display = 'block';
+                }
+                
+                throw new Error('Errore nel montaggio di Stripe Elements');
+            }
+            console.log('Stripe Elements montato correttamente con', stripeInputs.length, 'input');
+            
+            // Nascondi eventuali errori precedenti
+            const cardErrors = document.getElementById('card-errors');
+            if (cardErrors) {
+                cardErrors.textContent = '';
+                cardErrors.style.display = 'none';
+            }
+        }, 1000);
 
         // Gestisci gli eventi della carta
         card.on('change', function (event) {
@@ -478,6 +540,9 @@ async function initializeStripe() {
         });
 
         console.log('initializeStripe - Stripe inizializzato con successo');
+
+        // Testa la connessione Stripe
+        await testStripeConnection();
 
         // JavaScript delicato per la visibilità dei numeri
         setTimeout(() => {
