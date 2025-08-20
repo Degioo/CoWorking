@@ -404,23 +404,23 @@ a:hover {
     min-height: 50px !important;
     max-height: 50px !important;
     padding: 12px 16px !important;
-    
+
     /* Stile base visibile */
     border: 2px solid #ced4da !important;
     border-radius: 8px !important;
     background-color: #ffffff !important;
-    
+
     /* Layout e posizionamento */
     position: relative !important;
     width: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    
+
     /* Transizioni fluide */
     transition: all 0.3s ease !important;
     overflow: visible !important;
-    
+
     /* Z-index per evitare sovrapposizioni */
     z-index: 10 !important;
 }
@@ -449,12 +449,12 @@ a:hover {
     width: 100% !important;
     height: 100% !important;
     min-height: 24px !important;
-    
+
     /* Forza la visibilità */
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
-    
+
     /* Z-index alto per essere sopra tutto */
     z-index: 20 !important;
     position: relative !important;
@@ -470,32 +470,32 @@ a:hover {
     background: #ffffff !important;
     border: none !important;
     outline: none !important;
-    
+
     /* Dimensioni e posizionamento */
     width: 100% !important;
     height: 100% !important;
     min-height: 24px !important;
-    
+
     /* Tipografia visibile */
     font-size: 16px !important;
     font-weight: 500 !important;
     color: #000000 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    
+
     /* Allineamento testo */
     text-align: left !important;
     direction: ltr !important;
     text-align-last: left !important;
-    
+
     /* Spaziatura */
     padding: 0 !important;
     margin: 0 !important;
-    
+
     /* Forza la visibilità */
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
-    
+
     /* Z-index massimo */
     z-index: 30 !important;
     position: relative !important;
@@ -556,9 +556,10 @@ a:hover {
         max-height: 45px !important;
         padding: 10px 14px !important;
     }
-    
+
     .stripe-element .StripeElement input {
-        font-size: 16px !important; /* Previene zoom su iOS */
+        font-size: 16px !important;
+        /* Previene zoom su iOS */
     }
 }
 

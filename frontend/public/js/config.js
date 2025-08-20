@@ -200,7 +200,7 @@ function isPageRequiringAuth(pageName) {
 // Configurazione navbar per diverse pagine
 const NAVBAR_CONFIG = {
     // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean }
-    'index.html': { mostraDashboard: false, mostraLogout: false, mostraAccedi: true },
+    'index.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: true },
     'prenota.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
     'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
     'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
@@ -286,8 +286,9 @@ function updateNavbarUniversal() {
 function showNavbarForUnauthenticatedUser(config) {
     const authSection = $('#authSection');
 
-    // Mostra il tasto Accedi se richiesto dalla configurazione
-    if (config.mostraAccedi) {
+    // Per la homepage, mostra sempre il tasto Accedi se l'utente non è loggato
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    if (currentPage === 'index.html' || config.mostraAccedi) {
         authSection.html(`
             <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
                 <i class="fas fa-sign-in-alt me-1"></i>
