@@ -482,10 +482,11 @@ a:hover {
     color: #000000 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 
-    /* Allineamento testo */
+    /* Allineamento testo - FORZA LTR */
     text-align: left !important;
     direction: ltr !important;
     text-align-last: left !important;
+    unicode-bidi: normal !important;
 
     /* Spaziatura */
     padding: 0 !important;
@@ -499,6 +500,71 @@ a:hover {
     /* Z-index massimo */
     z-index: 30 !important;
     position: relative !important;
+}
+
+/* FORZA VISIBILITÀ DEGLI INPUT PRIVATI DI STRIPE - SOLUZIONE AL PROBLEMA */
+.stripe-element input[class*="__PrivateStripeElement-input"],
+.stripe-element input[class*="__PrivateStripeElement"],
+.stripe-element .__PrivateStripeElement-input,
+.stripe-element .__PrivateStripeElement {
+    /* Forza la visibilità e funzionalità */
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    
+    /* Dimensioni corrette */
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 100% !important;
+    
+    /* Posizionamento corretto */
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    
+    /* Stile visibile */
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    outline: none !important;
+    
+    /* Spaziatura */
+    padding: 0 !important;
+    margin: 0 !important;
+    
+    /* Tipografia */
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    
+    /* Allineamento testo */
+    text-align: left !important;
+    direction: ltr !important;
+    text-align-last: left !important;
+    unicode-bidi: normal !important;
+    
+    /* Z-index massimo */
+    z-index: 100 !important;
+}
+
+/* Rimuovi elementi decorativi che potrebbero interferire */
+.stripe-element .StripeElement::before,
+.stripe-element .StripeElement::after {
+    display: none !important;
+}
+
+/* Rimuovi la classe form-control se presente */
+.stripe-element.form-control {
+    /* Rimuovi stili Bootstrap che interferiscono */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    background: #ffffff !important;
+    border: 2px solid #ced4da !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
 }
 
 /* Stati di Stripe Elements */

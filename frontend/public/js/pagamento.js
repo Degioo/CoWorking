@@ -558,38 +558,8 @@ async function initializeStripe() {
         // Testa la connessione Stripe
         await testStripeConnection();
 
-        // JavaScript delicato per la visibilità dei numeri
-        setTimeout(() => {
-            const stripeContainer = document.querySelector('.stripe-element');
-            if (stripeContainer) {
-                console.log('Configuro Stripe per la visibilità...');
-
-                // Rimuovi solo elementi neri evidenti
-                const allElements = stripeContainer.querySelectorAll('*');
-                allElements.forEach(element => {
-                    const computedStyle = window.getComputedStyle(element);
-                    const bgColor = computedStyle.backgroundColor;
-
-                    // Rimuovi solo elementi completamente neri
-                    if (bgColor === 'rgb(0, 0, 0)' || bgColor === 'rgba(0, 0, 0, 1)') {
-                        console.log('Rimuovo elemento nero:', element);
-                        element.remove();
-                    }
-                });
-
-                // Configura gli input senza rompere la funzionalità
-                const inputs = stripeContainer.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.style.color = '#000000';
-                    input.style.background = 'transparent';
-                    input.style.fontSize = '16px';
-                    input.style.fontWeight = '500';
-                    console.log('Input configurato:', input);
-                });
-
-                console.log('Configurazione completata');
-            }
-        }, 1000);
+        // Stripe Elements è ora configurato correttamente tramite CSS
+        // Non serve più manipolare gli elementi JavaScript
     } catch (error) {
         console.error('Errore inizializzazione Stripe:', error);
         showError('Errore configurazione pagamento: ' + error.message);
