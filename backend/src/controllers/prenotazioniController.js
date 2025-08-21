@@ -188,14 +188,28 @@ exports.confirmPrenotazione = async (req, res) => {
       [id_prenotazione]
     );
 
-    // Aggiorna o crea il record di pagamento
-    await pool.query(
-      `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency)
-       VALUES ($1, $2, NOW(), 'pagato', $3, $3, $4, 'EUR')
-       ON CONFLICT (id_prenotazione) DO UPDATE SET
-       stato = 'pagato', data_pagamento = NOW(), metodo = $3, provider_payment_id = $4`,
-      [id_prenotazione, 30, method, payment_id] // 30€ come importo di default
-    );
+    // Aggiorna o crea il record di pagamento - logica sicura senza ON CONFLICT
+    try {
+      // Prima prova ad inserire il nuovo record
+      await pool.query(
+        `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency)
+         VALUES ($1, $2, NOW(), 'pagato', $3, $3, $4, 'EUR')`,
+        [id_prenotazione, 30, method, payment_id] // 30€ come importo di default
+      );
+    } catch (insertError) {
+      // Se fallisce per duplicato, aggiorna il record esistente
+      if (insertError.code === '23505') { // unique_violation
+        await pool.query(
+          `UPDATE Pagamento SET 
+           stato = 'pagato', data_pagamento = NOW(), metodo = $3, provider_payment_id = $4
+           WHERE id_prenotazione = $1`,
+          [id_prenotazione, method, payment_id]
+        );
+      } else {
+        // Se è un altro errore, rilancialo
+        throw insertError;
+      }
+    }
 
     res.json({
       message: 'Prenotazione confermata',

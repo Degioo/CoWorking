@@ -217,14 +217,28 @@ exports.createCardIntent = async (req, res) => {
       description: `Prenotazione coworking - ${ore}h - ${data_inizio} - ${metadata?.sede || 'Sede'} - ${metadata?.spazio || 'Spazio'}`
     });
 
-    // Salva record pagamento
-    await pool.query(
-      `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency, stripe_payment_intent_id)
-       VALUES ($1, $2, NOW(), 'in attesa', 'card', 'stripe', $3, 'EUR', $3)
-       ON CONFLICT (stripe_payment_intent_id) DO UPDATE SET 
-       importo = $2, data_pagamento = NOW(), stato = 'in attesa'`,
-      [id_prenotazione, importo, paymentIntent.id]
-    );
+    // Salva record pagamento - logica sicura senza ON CONFLICT
+    try {
+      // Prima prova ad inserire il nuovo record
+      await pool.query(
+        `INSERT INTO Pagamento (id_prenotazione, importo, data_pagamento, stato, metodo, provider, provider_payment_id, currency, stripe_payment_intent_id)
+         VALUES ($1, $2, NOW(), 'in attesa', 'card', 'stripe', $3, 'EUR', $3)`,
+        [id_prenotazione, importo, paymentIntent.id]
+      );
+    } catch (insertError) {
+      // Se fallisce per duplicato, aggiorna il record esistente
+      if (insertError.code === '23505') { // unique_violation
+        await pool.query(
+          `UPDATE Pagamento SET 
+           importo = $2, data_pagamento = NOW(), stato = 'in attesa'
+           WHERE stripe_payment_intent_id = $3`,
+          [id_prenotazione, importo, paymentIntent.id]
+        );
+      } else {
+        // Se è un altro errore, rilancialo
+        throw insertError;
+      }
+    }
 
     res.json({
       clientSecret: paymentIntent.client_secret,
