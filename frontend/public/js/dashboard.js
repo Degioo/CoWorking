@@ -12,6 +12,23 @@ $(document).ready(function () {
     checkAuth();
     setupEventHandlers();
   });
+
+  // Ferma il countdown quando si lascia la pagina
+  $(window).on('beforeunload', function() {
+    stopCountdownUpdates();
+  });
+
+  // Ferma il countdown quando si cambia tab o si naviga
+  $(document).on('visibilitychange', function() {
+    if (document.hidden) {
+      stopCountdownUpdates();
+    } else {
+      // Riprendi il countdown quando si torna alla pagina
+      if (window.currentPrenotazioni && window.currentPrenotazioni.length > 0) {
+        startCountdownUpdates();
+      }
+    }
+  });
 });
 
 // Controllo autenticazione
@@ -250,19 +267,25 @@ function loadPrenotazioniUtente() {
     .done(function (prenotazioni) {
       // Salva le prenotazioni globalmente per i countdown
       window.currentPrenotazioni = prenotazioni;
-      
+
       // Prima sincronizza prenotazioni con pagamenti
       syncPrenotazioniWithPagamenti().then(() => {
         // Poi mostra le prenotazioni aggiornate
         displayPrenotazioniUtente(prenotazioni);
-        
-        // Avvia l'aggiornamento dei countdown
-        startCountdownUpdates();
+
+        // Avvia l'aggiornamento dei countdown solo se non è già attivo
+        if (!window.countdownInterval) {
+          startCountdownUpdates();
+        }
       }).catch(error => {
         console.error('Errore sincronizzazione:', error);
         // Mostra comunque le prenotazioni anche se la sincronizzazione fallisce
         displayPrenotazioniUtente(prenotazioni);
-        startCountdownUpdates();
+        
+        // Avvia l'aggiornamento dei countdown solo se non è già attivo
+        if (!window.countdownInterval) {
+          startCountdownUpdates();
+        }
       });
     })
     .fail(function (xhr) {
@@ -325,16 +348,13 @@ function getTempoRimanente(prenotazione) {
     return null;
   }
 
-  // Se non c'è scadenza_slot, calcola 15 minuti dalla data di creazione
-  let scadenza;
-  if (prenotazione.scadenza_slot) {
-    scadenza = new Date(prenotazione.scadenza_slot);
-  } else {
-    // Fallback: 15 minuti dalla data di creazione
-    scadenza = new Date(prenotazione.data_inizio);
-    scadenza.setMinutes(scadenza.getMinutes() + 15);
+  // Usa SOLO scadenza_slot dal backend - non fare fallback
+  if (!prenotazione.scadenza_slot) {
+    console.warn('Prenotazione senza scadenza_slot:', prenotazione.id_prenotazione);
+    return 'Calcolo...';
   }
 
+  const scadenza = new Date(prenotazione.scadenza_slot);
   const now = new Date();
   const diff = scadenza - now;
 
@@ -344,7 +364,7 @@ function getTempoRimanente(prenotazione) {
 
   const minuti = Math.floor(diff / (1000 * 60));
   const secondi = Math.floor((diff % (1000 * 60)) / 1000);
-  
+
   return `${minuti}:${secondi.toString().padStart(2, '0')}`;
 }
 
@@ -368,8 +388,8 @@ function displayPrenotazioniUtente(prenotazioni) {
 
     // Calcola tempo rimanente
     const tempoRimanente = getTempoRimanente(p);
-    const tempoRimanenteHtml = tempoRimanente ? 
-      `<span class="countdown" data-prenotazione="${p.id_prenotazione}">${tempoRimanente}</span>` : 
+    const tempoRimanenteHtml = tempoRimanente ?
+      `<span class="countdown" data-prenotazione="${p.id_prenotazione}">${tempoRimanente}</span>` :
       '-';
 
     // Determina se mostrare il pulsante di pagamento
@@ -443,51 +463,63 @@ function cancellaPrenotazione(idPrenotazione) {
     .done(function (response) {
       console.log('Prenotazione cancellata:', response);
       showAlert('Prenotazione cancellata con successo!', 'success');
-      
+
       // Ricarica le prenotazioni per mostrare l'aggiornamento
       loadPrenotazioniUtente();
     })
     .fail(function (xhr) {
       console.error('Errore cancellazione:', xhr.status, xhr.responseText);
       let errorMessage = 'Errore durante la cancellazione';
-      
+
       if (xhr.responseJSON && xhr.responseJSON.error) {
         errorMessage = xhr.responseJSON.error;
       }
-      
+
       showAlert(errorMessage, 'error');
     });
 }
 
 // Avvia gli aggiornamenti dei countdown
 function startCountdownUpdates() {
-  // Ferma eventuali aggiornamenti precedenti
+  // Se è già attivo, non riavviarlo
   if (window.countdownInterval) {
-    clearInterval(window.countdownInterval);
+    console.log('Countdown già attivo, salto inizializzazione');
+    return;
   }
-  
+
+  console.log('🚀 Avvio aggiornamenti countdown...');
+
   // Aggiorna i countdown ogni secondo
   window.countdownInterval = setInterval(updateCountdowns, 1000);
-  
+
   // Esegui il primo aggiornamento immediatamente
   updateCountdowns();
 }
 
+// Ferma gli aggiornamenti dei countdown
+function stopCountdownUpdates() {
+  if (window.countdownInterval) {
+    console.log('⏹️ Fermo aggiornamenti countdown...');
+    clearInterval(window.countdownInterval);
+    window.countdownInterval = null;
+  }
+}
+
 // Aggiorna i countdown in tempo reale
 function updateCountdowns() {
-  $('.countdown').each(function() {
+  $('.countdown').each(function () {
     const countdownElement = $(this);
     const prenotazioneId = countdownElement.data('prenotazione');
-    
+
     // Trova la prenotazione corrispondente
-    const prenotazione = window.currentPrenotazioni ? 
+    const prenotazione = window.currentPrenotazioni ?
       window.currentPrenotazioni.find(p => p.id_prenotazione == prenotazioneId) : null;
-    
+
     if (prenotazione) {
       const tempoRimanente = getTempoRimanente(prenotazione);
       if (tempoRimanente) {
         countdownElement.text(tempoRimanente);
-        
+
         // Se è scaduto, aggiorna la visualizzazione
         if (tempoRimanente === 'SCADUTO') {
           countdownElement.addClass('text-danger fw-bold');
