@@ -10,6 +10,11 @@ let paymentIntentId;
 // Dati della prenotazione
 let prenotazioneData = {};
 
+// Funzione per ottenere i dati della prenotazione
+function getPrenotazioneData() {
+    return window.prenotazioneData || prenotazioneData;
+}
+
 // Flag per tracciare se il pagamento è stato completato
 let pagamentoCompletato = false;
 
@@ -490,6 +495,9 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
         // Popola i dettagli della prenotazione
         await loadPrenotazioneData();
 
+        // Inizializza Stripe
+        await initializeStripe();
+
         // Configura gli event listener
         setupEventListeners();
 
@@ -775,12 +783,13 @@ async function loadPrenotazioneData() {
 
 // Popola i dettagli della prenotazione
 function populatePrenotazioneDetails() {
-    if (!prenotazioneData) return;
+    const data = getPrenotazioneData();
+    if (!data) return;
 
-    console.log('populatePrenotazioneDetails - Dati prenotazione:', prenotazioneData);
+    console.log('populatePrenotazioneDetails - Dati prenotazione:', data);
 
-    const dataInizio = new Date(prenotazioneData.data_inizio);
-    const dataFine = new Date(prenotazioneData.data_fine);
+    const dataInizio = new Date(data.data_inizio);
+    const dataFine = new Date(data.data_fine);
 
     // Calcola la durata
     const durataMs = dataFine - dataInizio;
@@ -821,16 +830,16 @@ function populatePrenotazioneDetails() {
     let sedeText = 'Sede selezionata';
     let spazioText = 'Spazio selezionato';
 
-    if (prenotazioneData.nome_sede) {
-        sedeText = prenotazioneData.nome_sede;
-    } else if (prenotazioneData.id_sede) {
-        sedeText = `Sede #${prenotazioneData.id_sede}`;
+    if (data.nome_sede) {
+        sedeText = data.nome_sede;
+    } else if (data.id_sede) {
+        sedeText = `Sede #${data.id_sede}`;
     }
 
-    if (prenotazioneData.nome_spazio) {
-        spazioText = prenotazioneData.nome_spazio;
-    } else if (prenotazioneData.id_spazio) {
-        spazioText = `Spazio #${prenotazioneData.id_spazio}`;
+    if (data.nome_spazio) {
+        spazioText = data.nome_spazio;
+    } else if (data.id_spazio) {
+        spazioText = `Spazio #${data.id_spazio}`;
     }
 
     document.getElementById('sede-prenotazione').textContent = sedeText;
@@ -838,7 +847,7 @@ function populatePrenotazioneDetails() {
     document.getElementById('totale-prenotazione').textContent = `€${importo.toFixed(2)}`;
 
     // Salva l'importo per il pagamento
-    prenotazioneData.importo = importo;
+    data.importo = importo;
 
     console.log('populatePrenotazioneDetails - Importo calcolato:', importo);
 }
