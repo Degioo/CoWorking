@@ -13,7 +13,7 @@ router.post('/check', authenticateToken, async (req, res) => {
     }
 
     const result = await ScadenzeController.eseguiControlliScadenza();
-    
+
     res.json({
       message: 'Controlli scadenza eseguiti con successo',
       result: result
@@ -57,12 +57,12 @@ router.get('/prenotazioni-scadute', authenticateToken, async (req, res) => {
   try {
     const user = req.user;
     const prenotazioniScadute = await ScadenzeController.getPrenotazioniScaduteUtente(user.id_utente);
-    
+
     res.json({
       prenotazioni: prenotazioniScadute,
       count: prenotazioniScadute.length
     });
-    
+
   } catch (error) {
     console.error('Errore route prenotazioni scadute:', error);
     res.status(500).json({ error: 'Errore server' });
@@ -74,12 +74,12 @@ router.get('/prenotazioni-in-scadenza', authenticateToken, async (req, res) => {
   try {
     const user = req.user;
     const prenotazioniInScadenza = await ScadenzeController.getPrenotazioniInScadenzaUtente(user.id_utente);
-    
+
     res.json({
       prenotazioni: prenotazioniInScadenza,
       count: prenotazioniInScadenza.length
     });
-    
+
   } catch (error) {
     console.error('Errore route prenotazioni in scadenza:', error);
     res.status(500).json({ error: 'Errore server' });

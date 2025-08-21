@@ -77,9 +77,9 @@ app.use('/api', gestoreRoutes);
 const webhookRoutes = require('./routes/webhook');
 app.use('/webhook', webhookRoutes);
 
-// Rotte per gestione scadenze
-const scadenzeRoutes = require('./routes/scadenze');
-app.use('/api', scadenzeRoutes);
+// Rotte per gestione scadenze - COMMENTATE TEMPORANEAMENTE PER DEBUG
+// const scadenzeRoutes = require('./routes/scadenze');
+// app.use('/api', scadenzeRoutes);
 
 // Endpoint di test per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {

@@ -20,12 +20,12 @@ let scadenzaSlot = null;
 // Gestisce il countdown dello slot
 function startSlotCountdown(prenotazioneId, scadenzaTimestamp) {
     scadenzaSlot = new Date(scadenzaTimestamp);
-    
+
     console.log(`🕒 Avvio countdown slot per prenotazione ${prenotazioneId}, scadenza: ${scadenzaSlot}`);
-    
+
     // Crea l'elemento di countdown se non esiste
     createCountdownElement();
-    
+
     // Avvia il countdown
     updateCountdownDisplay();
     countdownInterval = setInterval(updateCountdownDisplay, 1000);
@@ -38,7 +38,7 @@ function createCountdownElement() {
     if (existingCountdown) {
         existingCountdown.remove();
     }
-    
+
     // Crea nuovo elemento countdown
     const countdownElement = document.createElement('div');
     countdownElement.id = 'slot-countdown';
@@ -52,7 +52,7 @@ function createCountdownElement() {
             </div>
         </div>
     `;
-    
+
     // Inserisci dopo l'elemento dei dettagli della prenotazione
     const paymentDetails = document.querySelector('.payment-details');
     if (paymentDetails) {
@@ -63,42 +63,42 @@ function createCountdownElement() {
 // Aggiorna il display del countdown
 function updateCountdownDisplay() {
     if (!scadenzaSlot) return;
-    
+
     const now = new Date();
     const diff = scadenzaSlot - now;
-    
+
     const countdownDisplay = document.getElementById('countdown-display');
-    
+
     if (diff <= 0) {
         // Tempo scaduto
         clearInterval(countdownInterval);
         countdownInterval = null;
-        
+
         if (countdownDisplay) {
             countdownDisplay.innerHTML = '<span class="text-danger">⏰ TEMPO SCADUTO</span>';
         }
-        
+
         // Mostra messaggio di scadenza
         showError('⏰ Tempo scaduto! La prenotazione è stata annullata automaticamente.');
-        
+
         // Disabilita il form di pagamento
         disablePaymentForm();
-        
+
         // Reindirizza alla dashboard dopo 5 secondi
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 5000);
-        
+
         return;
     }
-    
+
     // Calcola minuti e secondi rimanenti
     const minutiRimanenti = Math.floor(diff / (1000 * 60));
     const secondiRimanenti = Math.floor((diff % (1000 * 60)) / 1000);
-    
+
     if (countdownDisplay) {
         const timeString = `${minutiRimanenti}:${secondiRimanenti.toString().padStart(2, '0')}`;
-        
+
         // Cambia colore in base al tempo rimanente
         let colorClass = 'text-warning';
         if (minutiRimanenti <= 2) {
@@ -106,7 +106,7 @@ function updateCountdownDisplay() {
         } else if (minutiRimanenti <= 5) {
             colorClass = 'text-warning';
         }
-        
+
         countdownDisplay.innerHTML = `<span class="${colorClass}">${timeString}</span>`;
     }
 }
@@ -120,7 +120,7 @@ function disablePaymentForm() {
         inputs.forEach(input => {
             input.disabled = true;
         });
-        
+
         // Aggiungi overlay al form
         paymentForm.style.opacity = '0.5';
         paymentForm.style.pointerEvents = 'none';
@@ -133,13 +133,13 @@ function stopSlotCountdown() {
         clearInterval(countdownInterval);
         countdownInterval = null;
     }
-    
+
     // Rimuovi l'elemento countdown
     const countdownElement = document.getElementById('slot-countdown');
     if (countdownElement) {
         countdownElement.remove();
     }
-    
+
     console.log('🏁 Countdown slot fermato');
 }
 
@@ -147,7 +147,7 @@ function stopSlotCountdown() {
 window.addEventListener('beforeunload', function (e) {
     // Ferma il countdown se attivo
     stopSlotCountdown();
-    
+
     // Solo se il pagamento non è stato completato e c'è una prenotazione
     if (!pagamentoCompletato && prenotazioneData && prenotazioneData.id_prenotazione) {
         // Metti in sospeso la prenotazione
@@ -430,22 +430,22 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
 
         if (!response.ok) {
             const error = await response.json();
-            
+
             // Gestisci specificamente gli slot bloccati
             if (response.status === 409 && error.minutiRimanenti) {
                 throw new Error(`Slot temporaneamente bloccato. Riprova tra ${error.minutiRimanenti} minuti.`);
             }
-            
+
             throw new Error(error.error || 'Errore nella creazione della prenotazione');
         }
 
         const prenotazione = await response.json();
         console.log('Prenotazione creata:', prenotazione);
-        
+
         // Se il backend ha bloccato lo slot, mostra le informazioni di scadenza
         if (prenotazione.slot_bloccato && prenotazione.scadenza_slot) {
             console.log(`✅ Slot bloccato fino a: ${prenotazione.scadenza_slot}`);
-            
+
             // Avvia il countdown per questa prenotazione
             startSlotCountdown(prenotazione.id_prenotazione, prenotazione.scadenza_slot);
         }
@@ -1078,7 +1078,7 @@ async function handlePaymentSuccess(paymentIntent, method) {
     try {
         // Imposta il flag che il pagamento è stato completato
         pagamentoCompletato = true;
-        
+
         // Ferma il countdown dello slot
         stopSlotCountdown();
 
