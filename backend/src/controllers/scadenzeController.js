@@ -8,31 +8,42 @@ class ScadenzeController {
     try {
       console.log('⏰ Controllo scadenze prenotazioni...');
 
-      // Trova slot che sono rimasti "in prenotazione" per più di 15 minuti
-      const slotScaduti = await pool.query(`
-        SELECT s.id_spazio, s.nome AS nome_spazio, se.nome AS nome_sede
-        FROM Spazio s
+      // Trova prenotazioni scadute usando il campo scadenza_slot
+      const prenotazioniScadute = await pool.query(`
+        SELECT p.id_prenotazione, p.id_spazio, p.stato, s.nome AS nome_spazio, se.nome AS nome_sede
+        FROM Prenotazione p
+        JOIN Spazio s ON p.id_spazio = s.id_spazio
         JOIN Sede se ON s.id_sede = se.id_sede
-        WHERE s.stato = 'in_prenotazione' 
-        AND s.ultima_prenotazione < NOW() - INTERVAL '15 minutes'
+        WHERE p.scadenza_slot < NOW() 
+        AND p.stato IN ('in attesa', 'pendente')
+        AND s.stato = 'in_prenotazione'
       `);
 
-      if (slotScaduti.rows.length > 0) {
-        console.log(`🔓 Trovati ${slotScaduti.rows.length} slot scaduti, li libero`);
+      if (prenotazioniScadute.rows.length > 0) {
+        console.log(`🔓 Trovate ${prenotazioniScadute.rows.length} prenotazioni scadute, libero gli slot`);
 
-        for (const slot of slotScaduti.rows) {
+        for (const prenotazione of prenotazioniScadute.rows) {
+          // Aggiorna la prenotazione a 'scaduta'
+          await pool.query(`
+            UPDATE Prenotazione 
+            SET stato = 'scaduta' 
+            WHERE id_prenotazione = $1
+          `, [prenotazione.id_prenotazione]);
+
           // Libera lo slot
           await pool.query(`
             UPDATE Spazio 
-            SET stato = 'disponibile', ultima_prenotazione = NULL
+            SET stato = 'disponibile', 
+                ultima_prenotazione = NULL, 
+                utente_prenotazione = NULL
             WHERE id_spazio = $1
-          `, [slot.id_spazio]);
+          `, [prenotazione.id_spazio]);
 
-          console.log(`✅ Slot ${slot.nome_spazio} (${slot.nome_sede}) liberato`);
+          console.log(`✅ Prenotazione ${prenotazione.id_prenotazione} scaduta, slot ${prenotazione.nome_spazio} (${prenotazione.nome_sede}) liberato`);
         }
       }
 
-      return slotScaduti.rows.length;
+      return prenotazioniScadute.rows.length;
 
     } catch (error) {
       console.error('❌ Errore controllo scadenze prenotazioni:', error);
@@ -45,13 +56,13 @@ class ScadenzeController {
     try {
       console.log('⏱️ Controllo pagamenti in sospeso...');
 
-      // Trova pagamenti in sospeso da più di 15 minuti
+      // Trova pagamenti in sospeso scaduti usando il campo scadenza_slot
       const pagamentiScaduti = await pool.query(`
         SELECT p.id_pagamento, p.id_prenotazione, p.data_pagamento, pr.stato as stato_prenotazione
         FROM Pagamento p
         JOIN Prenotazione pr ON p.id_prenotazione = pr.id_prenotazione
         WHERE p.stato = 'in attesa' 
-        AND p.data_pagamento < NOW() - INTERVAL '15 minutes'
+        AND pr.scadenza_slot < NOW()
         AND pr.stato IN ('pendente', 'in attesa')
       `);
 
@@ -99,21 +110,23 @@ class ScadenzeController {
     try {
       console.log('⚠️ Controllo prenotazioni in scadenza...');
 
-      // Trova prenotazioni che scadranno entro 1 ora
+      // Trova prenotazioni che scadranno entro 1 ora (per slot bloccati)
       const prenotazioniInScadenza = await pool.query(`
-        SELECT p.id_prenotazione, p.data_inizio, p.stato, s.nome AS nome_spazio, se.nome AS nome_sede
+        SELECT p.id_prenotazione, p.scadenza_slot, p.stato, s.nome AS nome_spazio, se.nome AS nome_sede
         FROM Prenotazione p
         JOIN Spazio s ON p.id_spazio = s.id_spazio
-        JOIN Sede se ON s.id_sede = s.id_sede
-        WHERE p.stato IN ('confermata', 'pagato')
-        AND p.data_inizio BETWEEN NOW() AND NOW() + INTERVAL '1 hour'
+        JOIN Sede se ON s.id_sede = se.id_sede
+        WHERE p.stato IN ('in attesa', 'pendente')
+        AND p.scadenza_slot BETWEEN NOW() AND NOW() + INTERVAL '1 hour'
+        AND s.stato = 'in_prenotazione'
       `);
 
       if (prenotazioniInScadenza.rows.length > 0) {
         console.log(`⏰ Trovate ${prenotazioniInScadenza.rows.length} prenotazioni che scadranno entro 1 ora`);
 
         for (const prenotazione of prenotazioniInScadenza.rows) {
-          console.log(`⚠️ Prenotazione ${prenotazione.id_prenotazione} (${prenotazione.nome_spazio}) scade alle ${prenotazione.data_inizio}`);
+          const minutiRimanenti = Math.floor((new Date(prenotazione.scadenza_slot) - new Date()) / (1000 * 60));
+          console.log(`⚠️ Prenotazione ${prenotazione.id_prenotazione} (${prenotazione.nome_spazio}) scade tra ${minutiRimanenti} minuti`);
         }
       }
 

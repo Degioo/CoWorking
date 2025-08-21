@@ -87,40 +87,17 @@ exports.creaPrenotazione = async (req, res) => {
       [id_utente, id_spazio]
     );
 
-    // Inserimento prenotazione
+    // Inserimento prenotazione con scadenza slot
+    const scadenzaSlot = new Date(Date.now() + 15 * 60 * 1000); // 15 minuti da ora
+    
     const result = await pool.query(
-      `INSERT INTO Prenotazione (id_utente, id_spazio, data_inizio, data_fine, stato)
-       VALUES ($1, $2, $3, $4, 'in attesa') RETURNING id_prenotazione`,
-      [id_utente, id_spazio, data_inizio, data_fine]
+      `INSERT INTO Prenotazione (id_utente, id_spazio, data_inizio, data_fine, stato, scadenza_slot)
+       VALUES ($1, $2, $3, $4, 'in attesa', $5) RETURNING id_prenotazione`,
+      [id_utente, id_spazio, data_inizio, data_fine, scadenzaSlot]
     );
 
-    // Programma la liberazione automatica dello slot dopo 15 minuti
-    setTimeout(async () => {
-      try {
-        const checkPrenotazione = await pool.query(
-          `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1`,
-          [result.rows[0].id_prenotazione]
-        );
-
-        // Se la prenotazione non è stata confermata, libera lo slot
-        if (checkPrenotazione.rowCount > 0 &&
-          !['confermata', 'pagato'].includes(checkPrenotazione.rows[0].stato)) {
-
-          await pool.query(
-            `UPDATE Spazio 
-             SET stato = 'disponibile', 
-                 ultima_prenotazione = NULL, 
-                 utente_prenotazione = NULL
-             WHERE id_spazio = $1`,
-            [id_spazio]
-          );
-
-          console.log(`⏰ Slot ${id_spazio} liberato automaticamente dopo 15 minuti`);
-        }
-      } catch (error) {
-        console.error('Errore liberazione automatica slot:', error);
-      }
-    }, 15 * 60 * 1000); // 15 minuti
+    // Nota: La liberazione automatica dello slot è gestita dal cron job scadenzeCron
+    // che controlla ogni 5 minuti le prenotazioni scadute
 
     res.status(201).json({
       message: 'Prenotazione creata',
@@ -262,9 +239,9 @@ exports.confirmPrenotazione = async (req, res) => {
       return res.status(404).json({ error: 'Prenotazione non trovata' });
     }
 
-    // Aggiorna lo stato della prenotazione a "confermata"
+    // Aggiorna lo stato della prenotazione a "confermata" e rimuove la scadenza slot
     await pool.query(
-      `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW() WHERE id_prenotazione = $1`,
+      `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW(), scadenza_slot = NULL WHERE id_prenotazione = $1`,
       [id_prenotazione]
     );
 

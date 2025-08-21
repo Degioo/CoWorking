@@ -217,6 +217,12 @@ exports.createCardIntent = async (req, res) => {
       description: `Prenotazione coworking - ${ore}h - ${data_inizio} - ${metadata?.sede || 'Sede'} - ${metadata?.spazio || 'Spazio'}`
     });
 
+    // Rimuove la scadenza slot quando viene creato un PaymentIntent (l'utente sta pagando)
+    await pool.query(
+      `UPDATE Prenotazione SET scadenza_slot = NULL WHERE id_prenotazione = $1`,
+      [id_prenotazione]
+    );
+
     // Salva record pagamento - logica sicura senza ON CONFLICT
     try {
       // Prima prova ad inserire il nuovo record
