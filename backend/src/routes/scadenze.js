@@ -13,7 +13,7 @@ router.post('/check', authenticateToken, async (req, res) => {
     }
 
     const result = await ScadenzeController.eseguiControlliScadenza();
-
+    
     res.json({
       message: 'Controlli scadenza eseguiti con successo',
       result: result
@@ -49,6 +49,40 @@ router.get('/status', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Errore controllo status scadenze:', error);
     res.status(500).json({ error: 'Errore server: ' + error.message });
+  }
+});
+
+// Endpoint per ottenere prenotazioni scadute di un utente
+router.get('/prenotazioni-scadute', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    const prenotazioniScadute = await ScadenzeController.getPrenotazioniScaduteUtente(user.id_utente);
+    
+    res.json({
+      prenotazioni: prenotazioniScadute,
+      count: prenotazioniScadute.length
+    });
+    
+  } catch (error) {
+    console.error('Errore route prenotazioni scadute:', error);
+    res.status(500).json({ error: 'Errore server' });
+  }
+});
+
+// Endpoint per ottenere prenotazioni in scadenza di un utente
+router.get('/prenotazioni-in-scadenza', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    const prenotazioniInScadenza = await ScadenzeController.getPrenotazioniInScadenzaUtente(user.id_utente);
+    
+    res.json({
+      prenotazioni: prenotazioniInScadenza,
+      count: prenotazioniInScadenza.length
+    });
+    
+  } catch (error) {
+    console.error('Errore route prenotazioni in scadenza:', error);
+    res.status(500).json({ error: 'Errore server' });
   }
 });
 
