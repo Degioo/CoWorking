@@ -1,20 +1,53 @@
-const fs = require('fs');
-const path = require('path');
+
 
 class MigrationController {
     static async applySpazioMigration(req, res) {
         try {
             console.log('🔄 Applicazione migrazione Spazio...');
             
-            // Leggi il file di migrazione
-            const migrationPath = path.resolve(__dirname, '../../database/add-spazio-prenotazione-fields.sql');
-            const migration = fs.readFileSync(migrationPath, 'utf8');
-            
             // Esegui la migrazione
             const db = require('../db');
             
-            // Esegui ogni comando separatamente per gestire meglio gli errori
-            const commands = migration.split(';').filter(cmd => cmd.trim());
+            // Esegui i comandi SQL uno per uno, gestendo i blocchi DO $$
+            const commands = [
+                // Aggiungi campo stato
+                "ALTER TABLE Spazio ADD COLUMN IF NOT EXISTS stato TEXT DEFAULT 'disponibile'",
+                
+                // Aggiungi constraint CHECK per stato
+                `DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_constraint 
+                        WHERE conname = 'check_stato_spazio'
+                    ) THEN
+                        ALTER TABLE Spazio 
+                        ADD CONSTRAINT check_stato_spazio 
+                        CHECK (stato IN ('disponibile', 'in_prenotazione', 'occupato', 'manutenzione'));
+                    END IF;
+                END $$`,
+                
+                // Aggiungi campo ultima_prenotazione
+                "ALTER TABLE Spazio ADD COLUMN IF NOT EXISTS ultima_prenotazione TIMESTAMP",
+                
+                // Aggiungi campo utente_prenotazione
+                "ALTER TABLE Spazio ADD COLUMN IF NOT EXISTS utente_prenotazione INTEGER REFERENCES Utente(id_utente)",
+                
+                // Crea indice per ottimizzare le query di scadenza
+                `DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_indexes 
+                        WHERE indexname = 'idx_spazio_stato_ultima_prenotazione'
+                    ) THEN
+                        CREATE INDEX idx_spazio_stato_ultima_prenotazione 
+                        ON Spazio(stato, ultima_prenotazione) 
+                        WHERE stato = 'in_prenotazione';
+                    END IF;
+                END $$`,
+                
+                // Aggiorna tutti gli spazi esistenti a 'disponibile'
+                "UPDATE Spazio SET stato = 'disponibile' WHERE stato IS NULL"
+            ];
             
             for (const command of commands) {
                 if (command.trim()) {
