@@ -81,10 +81,6 @@ app.use('/webhook', webhookRoutes);
 // const scadenzeRoutes = require('./routes/scadenze');
 // app.use('/api', scadenzeRoutes);
 
-// Rotte per migrazione database
-const migrationRoutes = require('./routes/migration');
-app.use('/api/migration', migrationRoutes);
-
 // Endpoint di test per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
