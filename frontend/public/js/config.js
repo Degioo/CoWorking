@@ -221,14 +221,14 @@ function updateNavbarUniversal() {
     console.log('updateNavbarUniversal - Utente:', userStr ? 'loggato' : 'non loggato');
 
     // Trova la sezione auth
-    const authSection = $('#authSection');
-    if (!authSection.length) {
+    const authSection = document.getElementById('authSection');
+    if (!authSection) {
         console.log('updateNavbarUniversal - Sezione auth non trovata, navbar non aggiornata');
         return;
     }
 
     // Rimuovi tutti i link dinamici esistenti (Dashboard, Logout, Accedi)
-    $('.nav-item.dynamic-nav-item').remove();
+    document.querySelectorAll('.nav-item.dynamic-nav-item').forEach(item => item.remove());
 
     if (userStr) {
         try {
@@ -236,12 +236,12 @@ function updateNavbarUniversal() {
             console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
 
             // Aggiorna la sezione auth con info utente
-            authSection.html(`
+            authSection.innerHTML = `
                 <span class="nav-link text-light">
                     <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
                     <small class="d-block text-muted">${user.ruolo}</small>
                 </span>
-            `);
+            `;
 
             // Aggiungi Dashboard se richiesto dalla configurazione
             if (config.mostraDashboard) {
@@ -252,7 +252,7 @@ function updateNavbarUniversal() {
                         </a>
                     </li>
                 `;
-                authSection.after(dashboardItem);
+                authSection.insertAdjacentHTML('afterend', dashboardItem);
             }
 
             // Aggiungi Logout se richiesto dalla configurazione
@@ -265,8 +265,15 @@ function updateNavbarUniversal() {
                     </li>
                 `;
                 // Inserisci dopo Dashboard o dopo authSection se Dashboard non è presente
-                const targetElement = config.mostraDashboard ? authSection.next() : authSection;
-                targetElement.after(logoutItem);
+                let targetElement = authSection;
+                if (config.mostraDashboard) {
+                    // Trova l'elemento dashboard appena inserito
+                    const dashboardElement = document.querySelector('.dynamic-nav-item a[href="dashboard.html"]');
+                    if (dashboardElement) {
+                        targetElement = dashboardElement.closest('.nav-item');
+                    }
+                }
+                targetElement.insertAdjacentHTML('afterend', logoutItem);
             }
 
         } catch (error) {
@@ -284,20 +291,20 @@ function updateNavbarUniversal() {
 
 // Funzione per mostrare navbar per utenti non autenticati
 function showNavbarForUnauthenticatedUser(config) {
-    const authSection = $('#authSection');
+    const authSection = document.getElementById('authSection');
 
     // Per la homepage, mostra sempre il tasto Accedi se l'utente non è loggato
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     if (currentPage === 'index.html' || config.mostraAccedi) {
-        authSection.html(`
+        authSection.innerHTML = `
             <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
                 <i class="fas fa-sign-in-alt me-1"></i>
                 Accedi
             </a>
-        `);
+        `;
     } else {
         // Nascondi completamente la sezione auth se non serve
-        authSection.hide();
+        authSection.style.display = 'none';
     }
 }
 

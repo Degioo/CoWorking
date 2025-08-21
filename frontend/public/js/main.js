@@ -867,7 +867,7 @@ function showFieldSuccess(inputGroup, field) {
 function handlePrenotazioneRedirect() {
   const urlParams = new URLSearchParams(window.location.search);
   const redirect = urlParams.get('redirect');
-  
+
   if (redirect === 'prenotazione') {
     const redirectMessage = document.getElementById('redirectMessage');
     if (redirectMessage) {
@@ -878,6 +878,6 @@ function handlePrenotazioneRedirect() {
 }
 
 // Inizializza la gestione redirect quando il DOM è pronto
-$(document).ready(function() {
+$(document).ready(function () {
   handlePrenotazioneRedirect();
 }); 

@@ -336,7 +336,7 @@ function updateSummary() {
         document.getElementById('summaryStanza').textContent = selectedSpazio.nome;
         document.getElementById('summaryData').textContent = `${selectedDateInizio.toLocaleDateString('it-IT')} - ${selectedDateFine.toLocaleDateString('it-IT')}`;
         document.getElementById('summaryOrario').textContent = selectedTime;
-        
+
         // Calcola il prezzo totale per il numero di giorni
         const giorni = Math.ceil((selectedDateFine - selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
         const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni;
@@ -394,7 +394,7 @@ function proceedToBooking() {
 
         if (!userId || !userToken) {
             console.log('🔐 Utente non loggato, reindirizzamento al login...');
-            
+
             // Salva i dati della prenotazione per il redirect post-login
             const prenotazioneData = {
                 sede: selectedSede.id_sede,
@@ -404,9 +404,9 @@ function proceedToBooking() {
                 orario: selectedTime,
                 prezzo: selectedSpazio.prezzo_ora || 10
             };
-            
+
             localStorage.setItem('pendingPrenotazione', JSON.stringify(prennotazioneData));
-            
+
             // Reindirizza al login
             window.location.href = 'login.html?redirect=prenotazione';
             return;
