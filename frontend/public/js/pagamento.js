@@ -728,8 +728,12 @@ async function handleStripePaymentSubmit(event) {
         const paymentIntent = await createPaymentIntent();
         console.log('Payment Intent creato:', paymentIntent);
 
-        // Conferma il pagamento con Stripe
-        const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.clientSecret);
+        // Conferma il pagamento con Stripe passando i dati della carta
+        const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.clientSecret, {
+            payment_method: {
+                card: card
+            }
+        });
 
         if (error) {
             console.error('Errore conferma pagamento:', error);
