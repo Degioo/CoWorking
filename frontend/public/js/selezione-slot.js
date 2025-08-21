@@ -3,7 +3,8 @@ let sedi = [];
 let spazi = [];
 let selectedSede = null;
 let selectedSpazio = null;
-let selectedDate = null;
+let selectedDateInizio = null;
+let selectedDateFine = null;
 let selectedTime = null;
 let datePicker = null;
 
@@ -128,12 +129,13 @@ function populateSpazioSelect() {
 function initializeCalendar() {
     const datePickerElement = document.getElementById('datePicker');
 
-    // Configurazione Flatpickr
+    // Configurazione Flatpickr per selezione intervallo
     datePicker = flatpickr(datePickerElement, {
         locale: 'it',
         dateFormat: 'd/m/Y',
         minDate: 'today',
         maxDate: new Date().fp_incr(30), // 30 giorni da oggi
+        mode: 'range', // Abilita selezione intervallo
         disable: [
             function (date) {
                 // Disabilita i weekend (sabato = 6, domenica = 0)
@@ -141,9 +143,10 @@ function initializeCalendar() {
             }
         ],
         onChange: function (selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                selectedDate = selectedDates[0];
-                console.log('📅 Data selezionata:', selectedDate);
+            if (selectedDates.length === 2) {
+                selectedDateInizio = selectedDates[0];
+                selectedDateFine = selectedDates[1];
+                console.log('📅 Date selezionate:', selectedDateInizio, 'a', selectedDateFine);
 
                 // Carica gli orari disponibili per la data selezionata
                 if (selectedSede && selectedSpazio) {
@@ -152,6 +155,11 @@ function initializeCalendar() {
 
                 // Aggiorna il riepilogo
                 updateSummary();
+            } else if (selectedDates.length === 1) {
+                // Reset se viene selezionata solo una data
+                selectedDateInizio = null;
+                selectedDateFine = null;
+                hideSummary();
             }
         }
     });
@@ -180,7 +188,8 @@ function setupEventListeners() {
             // Reset calendario
             if (datePicker) {
                 datePicker.clear();
-                selectedDate = null;
+                selectedDateInizio = null;
+                selectedDateFine = null;
             }
 
             // Nascondi riepilogo
@@ -204,7 +213,8 @@ function setupEventListeners() {
             // Reset calendario
             if (datePicker) {
                 datePicker.clear();
-                selectedDate = null;
+                selectedDateInizio = null;
+                selectedDateFine = null;
             }
 
             // Nascondi riepilogo
@@ -225,25 +235,22 @@ function setupEventListeners() {
 
 // Carica gli orari disponibili per la data selezionata
 async function loadOrariDisponibili() {
-    if (!selectedSede || !selectedSpazio || !selectedDate) {
+    if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
         return;
     }
 
     try {
         showLoading(true);
 
-        console.log(`🔄 Caricamento orari disponibili per ${selectedDate.toLocaleDateString('it-IT')}...`);
+        console.log(`🔄 Caricamento orari disponibili dal ${selectedDateInizio.toLocaleDateString('it-IT')} al ${selectedDateFine.toLocaleDateString('it-IT')}...`);
 
-                // Formatta la data per l'API
-        const dataFormatted = selectedDate.toISOString().split('T')[0];
-        
-                // Per ora, carica tutti gli orari disponibili senza verificare conflitti specifici
+        // Per ora, carica tutti gli orari disponibili senza verificare conflitti specifici
         // In futuro si può implementare una verifica più sofisticata
-        console.log('📅 Caricamento orari per la data selezionata');
-        
+        console.log('📅 Caricamento orari per l\'intervallo selezionato');
+
         // Simula una risposta di disponibilità (per ora tutti disponibili)
         const disponibilita = { disponibile: true, orari: [] };
-        
+
         // Mostra gli orari disponibili
         displayTimeSlots(disponibilita);
 
@@ -298,7 +305,7 @@ function displayTimeSlots(disponibilita) {
 function checkTimeAvailability(orario, disponibilita) {
     // Logica semplificata: considera disponibile se non ci sono prenotazioni
     // In un'implementazione reale, verificheresti contro le prenotazioni esistenti
-    
+
     // Per ora, rendiamo disponibili tutti gli orari
     // In futuro, qui si può implementare la logica per verificare conflitti specifici
     return true;
@@ -324,12 +331,16 @@ function selectTimeSlot(orario, slotElement) {
 
 // Aggiorna il riepilogo della selezione
 function updateSummary() {
-    if (selectedSede && selectedSpazio && selectedDate && selectedTime) {
+    if (selectedSede && selectedSpazio && selectedDateInizio && selectedDateFine && selectedTime) {
         document.getElementById('summarySede').textContent = selectedSede.nome;
         document.getElementById('summaryStanza').textContent = selectedSpazio.nome;
-        document.getElementById('summaryData').textContent = selectedDate.toLocaleDateString('it-IT');
+        document.getElementById('summaryData').textContent = `${selectedDateInizio.toLocaleDateString('it-IT')} - ${selectedDateFine.toLocaleDateString('it-IT')}`;
         document.getElementById('summaryOrario').textContent = selectedTime;
-        document.getElementById('summaryPrezzo').textContent = selectedSpazio.prezzo_ora || 10;
+        
+        // Calcola il prezzo totale per il numero di giorni
+        const giorni = Math.ceil((selectedDateFine - selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
+        const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni;
+        document.getElementById('summaryPrezzo').textContent = prezzoTotale;
 
         // Abilita il pulsante prenota
         document.getElementById('btnBook').disabled = false;
@@ -359,8 +370,8 @@ function validateSelection() {
         return false;
     }
 
-    if (!selectedDate) {
-        showError('Seleziona una data');
+    if (!selectedDateInizio || !selectedDateFine) {
+        showError('Seleziona un intervallo di date');
         return false;
     }
 
@@ -377,12 +388,39 @@ function proceedToBooking() {
     try {
         console.log('🚀 Procedo alla prenotazione...');
 
+        // Controlla se l'utente è loggato
+        const userId = localStorage.getItem('userId');
+        const userToken = localStorage.getItem('userToken');
+
+        if (!userId || !userToken) {
+            console.log('🔐 Utente non loggato, reindirizzamento al login...');
+            
+            // Salva i dati della prenotazione per il redirect post-login
+            const prenotazioneData = {
+                sede: selectedSede.id_sede,
+                spazio: selectedSpazio.id_spazio,
+                dataInizio: selectedDateInizio.toISOString(),
+                dataFine: selectedDateFine.toISOString(),
+                orario: selectedTime,
+                prezzo: selectedSpazio.prezzo_ora || 10
+            };
+            
+            localStorage.setItem('pendingPrenotazione', JSON.stringify(prennotazioneData));
+            
+            // Reindirizza al login
+            window.location.href = 'login.html?redirect=prenotazione';
+            return;
+        }
+
+        // Utente loggato, procede al pagamento
+        console.log('✅ Utente loggato, procedo al pagamento...');
+
         // Prepara i parametri per la pagina di prenotazione
         const params = new URLSearchParams({
             sede: selectedSede.id_sede,
             spazio: selectedSpazio.id_spazio,
-            dal: selectedDate.toISOString(),
-            al: new Date(selectedDate.getTime() + 60 * 60 * 1000).toISOString() // +1 ora
+            dal: selectedDateInizio.toISOString(),
+            al: selectedDateFine.toISOString()
         });
 
         // Reindirizza alla pagina di prenotazione

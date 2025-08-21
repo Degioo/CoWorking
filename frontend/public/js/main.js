@@ -861,4 +861,23 @@ function showFieldSuccess(inputGroup, field) {
   if (!field.getAttribute('aria-describedby')) {
     field.removeAttribute('aria-describedby');
   }
-} 
+}
+
+// Gestione redirect per prenotazione
+function handlePrenotazioneRedirect() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirect = urlParams.get('redirect');
+  
+  if (redirect === 'prenotazione') {
+    const redirectMessage = document.getElementById('redirectMessage');
+    if (redirectMessage) {
+      redirectMessage.style.display = 'block';
+      console.log('✅ Messaggio redirect prenotazione mostrato');
+    }
+  }
+}
+
+// Inizializza la gestione redirect quando il DOM è pronto
+$(document).ready(function() {
+  handlePrenotazioneRedirect();
+}); 

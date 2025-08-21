@@ -150,19 +150,24 @@
             color: white;
             font-size: 2rem;
         }
-        
+
         .loading-spinner .fa-spinner {
             animation: spin 1s linear infinite;
         }
-        
+
         .loading-spinner div {
             animation: none;
             margin-top: 1rem;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -258,10 +263,10 @@
                 <div class="col-md-8">
                     <h3 class="mb-4">
                         <i class="fas fa-calendar me-2"></i>
-                        Seleziona Data
+                        Seleziona Intervallo Date
                     </h3>
                     <input type="text" id="datePicker" class="form-control form-control-lg"
-                        placeholder="Seleziona una data...">
+                        placeholder="Seleziona data inizio e fine...">
                 </div>
 
                 <div class="col-md-4">
@@ -296,12 +301,12 @@
                     </div>
                 </div>
 
-                <div class="col-md-4 d-flex align-items-center justify-content-center">
-                    <div class="text-center">
-                        <div class="h2 mb-2">€<span id="summaryPrezzo">0</span></div>
-                        <small>per ora</small>
-                    </div>
-                </div>
+                                         <div class="col-md-4 d-flex align-items-center justify-content-center">
+                             <div class="text-center">
+                                 <div class="h2 mb-2">€<span id="summaryPrezzo">0</span></div>
+                                 <small>totale per il periodo</small>
+                             </div>
+                         </div>
             </div>
         </div>
 
