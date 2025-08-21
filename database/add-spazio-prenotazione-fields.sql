@@ -3,7 +3,12 @@
 
 -- Aggiunge campo stato per gestire disponibilità slot
 ALTER TABLE Spazio 
-ADD COLUMN IF NOT EXISTS stato TEXT DEFAULT 'disponibile' CHECK (stato IN ('disponibile', 'occupato', 'in_prenotazione', 'manutenzione'));
+ADD COLUMN IF NOT EXISTS stato TEXT DEFAULT 'disponibile';
+
+-- Aggiunge il constraint CHECK dopo aver creato il campo
+ALTER TABLE Spazio 
+ADD CONSTRAINT IF NOT EXISTS check_stato_spazio 
+CHECK (stato IN ('disponibile', 'in_prenotazione', 'occupato', 'manutenzione'));
 
 -- Aggiunge campo per tracciare l'ultima prenotazione
 ALTER TABLE Spazio 
