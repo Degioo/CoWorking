@@ -23,8 +23,8 @@ class ScadenzeController {
         console.log(`🔓 Trovate ${prenotazioniScadute.rows.length} prenotazioni scadute, libero gli slot`);
 
         for (const prenotazione of prenotazioniScadute.rows) {
-                  // Aggiorna la prenotazione a 'scaduta' (tranne quelle già cancellate)
-        await pool.query(`
+          // Aggiorna la prenotazione a 'scaduta' (tranne quelle già cancellate)
+          await pool.query(`
           UPDATE Prenotazione 
           SET stato = 'scaduta' 
           WHERE id_prenotazione = $1

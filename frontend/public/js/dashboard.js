@@ -248,14 +248,21 @@ function loadPrenotazioniUtente() {
     headers: getAuthHeaders()
   })
     .done(function (prenotazioni) {
+      // Salva le prenotazioni globalmente per i countdown
+      window.currentPrenotazioni = prenotazioni;
+      
       // Prima sincronizza prenotazioni con pagamenti
       syncPrenotazioniWithPagamenti().then(() => {
         // Poi mostra le prenotazioni aggiornate
         displayPrenotazioniUtente(prenotazioni);
+        
+        // Avvia l'aggiornamento dei countdown
+        startCountdownUpdates();
       }).catch(error => {
         console.error('Errore sincronizzazione:', error);
         // Mostra comunque le prenotazioni anche se la sincronizzazione fallisce
         displayPrenotazioniUtente(prenotazioni);
+        startCountdownUpdates();
       });
     })
     .fail(function (xhr) {
@@ -312,6 +319,35 @@ async function syncPrenotazioniWithPagamenti() {
   }
 }
 
+// Calcola il tempo rimanente per una prenotazione
+function getTempoRimanente(prenotazione) {
+  if (prenotazione.stato !== 'in attesa' && prenotazione.stato !== 'pendente') {
+    return null;
+  }
+
+  // Se non c'è scadenza_slot, calcola 15 minuti dalla data di creazione
+  let scadenza;
+  if (prenotazione.scadenza_slot) {
+    scadenza = new Date(prenotazione.scadenza_slot);
+  } else {
+    // Fallback: 15 minuti dalla data di creazione
+    scadenza = new Date(prenotazione.data_inizio);
+    scadenza.setMinutes(scadenza.getMinutes() + 15);
+  }
+
+  const now = new Date();
+  const diff = scadenza - now;
+
+  if (diff <= 0) {
+    return 'SCADUTO';
+  }
+
+  const minuti = Math.floor(diff / (1000 * 60));
+  const secondi = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  return `${minuti}:${secondi.toString().padStart(2, '0')}`;
+}
+
 // Visualizza prenotazioni utente
 function displayPrenotazioniUtente(prenotazioni) {
   const container = $('#prenotazioniContent');
@@ -321,7 +357,7 @@ function displayPrenotazioniUtente(prenotazioni) {
   }
 
   let html = '<div class="table-responsive"><table class="table table-striped">';
-  html += '<thead><tr><th>Data</th><th>Sede</th><th>Via</th><th>Stato</th><th>Azioni</th></tr></thead><tbody>';
+  html += '<thead><tr><th>Data</th><th>Sede</th><th>Via</th><th>Stato</th><th>Tempo Rimanente</th><th>Azioni</th></tr></thead><tbody>';
 
   prenotazioni.forEach(p => {
     const dataInizio = new Date(p.data_inizio).toLocaleString('it-IT');
@@ -329,6 +365,12 @@ function displayPrenotazioniUtente(prenotazioni) {
     const dataInizioObj = new Date(p.data_inizio);
     const durataOre = Math.round((dataFine - dataInizioObj) / (1000 * 60 * 60));
     const importo = durataOre * 10; // 10€/ora
+
+    // Calcola tempo rimanente
+    const tempoRimanente = getTempoRimanente(p);
+    const tempoRimanenteHtml = tempoRimanente ? 
+      `<span class="countdown" data-prenotazione="${p.id_prenotazione}">${tempoRimanente}</span>` : 
+      '-';
 
     // Determina se mostrare il pulsante di pagamento
     let azioniHtml = '';
@@ -343,9 +385,14 @@ function displayPrenotazioniUtente(prenotazioni) {
       `;
     } else if (p.stato === 'in attesa' || p.stato === 'pendente') {
       azioniHtml = `
-        <button class="btn btn-success btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
-          💳 Paga Ora (€${importo.toFixed(2)})
-        </button>
+        <div class="btn-group" role="group">
+          <button class="btn btn-success btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
+            💳 Paga Ora (€${importo.toFixed(2)})
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="cancellaPrenotazione(${p.id_prenotazione})">
+            ❌ Cancella
+          </button>
+        </div>
       `;
     } else if (p.stato === 'confermata') {
       azioniHtml = '<span class="badge bg-success">✅ Pagato</span>';
@@ -372,6 +419,7 @@ function displayPrenotazioniUtente(prenotazioni) {
         <td>${p.nome_sede || 'Sede'}</td>
         <td>${p.indirizzo_sede || 'Via non disponibile'}</td>
         <td><span class="badge bg-${getStatusColor(p.stato)}">${p.stato}</span></td>
+        <td>${tempoRimanenteHtml}</td>
         <td>${azioniHtml}</td>
       </tr>
     `;
@@ -379,6 +427,76 @@ function displayPrenotazioniUtente(prenotazioni) {
 
   html += '</tbody></table></div>';
   container.html(html);
+}
+
+// Cancella una prenotazione
+function cancellaPrenotazione(idPrenotazione) {
+  if (!confirm('Sei sicuro di voler cancellare questa prenotazione? Lo slot sarà immediatamente disponibile per altri utenti.')) {
+    return;
+  }
+
+  $.ajax({
+    url: `${window.CONFIG.API_BASE}/prenotazioni/${idPrenotazione}`,
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  })
+    .done(function (response) {
+      console.log('Prenotazione cancellata:', response);
+      showAlert('Prenotazione cancellata con successo!', 'success');
+      
+      // Ricarica le prenotazioni per mostrare l'aggiornamento
+      loadPrenotazioniUtente();
+    })
+    .fail(function (xhr) {
+      console.error('Errore cancellazione:', xhr.status, xhr.responseText);
+      let errorMessage = 'Errore durante la cancellazione';
+      
+      if (xhr.responseJSON && xhr.responseJSON.error) {
+        errorMessage = xhr.responseJSON.error;
+      }
+      
+      showAlert(errorMessage, 'error');
+    });
+}
+
+// Avvia gli aggiornamenti dei countdown
+function startCountdownUpdates() {
+  // Ferma eventuali aggiornamenti precedenti
+  if (window.countdownInterval) {
+    clearInterval(window.countdownInterval);
+  }
+  
+  // Aggiorna i countdown ogni secondo
+  window.countdownInterval = setInterval(updateCountdowns, 1000);
+  
+  // Esegui il primo aggiornamento immediatamente
+  updateCountdowns();
+}
+
+// Aggiorna i countdown in tempo reale
+function updateCountdowns() {
+  $('.countdown').each(function() {
+    const countdownElement = $(this);
+    const prenotazioneId = countdownElement.data('prenotazione');
+    
+    // Trova la prenotazione corrispondente
+    const prenotazione = window.currentPrenotazioni ? 
+      window.currentPrenotazioni.find(p => p.id_prenotazione == prenotazioneId) : null;
+    
+    if (prenotazione) {
+      const tempoRimanente = getTempoRimanente(prenotazione);
+      if (tempoRimanente) {
+        countdownElement.text(tempoRimanente);
+        
+        // Se è scaduto, aggiorna la visualizzazione
+        if (tempoRimanente === 'SCADUTO') {
+          countdownElement.addClass('text-danger fw-bold');
+          // Ricarica le prenotazioni per aggiornare lo stato
+          setTimeout(() => loadPrenotazioniUtente(), 1000);
+        }
+      }
+    }
+  });
 }
 
 // Carica pagamenti utente
