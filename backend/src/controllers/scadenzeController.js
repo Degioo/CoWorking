@@ -23,12 +23,13 @@ class ScadenzeController {
         console.log(`🔓 Trovate ${prenotazioniScadute.rows.length} prenotazioni scadute, libero gli slot`);
 
         for (const prenotazione of prenotazioniScadute.rows) {
-          // Aggiorna la prenotazione a 'scaduta'
-          await pool.query(`
-            UPDATE Prenotazione 
-            SET stato = 'scaduta' 
-            WHERE id_prenotazione = $1
-          `, [prenotazione.id_prenotazione]);
+                  // Aggiorna la prenotazione a 'scaduta' (tranne quelle già cancellate)
+        await pool.query(`
+          UPDATE Prenotazione 
+          SET stato = 'scaduta' 
+          WHERE id_prenotazione = $1
+          AND stato NOT IN ('cancellata', 'confermata')
+        `, [prenotazione.id_prenotazione]);
 
           // Libera lo slot
           await pool.query(`
@@ -179,7 +180,7 @@ class ScadenzeController {
         JOIN Spazio s ON p.id_spazio = s.id_spazio
         JOIN Sede sed ON s.id_sede = sed.id_sede
         WHERE p.id_utente = $1 
-        AND p.stato = 'scaduta'
+        AND p.stato IN ('scaduta', 'cancellata')
         ORDER BY p.data_fine DESC
       `, [idUtente]);
 

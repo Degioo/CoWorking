@@ -417,13 +417,13 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // Combina data e orario per creare timestamp completi
         const dataInizioCompleta = new Date(dataInizio);
         const dataFineCompleta = new Date(dataFine);
-        
+
         // Imposta gli orari specifici
         if (orarioInizio) {
             const [oreInizio, minutiInizio] = orarioInizio.split(':');
             dataInizioCompleta.setHours(parseInt(oreInizio), parseInt(minutiInizio), 0, 0);
         }
-        
+
         if (orarioFine) {
             const [oreFine, minutiFine] = orarioFine.split(':');
             dataFineCompleta.setHours(parseInt(oreFine), parseInt(minutiFine), 0, 0);
@@ -857,7 +857,7 @@ function populatePrenotazioneDetails() {
         const minuti = Math.round(durataOre * 60);
         durataText = `${minuti}m`;
     }
-    
+
     document.getElementById('durata-prenotazione').textContent = durataText;
 
     // Gestisci il nome dello spazio e della sede

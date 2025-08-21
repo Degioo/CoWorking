@@ -290,6 +290,66 @@ exports.confirmPrenotazione = async (req, res) => {
   }
 };
 
+// Cancella una prenotazione (solo se in attesa e appartiene all'utente)
+exports.cancellaPrenotazione = async (req, res) => {
+    const { id } = req.params;
+    const id_utente = req.user.id_utente;
+
+    if (!id) {
+        return res.status(400).json({ error: 'ID prenotazione obbligatorio' });
+    }
+
+    try {
+        // Verifica che la prenotazione appartenga all'utente e sia cancellabile
+        const pre = await pool.query(
+            `SELECT stato, id_spazio FROM Prenotazione 
+             WHERE id_prenotazione = $1 AND id_utente = $2`,
+            [id, id_utente]
+        );
+
+        if (pre.rowCount === 0) {
+            return res.status(404).json({ error: 'Prenotazione non trovata' });
+        }
+
+        const prenotazione = pre.rows[0];
+
+        // Solo le prenotazioni "in attesa" possono essere cancellate
+        if (prenotazione.stato !== 'in attesa') {
+            return res.status(400).json({ 
+                error: 'Solo le prenotazioni in attesa possono essere cancellate' 
+            });
+        }
+
+        // Aggiorna la prenotazione a "cancellata"
+        await pool.query(
+            `UPDATE Prenotazione SET stato = 'cancellata' WHERE id_prenotazione = $1`,
+            [id]
+        );
+
+        // Libera lo slot se era bloccato
+        await pool.query(
+            `UPDATE Spazio 
+             SET stato = 'disponibile', 
+                 ultima_prenotazione = NULL, 
+                 utente_prenotazione = NULL
+             WHERE id_spazio = $1 AND stato = 'in_prenotazione'`,
+            [prenotazione.id_spazio]
+        );
+
+        console.log(`✅ Prenotazione ${id} cancellata, slot ${prenotazione.id_spazio} liberato`);
+
+        res.json({
+            message: 'Prenotazione cancellata con successo',
+            stato: 'cancellata',
+            slot_liberato: true
+        });
+
+    } catch (err) {
+        console.error('Errore cancellazione prenotazione:', err);
+        res.status(500).json({ error: 'Errore server: ' + err.message });
+    }
+};
+
 // Elimina prenotazioni duplicate nella stessa data/stanza
 exports.eliminateDuplicatePrenotazioni = async (req, res) => {
   const { id_spazio, data_inizio, data_fine, exclude_id } = req.body;

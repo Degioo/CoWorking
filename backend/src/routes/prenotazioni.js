@@ -21,6 +21,9 @@ router.put('/prenotazioni/:id_prenotazione/suspend', authenticateToken, prenotaz
 // Conferma una prenotazione (dopo il pagamento)
 router.put('/prenotazioni/:id_prenotazione/confirm', authenticateToken, prenotazioniController.confirmPrenotazione);
 
+// Cancella una prenotazione (solo se in attesa)
+router.delete('/prenotazioni/:id', authenticateToken, prenotazioniController.cancellaPrenotazione);
+
 // Elimina prenotazioni duplicate nella stessa data/stanza
 router.post('/prenotazioni/eliminate-duplicates', authenticateToken, prenotazioniController.eliminateDuplicatePrenotazioni);
 
