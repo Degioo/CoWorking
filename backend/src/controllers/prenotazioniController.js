@@ -31,8 +31,40 @@ exports.creaPrenotazione = async (req, res) => {
   if (!id_utente || !id_spazio || !data_inizio || !data_fine) {
     return res.status(400).json({ error: 'Tutti i campi sono obbligatori' });
   }
+
   try {
-    // Controllo disponibilità
+    // Prima controlla se lo slot è disponibile o in prenotazione
+    const checkSlot = await pool.query(
+      `SELECT stato, ultima_prenotazione, utente_prenotazione 
+       FROM Spazio WHERE id_spazio = $1`,
+      [id_spazio]
+    );
+
+    if (checkSlot.rowCount === 0) {
+      return res.status(404).json({ error: 'Spazio non trovato' });
+    }
+
+    const slot = checkSlot.rows[0];
+
+    // Se lo slot è occupato, rifiuta
+    if (slot.stato === 'occupato') {
+      return res.status(409).json({ error: 'Spazio non disponibile' });
+    }
+
+    // Se lo slot è in prenotazione da meno di 15 minuti, rifiuta
+    if (slot.stato === 'in_prenotazione' && slot.ultima_prenotazione) {
+      const minutiTrascorsi = Math.floor((Date.now() - new Date(slot.ultima_prenotazione).getTime()) / (1000 * 60));
+
+      if (minutiTrascorsi < 15) {
+        const minutiRimanenti = 15 - minutiTrascorsi;
+        return res.status(409).json({
+          error: `Spazio temporaneamente bloccato. Riprova tra ${minutiRimanenti} minuti.`,
+          minutiRimanenti: minutiRimanenti
+        });
+      }
+    }
+
+    // Controllo disponibilità per prenotazioni confermate
     const check = await pool.query(
       `SELECT COUNT(*) FROM Prenotazione
        WHERE id_spazio = $1
@@ -40,18 +72,66 @@ exports.creaPrenotazione = async (req, res) => {
          AND (data_inizio, data_fine) OVERLAPS ($2::timestamp, $3::timestamp)`,
       [id_spazio, data_inizio, data_fine]
     );
+
     if (check.rows[0].count !== '0') {
       return res.status(409).json({ error: 'Spazio non disponibile' });
     }
+
+    // Blocca temporaneamente lo slot per 15 minuti
+    await pool.query(
+      `UPDATE Spazio 
+       SET stato = 'in_prenotazione', 
+           ultima_prenotazione = NOW(), 
+           utente_prenotazione = $1
+       WHERE id_spazio = $2`,
+      [id_utente, id_spazio]
+    );
+
     // Inserimento prenotazione
     const result = await pool.query(
       `INSERT INTO Prenotazione (id_utente, id_spazio, data_inizio, data_fine, stato)
        VALUES ($1, $2, $3, $4, 'in attesa') RETURNING id_prenotazione`,
       [id_utente, id_spazio, data_inizio, data_fine]
     );
-    res.status(201).json({ message: 'Prenotazione creata', id_prenotazione: result.rows[0].id_prenotazione });
+
+    // Programma la liberazione automatica dello slot dopo 15 minuti
+    setTimeout(async () => {
+      try {
+        const checkPrenotazione = await pool.query(
+          `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1`,
+          [result.rows[0].id_prenotazione]
+        );
+
+        // Se la prenotazione non è stata confermata, libera lo slot
+        if (checkPrenotazione.rowCount > 0 &&
+          !['confermata', 'pagato'].includes(checkPrenotazione.rows[0].stato)) {
+
+          await pool.query(
+            `UPDATE Spazio 
+             SET stato = 'disponibile', 
+                 ultima_prenotazione = NULL, 
+                 utente_prenotazione = NULL
+             WHERE id_spazio = $1`,
+            [id_spazio]
+          );
+
+          console.log(`⏰ Slot ${id_spazio} liberato automaticamente dopo 15 minuti`);
+        }
+      } catch (error) {
+        console.error('Errore liberazione automatica slot:', error);
+      }
+    }, 15 * 60 * 1000); // 15 minuti
+
+    res.status(201).json({
+      message: 'Prenotazione creata',
+      id_prenotazione: result.rows[0].id_prenotazione,
+      slot_bloccato: true,
+      scadenza_slot: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Errore server' });
+    console.error('Errore creazione prenotazione:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 };
 
@@ -174,7 +254,7 @@ exports.confirmPrenotazione = async (req, res) => {
   try {
     // Verifica che la prenotazione appartenga all'utente
     const pre = await pool.query(
-      `SELECT stato FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
+      `SELECT stato, id_spazio FROM Prenotazione WHERE id_prenotazione = $1 AND id_utente = $2`,
       [id_prenotazione, id_utente]
     );
 
@@ -186,6 +266,16 @@ exports.confirmPrenotazione = async (req, res) => {
     await pool.query(
       `UPDATE Prenotazione SET stato = 'confermata', data_pagamento = NOW() WHERE id_prenotazione = $1`,
       [id_prenotazione]
+    );
+
+    // Libera lo slot e lo marca come occupato per la data della prenotazione
+    await pool.query(
+      `UPDATE Spazio 
+       SET stato = 'occupato', 
+           ultima_prenotazione = NULL, 
+           utente_prenotazione = NULL
+       WHERE id_spazio = $1`,
+      [pre.rows[0].id_spazio]
     );
 
     // Aggiorna o crea il record di pagamento - logica sicura senza ON CONFLICT
@@ -213,7 +303,8 @@ exports.confirmPrenotazione = async (req, res) => {
 
     res.json({
       message: 'Prenotazione confermata',
-      stato: 'confermata'
+      stato: 'confermata',
+      slot_occupato: true
     });
 
   } catch (err) {

@@ -6,29 +6,29 @@ const PORT = config.server.port;
 
 // Middleware CORS per permettere richieste dal frontend
 app.use(cors({
-    origin: function (origin, callback) {
-        // Lista degli origin permessi
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:8000',
-            'http://127.0.0.1:5500',
-            'https://coworking-mio-1.onrender.com',
-            'https://coworking-mio-1-backend.onrender.com'
-        ];
-        
-        // Permetti richieste senza origin (es. Postman, mobile apps)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            console.log('CORS blocked origin:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-Requested-With']
+  origin: function (origin, callback) {
+    // Lista degli origin permessi
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:8000',
+      'http://127.0.0.1:5500',
+      'https://coworking-mio-1.onrender.com',
+      'https://coworking-mio-1-backend.onrender.com'
+    ];
+
+    // Permetti richieste senza origin (es. Postman, mobile apps)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-Requested-With']
 }));
 
 // Gestisci le richieste OPTIONS (preflight)
@@ -36,16 +36,16 @@ app.options('*', cors());
 
 // Middleware per loggare le richieste CORS
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
-    console.log(`CORS Headers - Origin: ${req.headers.origin}, Referer: ${req.headers.referer}`);
-    console.log(`CORS Allowed Origins: ${JSON.stringify([
-        'http://localhost:3000',
-        'http://localhost:8000',
-        'http://127.0.0.1:5500',
-        'https://coworking-mio-1.onrender.com',
-        'https://coworking-mio-1-backend.onrender.com'
-    ])}`);
-    next();
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'No origin'}`);
+  console.log(`CORS Headers - Origin: ${req.headers.origin}, Referer: ${req.headers.referer}`);
+  console.log(`CORS Allowed Origins: ${JSON.stringify([
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:5500',
+    'https://coworking-mio-1.onrender.com',
+    'https://coworking-mio-1-backend.onrender.com'
+  ])}`);
+  next();
 });
 
 app.use(express.json());
@@ -92,7 +92,7 @@ app.get('/api/ping', (req, res) => {
 // Endpoint di test CORS
 app.get('/api/test-cors', (req, res) => {
   console.log('Test CORS chiamato con origin:', req.headers.origin);
-  res.json({ 
+  res.json({
     message: 'CORS test successful',
     origin: req.headers.origin,
     method: req.method,
@@ -103,7 +103,7 @@ app.get('/api/test-cors', (req, res) => {
 // Endpoint di test CORS specifico per sedi
 app.get('/api/test-sedi-cors', (req, res) => {
   console.log('Test sedi CORS chiamato con origin:', req.headers.origin);
-  res.json({ 
+  res.json({
     message: 'CORS sedi test successful',
     origin: req.headers.origin,
     method: req.method,
@@ -115,7 +115,7 @@ app.get('/api/test-sedi-cors', (req, res) => {
 // Endpoint di test disponibilità senza autenticazione (per debug)
 app.get('/api/test-disponibilita', (req, res) => {
   const { data_inizio, data_fine } = req.query;
-  res.json({ 
+  res.json({
     message: 'Test disponibilità senza auth',
     data_inizio,
     data_fine,
@@ -129,14 +129,14 @@ app.get('/api/debug/db-test', async (req, res) => {
   try {
     const pool = require('./db');
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version');
-    res.json({ 
+    res.json({
       message: 'Database connection successful',
       data: result.rows[0],
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Database test error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Database connection failed',
       details: error.message,
       timestamp: new Date().toISOString()
@@ -149,14 +149,14 @@ app.get('/api/debug/sedi-test', async (req, res) => {
   try {
     const pool = require('./db');
     const result = await pool.query('SELECT COUNT(*) as sede_count FROM Sede');
-    res.json({ 
+    res.json({
       message: 'Sedi query successful',
       sede_count: result.rows[0].sede_count,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Sedi test error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Sedi query failed',
       details: error.message,
       timestamp: new Date().toISOString()
@@ -164,6 +164,11 @@ app.get('/api/debug/sedi-test', async (req, res) => {
   }
 });
 
+// Avvia il cron job per le scadenze
+const scadenzeCron = require('./cron/scadenzeCron');
+scadenzeCron.start();
+
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
+  console.log('🚀 Cron job scadenze avviato automaticamente');
 }); 

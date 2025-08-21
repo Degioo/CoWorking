@@ -865,3 +865,90 @@ function canProceedToNextStep() {
   console.log('canProceedToNextStep - Posso procedere al prossimo step');
   return true;
 }
+
+// Gestisce il countdown per le prenotazioni
+class CountdownManager {
+  constructor() {
+    this.countdowns = new Map();
+    this.activeCountdowns = new Set();
+  }
+
+  // Avvia un countdown per una prenotazione
+  startCountdown(prenotazioneId, scadenzaSlot, callback) {
+    if (this.activeCountdowns.has(prenotazioneId)) {
+      return; // Countdown già attivo
+    }
+
+    const scadenza = new Date(scadenzaSlot);
+    const now = new Date();
+
+    if (scadenza <= now) {
+      // Scadenza già passata
+      callback();
+      return;
+    }
+
+    this.activeCountdowns.add(prenotazioneId);
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = scadenza - now;
+
+      if (diff <= 0) {
+        // Scadenza raggiunta
+        this.stopCountdown(prenotazioneId);
+        callback();
+        return;
+      }
+
+      const minuti = Math.floor(diff / (1000 * 60));
+      const secondi = Math.floor((diff % (1000 * 60)) / 1000);
+
+      // Aggiorna l'UI con il countdown
+      this.updateCountdownUI(prenotazioneId, minuti, secondi);
+
+      // Continua il countdown
+      this.countdowns.set(prenotazioneId, setTimeout(updateCountdown, 1000));
+    };
+
+    // Avvia il primo aggiornamento
+    updateCountdown();
+  }
+
+  // Ferma un countdown
+  stopCountdown(prenotazioneId) {
+    if (this.countdowns.has(prenotazioneId)) {
+      clearTimeout(this.countdowns.get(prenotazioneId));
+      this.countdowns.delete(prenotazioneId);
+    }
+    this.activeCountdowns.delete(prenotazioneId);
+  }
+
+  // Aggiorna l'UI del countdown
+  updateCountdownUI(prenotazioneId, minuti, secondi) {
+    const countdownElement = document.querySelector(`[data-countdown="${prenotazioneId}"]`);
+    if (countdownElement) {
+      countdownElement.innerHTML = `
+        <div class="countdown-warning">
+          <i class="fas fa-clock text-warning me-2"></i>
+          <strong>Scade in: ${minuti}:${secondi.toString().padStart(2, '0')}</strong>
+        </div>
+      `;
+    }
+  }
+
+  // Ferma tutti i countdown
+  stopAll() {
+    this.countdowns.forEach(timeout => clearTimeout(timeout));
+    this.countdowns.clear();
+    this.activeCountdowns.clear();
+  }
+}
+
+// Istanza globale del gestore countdown
+const countdownManager = new CountdownManager();
+
+// Aggiungi cleanup quando si lascia la pagina
+window.addEventListener('beforeunload', () => {
+  countdownManager.stopAll();
+});

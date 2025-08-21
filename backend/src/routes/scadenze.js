@@ -3,81 +3,52 @@ const router = express.Router();
 const ScadenzeController = require('../controllers/scadenzeController');
 const { authenticateToken } = require('../middleware/auth');
 
-// Route per eseguire controlli scadenza (admin/gestore)
-router.post('/scadenze/check', authenticateToken, async (req, res) => {
+// Endpoint per eseguire controlli di scadenza (solo per admin/gestori)
+router.post('/check', authenticateToken, async (req, res) => {
   try {
-    // Verifica che l'utente sia gestore o amministratore
-    if (!['gestore', 'amministratore'].includes(req.user.ruolo)) {
+    // Verifica che l'utente sia admin o gestore
+    const user = req.user;
+    if (!['amministratore', 'gestore'].includes(user.ruolo)) {
+      return res.status(403).json({ error: 'Accesso negato. Solo admin e gestori possono eseguire controlli di scadenza.' });
+    }
+
+    const result = await ScadenzeController.eseguiControlliScadenza();
+
+    res.json({
+      message: 'Controlli scadenza eseguiti con successo',
+      result: result
+    });
+
+  } catch (error) {
+    console.error('Errore esecuzione controlli scadenza:', error);
+    res.status(500).json({ error: 'Errore server: ' + error.message });
+  }
+});
+
+// Endpoint per controllare scadenze specifiche
+router.get('/status', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!['amministratore', 'gestore'].includes(user.ruolo)) {
       return res.status(403).json({ error: 'Accesso negato' });
     }
-    
-    const risultati = await ScadenzeController.eseguiControlliScadenza();
-    res.json({
-      message: 'Controlli scadenza completati',
-      risultati
-    });
-    
-  } catch (error) {
-    console.error('Errore route controlli scadenza:', error);
-    res.status(500).json({ error: 'Errore server' });
-  }
-});
 
-// Route per ottenere prenotazioni scadute di un utente
-router.get('/scadenze/prenotazioni-scadute', authenticateToken, async (req, res) => {
-  try {
-    const prenotazioniScadute = await ScadenzeController.getPrenotazioniScaduteUtente(req.user.id_utente);
-    res.json({
-      prenotazioni: prenotazioniScadute,
-      count: prenotazioniScadute.length
-    });
-    
-  } catch (error) {
-    console.error('Errore route prenotazioni scadute:', error);
-    res.status(500).json({ error: 'Errore server' });
-  }
-});
+    const [slotLiberati, pagamentiScaduti, prenotazioniInScadenza] = await Promise.all([
+      ScadenzeController.checkScadenzePrenotazioni(),
+      ScadenzeController.checkPagamentiInSospeso(),
+      ScadenzeController.checkPrenotazioniInScadenza()
+    ]);
 
-// Route per ottenere prenotazioni in scadenza di un utente
-router.get('/scadenze/prenotazioni-in-scadenza', authenticateToken, async (req, res) => {
-  try {
-    const prenotazioniInScadenza = await ScadenzeController.getPrenotazioniInScadenzaUtente(req.user.id_utente);
     res.json({
-      prenotazioni: prenotazioniInScadenza,
-      count: prenotazioniInScadenza.length
-    });
-    
-  } catch (error) {
-    console.error('Errore route prenotazioni in scadenza:', error);
-    res.status(500).json({ error: 'Errore server' });
-  }
-});
-
-// Route per ottenere statistiche scadenze (admin/gestore)
-router.get('/scadenze/stats', authenticateToken, async (req, res) => {
-  try {
-    // Verifica che l'utente sia gestore o amministratore
-    if (!['gestore', 'amministratore'].includes(req.user.ruolo)) {
-      return res.status(403).json({ error: 'Accesso negato' });
-    }
-    
-    // Esegui controlli senza aggiornare il database
-    const prenotazioniScadute = await ScadenzeController.checkScadenzePrenotazioni();
-    const pagamentiScaduti = await ScadenzeController.checkPagamentiInSospeso();
-    const prenotazioniInScadenza = await ScadenzeController.checkPrenotazioniInScadenza();
-    
-    res.json({
-      stats: {
-        prenotazioniScadute,
-        pagamentiScaduti,
-        prenotazioniInScadenza: prenotazioniInScadenza.length
-      },
+      slotLiberati,
+      pagamentiScaduti,
+      prenotazioniInScadenza,
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
-    console.error('Errore route stats scadenze:', error);
-    res.status(500).json({ error: 'Errore server' });
+    console.error('Errore controllo status scadenze:', error);
+    res.status(500).json({ error: 'Errore server: ' + error.message });
   }
 });
 
