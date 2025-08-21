@@ -81,15 +81,6 @@ app.use('/webhook', webhookRoutes);
 const scadenzeRoutes = require('./routes/scadenze');
 app.use('/api', scadenzeRoutes);
 
-// Endpoint di test per verificare se le route scadenze sono caricate
-app.get('/api/test-scadenze', (req, res) => {
-  res.json({ 
-    message: 'Route scadenze caricate correttamente',
-    timestamp: new Date().toISOString(),
-    routes: ['/api/scadenze/check', '/api/scadenze/status', '/api/scadenze/prenotazioni-scadute', '/api/scadenze/prenotazioni-in-scadenza']
-  });
-});
-
 // Rotte analytics
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api', analyticsRoutes);
