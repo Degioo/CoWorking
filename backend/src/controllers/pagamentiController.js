@@ -212,7 +212,7 @@ exports.createCardIntent = async (req, res) => {
       amount: amountCents,
       currency: 'eur',
       customer: customer.id,
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ['card'],
       metadata: stripeMetadata,
       description: `Prenotazione coworking - ${ore}h - ${data_inizio} - ${metadata?.sede || 'Sede'} - ${metadata?.spazio || 'Spazio'}`
     });
