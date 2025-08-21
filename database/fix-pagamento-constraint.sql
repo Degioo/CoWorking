@@ -18,3 +18,4 @@ SELECT conname, contype, confupdtype, confdeltype
 FROM pg_constraint 
 WHERE conrelid = 'Pagamento'::regclass 
 AND conname = 'unique_id_prenotazione';
+

@@ -35,3 +35,4 @@ FROM Pagamento
 WHERE stripe_payment_intent_id IS NOT NULL
 GROUP BY stripe_payment_intent_id
 HAVING COUNT(*) > 1;
+

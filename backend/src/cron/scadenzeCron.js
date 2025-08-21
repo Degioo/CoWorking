@@ -87,3 +87,4 @@ class ScadenzeCron {
 const scadenzeCron = new ScadenzeCron();
 
 module.exports = scadenzeCron;
+
