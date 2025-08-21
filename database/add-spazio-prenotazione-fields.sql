@@ -5,10 +5,18 @@
 ALTER TABLE Spazio 
 ADD COLUMN IF NOT EXISTS stato TEXT DEFAULT 'disponibile';
 
--- Aggiunge il constraint CHECK dopo aver creato il campo
-ALTER TABLE Spazio 
-ADD CONSTRAINT IF NOT EXISTS check_stato_spazio 
-CHECK (stato IN ('disponibile', 'in_prenotazione', 'occupato', 'manutenzione'));
+-- Aggiunge il constraint CHECK (gestisce errori se già esiste)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'check_stato_spazio'
+    ) THEN
+        ALTER TABLE Spazio 
+        ADD CONSTRAINT check_stato_spazio 
+        CHECK (stato IN ('disponibile', 'in_prenotazione', 'occupato', 'manutenzione'));
+    END IF;
+END $$;
 
 -- Aggiunge campo per tracciare l'ultima prenotazione
 ALTER TABLE Spazio 
@@ -18,10 +26,18 @@ ADD COLUMN IF NOT EXISTS ultima_prenotazione TIMESTAMP;
 ALTER TABLE Spazio 
 ADD COLUMN IF NOT EXISTS utente_prenotazione INTEGER REFERENCES Utente(id_utente);
 
--- Crea indice per ottimizzare le query di scadenza
-CREATE INDEX IF NOT EXISTS idx_spazio_stato_ultima_prenotazione 
-ON Spazio(stato, ultima_prenotazione) 
-WHERE stato = 'in_prenotazione';
+-- Crea indice per ottimizzare le query di scadenza (gestisce errori se già esiste)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes 
+        WHERE indexname = 'idx_spazio_stato_ultima_prenotazione'
+    ) THEN
+        CREATE INDEX idx_spazio_stato_ultima_prenotazione 
+        ON Spazio(stato, ultima_prenotazione) 
+        WHERE stato = 'in_prenotazione';
+    END IF;
+END $$;
 
 -- Aggiorna tutti gli spazi esistenti a 'disponibile'
 UPDATE Spazio SET stato = 'disponibile' WHERE stato IS NULL;
