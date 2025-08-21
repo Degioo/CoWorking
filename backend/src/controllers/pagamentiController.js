@@ -230,12 +230,12 @@ exports.createCardIntent = async (req, res) => {
       if (insertError.code === '23505') { // unique_violation
         await pool.query(
           `UPDATE Pagamento SET 
-           importo = $2, data_pagamento = NOW(), stato = 'in attesa'
-           WHERE stripe_payment_intent_id = $3`,
-          [id_prenotazione, importo, paymentIntent.id]
+           importo = $1, data_pagamento = NOW(), stato = 'in attesa'
+           WHERE stripe_payment_intent_id = $2`,
+          [importo, paymentIntent.id]
         );
       } else {
-        // Se è un altro errore, rilancialo
+        console.error('Errore inserimento pagamento:', insertError);
         throw insertError;
       }
     }

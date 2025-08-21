@@ -27,7 +27,7 @@ exports.creaPrenotazione = async (req, res) => {
   const { id_spazio, data_inizio, data_fine } = req.body;
   // Prende l'ID utente dal middleware di autenticazione aggiornato
   const id_utente = req.user.id_utente;
-  
+
   if (!id_utente || !id_spazio || !data_inizio || !data_fine) {
     return res.status(400).json({ error: 'Tutti i campi sono obbligatori' });
   }
@@ -201,7 +201,7 @@ exports.confirmPrenotazione = async (req, res) => {
       if (insertError.code === '23505') { // unique_violation
         await pool.query(
           `UPDATE Pagamento SET 
-           stato = 'pagato', data_pagamento = NOW(), metodo = $3, provider_payment_id = $4
+           stato = 'pagato', data_pagamento = NOW(), metodo = $2, provider_payment_id = $3
            WHERE id_prenotazione = $1`,
           [id_prenotazione, method, payment_id]
         );
@@ -342,8 +342,8 @@ exports.handleMultiplePrenotazioniSala = async (req, res) => {
     let cancelled = 0;
 
     for (const prenotazione of prenotazioniSala.rows) {
-      if (prenotazione.id_prenotazione !== parseInt(id_prenotazione_confermata) && 
-          prenotazione.stato === 'in attesa') {
+      if (prenotazione.id_prenotazione !== parseInt(id_prenotazione_confermata) &&
+        prenotazione.stato === 'in attesa') {
         // Cancella le altre prenotazioni in attesa
         await pool.query(
           `DELETE FROM Prenotazione WHERE id_prenotazione = $1`,
