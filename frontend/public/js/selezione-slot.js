@@ -5,7 +5,8 @@ let selectedSede = null;
 let selectedSpazio = null;
 let selectedDateInizio = null;
 let selectedDateFine = null;
-let selectedTime = null;
+let selectedTimeInizio = null;
+let selectedTimeFine = null;
 let datePicker = null;
 
 // Inizializzazione della pagina
@@ -275,26 +276,29 @@ function displayTimeSlots(disponibilita) {
     // Pulisci il container
     timeSlotsContainer.innerHTML = '';
 
-    // Crea gli slot temporali
-    orariApertura.forEach(orario => {
-        const slot = document.createElement('div');
-        slot.className = 'time-slot';
-        slot.textContent = orario;
-        slot.dataset.orario = orario;
+            // Crea gli slot temporali
+        orariApertura.forEach(orario => {
+            const slot = document.createElement('div');
+            slot.className = 'time-slot';
+            slot.textContent = orario;
+            slot.dataset.orario = orario;
 
-        // Verifica se l'orario è disponibile
-        const isAvailable = checkTimeAvailability(orario, disponibilita);
+            // Verifica se l'orario è disponibile
+            const isAvailable = checkTimeAvailability(orario, disponibilita);
 
-        if (isAvailable) {
-            slot.classList.add('available');
-            slot.addEventListener('click', () => selectTimeSlot(orario, slot));
-        } else {
-            slot.classList.add('occupied');
-            slot.title = 'Orario già prenotato';
-        }
+            if (isAvailable) {
+                slot.classList.add('available');
+                slot.addEventListener('click', () => selectTimeSlot(orario, slot));
+                
+                // Aggiungi tooltip per spiegare la selezione
+                slot.title = 'Clicca per selezionare orario inizio/fine';
+            } else {
+                slot.classList.add('occupied');
+                slot.title = 'Orario già prenotato';
+            }
 
-        timeSlotsContainer.appendChild(slot);
-    });
+            timeSlotsContainer.appendChild(slot);
+        });
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
@@ -313,33 +317,67 @@ function checkTimeAvailability(orario, disponibilita) {
 
 // Seleziona uno slot temporale
 function selectTimeSlot(orario, slotElement) {
-    // Rimuovi selezione precedente
-    document.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
+    // Se è già selezionato, lo deseleziona
+    if (slotElement.classList.contains('selected')) {
+        slotElement.classList.remove('selected');
+        selectedTimeInizio = null;
+        selectedTimeFine = null;
+        hideSummary();
+        return;
+    }
 
-    // Seleziona il nuovo slot
-    slotElement.classList.add('selected');
-    selectedTime = orario;
-
-    console.log('⏰ Orario selezionato:', selectedTime);
-
-    // Aggiorna il riepilogo
-    updateSummary();
-
-    // Mostra il riepilogo
-    showSummary();
+    // Se è il primo orario selezionato
+    if (!selectedTimeInizio) {
+        // Rimuovi selezione precedente
+        document.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
+        
+        // Seleziona il primo slot
+        slotElement.classList.add('selected');
+        selectedTimeInizio = orario;
+        selectedTimeFine = null;
+        
+        console.log('⏰ Orario inizio selezionato:', selectedTimeInizio);
+        
+        // Mostra messaggio per selezionare l'orario di fine
+        showTimeSelectionMessage('Seleziona ora l\'orario di fine');
+        
+    } else {
+        // È il secondo orario (fine)
+        // Verifica che sia successivo all'orario di inizio
+        const orarioInizio = parseInt(selectedTimeInizio.split(':')[0]);
+        const orarioFine = parseInt(orario.split(':')[0]);
+        
+        if (orarioFine <= orarioInizio) {
+            showError('L\'orario di fine deve essere successivo all\'orario di inizio');
+            return;
+        }
+        
+        // Seleziona il secondo slot
+        slotElement.classList.add('selected');
+        selectedTimeFine = orario;
+        
+        console.log('⏰ Orario fine selezionato:', selectedTimeFine);
+        
+        // Aggiorna il riepilogo
+        updateSummary();
+        
+        // Mostra il riepilogo
+        showSummary();
+    }
 }
 
 // Aggiorna il riepilogo della selezione
 function updateSummary() {
-    if (selectedSede && selectedSpazio && selectedDateInizio && selectedDateFine && selectedTime) {
+    if (selectedSede && selectedSpazio && selectedDateInizio && selectedDateFine && selectedTimeInizio && selectedTimeFine) {
         document.getElementById('summarySede').textContent = selectedSede.nome;
         document.getElementById('summaryStanza').textContent = selectedSpazio.nome;
         document.getElementById('summaryData').textContent = `${selectedDateInizio.toLocaleDateString('it-IT')} - ${selectedDateFine.toLocaleDateString('it-IT')}`;
-        document.getElementById('summaryOrario').textContent = selectedTime;
-
-        // Calcola il prezzo totale per il numero di giorni
+        document.getElementById('summaryOrario').textContent = `${selectedTimeInizio} - ${selectedTimeFine}`;
+        
+        // Calcola il prezzo totale per il numero di giorni e ore
         const giorni = Math.ceil((selectedDateFine - selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
-        const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni;
+        const ore = parseInt(selectedTimeFine.split(':')[0]) - parseInt(selectedTimeInizio.split(':')[0]);
+        const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni * Math.max(1, ore);
         document.getElementById('summaryPrezzo').textContent = prezzoTotale;
 
         // Abilita il pulsante prenota
@@ -356,6 +394,12 @@ function showSummary() {
 function hideSummary() {
     document.getElementById('summaryCard').style.display = 'none';
     document.getElementById('btnBook').disabled = true;
+    
+    // Rimuovi messaggi di selezione orario
+    const timeSlotsContainer = document.getElementById('timeSlots');
+    if (timeSlotsContainer) {
+        timeSlotsContainer.querySelectorAll('.alert').forEach(alert => alert.remove());
+    }
 }
 
 // Valida la selezione completa
@@ -375,8 +419,8 @@ function validateSelection() {
         return false;
     }
 
-    if (!selectedTime) {
-        showError('Seleziona un orario');
+    if (!selectedTimeInizio || !selectedTimeFine) {
+        showError('Seleziona un intervallo di orari (inizio e fine)');
         return false;
     }
 
@@ -401,11 +445,12 @@ function proceedToBooking() {
                 spazio: selectedSpazio.id_spazio,
                 dataInizio: selectedDateInizio.toISOString(),
                 dataFine: selectedDateFine.toISOString(),
-                orario: selectedTime,
+                orarioInizio: selectedTimeInizio,
+                orarioFine: selectedTimeFine,
                 prezzo: selectedSpazio.prezzo_ora || 10
             };
 
-            localStorage.setItem('pendingPrenotazione', JSON.stringify(prennotazioneData));
+            localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
 
             // Reindirizza al login
             window.location.href = 'login.html?redirect=prenotazione';
@@ -447,6 +492,23 @@ function showError(message) {
     } else {
         alert('Errore: ' + message);
     }
+}
+
+// Mostra messaggio di selezione orario
+function showTimeSelectionMessage(message) {
+    const timeSlotsContainer = document.getElementById('timeSlots');
+    const messageElement = document.createElement('div');
+    messageElement.className = 'alert alert-info mt-3';
+    messageElement.innerHTML = `
+        <i class="fas fa-info-circle me-2"></i>
+        ${message}
+    `;
+    
+    // Rimuovi messaggi precedenti
+    timeSlotsContainer.querySelectorAll('.alert').forEach(alert => alert.remove());
+    
+    // Aggiungi il nuovo messaggio
+    timeSlotsContainer.appendChild(messageElement);
 }
 
 // Mostra messaggio di successo
