@@ -89,7 +89,7 @@ exports.creaPrenotazione = async (req, res) => {
 
     // Inserimento prenotazione con scadenza slot
     const scadenzaSlot = new Date(Date.now() + 15 * 60 * 1000); // 15 minuti da ora
-    
+
     const result = await pool.query(
       `INSERT INTO Prenotazione (id_utente, id_spazio, data_inizio, data_fine, stato, scadenza_slot)
        VALUES ($1, $2, $3, $4, 'in attesa', $5) RETURNING id_prenotazione`,

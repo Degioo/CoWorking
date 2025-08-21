@@ -402,9 +402,9 @@ async function checkPrenotazioneValidity(prenotazioneId) {
 }
 
 // Crea prenotazione dai parametri URL
-async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) {
+async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, orarioInizio, orarioFine) {
     try {
-        console.log('Creo prenotazione dai parametri:', { sede, spazio, dataInizio, dataFine });
+        console.log('Creo prenotazione dai parametri:', { sede, spazio, dataInizio, dataFine, orarioInizio, orarioFine });
 
         // Verifica autenticazione
         const user = localStorage.getItem('user');
@@ -414,12 +414,27 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine) 
 
         const userData = JSON.parse(user);
 
+        // Combina data e orario per creare timestamp completi
+        const dataInizioCompleta = new Date(dataInizio);
+        const dataFineCompleta = new Date(dataFine);
+        
+        // Imposta gli orari specifici
+        if (orarioInizio) {
+            const [oreInizio, minutiInizio] = orarioInizio.split(':');
+            dataInizioCompleta.setHours(parseInt(oreInizio), parseInt(minutiInizio), 0, 0);
+        }
+        
+        if (orarioFine) {
+            const [oreFine, minutiFine] = orarioFine.split(':');
+            dataFineCompleta.setHours(parseInt(oreFine), parseInt(minutiFine), 0, 0);
+        }
+
         // Crea la prenotazione
         const prenotazioneData = {
             id_utente: userData.id_utente,
             id_spazio: spazio,
-            data_inizio: dataInizio,
-            data_fine: dataFine
+            data_inizio: dataInizioCompleta.toISOString(),
+            data_fine: dataFineCompleta.toISOString()
         };
 
         console.log('Dati prenotazione da creare:', prenotazioneData);
@@ -791,12 +806,12 @@ function populatePrenotazioneDetails() {
     const dataInizio = new Date(data.data_inizio);
     const dataFine = new Date(data.data_fine);
 
-    // Calcola la durata
+    // Calcola la durata in ore (considerando anche i minuti)
     const durataMs = dataFine - dataInizio;
-    const durataOre = Math.round(durataMs / (1000 * 60 * 60));
+    const durataOre = Math.max(0.5, (durataMs / (1000 * 60 * 60)).toFixed(1));
 
-    // Calcola l'importo (10€/ora)
-    const importo = durataOre * 10;
+    // Calcola l'importo (10€/ora, minimo 5€)
+    const importo = Math.max(5, Math.round(durataOre * 10));
 
     // Formatta la data
     const dataFormattata = dataInizio.toLocaleDateString('it-IT', {
@@ -816,15 +831,34 @@ function populatePrenotazioneDetails() {
         minute: '2-digit'
     });
 
-    // Aggiorna l'interfaccia
-    document.getElementById('data-inizio-prenotazione').textContent = dataFormattata;
-    document.getElementById('data-fine-prenotazione').textContent = dataFine.toLocaleDateString('it-IT', {
+    // Formatta le date con orari
+    const dataInizioFormattata = `${dataFormattata} alle ${orarioInizio}`;
+    const dataFineFormattata = `${dataFine.toLocaleDateString('it-IT', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    });
-    document.getElementById('durata-prenotazione').textContent = `${durataOre} ore`;
+    })} alle ${orarioFine}`;
+
+    // Aggiorna l'interfaccia
+    document.getElementById('data-inizio-prenotazione').textContent = dataInizioFormattata;
+    document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
+    // Formatta la durata in modo più leggibile
+    let durataText = '';
+    if (durataOre >= 1) {
+        const ore = Math.floor(durataOre);
+        const minuti = Math.round((durataOre - ore) * 60);
+        if (minuti > 0) {
+            durataText = `${ore}h ${minuti}m`;
+        } else {
+            durataText = `${ore}h`;
+        }
+    } else {
+        const minuti = Math.round(durataOre * 60);
+        durataText = `${minuti}m`;
+    }
+    
+    document.getElementById('durata-prenotazione').textContent = durataText;
 
     // Gestisci il nome dello spazio e della sede
     let sedeText = 'Sede selezionata';
@@ -1372,8 +1406,12 @@ $(document).ready(async function () {
         if (sede && spazio && dataInizio && dataFine) {
             console.log('Parametri prenotazione trovati nell\'URL:', { sede, spazio, dataInizio, dataFine });
 
+            // Recupera anche gli orari se presenti
+            const orarioInizio = urlParams.get('orarioInizio');
+            const orarioFine = urlParams.get('orarioFine');
+
             // Crea la prenotazione automaticamente
-            await createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine);
+            await createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, orarioInizio, orarioFine);
         } else {
             // Cerca ID prenotazione nell'URL (flusso normale)
             const prenotazioneId = new URLSearchParams(window.location.search).get('id_prenotazione');

@@ -465,7 +465,9 @@ function proceedToBooking() {
             sede: selectedSede.id_sede,
             spazio: selectedSpazio.id_spazio,
             dal: selectedDateInizio.toISOString(),
-            al: selectedDateFine.toISOString()
+            al: selectedDateFine.toISOString(),
+            orarioInizio: selectedTimeInizio,
+            orarioFine: selectedTimeFine
         });
 
         // Reindirizza alla pagina di prenotazione
