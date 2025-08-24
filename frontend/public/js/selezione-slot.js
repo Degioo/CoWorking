@@ -273,8 +273,12 @@ function setupEventListeners() {
 
     // Pulsante prenota
     document.getElementById('btnBook').addEventListener('click', function () {
+        console.log('🖱️ Pulsante Prenota Ora cliccato!');
         if (validateSelection()) {
+            console.log('✅ Selezione valida, chiamo proceedToBooking');
             proceedToBooking();
+        } else {
+            console.log('❌ Selezione non valida, non chiamo proceedToBooking');
         }
     });
 }
@@ -475,7 +479,7 @@ function validateSelection() {
 // Procede alla prenotazione
 function proceedToBooking() {
     console.log('🚀 FUNZIONE PROCEEDTOBOOKING CHIAMATA!');
-    
+
     try {
         console.log('🚀 Procedo alla prenotazione...');
 
