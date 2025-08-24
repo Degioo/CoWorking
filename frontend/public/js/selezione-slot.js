@@ -509,8 +509,8 @@ function proceedToBooking() {
         const params = new URLSearchParams({
             sede: selectedSede.id_sede,
             spazio: selectedSpazio.id_spazio,
-            dataInizio: selectedDateInizio.toISOString().split('T')[0],
-            dataFine: selectedDateFine.toISOString().split('T')[0],
+            dal: selectedDateInizio.toISOString().split('T')[0],
+            al: selectedDateFine.toISOString().split('T')[0],
             orarioInizio: selectedTimeInizio,
             orarioFine: selectedTimeFine
         });
