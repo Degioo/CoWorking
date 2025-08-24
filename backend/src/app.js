@@ -79,7 +79,7 @@ app.use('/webhook', webhookRoutes);
 
 // Rotte per gestione scadenze
 const scadenzeRoutes = require('./routes/scadenze');
-app.use('/api/scadenze', scadenzeRoutes);
+app.use('/api', scadenzeRoutes);
 
 
 
