@@ -174,7 +174,7 @@ function renderRisultati(items, dal, al) {
 
   items.forEach(({ sede, spazio, disponibile }) => {
     const badge = disponibile ? '<span class="badge bg-success">Disponibile</span>' : '<span class="badge bg-secondary">Verifica</span>';
-    const linkPrenota = `prenota.html?sede=${sede.id_sede}&spazio=${spazio.id_spazio}${dal && al ? `&dal=${encodeURIComponent(dal)}&al=${encodeURIComponent(al)}` : ''}`;
+    const linkPrenota = `selezione-slot.html?sede=${sede.id_sede}&spazio=${spazio.id_spazio}${dal && al ? `&dataInizio=${encodeURIComponent(dal)}&dataFine=${encodeURIComponent(al)}` : ''}`;
 
     grid.append(`
       <div class="col-md-6 col-lg-4">

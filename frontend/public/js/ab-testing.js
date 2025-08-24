@@ -69,7 +69,7 @@ class ABTestingSystem {
                         id: 'page_navigation',
                         name: 'Navigazione alla Pagina',
                         type: 'navigation',
-                        target: '/prenota.html'
+                        target: '/selezione-slot.html'
                     }
                 ]
             },

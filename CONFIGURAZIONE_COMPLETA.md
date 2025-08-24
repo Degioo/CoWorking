@@ -80,7 +80,7 @@ Test connessione backend a: https://coworking-mio-1-backend.onrender.com/api
 
 ### 2. Test Frontend
 - **Homepage**: `https://coworking-mio-1.onrender.com`
-- **Prenotazione**: `https://coworking-mio-1.onrender.com/prenota.html`
+- **Prenotazione**: `https://coworking-mio-1.onrender.com/selezione-slot.html`
 - **Dashboard**: `https://coworking-mio-1.onrender.com/dashboard.html`
 
 ## 🚨 Risoluzione Problemi

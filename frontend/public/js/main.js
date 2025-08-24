@@ -196,7 +196,7 @@ function populateCittaFilter(sedi) {
 // Visualizza spazi di una sede
 function viewSpazi(idSede) {
   // Per ora reindirizza a una pagina di prenotazione
-  window.location.href = `prenota.html?sede=${idSede}`;
+  window.location.href = `selezione-slot.html?sede=${idSede}`;
 }
 
 // Login
@@ -249,10 +249,10 @@ function handleLogin(event) {
         localStorage.removeItem('redirectAfterLogin');
         console.log('handleLogin - Redirect alla pagina originale:', redirectAfterLogin);
 
-        // Se il redirect è verso prenota.html, vai alla dashboard invece
-        // perché prenota.html non richiede autenticazione
-        if (redirectAfterLogin.includes('prenota.html')) {
-          console.log('handleLogin - Redirect verso prenota.html, vado alla dashboard');
+        // Se il redirect è verso selezione-slot.html, vai alla dashboard invece
+        // perché selezione-slot.html non richiede autenticazione
+        if (redirectAfterLogin.includes('selezione-slot.html')) {
+          console.log('handleLogin - Redirect verso selezione-slot.html, vado alla dashboard');
           setTimeout(() => {
             window.location.href = 'dashboard.html';
           }, 1000);
@@ -275,8 +275,10 @@ function handleLogin(event) {
         const pagamentoUrl = new URL('pagamento.html', window.location.origin);
         pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
         pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
-        pagamentoUrl.searchParams.set('dal', prenotazioneData.dataInizio);
-        pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
+        pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
+        pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
+        pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
+        pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
 
         setTimeout(() => {
           window.location.href = pagamentoUrl.toString();
@@ -374,10 +376,31 @@ function handleRegistrazione(event) {
       // Aggiorna la navbar per mostrare le informazioni dell'utente
       updateNavbar();
 
-      // Vai alla dashboard
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 1500);
+      // Controlla se c'è una prenotazione in attesa
+      const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+      if (pendingPrenotazione) {
+        // Rimuovi i dati temporanei e vai direttamente al pagamento
+        localStorage.removeItem('pendingPrenotazione');
+        const prenotazioneData = JSON.parse(pendingPrenotazione);
+
+        // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
+        const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+        pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+        pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+        pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
+        pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
+        pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
+        pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+
+        setTimeout(() => {
+          window.location.href = pagamentoUrl.toString();
+        }, 1500);
+      } else {
+        // Nessuna prenotazione in attesa, vai alla dashboard
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      }
     })
     .catch(error => {
       console.error('Errore registrazione:', error);
@@ -442,6 +465,11 @@ $(document).ready(function () {
   // Gestione hash URL per tab registrazione
   if (window.location.hash === '#registrazione') {
     $('#registrazione-tab').tab('show');
+  }
+
+  // Gestione redirect per prenotazione
+  if (typeof handlePrenotazioneRedirect === 'function') {
+    handlePrenotazioneRedirect();
   }
 });
 
@@ -868,7 +896,7 @@ function handlePrenotazioneRedirect() {
   const urlParams = new URLSearchParams(window.location.search);
   const redirect = urlParams.get('redirect');
 
-  if (redirect === 'prenotazione') {
+  if (redirect === 'selezione-slot') {
     const redirectMessage = document.getElementById('redirectMessage');
     if (redirectMessage) {
       redirectMessage.style.display = 'block';

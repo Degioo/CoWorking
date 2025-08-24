@@ -30,12 +30,12 @@ Il sistema di prenotazione di CoWorkSpace permette agli utenti di:
 frontend/
 ├── public/
 │   ├── index.html          # Homepage con catalogo sedi
-│   ├── prenota.html        # Wizard di prenotazione
+│   ├── selezione-slot.html # Selezione slot e prenotazione
 │   ├── dashboard.html      # Dashboard utente/gestore
 │   ├── login.html          # Autenticazione
 │   └── js/
 │       ├── main.js         # Logica homepage
-│       ├── prenota.js      # Logica prenotazione ⭐
+│       ├── selezione-slot.js # Logica selezione slot e prenotazione ⭐
 │       └── dashboard.js    # Logica dashboard
 ```
 
@@ -67,15 +67,15 @@ backend/
 ```javascript
 // In index.html
 function viewSpazi(idSede) {
-  window.location.href = `prenota.html?sede=${idSede}`;
+  window.location.href = `selezione-slot.html?sede=${idSede}`;
 }
 ```
 
-L'utente clicca "Vedi spazi" su una sede → viene reindirizzato a `prenota.html?sede=X`
+L'utente clicca "Vedi spazi" su una sede → viene reindirizzato a `selezione-slot.html?sede=X`
 
 ### **2. Inizializzazione Wizard**
 ```javascript
-// In prenota.js
+// In selezione-slot.js
 $(document).ready(function() {
   updateNavbar();           // Aggiorna navbar se loggato
   loadSedi();              // Carica tutte le sedi

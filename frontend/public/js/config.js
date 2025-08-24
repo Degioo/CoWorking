@@ -69,7 +69,7 @@ function handleAuthError() {
     let message = 'Devi effettuare il login per completare questa azione.';
 
     // Personalizza il messaggio in base alla pagina
-    if (currentPage === 'prenota.html') {
+    if (currentPage === 'selezione-slot.html') {
         message = 'Devi effettuare il login per completare la prenotazione.';
     } else if (currentPage === 'pagamento.html') {
         message = 'Devi effettuare il login per completare il pagamento.';
@@ -102,8 +102,8 @@ function logout() {
         console.log('logout - Pagina non richiede auth, rimango qui');
     }
 
-    // Pulisci i dati della prenotazione in corso se siamo su prenota.html
-    if (currentPage === 'prenota.html') {
+    // Pulisci i dati della prenotazione in corso se siamo su selezione-slot.html
+    if (currentPage === 'selezione-slot.html') {
         localStorage.removeItem('selectedSede');
         localStorage.removeItem('selectedSpazio');
         localStorage.removeItem('selectedDataInizio');
@@ -179,10 +179,10 @@ function isPageRequiringAuth(pageName) {
         'dashboard-responsabili.html'
     ];
 
-    // La pagina prenota.html non richiede autenticazione iniziale
+    // La pagina selezione-slot.html non richiede autenticazione iniziale
     // ma potrebbe richiederla per completare la prenotazione
     // In questo caso, salviamo comunque l'URL per il redirect
-    if (pageName === 'prenota.html') {
+    if (pageName === 'selezione-slot.html') {
         // Controlla se c'è una prenotazione in corso
         const hasPrenotazioneInCorso = localStorage.getItem('selectedSede') ||
             localStorage.getItem('selectedSpazio') ||
@@ -201,7 +201,7 @@ function isPageRequiringAuth(pageName) {
 const NAVBAR_CONFIG = {
     // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean }
     'index.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: true },
-    'prenota.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
+    'selezione-slot.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
     'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
     'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
     'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false },

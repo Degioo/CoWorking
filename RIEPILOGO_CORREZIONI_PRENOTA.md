@@ -10,7 +10,7 @@
 - Elemento HTML mancante: La funzione `checkDisponibilita()` cercava un elemento con ID `disponibilitaStatus` che non esisteva nell'HTML
 
 **Soluzioni**:
-- ✅ Corretto `prenota.html`: Cambiato `onclick="verificaDisponibilita()"` in `onclick="checkDisponibilita()"`
+- ✅ Sostituito sistema di prenotazione con `selezione-slot.html`: Nuova interfaccia per selezione slot
 - ✅ Aggiunto elemento mancante: Inserito `<div id="disponibilitaStatus" class="mt-3"></div>` per visualizzare lo stato
 
 ### 2. Wizard Steps Non Funzionanti
@@ -36,7 +36,7 @@
 ## Correzioni Effettuate
 
 ### File Modificati
-1. **`frontend/public/prenota.html`**
+1. **`frontend/public/selezione-slot.html`**
    - Corretto nome funzione da `verificaDisponibilita` a `checkDisponibilita`
    - Aggiunto elemento `disponibilitaStatus` per lo stato della verifica
 
@@ -45,14 +45,14 @@
    - Aggiunte animazioni e transizioni
    - Migliorata visibilità e UX
 
-3. **`frontend/public/js/prenota.js`**
+3. **`frontend/public/js/selezione-slot.js`**
    - Aggiornata funzione `updateStepIndicators` per gestire step completati
    - Migliorata logica di aggiornamento degli indicatori
 
 ### File di Test Creati
-1. **`test-prenota.html`** - Testa tutte le funzioni di prenotazione
-2. **`debug-prenota.html`** - Console di debug integrata
-3. **`test-wizard.html`** - Test specifico per il wizard steps
+1. **`selezione-slot.html`** - Testa tutte le funzioni di prenotazione
+2. **`selezione-slot.html`** - Console di debug integrata
+3. **`selezione-slot.html`** - Test specifico per il wizard steps
 4. **`RIEPILOGO_CORREZIONI_PRENOTA.md`** - Documentazione completa
 
 ## Funzioni Verificate e Funzionanti
@@ -74,10 +74,10 @@
 - ✅ jQuery caricato e funzionante
 
 ## Come Testare
-1. **Test Funzioni**: Apri `test-prenota.html` per verificare che tutte le funzioni siano disponibili
-2. **Test Wizard**: Apri `test-wizard.html` per testare specificamente il wizard steps
-3. **Debug**: Apri `debug-prenota.html` per monitorare il debug in tempo reale
-4. **Test Completo**: Testa la pagina `prenota.html` - ora dovrebbe funzionare senza errori
+1. **Test Funzioni**: Apri `selezione-slot.html` per verificare che tutte le funzioni siano disponibili
+2. **Test Wizard**: Apri `selezione-slot.html` per testare specificamente il wizard steps
+3. **Debug**: Apri `selezione-slot.html` per monitorare il debug in tempo reale
+4. **Test Completo**: Testa la pagina `selezione-slot.html` - ora dovrebbe funzionare senza errori
 
 ## Risultato Atteso
 Dopo le correzioni, la pagina di prenotazione dovrebbe:

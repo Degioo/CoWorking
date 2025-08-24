@@ -14,12 +14,12 @@ $(document).ready(function () {
   });
 
   // Ferma il countdown quando si lascia la pagina
-  $(window).on('beforeunload', function() {
+  $(window).on('beforeunload', function () {
     stopCountdownUpdates();
   });
 
   // Ferma il countdown quando si cambia tab o si naviga
-  $(document).on('visibilitychange', function() {
+  $(document).on('visibilitychange', function () {
     if (document.hidden) {
       stopCountdownUpdates();
     } else {
@@ -90,7 +90,7 @@ function updateNavbarLink() {
     prenotaLink.removeClass('nav-link').addClass('nav-link btn btn-primary ms-2');
   } else {
     // Per i clienti, mantieni il link "Prenota"
-    prenotaLink.attr('href', 'prenota.html');
+    prenotaLink.attr('href', 'selezione-slot.html');
     prenotaLink.html('<i class="fas fa-calendar-plus me-1"></i>Prenota');
     prenotaLink.removeClass('btn btn-primary ms-2').addClass('nav-link');
   }
@@ -281,7 +281,7 @@ function loadPrenotazioniUtente() {
         console.error('Errore sincronizzazione:', error);
         // Mostra comunque le prenotazioni anche se la sincronizzazione fallisce
         displayPrenotazioniUtente(prenotazioni);
-        
+
         // Avvia l'aggiornamento dei countdown solo se non è già attivo
         if (!window.countdownInterval) {
           startCountdownUpdates();

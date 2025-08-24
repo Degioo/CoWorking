@@ -34,6 +34,9 @@ async function initializePage() {
         // Configura gli event listener
         setupEventListeners();
 
+        // Gestisci i parametri URL se presenti
+        handleUrlParameters();
+
         console.log('✅ Pagina inizializzata correttamente');
 
     } catch (error) {
@@ -101,6 +104,48 @@ async function loadSpazi(sedeId) {
     } catch (error) {
         console.error('❌ Errore caricamento spazi:', error);
         showError('Errore caricamento spazi: ' + error.message);
+    }
+}
+
+// Gestisce i parametri URL per pre-selezionare sede, spazio e date
+function handleUrlParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Gestisci sede
+    const sedeId = urlParams.get('sede');
+    if (sedeId) {
+        console.log('🔄 Pre-selezione sede da URL:', sedeId);
+        setTimeout(() => {
+            document.getElementById('sedeSelect').value = sedeId;
+            // Trigger change event per caricare gli spazi
+            document.getElementById('sedeSelect').dispatchEvent(new Event('change'));
+        }, 100);
+    }
+
+    // Gestisci spazio
+    const spazioId = urlParams.get('spazio');
+    if (spazioId) {
+        console.log('🔄 Pre-selezione spazio da URL:', spazioId);
+        // Aspetta che gli spazi siano caricati
+        setTimeout(() => {
+            document.getElementById('stanzaSelect').value = spazioId;
+            document.getElementById('stanzaSelect').dispatchEvent(new Event('change'));
+        }, 500);
+    }
+
+    // Gestisci date (dal catalogo)
+    const dataInizio = urlParams.get('dataInizio');
+    const dataFine = urlParams.get('dataFine');
+    if (dataInizio && dataFine) {
+        console.log('🔄 Pre-selezione date da URL:', dataInizio, dataFine);
+        // Aspetta che il calendario sia inizializzato
+        setTimeout(() => {
+            if (datePicker) {
+                datePicker.setDate([dataInizio, dataFine], true);
+                // Trigger change event per aggiornare la selezione
+                document.dispatchEvent(new Event('dateSelected'));
+            }
+        }, 1000);
     }
 }
 
@@ -378,7 +423,7 @@ function updateSummary() {
         const giorni = Math.ceil((selectedDateFine - selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
         const ore = parseInt(selectedTimeFine.split(':')[0]) - parseInt(selectedTimeInizio.split(':')[0]);
         const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni * Math.max(1, ore);
-        document.getElementById('summaryPrezzo').textContent = prezzoTotale;
+        document.getElementById('summaryPrezzo').textContent = `€${prezzoTotale}`;
 
         // Abilita il pulsante prenota
         document.getElementById('btnBook').disabled = false;
@@ -433,18 +478,18 @@ function proceedToBooking() {
         console.log('🚀 Procedo alla prenotazione...');
 
         // Controlla se l'utente è loggato
-        const userId = localStorage.getItem('userId');
-        const userToken = localStorage.getItem('userToken');
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
 
-        if (!userId || !userToken) {
+        if (!user || !token) {
             console.log('🔐 Utente non loggato, reindirizzamento al login...');
 
             // Salva i dati della prenotazione per il redirect post-login
             const prenotazioneData = {
                 sede: selectedSede.id_sede,
                 spazio: selectedSpazio.id_spazio,
-                dataInizio: selectedDateInizio.toISOString(),
-                dataFine: selectedDateFine.toISOString(),
+                dataInizio: selectedDateInizio.toISOString().split('T')[0],
+                dataFine: selectedDateFine.toISOString().split('T')[0],
                 orarioInizio: selectedTimeInizio,
                 orarioFine: selectedTimeFine,
                 prezzo: selectedSpazio.prezzo_ora || 10
@@ -453,24 +498,24 @@ function proceedToBooking() {
             localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
 
             // Reindirizza al login
-            window.location.href = 'login.html?redirect=prenotazione';
+            window.location.href = 'login.html?redirect=selezione-slot';
             return;
         }
 
         // Utente loggato, procede al pagamento
         console.log('✅ Utente loggato, procedo al pagamento...');
 
-        // Prepara i parametri per la pagina di prenotazione
+        // Prepara i parametri per la pagina di pagamento
         const params = new URLSearchParams({
             sede: selectedSede.id_sede,
             spazio: selectedSpazio.id_spazio,
-            dal: selectedDateInizio.toISOString(),
-            al: selectedDateFine.toISOString(),
+            dataInizio: selectedDateInizio.toISOString().split('T')[0],
+            dataFine: selectedDateFine.toISOString().split('T')[0],
             orarioInizio: selectedTimeInizio,
             orarioFine: selectedTimeFine
         });
 
-        // Reindirizza alla pagina di prenotazione
+        // Reindirizza alla pagina di pagamento
         window.location.href = `pagamento.html?${params.toString()}`;
 
     } catch (error) {
