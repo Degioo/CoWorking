@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // Inizializza la pagina
 async function initializePage() {
     console.log('🚀 FUNZIONE INITIALIZEPAGE CHIAMATA!');
-    
+
     try {
         console.log('🔄 Caricamento sedi...');
         // Carica le sedi
@@ -505,8 +505,19 @@ function proceedToBooking() {
             userContent: user ? JSON.parse(user) : null
         });
 
+        // Log più dettagliati per debug
+        console.log('🔍 Valori localStorage grezzi:');
+        console.log('  - user (tipo):', typeof user, 'valore:', user);
+        console.log('  - token (tipo):', typeof token, 'valore:', token);
+        console.log('  - user === null:', user === null);
+        console.log('  - user === "":', user === "");
+        console.log('  - token === null:', token === null);
+        console.log('  - token === "":', token === "");
+
         if (!user || !token) {
             console.log('🔐 Utente non loggato, reindirizzamento al login...');
+            console.log('  - !user:', !user);
+            console.log('  - !token:', !token);
 
             // Salva i dati della prenotazione per il redirect post-login
             const prenotazioneData = {
