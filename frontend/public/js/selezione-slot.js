@@ -11,29 +11,41 @@ let datePicker = null;
 
 // Inizializzazione della pagina
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('selezione-slot.js - Inizializzazione pagina');
+    console.log('🚀 selezione-slot.js - DOMContentLoaded - Pagina caricata!');
+    console.log('📍 URL corrente:', window.location.href);
+    console.log('📄 Nome pagina:', window.location.pathname);
 
     // Inizializza la navbar universale
     if (typeof window.initializeNavbar === 'function') {
+        console.log('✅ Funzione initializeNavbar disponibile');
         window.initializeNavbar();
+    } else {
+        console.log('❌ Funzione initializeNavbar non disponibile');
     }
 
     // Inizializza la pagina
+    console.log('🔄 Chiamo initializePage...');
     initializePage();
 });
 
 // Inizializza la pagina
 async function initializePage() {
+    console.log('🚀 FUNZIONE INITIALIZEPAGE CHIAMATA!');
+    
     try {
+        console.log('🔄 Caricamento sedi...');
         // Carica le sedi
         await loadSedi();
 
+        console.log('🔄 Inizializzazione calendario...');
         // Inizializza il calendario
         initializeCalendar();
 
+        console.log('🔄 Configurazione event listener...');
         // Configura gli event listener
         setupEventListeners();
 
+        console.log('🔄 Gestione parametri URL...');
         // Gestisci i parametri URL se presenti
         handleUrlParameters();
 
