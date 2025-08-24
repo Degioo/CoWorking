@@ -1,0 +1,139 @@
+/* ===== RIMOZIONE FORZATA PALLINI NERI NAVBAR ===== */
+/* Questo file contiene regole CSS ultra-aggressive per rimuovere qualsiasi pallino nero */
+
+/* Nasconde TUTTI gli pseudo-elementi nella navbar */
+.navbar *::before,
+.navbar *::after {
+    display: none !important;
+    content: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    color: transparent !important;
+}
+
+/* Nasconde elementi con posizione assoluta */
+.navbar .position-absolute,
+.navbar .position-relative,
+.navbar .position-fixed,
+.navbar *[style*="position: absolute"],
+.navbar *[style*="position: relative"],
+.navbar *[style*="position: fixed"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con dimensioni minime */
+.navbar *[style*="width: 1px"],
+.navbar *[style*="width: 2px"],
+.navbar *[style*="width: 3px"],
+.navbar *[style*="width: 4px"],
+.navbar *[style*="width: 5px"],
+.navbar *[style*="width: 6px"],
+.navbar *[style*="width: 7px"],
+.navbar *[style*="width: 8px"],
+.navbar *[style*="height: 1px"],
+.navbar *[style*="height: 2px"],
+.navbar *[style*="height: 3px"],
+.navbar *[style*="height: 4px"],
+.navbar *[style*="height: 5px"],
+.navbar *[style*="height: 6px"],
+.navbar *[style*="height: 7px"],
+.navbar *[style*="height: 8px"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con background scuro */
+.navbar *[style*="background: #000"],
+.navbar *[style*="background: black"],
+.navbar *[style*="background: #111"],
+.navbar *[style*="background: #222"],
+.navbar *[style*="background: #333"],
+.navbar *[style*="background: #444"],
+.navbar *[style*="background: #555"],
+.navbar *[style*="background: #666"],
+.navbar *[style*="background-color: #000"],
+.navbar *[style*="background-color: black"],
+.navbar *[style*="background-color: #111"],
+.navbar *[style*="background-color: #222"],
+.navbar *[style*="background-color: #333"],
+.navbar *[style*="background-color: #444"],
+.navbar *[style*="background-color: #555"],
+.navbar *[style*="background-color: #666"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con bordi scuri */
+.navbar *[style*="border: 1px solid #000"],
+.navbar *[style*="border: 2px solid #000"],
+.navbar *[style*="border: 1px solid black"],
+.navbar *[style*="border: 2px solid black"],
+.navbar *[style*="border-color: #000"],
+.navbar *[style*="border-color: black"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con z-index alto */
+.navbar *[style*="z-index: 999"],
+.navbar *[style*="z-index: 1000"],
+.navbar *[style*="z-index: 1001"],
+.navbar *[style*="z-index: 9999"],
+.navbar *[style*="z-index: 10000"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con opacity bassa */
+.navbar *[style*="opacity: 0.1"],
+.navbar *[style*="opacity: 0.2"],
+.navbar *[style*="opacity: 0.3"],
+.navbar *[style*="opacity: 0.4"],
+.navbar *[style*="opacity: 0.5"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con transform */
+.navbar *[style*="transform: translate"],
+.navbar *[style*="transform: scale"],
+.navbar *[style*="transform: rotate"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con classi Bootstrap specifiche */
+.navbar .dropdown-toggle::after,
+.navbar .dropdown-toggle::before,
+.navbar .nav-link.dropdown-toggle::after,
+.navbar .nav-link.dropdown-toggle::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* Nasconde elementi con attributi specifici */
+.navbar [data-notification],
+.navbar [data-status],
+.navbar [data-indicator],
+.navbar [aria-label*="notification"],
+.navbar [aria-label*="badge"],
+.navbar [aria-label*="indicator"],
+.navbar [role="status"],
+.navbar [role="alert"],
+.navbar [role="progressbar"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con classi generiche che potrebbero essere pallini */
+.navbar .notification-dot,
+.navbar .status-dot,
+.navbar .alert-dot,
+.navbar .warning-dot,
+.navbar .indicator-dot,
+.navbar .badge-dot {
+    display: none !important;
+}
+
+/* Regola finale: nasconde qualsiasi elemento con dimensioni minime */
+.navbar *:not(.fas):not(.fa):not(.me-1):not(.me-2):not(.ms-1):not(.ms-2):not(.nav-link):not(.nav-item):not(.navbar-brand) {
+    min-width: 25px !important;
+    min-height: 25px !important;
+}

@@ -2678,3 +2678,117 @@ footer .app-column h6 *,
 .navbar [data-indicator] {
     display: none !important;
 }
+
+/* ===== REGOLE ULTRA-AGGRESSIVE PER RIMUOVERE PALLINI NERI ===== */
+/* Nasconde TUTTI gli elementi con dimensioni molto piccole nella navbar */
+.navbar *[style*="width: 1px"],
+.navbar *[style*="width: 2px"],
+.navbar *[style*="width: 3px"],
+.navbar *[style*="width: 5px"],
+.navbar *[style*="width: 7px"],
+.navbar *[style*="height: 1px"],
+.navbar *[style*="height: 2px"],
+.navbar *[style*="height: 3px"],
+.navbar *[style*="height: 5px"],
+.navbar *[style*="height: 7px"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con posizione specifica che potrebbero essere pallini */
+.navbar *[style*="top: -1px"],
+.navbar *[style*="top: 1px"],
+.navbar *[style*="top: 3px"],
+.navbar *[style*="top: 5px"],
+.navbar *[style*="right: -1px"],
+.navbar *[style*="right: 1px"],
+.navbar *[style*="right: 3px"],
+.navbar *[style*="left: -1px"],
+.navbar *[style*="left: 1px"],
+.navbar *[style*="left: 3px"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con background specifici che potrebbero essere pallini */
+.navbar *[style*="background: #111"],
+.navbar *[style*="background: #222"],
+.navbar *[style*="background: #333"],
+.navbar *[style*="background: #444"],
+.navbar *[style*="background: #555"],
+.navbar *[style*="background: #666"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con border che potrebbero essere pallini */
+.navbar *[style*="border: 1px solid #000"],
+.navbar *[style*="border: 2px solid #000"],
+.navbar *[style*="border: 1px solid black"],
+.navbar *[style*="border: 2px solid black"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con transform che potrebbero essere pallini posizionati */
+.navbar *[style*="transform: translate"] {
+    display: none !important;
+}
+
+/* ===== REGOLE SPECIFICHE PER BOOTSTRAP 5 ===== */
+/* Nasconde indicatori di dropdown di Bootstrap */
+.navbar .dropdown-toggle::after,
+.navbar .dropdown-toggle::before {
+    display: none !important;
+    content: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Nasconde elementi con classi Bootstrap specifiche */
+.navbar .position-absolute,
+.navbar .position-relative,
+.navbar .position-fixed {
+    display: none !important;
+}
+
+/* Nasconde elementi con classi Bootstrap per indicatori */
+.navbar .badge:not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-warning):not(.bg-danger):not(.bg-secondary),
+.navbar .alert,
+.navbar .toast,
+.navbar .tooltip {
+    display: none !important;
+}
+
+/* Nasconde elementi con attributi aria che potrebbero essere indicatori */
+.navbar [aria-label*="notification"],
+.navbar [aria-label*="badge"],
+.navbar [aria-label*="indicator"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con role specifici che potrebbero essere indicatori */
+.navbar [role="status"],
+.navbar [role="alert"],
+.navbar [role="progressbar"] {
+    display: none !important;
+}
+
+/* ===== REGOLE FINALI PER RIMUOVERE QUALSIASI PALLINO ===== */
+/* Nasconde elementi con dimensioni minime che potrebbero essere pallini */
+.navbar *:not(.fas):not(.fa):not(.me-1):not(.me-2):not(.ms-1):not(.ms-2):not(.nav-link):not(.nav-item) {
+    min-width: 20px !important;
+    min-height: 20px !important;
+}
+
+/* Nasconde elementi con background trasparente che potrebbero essere pallini */
+.navbar *[style*="background: transparent"],
+.navbar *[style*="background-color: transparent"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con z-index molto alto che potrebbero essere sovrapposti */
+.navbar *[style*="z-index: 999"],
+.navbar *[style*="z-index: 1000"],
+.navbar *[style*="z-index: 1001"] {
+    display: none !important;
+}
