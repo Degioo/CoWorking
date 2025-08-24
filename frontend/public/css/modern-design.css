@@ -2162,14 +2162,14 @@ a:hover {
 }
 
 /* Nasconde elementi con dimensioni molto piccole che potrebbero essere pallini */
-.navbar .nav-link > *:not(.fas):not(.fa):not(.me-1):not(.me-2):not(.ms-1):not(.ms-2) {
+.navbar .nav-link>*:not(.fas):not(.fa):not(.me-1):not(.me-2):not(.ms-1):not(.ms-2) {
     min-width: 16px;
     min-height: 16px;
 }
 
 /* Nasconde elementi con bordi circolari che potrebbero essere pallini */
-.navbar .nav-link > *[style*="border-radius: 50%"],
-.navbar .nav-item > *[style*="border-radius: 50%"] {
+.navbar .nav-link>*[style*="border-radius: 50%"],
+.navbar .nav-item>*[style*="border-radius: 50%"] {
     display: none !important;
 }
 

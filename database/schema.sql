@@ -47,7 +47,10 @@ CREATE TABLE IF NOT EXISTS Prenotazione (
     id_spazio INTEGER NOT NULL REFERENCES Spazio(id_spazio),
     data_inizio TIMESTAMP NOT NULL,
     data_fine TIMESTAMP NOT NULL,
-    stato TEXT NOT NULL CHECK (stato IN ('pendente', 'in attesa', 'confermata', 'annullata', 'completata', 'pagamento_fallito', 'scaduta')),
+    stato TEXT NOT NULL CHECK (stato IN ('pendente', 'in attesa', 'confermata', 'annullata', 'completata', 'pagamento_fallito', 'scaduta', 'cancellata')),
+    data_creazione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_modifica TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    scadenza_slot TIMESTAMP,
     data_pagamento TIMESTAMP
 );
 
