@@ -481,6 +481,12 @@ function proceedToBooking() {
         const user = localStorage.getItem('user');
         const token = localStorage.getItem('token');
 
+        console.log('🔍 Debug autenticazione:', {
+            user: user ? 'presente' : 'mancante',
+            token: token ? 'presente' : 'mancante',
+            userContent: user ? JSON.parse(user) : null
+        });
+
         if (!user || !token) {
             console.log('🔐 Utente non loggato, reindirizzamento al login...');
 
@@ -514,6 +520,8 @@ function proceedToBooking() {
             orarioInizio: selectedTimeInizio,
             orarioFine: selectedTimeFine
         });
+
+        console.log('📋 Parametri URL per pagamento:', params.toString());
 
         // Reindirizza alla pagina di pagamento
         window.location.href = `pagamento.html?${params.toString()}`;
