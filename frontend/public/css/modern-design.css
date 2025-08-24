@@ -2135,6 +2135,76 @@ a:hover {
     color: #1f2937 !important;
 }
 
+/* ===== RIMUOVI PALLINI NERI NON INTENZIONALI ===== */
+/* Nasconde qualsiasi elemento che potrebbe generare pallini neri sopra la navbar */
+.navbar .nav-link::before,
+.navbar .nav-link::after,
+.navbar .nav-item::before,
+.navbar .nav-item::after,
+.navbar .user-info-display::before,
+.navbar .user-info-display::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Nasconde elementi con posizione assoluta che potrebbero essere pallini */
+.navbar .nav-link .position-absolute,
+.navbar .nav-item .position-absolute,
+.navbar .user-info-display .position-absolute {
+    display: none !important;
+}
+
+/* Nasconde badge e indicatori non intenzionali nella navbar */
+.navbar .badge:not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-warning):not(.bg-danger),
+.navbar .notification-dot,
+.navbar .indicator-dot {
+    display: none !important;
+}
+
+/* Nasconde elementi con dimensioni molto piccole che potrebbero essere pallini */
+.navbar .nav-link > *:not(.fas):not(.fa):not(.me-1):not(.me-2):not(.ms-1):not(.ms-2) {
+    min-width: 16px;
+    min-height: 16px;
+}
+
+/* Nasconde elementi con bordi circolari che potrebbero essere pallini */
+.navbar .nav-link > *[style*="border-radius: 50%"],
+.navbar .nav-item > *[style*="border-radius: 50%"] {
+    display: none !important;
+}
+
+/* ===== REGOLE AGGIUNTIVE PER RIMUOVERE PALLINI NERI ===== */
+/* Nasconde qualsiasi elemento con dimensioni inferiori a 8px che potrebbe essere un pallino */
+.navbar *[style*="width: 4px"],
+.navbar *[style*="width: 6px"],
+.navbar *[style*="width: 8px"],
+.navbar *[style*="height: 4px"],
+.navbar *[style*="height: 6px"],
+.navbar *[style*="height: 8px"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con background nero o molto scuro che potrebbero essere pallini */
+.navbar *[style*="background: #000"],
+.navbar *[style*="background: black"],
+.navbar *[style*="background-color: #000"],
+.navbar *[style*="background-color: black"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con z-index alto che potrebbero essere sovrapposti */
+.navbar *[style*="z-index: 9999"],
+.navbar *[style*="z-index: 10000"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con opacity molto bassa che potrebbero essere pallini semi-trasparenti */
+.navbar *[style*="opacity: 0.1"],
+.navbar *[style*="opacity: 0.2"],
+.navbar *[style*="opacity: 0.3"] {
+    display: none !important;
+}
+
 /* ===== FOOTER STYLING - ULTRA-AGGRESSIVO ===== */
 .footer {
     background: var(--gray-900);
@@ -2567,4 +2637,44 @@ footer .app-column h6 *,
         width: 100%;
         justify-content: center;
     }
+}
+
+/* Nasconde elementi con opacity molto bassa che potrebbero essere pallini semi-trasparenti */
+.navbar *[style*="opacity: 0.1"],
+.navbar *[style*="opacity: 0.2"],
+.navbar *[style*="opacity: 0.3"] {
+    display: none !important;
+}
+
+/* ===== RIMUOVI ELEMENTI BOOTSTRAP/FRAMEWORK NON INTENZIONALI ===== */
+/* Nasconde elementi Bootstrap che potrebbero generare pallini */
+.navbar .dropdown-toggle::after,
+.navbar .dropdown-toggle::before,
+.navbar .nav-link.dropdown-toggle::after,
+.navbar .nav-link.dropdown-toggle::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* Nasconde elementi con classi Bootstrap che potrebbero essere indicatori */
+.navbar .position-absolute[style*="top: -"],
+.navbar .position-absolute[style*="top: 0"],
+.navbar .position-absolute[style*="top: 2px"],
+.navbar .position-absolute[style*="top: 4px"] {
+    display: none !important;
+}
+
+/* Nasconde elementi con classi specifiche che potrebbero essere pallini */
+.navbar .notification-indicator,
+.navbar .status-dot,
+.navbar .alert-dot,
+.navbar .warning-dot {
+    display: none !important;
+}
+
+/* Nasconde elementi con attributi data che potrebbero essere indicatori */
+.navbar [data-notification],
+.navbar [data-status],
+.navbar [data-indicator] {
+    display: none !important;
 }
