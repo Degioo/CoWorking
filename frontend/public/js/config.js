@@ -24,25 +24,28 @@ console.log('Ambiente rilevato:', window.location.hostname.includes('onrender.co
 // Funzione per aggiungere l'header di autorizzazione alle richieste API
 function getAuthHeaders() {
     const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
 
     console.log('getAuthHeaders - User:', user);
+    console.log('getAuthHeaders - Token:', token ? 'presente' : 'mancante');
 
-    if (user) {
+    if (user && token) {
         try {
             const userData = JSON.parse(user);
-            // Usa l'id_utente come identificatore di sessione
+            // Usa il token JWT per l'autenticazione
             return {
-                'X-User-ID': userData.id_utente,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             };
         } catch (error) {
             console.error('Errore parsing user:', error);
             // Se c'è un errore nel parsing, rimuovi i dati corrotti
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
         }
     }
 
-    // Se non c'è utente, restituisci solo gli header base
+    // Se non c'è utente o token, restituisci solo gli header base
     // NON interferire con il flusso di prenotazione
     return {
         'Content-Type': 'application/json'
@@ -130,7 +133,7 @@ function logout() {
 function isAuthenticated() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     if (!user || !token) {
         console.log('isAuthenticated - User o token mancanti:', { user: !!user, token: !!token });
         return false;

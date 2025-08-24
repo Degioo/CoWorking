@@ -237,6 +237,10 @@ function handleLogin(event) {
     .then(response => {
       // Debug: mostra la risposta del login
       console.log('🔍 Risposta login ricevuta:', response);
+      console.log('🔍 Tipo risposta:', typeof response);
+      console.log('🔍 Chiavi disponibili:', Object.keys(response));
+      console.log('🔍 Token presente:', 'token' in response);
+      console.log('🔍 Valore token:', response.token);
       
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
@@ -247,6 +251,21 @@ function handleLogin(event) {
         localStorage.setItem('token', response.token);
       } else {
         console.log('⚠️ Nessun token nella risposta del login');
+        console.log('🔍 Controllo se il token è in un campo diverso...');
+        
+        // Controlla se il token è in un campo diverso
+        if (response.access_token) {
+          console.log('🔑 Access token trovato, lo salvo come token');
+          localStorage.setItem('token', response.access_token);
+        } else if (response.jwt) {
+          console.log('🔑 JWT trovato, lo salvo come token');
+          localStorage.setItem('token', response.jwt);
+        } else if (response.authToken) {
+          console.log('🔑 Auth token trovato, lo salvo come token');
+          localStorage.setItem('token', response.authToken);
+        } else {
+          console.log('❌ Nessun tipo di token trovato nella risposta');
+        }
       }
       
       showAlert('Login effettuato con successo!', 'success');
@@ -360,10 +379,10 @@ function handleRegistrazione(event) {
     .then(response => {
       // Debug: mostra la risposta della registrazione
       console.log('🔍 Risposta registrazione ricevuta:', response);
-      
+
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
-      
+
       // Salva il token se presente nella risposta
       if (response.token) {
         console.log('🔑 Token trovato nella registrazione, lo salvo in localStorage');
@@ -371,7 +390,7 @@ function handleRegistrazione(event) {
       } else {
         console.log('⚠️ Nessun token nella risposta della registrazione');
       }
-      
+
       showAlert('Login automatico effettuato! Reindirizzamento alla dashboard...', 'success');
 
       // Aggiorna la navbar per mostrare le informazioni dell'utente

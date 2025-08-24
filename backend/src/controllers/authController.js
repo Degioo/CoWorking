@@ -1,5 +1,6 @@
 const pool = require('../db');
 const bcrypt = require('bcryptjs');
+const { generateToken } = require('../config/jwt');
 
 const SALT_ROUNDS = 10;
 
@@ -13,7 +14,27 @@ exports.register = async (req, res) => {
     const sql = `INSERT INTO Utente (nome, cognome, email, password, ruolo, telefono) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_utente`;
     const values = [nome, cognome, email, hash, ruolo, telefono];
     const result = await pool.query(sql, values);
-    res.status(201).json({ message: 'Registrazione avvenuta', id_utente: result.rows[0].id_utente });
+    
+    // Genera token JWT per l'utente appena registrato
+    const userData = {
+      id_utente: result.rows[0].id_utente,
+      nome,
+      cognome,
+      email,
+      ruolo,
+      telefono
+    };
+    
+    const token = generateToken(userData);
+    
+    res.status(201).json({ 
+      message: 'Registrazione avvenuta', 
+      id_utente: result.rows[0].id_utente,
+      token: token,
+      nome,
+      cognome,
+      ruolo
+    });
   } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ error: 'Email già registrata' });
@@ -34,12 +55,26 @@ exports.login = async (req, res) => {
     if (!user) return res.status(401).json({ error: 'Credenziali non valide' });
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: 'Credenziali non valide' });
+    
+    // Genera token JWT per l'utente autenticato
+    const userData = {
+      id_utente: user.id_utente,
+      nome: user.nome,
+      cognome: user.cognome,
+      email: user.email,
+      ruolo: user.ruolo,
+      telefono: user.telefono
+    };
+    
+    const token = generateToken(userData);
+    
     res.json({
       message: 'Login effettuato',
       id_utente: user.id_utente,
       nome: user.nome,
       cognome: user.cognome,
-      ruolo: user.ruolo
+      ruolo: user.ruolo,
+      token: token
     });
   } catch (err) {
     res.status(500).json({ error: 'Errore server' });
