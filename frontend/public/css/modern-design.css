@@ -2135,33 +2135,30 @@ a:hover {
     color: #1f2937 !important;
 }
 
-/* ===== RIMOZIONE MIRATA PALLINI NERI ===== */
-/* Rimuove solo i pallini neri specifici sopra i pulsanti utente e dashboard */
-.navbar .nav-link[href*="dashboard"]::before,
-.navbar .nav-link[href*="dashboard"]::after,
-.navbar .nav-link[href*="utente"]::before,
-.navbar .nav-link[href*="utente"]::after,
-.navbar .nav-link[href*="cliente"]::before,
-.navbar .nav-link[href*="cliente"]::after {
+/* ===== RIMOZIONE BULLET POINTS NAVBAR ===== */
+/* Rimuove i bullet points dalle liste nella navbar */
+.navbar .nav-item {
+    list-style: none !important;
+}
+
+.navbar .nav-item::before,
+.navbar .nav-item::after {
     display: none !important;
     content: none !important;
 }
 
-/* Rimuove pallini neri generati da Bootstrap dropdown */
-.navbar .dropdown-toggle::after {
+/* Rimuove anche i bullet points dai link stessi */
+.navbar .nav-link {
+    list-style: none !important;
+}
+
+.navbar .nav-link::before,
+.navbar .nav-link::after {
     display: none !important;
     content: none !important;
 }
 
-/* Rimuove elementi con dimensioni minime che potrebbero essere pallini */
-.navbar .nav-link > *[style*="width: 1px"],
-.navbar .nav-link > *[style*="width: 2px"],
-.navbar .nav-link > *[style*="width: 3px"],
-.navbar .nav-link > *[style*="height: 1px"],
-.navbar .nav-link > *[style*="height: 2px"],
-.navbar .nav-link > *[style*="height: 3px"] {
-    display: none !important;
-}
+
 
 
 /* ===== FOOTER STYLING - ULTRA-AGGRESSIVO ===== */
@@ -2604,4 +2601,3 @@ footer .app-column h6 *,
 .navbar *[style*="opacity: 0.3"] {
     display: none !important;
 }
-
