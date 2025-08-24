@@ -129,13 +129,20 @@ function logout() {
 // Funzione per verificare se l'utente è autenticato
 function isAuthenticated() {
     const user = localStorage.getItem('user');
-    if (!user) return false;
+    const token = localStorage.getItem('token');
+    
+    if (!user || !token) {
+        console.log('isAuthenticated - User o token mancanti:', { user: !!user, token: !!token });
+        return false;
+    }
 
     try {
         const userData = JSON.parse(user);
-        return userData && userData.id_utente;
+        const isAuthenticated = userData && userData.id_utente;
+        console.log('isAuthenticated - Risultato:', isAuthenticated, 'per utente:', userData?.nome, userData?.cognome);
+        return isAuthenticated;
     } catch (error) {
-        console.error('Errore parsing user:', error);
+        console.error('isAuthenticated - Errore parsing user:', error);
         return false;
     }
 }
@@ -143,10 +150,12 @@ function isAuthenticated() {
 // Funzione per verificare la validità della sessione all'avvio
 async function validateTokenOnStartup() {
     const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
 
     console.log('validateTokenOnStartup - User:', user);
+    console.log('validateTokenOnStartup - Token:', token ? 'presente' : 'mancante');
 
-    if (user) {
+    if (user && token) {
         try {
             const userData = JSON.parse(user);
             console.log('validateTokenOnStartup - Sessione valida per utente:', userData.nome, userData.cognome);
@@ -155,6 +164,7 @@ async function validateTokenOnStartup() {
             if (!userData.id_utente || !userData.nome || !userData.cognome) {
                 console.log('validateTokenOnStartup - Dati utente incompleti, rimuovo sessione');
                 localStorage.removeItem('user');
+                localStorage.removeItem('token');
                 return false;
             }
 
@@ -163,10 +173,11 @@ async function validateTokenOnStartup() {
             console.log('validateTokenOnStartup - Errore parsing user:', error);
             // User non valido, pulisci i dati
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             return false;
         }
     } else {
-        console.log('validateTokenOnStartup - Nessun user trovato');
+        console.log('validateTokenOnStartup - User o token mancanti');
         return false;
     }
 }

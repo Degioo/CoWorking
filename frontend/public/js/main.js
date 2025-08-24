@@ -235,8 +235,20 @@ function handleLogin(event) {
       return response.json();
     })
     .then(response => {
+      // Debug: mostra la risposta del login
+      console.log('🔍 Risposta login ricevuta:', response);
+      
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
+      
+      // Salva il token se presente nella risposta
+      if (response.token) {
+        console.log('🔑 Token trovato, lo salvo in localStorage');
+        localStorage.setItem('token', response.token);
+      } else {
+        console.log('⚠️ Nessun token nella risposta del login');
+      }
+      
       showAlert('Login effettuato con successo!', 'success');
 
       // Aggiorna la navbar per mostrare le informazioni dell'utente
@@ -346,31 +358,20 @@ function handleRegistrazione(event) {
       return response.json();
     })
     .then(response => {
-      showAlert('Registrazione effettuata con successo! Ora effettuo il login automatico...', 'success');
-
-      // Effettua login automatico dopo la registrazione
-      const loginData = {
-        email: data.email,
-        password: data.password
-      };
-
-      return fetch(`${window.CONFIG.API_BASE}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
-      });
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Registrazione completata ma login automatico fallito. Effettua il login manualmente.');
-      }
-      return response.json();
-    })
-    .then(response => {
+      // Debug: mostra la risposta della registrazione
+      console.log('🔍 Risposta registrazione ricevuta:', response);
+      
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
+      
+      // Salva il token se presente nella risposta
+      if (response.token) {
+        console.log('🔑 Token trovato nella registrazione, lo salvo in localStorage');
+        localStorage.setItem('token', response.token);
+      } else {
+        console.log('⚠️ Nessun token nella risposta della registrazione');
+      }
+      
       showAlert('Login automatico effettuato! Reindirizzamento alla dashboard...', 'success');
 
       // Aggiorna la navbar per mostrare le informazioni dell'utente
