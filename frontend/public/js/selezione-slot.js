@@ -474,6 +474,8 @@ function validateSelection() {
 
 // Procede alla prenotazione
 function proceedToBooking() {
+    console.log('🚀 FUNZIONE PROCEEDTOBOOKING CHIAMATA!');
+    
     try {
         console.log('🚀 Procedo alla prenotazione...');
 
