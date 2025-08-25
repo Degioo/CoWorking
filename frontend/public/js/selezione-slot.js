@@ -360,15 +360,15 @@ async function displayTimeSlots(disponibilita) {
             slot.classList.add('available');
             slot.addEventListener('click', () => selectTimeSlot(orario, slot));
             slot.title = 'Clicca per selezionare orario inizio/fine';
-            
+
             // CSS inline per slot disponibili
-            slot.style.cssText = `
-                background-color: #10b981 !important;
-                color: white !important;
-                border-color: #10b981 !important;
-                cursor: pointer !important;
-            `;
-            
+            slot.style.setProperty('background-color', '#10b981', 'important');
+            slot.style.setProperty('color', 'white', 'important');
+            slot.style.setProperty('border-color', '#10b981', 'important');
+            slot.style.setProperty('cursor', 'pointer', 'important');
+            slot.style.setProperty('background-image', 'none', 'important');
+            slot.style.setProperty('background', '#10b981', 'important');
+
             console.log('✅ Slot disponibile creato:', orario, 'CSS inline applicato');
         } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
@@ -379,31 +379,34 @@ async function displayTimeSlots(disponibilita) {
 
             // CSS INLINE DI EMERGENZA per assicurarsi che gli slot siano colorati
             if (availability.reason === 'occupied') {
-                slot.style.cssText = `
-                    background-color: #dc3545 !important;
-                    color: white !important;
-                    border-color: #dc3545 !important;
-                    cursor: not-allowed !important;
-                    opacity: 0.7 !important;
-                `;
+                // Applica stili uno per uno per evitare conflitti
+                slot.style.setProperty('background-color', '#dc3545', 'important');
+                slot.style.setProperty('color', 'white', 'important');
+                slot.style.setProperty('border-color', '#dc3545', 'important');
+                slot.style.setProperty('cursor', 'not-allowed', 'important');
+                slot.style.setProperty('opacity', '0.7', 'important');
+                slot.style.setProperty('background-image', 'none', 'important');
+                slot.style.setProperty('background', '#dc3545', 'important');
                 console.log('🚫 Slot occupato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
             } else if (availability.reason === 'booked') {
-                slot.style.cssText = `
-                    background-color: #ffc107 !important;
-                    color: white !important;
-                    border-color: #ffc107 !important;
-                    cursor: not-allowed !important;
-                    opacity: 0.8 !important;
-                `;
+                // Applica stili uno per uno per evitare conflitti
+                slot.style.setProperty('background-color', '#ffc107', 'important');
+                slot.style.setProperty('color', 'white', 'important');
+                slot.style.setProperty('border-color', '#ffc107', 'important');
+                slot.style.setProperty('cursor', 'not-allowed', 'important');
+                slot.style.setProperty('opacity', '0.8', 'important');
+                slot.style.setProperty('background-image', 'none', 'important');
+                slot.style.setProperty('background', '#ffc107', 'important');
                 console.log('🚫 Slot prenotato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
             } else if (availability.reason === 'past-time') {
-                slot.style.cssText = `
-                    background-color: #6c757d !important;
-                    color: white !important;
-                    border-color: #6c757d !important;
-                    cursor: not-allowed !important;
-                    opacity: 0.4 !important;
-                `;
+                // Applica stili uno per uno per evitare conflitti
+                slot.style.setProperty('background-color', '#6c757d', 'important');
+                slot.style.setProperty('color', 'white', 'important');
+                slot.style.setProperty('border-color', '#6c757d', 'important');
+                slot.style.setProperty('cursor', 'not-allowed', 'important');
+                slot.style.setProperty('opacity', '0.4', 'important');
+                slot.style.setProperty('background-image', 'none', 'important');
+                slot.style.setProperty('background', '#6c757d', 'important');
                 console.log('🚫 Slot passato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
             }
 
