@@ -241,18 +241,24 @@ function handleLogin(event) {
       console.log('🔍 Chiavi disponibili:', Object.keys(response));
       console.log('🔍 Token presente:', 'token' in response);
       console.log('🔍 Valore token:', response.token);
-      
+      console.log('🔍 Risposta completa:', JSON.stringify(response, null, 2));
+
       // Salva l'utente
       localStorage.setItem('user', JSON.stringify(response));
-      
+
       // Salva il token se presente nella risposta
       if (response.token) {
         console.log('🔑 Token trovato, lo salvo in localStorage');
         localStorage.setItem('token', response.token);
+        
+        // Verifica che il token sia stato salvato
+        const savedToken = localStorage.getItem('token');
+        console.log('🔍 Token salvato in localStorage:', savedToken ? 'SI' : 'NO');
+        console.log('🔍 Valore token salvato:', savedToken);
       } else {
         console.log('⚠️ Nessun token nella risposta del login');
         console.log('🔍 Controllo se il token è in un campo diverso...');
-        
+
         // Controlla se il token è in un campo diverso
         if (response.access_token) {
           console.log('🔑 Access token trovato, lo salvo come token');
@@ -265,9 +271,14 @@ function handleLogin(event) {
           localStorage.setItem('token', response.authToken);
         } else {
           console.log('❌ Nessun tipo di token trovato nella risposta');
+          console.log('🚨 ERRORE: Il backend non ha restituito un token valido!');
+          
+          // Mostra errore all'utente
+          showAlert('Errore: Il server non ha restituito un token di autenticazione. Riprova il login.', 'danger');
+          return;
         }
       }
-      
+
       showAlert('Login effettuato con successo!', 'success');
 
       // Aggiorna la navbar per mostrare le informazioni dell'utente

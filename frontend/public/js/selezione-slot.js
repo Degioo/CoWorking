@@ -519,6 +519,43 @@ function proceedToBooking() {
             console.log('  - !user:', !user);
             console.log('  - !token:', !token);
 
+            // Se l'utente è presente ma manca il token, potrebbe essere un bug
+            if (user && !token) {
+                console.log('⚠️ PROBLEMA RILEVATO: User presente ma token mancante!');
+                console.log('🔍 Dettagli user:', user);
+
+                try {
+                    const userData = JSON.parse(user);
+                    if (userData.message === 'Login effettuato') {
+                        console.log('🚨 ERRORE: Utente ha messaggio di login ma token mancante');
+                        console.log('💡 Possibili cause:');
+                        console.log('   1. Bug nel backend (token non generato)');
+                        console.log('   2. Bug nel frontend (token non salvato)');
+                        console.log('   3. Problema di localStorage');
+
+                        // Mostra errore all'utente
+                        showError('Errore di autenticazione: token mancante. Effettua nuovamente il login.');
+
+                        // Usa la funzione centralizzata per forzare il re-login
+                        if (typeof window.forceReLogin === 'function') {
+                            setTimeout(() => {
+                                window.forceReLogin('Token di autenticazione mancante');
+                            }, 2000);
+                        } else {
+                            // Fallback se la funzione non è disponibile
+                            setTimeout(() => {
+                                localStorage.removeItem('user');
+                                localStorage.removeItem('token');
+                                window.location.href = 'login.html?message=' + encodeURIComponent('Errore di autenticazione. Effettua nuovamente il login.');
+                            }, 2000);
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error('❌ Errore parsing user:', error);
+                }
+            }
+
             // Salva i dati della prenotazione per il redirect post-login
             const prenotazioneData = {
                 sede: selectedSede.id_sede,

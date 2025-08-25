@@ -150,6 +150,56 @@ function isAuthenticated() {
     }
 }
 
+// Funzione per verificare e ripristinare il token mancante
+function checkAndRestoreToken() {
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+
+    console.log('checkAndRestoreToken - Verifica token:', { user: !!user, token: !!token });
+
+    if (user && !token) {
+        console.log('⚠️ Token mancante ma user presente, tentativo di ripristino...');
+
+        try {
+            const userData = JSON.parse(user);
+
+            // Se l'utente ha un messaggio di login, potrebbe essere necessario un nuovo login
+            if (userData.message === 'Login effettuato') {
+                console.log('🔐 Rilevato utente con messaggio di login ma senza token, richiedo nuovo login');
+                localStorage.removeItem('user'); // Rimuovi dati corrotti
+                return false;
+            }
+
+            // Se l'utente ha tutti i campi necessari ma manca il token, potrebbe essere un bug
+            if (userData.id_utente && userData.nome && userData.cognome) {
+                console.log('⚠️ Utente valido ma token mancante, potrebbe essere un bug del sistema');
+                // Non rimuovere l'utente, potrebbe essere un problema temporaneo
+                return false;
+            }
+        } catch (error) {
+            console.error('checkAndRestoreToken - Errore parsing user:', error);
+            localStorage.removeItem('user');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Funzione per forzare un nuovo login se necessario
+function forceReLogin(reason = 'Token mancante o non valido') {
+    console.log('🔄 Forzo nuovo login:', reason);
+
+    // Pulisci tutti i dati di sessione
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('redirectAfterLogin');
+
+    // Reindirizza al login con messaggio
+    const loginUrl = 'login.html?message=' + encodeURIComponent(`Errore di autenticazione: ${reason}. Effettua nuovamente il login.`);
+    window.location.href = loginUrl;
+}
+
 // Funzione per verificare la validità della sessione all'avvio
 async function validateTokenOnStartup() {
     const user = localStorage.getItem('user');
@@ -179,6 +229,10 @@ async function validateTokenOnStartup() {
             localStorage.removeItem('token');
             return false;
         }
+    } else if (user && !token) {
+        // Caso speciale: user presente ma token mancante
+        console.log('validateTokenOnStartup - User presente ma token mancante, verifico integrità...');
+        return checkAndRestoreToken();
     } else {
         console.log('validateTokenOnStartup - User o token mancanti');
         return false;
@@ -347,4 +401,5 @@ window.validateTokenOnStartup = validateTokenOnStartup;
 window.isPageRequiringAuth = isPageRequiringAuth;
 window.updateNavbarUniversal = updateNavbarUniversal;
 window.initializeNavbar = initializeNavbar;
+window.forceReLogin = forceReLogin;
 

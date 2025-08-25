@@ -7,11 +7,11 @@ const { verifyToken } = require('../config/jwt');
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-    
+
     if (!token) {
         return res.status(401).json({ error: 'Token di accesso richiesto' });
     }
-    
+
     try {
         const decoded = verifyToken(token);
         req.user = decoded;
@@ -27,11 +27,11 @@ function requireRole(role) {
         if (!req.user) {
             return res.status(401).json({ error: 'Autenticazione richiesta' });
         }
-        
+
         if (req.user.ruolo !== role) {
             return res.status(403).json({ error: 'Ruolo non autorizzato' });
         }
-        
+
         next();
     };
 }
@@ -41,11 +41,11 @@ function requireResponsabileOrAdmin(req, res, next) {
     if (!req.user) {
         return res.status(401).json({ error: 'Autenticazione richiesta' });
     }
-    
+
     if (req.user.ruolo !== 'responsabile' && req.user.ruolo !== 'admin') {
         return res.status(403).json({ error: 'Ruolo non autorizzato' });
     }
-    
+
     next();
 }
 

@@ -39,3 +39,4 @@ Dopo l'esecuzione dello script, verifica che:
 - `fix-prenotazione-stato-constraint.sql` - Script di fix
 - `migration-stripe.sql` - Migration aggiornata
 - `schema.sql` - Schema aggiornato
+
