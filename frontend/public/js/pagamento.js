@@ -854,7 +854,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         // Usa il fuso orario locale per evitare problemi di conversione
         const dataInizio = new Date(`${dal}T${orarioInizio}:00`);
         const dataFine = new Date(`${al}T${orarioFine}:00`);
-        
+
         // Assicurati che le date siano interpretate come locali, non UTC
         // Questo evita lo shift di fuso orario
         const dataInizioLocal = new Date(dataInizio.getTime() - (dataInizio.getTimezoneOffset() * 60000));
@@ -877,7 +877,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             durataOre: durataOre,
             importo: importo
         });
-        
+
         console.log('createPrenotazioneFromSelection - Parametri originali:', {
             dal: dal,
             al: al,
@@ -984,7 +984,7 @@ function populatePrenotazioneDetails() {
             month: 'long',
             day: 'numeric'
         });
-        
+
         const dataFineSolo = dataFine.toLocaleDateString('it-IT', {
             weekday: 'long',
             year: 'numeric',

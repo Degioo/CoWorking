@@ -52,6 +52,9 @@ async function initializePage() {
         // Nota: il redirect post-login ora gestisce direttamente il passaggio al pagamento
 
         console.log('✅ Pagina inizializzata correttamente');
+        
+        // Avvia l'aggiornamento automatico degli slot scaduti
+        startAutoUpdate();
 
     } catch (error) {
         console.error('❌ Errore durante l\'inizializzazione:', error);
@@ -346,17 +349,33 @@ function displayTimeSlots(disponibilita) {
         slot.dataset.orario = orario;
 
         // Verifica se l'orario è disponibile
-        const isAvailable = checkTimeAvailability(orario, disponibilita);
+        const availability = checkTimeAvailability(orario, disponibilita);
 
-        if (isAvailable) {
+        if (availability.available) {
             slot.classList.add('available');
             slot.addEventListener('click', () => selectTimeSlot(orario, slot));
-
-            // Aggiungi tooltip per spiegare la selezione
             slot.title = 'Clicca per selezionare orario inizio/fine';
         } else {
-            slot.classList.add('occupied');
-            slot.title = 'Orario già prenotato';
+            // Aggiungi la classe appropriata per lo stato non disponibile
+            slot.classList.add(availability.class);
+            
+            // Imposta il tooltip appropriato
+            switch (availability.reason) {
+                case 'expired':
+                    slot.title = 'Data scaduta';
+                    break;
+                case 'past-time':
+                    slot.title = 'Orario già passato';
+                    break;
+                case 'occupied':
+                    slot.title = 'Orario già prenotato';
+                    break;
+                case 'booked':
+                    slot.title = 'Orario già pagato';
+                    break;
+                default:
+                    slot.title = 'Orario non disponibile';
+            }
         }
 
         timeSlotsContainer.appendChild(slot);
@@ -369,12 +388,27 @@ function displayTimeSlots(disponibilita) {
 
 // Verifica disponibilità di un orario specifico
 function checkTimeAvailability(orario, disponibilita) {
-    // Logica semplificata: considera disponibile se non ci sono prenotazioni
-    // In un'implementazione reale, verificheresti contro le prenotazioni esistenti
-
-    // Per ora, rendiamo disponibili tutti gli orari
-    // In futuro, qui si può implementare la logica per verificare conflitti specifici
-    return true;
+    const now = new Date();
+    const selectedDate = selectedDateInizio;
+    
+    // Crea la data completa per l'orario selezionato
+    const [hour] = orario.split(':');
+    const slotDateTime = new Date(selectedDate);
+    slotDateTime.setHours(parseInt(hour), 0, 0, 0);
+    
+    // Se la data è passata, lo slot è scaduto
+    if (selectedDate < now.toDateString()) {
+        return { available: false, reason: 'expired', class: 'expired' };
+    }
+    
+    // Se è oggi e l'orario è passato, lo slot è scaduto
+    if (selectedDate.toDateString() === now.toDateString() && slotDateTime < now) {
+        return { available: false, reason: 'past-time', class: 'past-time' };
+    }
+    
+    // Qui in futuro si può implementare la verifica contro prenotazioni esistenti
+    // Per ora, tutti gli orari futuri sono disponibili
+    return { available: true, reason: 'available', class: 'available' };
 }
 
 // Seleziona uno slot temporale
@@ -636,4 +670,40 @@ function showSuccess(message) {
     } else {
         alert('Successo: ' + message);
     }
+}
+
+// Aggiorna automaticamente gli slot scaduti
+function updateExpiredSlots() {
+    if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
+        return;
+    }
+    
+    const timeSlots = document.querySelectorAll('.time-slot');
+    timeSlots.forEach(slot => {
+        const orario = slot.dataset.orario;
+        if (orario) {
+            const availability = checkTimeAvailability(orario, {});
+            
+            // Rimuovi tutte le classi di stato
+            slot.classList.remove('available', 'occupied', 'expired', 'past-time', 'booked');
+            
+            if (availability.available) {
+                slot.classList.add('available');
+                // Rimuovi event listener se non è già presente
+                slot.removeEventListener('click', slot.clickHandler);
+                slot.clickHandler = () => selectTimeSlot(orario, slot);
+                slot.addEventListener('click', slot.clickHandler);
+            } else {
+                slot.classList.add(availability.class);
+                // Rimuovi event listener per slot non disponibili
+                slot.removeEventListener('click', slot.clickHandler);
+                slot.clickHandler = null;
+            }
+        }
+    });
+}
+
+// Avvia l'aggiornamento automatico degli slot ogni minuto
+function startAutoUpdate() {
+    setInterval(updateExpiredSlots, 60000); // Aggiorna ogni minuto
 }
