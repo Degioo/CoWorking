@@ -247,15 +247,14 @@ function isPageRequiringAuth(pageName) {
         'dashboard-responsabili.html'
     ];
 
-    // La pagina selezione-slot.html non richiede autenticazione iniziale
-    // ma potrebbe richiederla per completare la prenotazione
-    // In questo caso, salviamo comunque l'URL per il redirect
+    // La pagina selezione-slot.html richiede autenticazione per completare la prenotazione
     if (pageName === 'selezione-slot.html') {
         // Controlla se c'è una prenotazione in corso
         const hasPrenotazioneInCorso = localStorage.getItem('selectedSede') ||
             localStorage.getItem('selectedSpazio') ||
             localStorage.getItem('selectedDataInizio') ||
             localStorage.getItem('selectedDataFine');
+        // Se c'è una prenotazione in corso, richiede autenticazione
         return hasPrenotazioneInCorso;
     }
 

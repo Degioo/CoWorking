@@ -250,7 +250,7 @@ function handleLogin(event) {
       if (response.token) {
         console.log('🔑 Token trovato, lo salvo in localStorage');
         localStorage.setItem('token', response.token);
-        
+
         // Verifica che il token sia stato salvato
         const savedToken = localStorage.getItem('token');
         console.log('🔍 Token salvato in localStorage:', savedToken ? 'SI' : 'NO');
@@ -272,7 +272,7 @@ function handleLogin(event) {
         } else {
           console.log('❌ Nessun tipo di token trovato nella risposta');
           console.log('🚨 ERRORE: Il backend non ha restituito un token valido!');
-          
+
           // Mostra errore all'utente
           showAlert('Errore: Il server non ha restituito un token di autenticazione. Riprova il login.', 'danger');
           return;
@@ -291,12 +291,11 @@ function handleLogin(event) {
         localStorage.removeItem('redirectAfterLogin');
         console.log('handleLogin - Redirect alla pagina originale:', redirectAfterLogin);
 
-        // Se il redirect è verso selezione-slot.html, vai alla dashboard invece
-        // perché selezione-slot.html non richiede autenticazione
+        // Se il redirect è verso selezione-slot.html, torna alla selezione per completare la prenotazione
         if (redirectAfterLogin.includes('selezione-slot.html')) {
-          console.log('handleLogin - Redirect verso selezione-slot.html, vado alla dashboard');
+          console.log('handleLogin - Redirect verso selezione-slot.html, torno alla selezione per completare prenotazione');
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = redirectAfterLogin;
           }, 1000);
         } else {
           setTimeout(() => {
@@ -309,22 +308,43 @@ function handleLogin(event) {
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       if (pendingPrenotazione) {
-        // Rimuovi i dati temporanei e vai direttamente al pagamento
-        localStorage.removeItem('pendingPrenotazione');
-        const prenotazioneData = JSON.parse(pendingPrenotazione);
+        // Controlla se l'utente è arrivato dalla home o da una prenotazione
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const isFromHome = currentPage === 'index.html' || currentPage === '';
 
-        // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
-        const pagamentoUrl = new URL('pagamento.html', window.location.origin);
-        pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
-        pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
-        pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
-        pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
-        pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
-        pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+        if (isFromHome) {
+          // Se l'utente si logga dalla home, non forzare il redirect al pagamento
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
+          localStorage.removeItem('pendingPrenotazione');
+          console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
 
-        setTimeout(() => {
-          window.location.href = pagamentoUrl.toString();
-        }, 1000);
+          // Mostra messaggio informativo
+          showAlert('Login effettuato! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
+
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
+        } else {
+          // Se l'utente si logga da una pagina di prenotazione, procedi al pagamento
+          console.log('handleLogin - Login durante prenotazione, procedo al pagamento');
+
+          // Rimuovi i dati temporanei e vai direttamente al pagamento
+          localStorage.removeItem('pendingPrenotazione');
+          const prenotazioneData = JSON.parse(pendingPrenotazione);
+
+          // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
+          const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+          pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+          pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+          pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
+          pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
+          pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
+          pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+
+          setTimeout(() => {
+            window.location.href = pagamentoUrl.toString();
+          }, 1000);
+        }
       } else {
         // Nessuna prenotazione in attesa, vai alla dashboard
         setTimeout(() => {
@@ -410,22 +430,43 @@ function handleRegistrazione(event) {
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       if (pendingPrenotazione) {
-        // Rimuovi i dati temporanei e vai direttamente al pagamento
-        localStorage.removeItem('pendingPrenotazione');
-        const prenotazioneData = JSON.parse(pendingPrenotazione);
+        // Controlla se l'utente è arrivato dalla home o da una prenotazione
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const isFromHome = currentPage === 'index.html' || currentPage === '';
 
-        // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
-        const pagamentoUrl = new URL('pagamento.html', window.location.origin);
-        pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
-        pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
-        pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
-        pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
-        pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
-        pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+        if (isFromHome) {
+          // Se l'utente si registra dalla home, non forzare il redirect al pagamento
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
+          localStorage.removeItem('pendingPrenotazione');
+          console.log('handleRegistrazione - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
 
-        setTimeout(() => {
-          window.location.href = pagamentoUrl.toString();
-        }, 1500);
+          // Mostra messaggio informativo
+          showAlert('Registrazione completata! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
+
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        } else {
+          // Se l'utente si registra da una pagina di prenotazione, procedi al pagamento
+          console.log('handleRegistrazione - Registrazione durante prenotazione, procedo al pagamento');
+
+          // Rimuovi i dati temporanei e vai direttamente al pagamento
+          localStorage.removeItem('pendingPrenotazione');
+          const prenotazioneData = JSON.parse(pendingPrenotazione);
+
+          // Vai direttamente alla pagina di pagamento con i parametri della prenotazione
+          const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+          pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+          pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+          pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
+          pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
+          pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
+          pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+
+          setTimeout(() => {
+            window.location.href = pagamentoUrl.toString();
+          }, 1500);
+        }
       } else {
         // Nessuna prenotazione in attesa, vai alla dashboard
         setTimeout(() => {
@@ -445,9 +486,36 @@ function handleRegistrazione(event) {
     });
 }
 
+// Funzione per pulire prenotazioni in attesa obsolete
+function cleanupPendingPrenotazioni() {
+  const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+  if (pendingPrenotazione) {
+    try {
+      const prenotazioneData = JSON.parse(pendingPrenotazione);
+
+      // Se la prenotazione è più vecchia di 1 ora, rimuovila
+      const dataPrenotazione = new Date(prenotazioneData.timestamp || Date.now());
+      const ora = new Date();
+      const oreTrascorse = (ora - dataPrenotazione) / (1000 * 60 * 60);
+
+      if (oreTrascorse > 1) {
+        console.log('🧹 Rimuovo prenotazione in attesa obsoleta (età:', oreTrascorse.toFixed(2), 'ore)');
+        localStorage.removeItem('pendingPrenotazione');
+      }
+    } catch (error) {
+      console.error('Errore pulizia prenotazione in attesa:', error);
+      // Se c'è un errore nel parsing, rimuovi comunque i dati corrotti
+      localStorage.removeItem('pendingPrenotazione');
+    }
+  }
+}
+
 // Event handlers
 $(document).ready(function () {
   console.log('DOM ready, inizializzazione...');
+
+  // Pulisci prenotazioni in attesa obsolete
+  cleanupPendingPrenotazioni();
 
   // Inizializza la navbar universale
   if (typeof window.initializeNavbar === 'function') {

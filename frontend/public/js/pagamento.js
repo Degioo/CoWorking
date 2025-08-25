@@ -406,11 +406,30 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
     try {
         console.log('Creo prenotazione dai parametri:', { sede, spazio, dataInizio, dataFine, orarioInizio, orarioFine });
 
-        // Verifica autenticazione
+        // Verifica autenticazione e token JWT
         const user = localStorage.getItem('user');
-        if (!user) {
-            throw new Error('Utente non autenticato');
+        const token = localStorage.getItem('token');
+
+        console.log('🔍 Debug autenticazione:', {
+            user: !!user,
+            token: !!token,
+            tokenLength: token ? token.length : 0,
+            tokenStart: token ? token.substring(0, 20) + '...' : 'N/A'
+        });
+
+        if (!user || !token) {
+            throw new Error('Utente non autenticato o token mancante');
         }
+
+        // Verifica che il token sia valido
+        const authHeaders = getAuthHeaders();
+        console.log('🔍 Headers generati:', authHeaders);
+
+        if (!authHeaders.Authorization) {
+            throw new Error('Token JWT non valido o scaduto');
+        }
+
+        console.log('✅ Token JWT verificato:', authHeaders.Authorization.substring(0, 20) + '...');
 
         const userData = JSON.parse(user);
 
@@ -439,12 +458,12 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
 
         console.log('Dati prenotazione da creare:', prenotazioneData);
 
+        // Usa authHeaders per includere il token JWT
+        console.log('Headers per creazione prenotazione:', authHeaders);
+
         const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-User-ID': userData.id_utente
-            },
+            headers: authHeaders,  // ✅ Usa headers con token JWT
             body: JSON.stringify(prenotazioneData)
         }, 15000);
 
@@ -473,8 +492,12 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // Recupera i nomi di sede e spazio per completare i dati
         try {
             const [sedeResponse, spazioResponse] = await Promise.all([
-                fetchWithTimeout(`${window.CONFIG.API_BASE}/sedi`, {}, 5000),
-                fetchWithTimeout(`${window.CONFIG.API_BASE}/spazi`, {}, 5000)
+                fetchWithTimeout(`${window.CONFIG.API_BASE}/sedi`, {
+                    headers: getAuthHeaders()  // ✅ Aggiungi token JWT
+                }, 5000),
+                fetchWithTimeout(`${window.CONFIG.API_BASE}/spazi`, {
+                    headers: getAuthHeaders()  // ✅ Aggiungi token JWT
+                }, 5000)
             ]);
 
             if (sedeResponse.ok && spazioResponse.ok) {
@@ -536,6 +559,14 @@ async function initializePage(prenotazioneId) {
             throw new Error('Connessione internet non disponibile. Verifica la tua connessione.');
         }
         console.log('Connessione internet verificata');
+
+        // Test autenticazione JWT
+        console.log('Verifico autenticazione JWT...');
+        const jwtValid = await testJWTAuthentication();
+        if (!jwtValid) {
+            throw new Error('Token JWT non valido o scaduto. Effettua nuovamente il login.');
+        }
+        console.log('Autenticazione JWT verificata');
 
         // Verifica elementi DOM
         console.log('Verifico elementi DOM...');
@@ -1383,6 +1414,38 @@ function handleLogout() {
         window.location.href = 'login.html';
     }
 }
+
+// Funzione per testare la validità del token JWT
+async function testJWTAuthentication() {
+    try {
+        console.log('🧪 Test autenticazione JWT...');
+
+        const headers = getAuthHeaders();
+        console.log('🔍 Headers generati:', headers);
+
+        if (!headers.Authorization) {
+            throw new Error('Token JWT mancante negli headers');
+        }
+
+        // Test chiamata API semplice per verificare il token
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/ping`, {
+            headers: headers
+        }, 5000);
+
+        if (response.ok) {
+            console.log('✅ Token JWT valido - API risponde correttamente');
+            return true;
+        } else {
+            throw new Error(`API risponde con errore: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('❌ Test autenticazione JWT fallito:', error);
+        return false;
+    }
+}
+
+// Funzione per pulire prenotazioni in attesa obsolete
 
 // Inizializzazione della pagina
 $(document).ready(async function () {

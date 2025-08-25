@@ -388,9 +388,21 @@ function displayPrenotazioniUtente(prenotazioni) {
 
     // Calcola tempo rimanente
     const tempoRimanente = getTempoRimanente(p);
-    const tempoRimanenteHtml = tempoRimanente ?
-      `<span class="countdown" data-prenotazione="${p.id_prenotazione}">${tempoRimanente}</span>` :
-      '-';
+    let tempoRimanenteHtml = '-';
+    let countdownClass = '';
+
+    if (tempoRimanente) {
+      if (tempoRimanente === 'SCADUTO') {
+        tempoRimanenteHtml = `<span class="countdown text-danger fw-bold">${tempoRimanente}</span>`;
+      } else {
+        // Controlla se mancano meno di 5 minuti
+        const minutiRimanenti = parseInt(tempoRimanente.split(':')[0]);
+        if (minutiRimanenti < 5) {
+          countdownClass = 'countdown-urgente';
+        }
+        tempoRimanenteHtml = `<span class="countdown ${countdownClass}" data-prenotazione="${p.id_prenotazione}">${tempoRimanente}</span>`;
+      }
+    }
 
     // Determina se mostrare il pulsante di pagamento
     let azioniHtml = '';
@@ -403,7 +415,19 @@ function displayPrenotazioniUtente(prenotazioni) {
           <i class="fas fa-clock me-1"></i>Scaduta
         </span>
       `;
+    } else if (p.stato === 'cancellata') {
+      rowClass = 'prenotazione-cancellata';
+      azioniHtml = `
+        <span class="badge badge-cancellata">
+          <i class="fas fa-times-circle me-1"></i>Cancellata
+        </span>
+      `;
     } else if (p.stato === 'in attesa' || p.stato === 'pendente') {
+      // Evidenzia slot bloccati
+      if (tempoRimanente && tempoRimanente !== 'SCADUTO') {
+        rowClass = 'slot-bloccato';
+      }
+
       azioniHtml = `
         <div class="btn-group" role="group">
           <button class="btn btn-success btn-sm" onclick="pagaPrenotazione(${p.id_prenotazione})">
@@ -649,6 +673,8 @@ function displayPrenotazioniScadute(prenotazioni) {
 
   html += '</tbody></table></div>';
   container.html(html);
+
+  // Le classi CSS si applicano automaticamente
 }
 
 // Utility functions
@@ -662,6 +688,7 @@ function getStatusColor(stato) {
     case 'pendente': return 'secondary';
     case 'scaduta': return 'danger';
     case 'pagamento_fallito': return 'warning';
+    case 'cancellata': return 'danger';
     default: return 'secondary';
   }
 }

@@ -49,6 +49,10 @@ async function initializePage() {
         // Gestisci i parametri URL se presenti
         handleUrlParameters();
 
+        console.log('🔄 Gestione redirect post-login...');
+        // Gestisci il redirect dopo il login se presente
+        handlePostLoginRedirect();
+
         console.log('✅ Pagina inizializzata correttamente');
 
     } catch (error) {
@@ -158,6 +162,49 @@ function handleUrlParameters() {
                 document.dispatchEvent(new Event('dateSelected'));
             }
         }, 1000);
+    }
+}
+
+// Gestisci il redirect dopo il login
+function handlePostLoginRedirect() {
+    // Controlla se c'è un redirect salvato
+    const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+    const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+    
+    if (redirectAfterLogin && pendingPrenotazione) {
+        console.log('🔄 Rilevato redirect post-login con prenotazione in attesa');
+        
+        try {
+            const prenotazioneData = JSON.parse(pendingPrenotazione);
+            console.log('📋 Dati prenotazione in attesa:', prenotazioneData);
+            
+            // Ripristina i dati della prenotazione
+            if (prenotazioneData.sede) {
+                // Preseleziona la sede
+                setTimeout(() => {
+                    const sedeSelect = document.getElementById('sedeSelect');
+                    if (sedeSelect) {
+                        sedeSelect.value = prenotazioneData.sede;
+                        // Trigger del cambio sede
+                        const event = new Event('change');
+                        sedeSelect.dispatchEvent(event);
+                    }
+                }, 200);
+            }
+            
+            // Pulisci i dati temporanei
+            localStorage.removeItem('redirectAfterLogin');
+            localStorage.removeItem('pendingPrenotazione');
+            
+            // Mostra messaggio informativo
+            showSuccess('Prenotazione ripristinata! Completa la selezione e clicca "Prenota Ora".');
+            
+        } catch (error) {
+            console.error('❌ Errore parsing prenotazione in attesa:', error);
+            // Pulisci i dati corrotti
+            localStorage.removeItem('redirectAfterLogin');
+            localStorage.removeItem('pendingPrenotazione');
+        }
     }
 }
 
@@ -564,10 +611,12 @@ function proceedToBooking() {
                 dataFine: selectedDateFine.toISOString().split('T')[0],
                 orarioInizio: selectedTimeInizio,
                 orarioFine: selectedTimeFine,
-                prezzo: selectedSpazio.prezzo_ora || 10
+                prezzo: selectedSpazio.prezzo_ora || 10,
+                timestamp: Date.now() // Aggiungi timestamp per pulizia automatica
             };
 
             localStorage.setItem('pendingPrenotazione', JSON.stringify(prenotazioneData));
+            localStorage.setItem('redirectAfterLogin', window.location.href);
 
             // Reindirizza al login
             window.location.href = 'login.html?redirect=selezione-slot';
