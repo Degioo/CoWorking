@@ -463,6 +463,14 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
 
         // VERIFICA DISPONIBILITÀ PRIMA DELLA PRENOTAZIONE
         console.log('🔍 Verifico disponibilità slot prima della prenotazione...');
+        
+        // VERIFICA LATO CLIENT: Controlla se lo slot è già occupato
+        const slotOccupato = await verificaDisponibilitaLatoClient(prenotazioneData);
+        if (slotOccupato) {
+            throw new Error(`🚫 Slot non disponibile: ${slotOccupato.motivo}`);
+        }
+        
+        // VERIFICA LATO SERVER (se disponibile)
         try {
             const disponibilitaResponse = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/verifica-disponibilita`, {
                 method: 'POST',
@@ -479,12 +487,12 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
                 if (!disponibilita.disponibile) {
                     throw new Error(`🚫 Slot non disponibile: ${disponibilita.motivo || 'Conflitto con prenotazione esistente'}`);
                 }
-                console.log('✅ Slot verificato disponibile');
+                console.log('✅ Slot verificato disponibile lato server');
             } else {
-                console.log('⚠️ Verifica disponibilità non disponibile, procedo con la prenotazione');
+                console.log('⚠️ Verifica disponibilità server non disponibile, procedo con la prenotazione');
             }
         } catch (error) {
-            console.log('⚠️ Errore verifica disponibilità:', error.message, '- Procedo con la prenotazione');
+            console.log('⚠️ Errore verifica disponibilità server:', error.message, '- Procedo con la prenotazione');
         }
 
         const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
@@ -579,6 +587,54 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         console.error('Errore creazione prenotazione:', error);
         showError('Errore nella creazione della prenotazione: ' + error.message);
         addRetryButton();
+    }
+}
+
+// Verifica disponibilità lato client
+async function verificaDisponibilitaLatoClient(prenotazioneData) {
+    console.log('🔍 Verifica disponibilità lato client per:', prenotazioneData);
+    
+    try {
+        // Recupera tutte le prenotazioni esistenti per lo spazio
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${prenotazioneData.id_spazio}`, {
+            headers: getAuthHeaders()
+        }, 5000);
+        
+        if (response.ok) {
+            const prenotazioniEsistenti = await response.json();
+            console.log('📋 Prenotazioni esistenti per lo spazio:', prenotazioniEsistenti);
+            
+            // Verifica se c'è un conflitto
+            const conflitto = prenotazioniEsistenti.find(prenotazione => {
+                const dataInizioEsistente = new Date(prenotazione.data_inizio);
+                const dataFineEsistente = new Date(prenotazione.data_fine);
+                const dataInizioNuova = new Date(prenotazioneData.data_inizio);
+                const dataFineNuova = new Date(prenotazioneData.data_fine);
+                
+                // Verifica sovrapposizione temporale
+                return (
+                    (dataInizioNuova < dataFineEsistente && dataFineNuova > dataInizioEsistente) ||
+                    (dataInizioEsistente < dataFineNuova && dataFineEsistente > dataInizioNuova)
+                );
+            });
+            
+            if (conflitto) {
+                console.log('🚫 Conflitto trovato con prenotazione esistente:', conflitto);
+                return {
+                    occupato: true,
+                    motivo: `Conflitto con prenotazione esistente (${conflitto.data_inizio} - ${conflitto.data_fine})`
+                };
+            }
+            
+            console.log('✅ Nessun conflitto trovato lato client');
+            return null;
+        } else {
+            console.log('⚠️ Impossibile verificare prenotazioni esistenti, procedo');
+            return null;
+        }
+    } catch (error) {
+        console.log('⚠️ Errore verifica disponibilità lato client:', error.message, '- Procedo');
+        return null;
     }
 }
 
