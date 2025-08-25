@@ -360,27 +360,53 @@ async function displayTimeSlots(disponibilita) {
             slot.classList.add('available');
             slot.addEventListener('click', () => selectTimeSlot(orario, slot));
             slot.title = 'Clicca per selezionare orario inizio/fine';
-            console.log('✅ Slot disponibile creato:', orario);
-                } else {
+            
+            // CSS inline per slot disponibili
+            slot.style.cssText = `
+                background-color: #10b981 !important;
+                color: white !important;
+                border-color: #10b981 !important;
+                cursor: pointer !important;
+            `;
+            
+            console.log('✅ Slot disponibile creato:', orario, 'CSS inline applicato');
+        } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
             slot.classList.add(availability.class);
-            
+
             // NON aggiungere event listener per slot non disponibili
             slot.style.cursor = 'not-allowed';
-            
+
             // CSS INLINE DI EMERGENZA per assicurarsi che gli slot siano colorati
             if (availability.reason === 'occupied') {
-                slot.style.backgroundColor = '#dc3545'; // Rosso
-                slot.style.color = 'white';
-                slot.style.borderColor = '#dc3545';
+                slot.style.cssText = `
+                    background-color: #dc3545 !important;
+                    color: white !important;
+                    border-color: #dc3545 !important;
+                    cursor: not-allowed !important;
+                    opacity: 0.7 !important;
+                `;
                 console.log('🚫 Slot occupato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
             } else if (availability.reason === 'booked') {
-                slot.style.backgroundColor = '#ffc107'; // Arancione
-                slot.style.color = 'white';
-                slot.style.borderColor = '#ffc107';
+                slot.style.cssText = `
+                    background-color: #ffc107 !important;
+                    color: white !important;
+                    border-color: #ffc107 !important;
+                    cursor: not-allowed !important;
+                    opacity: 0.8 !important;
+                `;
                 console.log('🚫 Slot prenotato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
+            } else if (availability.reason === 'past-time') {
+                slot.style.cssText = `
+                    background-color: #6c757d !important;
+                    color: white !important;
+                    border-color: #6c757d !important;
+                    cursor: not-allowed !important;
+                    opacity: 0.4 !important;
+                `;
+                console.log('🚫 Slot passato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
             }
-            
+
             // Imposta il tooltip appropriato
             switch (availability.reason) {
                 case 'expired':
@@ -398,7 +424,7 @@ async function displayTimeSlots(disponibilita) {
                 default:
                     slot.title = 'Orario non disponibile';
             }
-            
+
             console.log('❌ Slot non disponibile creato:', orario, 'stato:', availability.reason, 'classe:', availability.class);
         }
 
