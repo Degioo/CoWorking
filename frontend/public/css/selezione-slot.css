@@ -86,16 +86,23 @@ input.time-slot.occupied {
     border-color: var(--danger) !important;
 }
 
-/* CSS ULTRA SPECIFICO per slot occupati - DEVE ESSERE ROSSO */
+/* CSS ULTRA SPECIFICO - DEVE SOVRASCRIVERE BOOTSTRAP */
 .time-slot.occupied,
 div.time-slot.occupied,
 .time-slot.occupied:hover,
 .time-slot.occupied:focus,
-.time-slot.occupied:active {
-    background-color: var(--danger) !important;
+.time-slot.occupied:active,
+.time-slot.occupied:visited,
+.time-slot.occupied:link,
+.time-slot.occupied:before,
+.time-slot.occupied:after,
+.time-slot.occupied *,
+div.time-slot.occupied * {
+    background-color: #dc3545 !important;
     background-image: none !important;
+    background: #dc3545 !important;
     color: white !important;
-    border-color: var(--danger) !important;
+    border-color: #dc3545 !important;
     cursor: not-allowed !important;
     opacity: 0.8 !important;
     animation: pulse-red 2s infinite !important;
@@ -107,11 +114,18 @@ div.time-slot.occupied,
 div.time-slot.booked,
 .time-slot.booked:hover,
 .time-slot.booked:focus,
-.time-slot.booked:active {
-    background-color: var(--warning) !important;
+.time-slot.booked:active,
+.time-slot.booked:visited,
+.time-slot.booked:link,
+.time-slot.booked:before,
+.time-slot.booked:after,
+.time-slot.booked *,
+div.time-slot.booked * {
+    background-color: #fd7e14 !important;
     background-image: none !important;
+    background: #fd7e14 !important;
     color: white !important;
-    border-color: var(--warning) !important;
+    border-color: #fd7e14 !important;
     cursor: not-allowed !important;
     opacity: 0.8 !important;
     animation: pulse-orange 2s infinite !important;

@@ -451,7 +451,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
         // Calcola l'offset del timezone locale
         const timezoneOffset = dataInizioCompleta.getTimezoneOffset() * 60000; // in millisecondi
-        
+
         // Crea le date in formato locale (senza conversione UTC)
         const dataInizioLocale = new Date(dataInizioCompleta.getTime() - timezoneOffset);
         const dataFineLocale = new Date(dataFineCompleta.getTime() - timezoneOffset);
@@ -963,7 +963,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
         // Calcola l'offset del timezone locale
         const timezoneOffset = dataInizioLocal.getTimezoneOffset() * 60000; // in millisecondi
-        
+
         // Crea le date in formato locale (senza conversione UTC)
         const dataInizioLocale = new Date(dataInizioLocal.getTime() - timezoneOffset);
         const dataFineLocale = new Date(dataFineLocal.getTime() - timezoneOffset);

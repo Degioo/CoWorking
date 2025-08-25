@@ -130,12 +130,16 @@ let slotManager = {
 
     // Aggiorna stato di un singolo slot
     updateSlotState(slot, orario, stato, motivo) {
+        console.log('🎨 updateSlotState chiamato:', { orario, stato, motivo, slotElement: slot });
+        
         // Rimuovi classi precedenti
         slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired', 'selected');
-
+        
         // Aggiungi nuova classe
         slot.classList.add(stato);
-
+        
+        console.log('🎨 Classi dopo aggiornamento:', slot.classList.toString());
+        
         // Rimuovi stili inline per permettere al CSS di funzionare
         slot.style.removeProperty('background-color');
         slot.style.removeProperty('color');
@@ -144,7 +148,7 @@ let slotManager = {
         slot.style.removeProperty('opacity');
         slot.style.removeProperty('animation');
         slot.style.removeProperty('box-shadow');
-
+        
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
@@ -158,19 +162,31 @@ let slotManager = {
             case 'occupied':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Occupato: ${motivo}`;
+                // FORZA il colore rosso con stili inline se il CSS non funziona
+                slot.style.backgroundColor = '#dc3545';
+                slot.style.color = 'white';
+                slot.style.borderColor = '#dc3545';
+                console.log('🔴 Slot occupato - Stili inline applicati');
                 break;
             case 'booked':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Prenotato: ${motivo}`;
+                // FORZA il colore arancione con stili inline se il CSS non funziona
+                slot.style.backgroundColor = '#fd7e14';
+                slot.style.color = 'white';
+                slot.style.borderColor = '#fd7e14';
+                console.log('🟠 Slot prenotato - Stili inline applicati');
                 break;
             case 'past-time':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Orario passato`;
                 break;
         }
-
+        
         // Aggiorna mappa locale
         this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
+        
+        console.log('🎨 Stato slot aggiornato:', { orario, stato, motivo, classi: slot.classList.toString() });
     },
 
     // Aggiorna lo stato di un intervallo di slot
@@ -246,7 +262,7 @@ let slotManager = {
             // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
             // Calcola l'offset del timezone locale
             const timezoneOffset = dataInizio.getTimezoneOffset() * 60000; // in millisecondi
-            
+
             // Crea le date in formato locale (senza conversione UTC)
             const dataInizioLocale = new Date(dataInizio.getTime() - timezoneOffset);
             const dataFineLocale = new Date(dataFine.getTime() - timezoneOffset);
@@ -270,7 +286,7 @@ let slotManager = {
             if (response.ok) {
                 const result = await response.json();
                 console.log('✅ Verifica disponibilità:', result);
-                
+
                 // Se non è disponibile, aggiorna lo stato degli slot
                 if (!result.disponibile && result.motivo) {
                     console.log('❌ Slot non disponibile:', result.motivo);
@@ -278,7 +294,7 @@ let slotManager = {
                     // Aggiorna lo stato degli slot nell'intervallo
                     this.updateSlotRange(startTime, endTime, 'occupied', result.motivo);
                 }
-                
+
                 return result.disponibile;
             }
 
@@ -1295,7 +1311,7 @@ async function getOrariDisponibili() {
         // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
         // Calcola l'offset del timezone locale
         const timezoneOffset = selectedDateInizio.getTimezoneOffset() * 60000; // in millisecondi
-        
+
         // Crea le date in formato locale (senza conversione UTC)
         const dataInizioLocale = new Date(selectedDateInizio.getTime() - timezoneOffset);
         const dataFineLocale = new Date(selectedDateFine.getTime() - timezoneOffset);
