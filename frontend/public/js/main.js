@@ -294,14 +294,14 @@ function handleLogin(event) {
         // Se il redirect è verso selezione-slot.html, vai direttamente al pagamento con i dati salvati
         if (redirectAfterLogin.includes('selezione-slot.html')) {
           console.log('handleLogin - Redirect verso selezione-slot.html, vado direttamente al pagamento');
-          
+
           // Controlla se c'è una prenotazione in attesa
           const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
           if (pendingPrenotazione) {
             try {
               const prenotazioneData = JSON.parse(pendingPrenotazione);
               console.log('handleLogin - Dati prenotazione per pagamento:', prenotazioneData);
-              
+
               // Vai direttamente al pagamento con tutti i parametri
               const pagamentoUrl = new URL('pagamento.html', window.location.origin);
               pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
@@ -310,11 +310,11 @@ function handleLogin(event) {
               pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
               pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
               pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
-              
+
               // Pulisci i dati temporanei
               localStorage.removeItem('pendingPrenotazione');
               localStorage.removeItem('redirectAfterLogin');
-              
+
               setTimeout(() => {
                 window.location.href = pagamentoUrl.toString();
               }, 1000);

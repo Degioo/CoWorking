@@ -800,7 +800,7 @@ async function loadPrenotazioneData() {
 
             if (sede && spazio && dal && al && orarioInizio && orarioFine) {
                 console.log('loadPrenotazioneData - Flusso da selezione-slot, creo prenotazione automaticamente');
-                
+
                 // Crea la prenotazione automaticamente
                 await createPrenotazioneFromSelection(sede, spazio, dal, al, orarioInizio, orarioFine);
                 return;
@@ -851,15 +851,23 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         console.log('createPrenotazioneFromSelection - Creo prenotazione con parametri:', { sede, spazio, dal, al, orarioInizio, orarioFine });
 
         // Combina data e orario per creare le date complete
+        // Usa il fuso orario locale per evitare problemi di conversione
         const dataInizio = new Date(`${dal}T${orarioInizio}:00`);
         const dataFine = new Date(`${al}T${orarioFine}:00`);
 
-        // Calcola la durata in ore
+        // Calcola la durata in ore (considerando anche i minuti)
         const durataMs = dataFine - dataInizio;
         const durataOre = Math.max(0.5, (durataMs / (1000 * 60 * 60)).toFixed(1));
 
         // Calcola l'importo (10€/ora, minimo 5€)
         const importo = Math.max(5, Math.round(durataOre * 10));
+
+        console.log('createPrenotazioneFromSelection - Date create:', {
+            dataInizio: dataInizio.toISOString(),
+            dataFine: dataFine.toISOString(),
+            durataOre: durataOre,
+            importo: importo
+        });
 
         // Crea l'oggetto prenotazione
         prenotazioneData = {
@@ -931,27 +939,7 @@ function populatePrenotazioneDetails() {
         day: 'numeric'
     })} alle ${orarioFine}`;
 
-    // Aggiorna l'interfaccia
-    document.getElementById('data-inizio-prenotazione').textContent = dataInizioFormattata;
-    document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
-    // Formatta la durata in modo più leggibile
-    let durataText = '';
-    if (durataOre >= 1) {
-        const ore = Math.floor(durataOre);
-        const minuti = Math.round((durataOre - ore) * 60);
-        if (minuti > 0) {
-            durataText = `${ore}h ${minuti}m`;
-        } else {
-            durataText = `${ore}h`;
-        }
-    } else {
-        const minuti = Math.round(durataOre * 60);
-        durataText = `${minuti}m`;
-    }
-
-    document.getElementById('durata-prenotazione').textContent = durataText;
-
-    // Gestisci il nome dello spazio e della sede
+        // Gestisci il nome dello spazio e della sede
     let sedeText = 'Sede selezionata';
     let spazioText = 'Spazio selezionato';
 
@@ -981,9 +969,32 @@ function populatePrenotazioneDetails() {
         document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
     }
 
+    // Formatta la durata in modo più leggibile
+    let durataText = '';
+    if (durataOre >= 1) {
+        const ore = Math.floor(durataOre);
+        const minuti = Math.round((durataOre - ore) * 60);
+        if (minuti > 0) {
+            durataText = `${ore}h ${minuti}m`;
+        } else {
+            durataText = `${ore}h`;
+        }
+    } else {
+        const minuti = Math.round(durataOre * 60);
+        durataText = `${minuti}m`;
+    }
+
+    document.getElementById('durata-prenotazione').textContent = durataText;
+
+    // Aggiorna l'interfaccia
     document.getElementById('sede-prenotazione').textContent = sedeText;
     document.getElementById('spazio-prenotazione').textContent = spazioText;
     document.getElementById('totale-prenotazione').textContent = `€${importo.toFixed(2)}`;
+
+    // Salva l'importo per il pagamento
+    data.importo = importo;
+
+    console.log('populatePrenotazioneDetails - Importo calcolato:', importo);
 
     // Salva l'importo per il pagamento
     data.importo = importo;
