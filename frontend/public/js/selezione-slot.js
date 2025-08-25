@@ -344,14 +344,14 @@ async function displayTimeSlots(disponibilita) {
     // Pulisci il container
     timeSlotsContainer.innerHTML = '';
 
-            // Crea gli slot temporali
-        for (const orario of orariApertura) {
-            console.log('🔨 Creo slot per orario:', orario);
-            
-            const slot = document.createElement('div');
-            slot.className = 'time-slot';
-            slot.textContent = orario;
-            slot.dataset.orario = orario;
+    // Crea gli slot temporali
+    for (const orario of orariApertura) {
+        console.log('🔨 Creo slot per orario:', orario);
+
+        const slot = document.createElement('div');
+        slot.className = 'time-slot';
+        slot.textContent = orario;
+        slot.dataset.orario = orario;
 
         // Verifica se l'orario è disponibile (ora asincrona)
         const availability = await checkTimeAvailability(orario, disponibilita);
@@ -361,12 +361,25 @@ async function displayTimeSlots(disponibilita) {
             slot.addEventListener('click', () => selectTimeSlot(orario, slot));
             slot.title = 'Clicca per selezionare orario inizio/fine';
             console.log('✅ Slot disponibile creato:', orario);
-        } else {
+                } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
             slot.classList.add(availability.class);
             
             // NON aggiungere event listener per slot non disponibili
             slot.style.cursor = 'not-allowed';
+            
+            // CSS INLINE DI EMERGENZA per assicurarsi che gli slot siano colorati
+            if (availability.reason === 'occupied') {
+                slot.style.backgroundColor = '#dc3545'; // Rosso
+                slot.style.color = 'white';
+                slot.style.borderColor = '#dc3545';
+                console.log('🚫 Slot occupato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
+            } else if (availability.reason === 'booked') {
+                slot.style.backgroundColor = '#ffc107'; // Arancione
+                slot.style.color = 'white';
+                slot.style.borderColor = '#ffc107';
+                console.log('🚫 Slot prenotato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
+            }
             
             // Imposta il tooltip appropriato
             switch (availability.reason) {
@@ -378,11 +391,9 @@ async function displayTimeSlots(disponibilita) {
                     break;
                 case 'occupied':
                     slot.title = 'Orario già prenotato';
-                    console.log('🚫 Slot occupato creato:', orario, 'classe:', availability.class);
                     break;
                 case 'booked':
                     slot.title = 'Orario già pagato';
-                    console.log('🚫 Slot prenotato creato:', orario, 'classe:', availability.class);
                     break;
                 default:
                     slot.title = 'Orario non disponibile';
@@ -402,7 +413,7 @@ async function displayTimeSlots(disponibilita) {
 // Verifica disponibilità di un orario specifico
 async function checkTimeAvailability(orario, disponibilita) {
     console.log('🔍 checkTimeAvailability chiamato per:', orario);
-    
+
     const now = new Date();
     const selectedDate = selectedDateInizio;
 
@@ -425,29 +436,29 @@ async function checkTimeAvailability(orario, disponibilita) {
     // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
     // In futuro si implementerà la verifica contro le API
 
-        // LOGICA SLOT OCCUPATI E PRENOTATI
+    // LOGICA SLOT OCCUPATI E PRENOTATI
     // Simula prenotazioni esistenti per test
     const testBookings = [
         { start: '08:00', end: '14:00', status: 'occupied' }, // Prenotazione dalle 8 alle 14
         { start: '16:00', end: '18:00', status: 'booked' }   // Prenotazione dalle 16 alle 18
     ];
-    
+
     console.log('📋 Verifico prenotazioni per orario:', orario);
     console.log('📋 Prenotazioni di test:', testBookings);
-    
+
     // Verifica se l'orario è incluso in una prenotazione esistente
     for (const booking of testBookings) {
         console.log('🔍 Controllo prenotazione:', booking.start, '-', booking.end, 'vs orario:', orario);
         if (orario >= booking.start && orario < booking.end) {
             console.log('❌ Orario', orario, 'è incluso in prenotazione:', booking.start, '-', booking.end, 'stato:', booking.status);
-            return { 
-                available: false, 
-                reason: booking.status, 
-                class: booking.status 
+            return {
+                available: false,
+                reason: booking.status,
+                class: booking.status
             };
         }
     }
-    
+
     console.log('✅ Orario', orario, 'è disponibile');
 
     // Se non è occupato e non è prenotato, è disponibile
