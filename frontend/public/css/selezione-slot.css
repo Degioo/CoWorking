@@ -1,0 +1,198 @@
+/* ===== SELEZIONE SLOT - STILI DEDICATI ===== */
+
+/* Container calendario */
+.calendar-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+/* Selettore slot orari */
+.slot-selector {
+    background: var(--gray-50);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+/* Slot orari individuali */
+.time-slot {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.time-slot.available {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+.time-slot.occupied {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+    cursor: not-allowed;
+}
+
+.time-slot.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: scale(1.05);
+}
+
+.time-slot:hover:not(.occupied) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Personalizzazione Flatpickr */
+.flatpickr-calendar {
+    font-size: 16px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.flatpickr-day.disabled {
+    background: var(--danger);
+    color: white;
+    opacity: 0.7;
+}
+
+.flatpickr-day.available {
+    background: var(--success);
+    color: white;
+}
+
+.flatpickr-day.selected {
+    background: var(--primary);
+    color: white;
+}
+
+/* Card riepilogo */
+.summary-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.summary-card.hidden {
+    display: none;
+}
+
+/* Pulsanti azione */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-custom {
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-back {
+    background: var(--gray-600);
+    color: white;
+    border: none;
+}
+
+.btn-back:hover {
+    background: var(--gray-700);
+    color: white;
+}
+
+.btn-book {
+    background: var(--success);
+    color: white;
+    border: none;
+}
+
+.btn-book:hover {
+    background: var(--success-dark);
+    color: white;
+}
+
+.btn-book:disabled {
+    background: var(--gray-400);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-container,
+    .slot-selector {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-custom {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    color: white;
+    font-size: 2rem;
+}
+
+.loading-spinner .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+.loading-spinner div {
+    animation: none;
+    margin-top: 1rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

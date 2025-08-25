@@ -939,7 +939,7 @@ function populatePrenotazioneDetails() {
         day: 'numeric'
     })} alle ${orarioFine}`;
 
-        // Gestisci il nome dello spazio e della sede
+    // Gestisci il nome dello spazio e della sede
     let sedeText = 'Sede selezionata';
     let spazioText = 'Spazio selezionato';
 
@@ -959,7 +959,7 @@ function populatePrenotazioneDetails() {
     if (data.orario_inizio && data.orario_fine) {
         const orarioInizio = data.orario_inizio;
         const orarioFine = data.orario_fine;
-        
+
         // Aggiorna la visualizzazione con orari specifici
         document.getElementById('data-inizio-prenotazione').textContent = `${dataInizioFormattata} (${orarioInizio})`;
         document.getElementById('data-fine-prenotazione').textContent = `${dataFineFormattata} (${orarioFine})`;

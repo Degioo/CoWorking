@@ -453,12 +453,12 @@ function updateSummary() {
 
 // Mostra il riepilogo
 function showSummary() {
-    document.getElementById('summaryCard').style.display = 'block';
+    document.getElementById('summaryCard').classList.remove('hidden');
 }
 
 // Nascondi il riepilogo
 function hideSummary() {
-    document.getElementById('summaryCard').style.display = 'none';
+    document.getElementById('summaryCard').classList.add('hidden');
     document.getElementById('btnBook').disabled = true;
 
     // Rimuovi messaggi di selezione orario
