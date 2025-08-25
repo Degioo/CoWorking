@@ -180,6 +180,7 @@ input.time-slot.booked {
 
 /* Animazioni per gli slot non disponibili */
 @keyframes pulse-red {
+
     0%,
     100% {
         box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
@@ -193,6 +194,7 @@ input.time-slot.booked {
 }
 
 @keyframes pulse-orange {
+
     0%,
     100% {
         box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.8);
