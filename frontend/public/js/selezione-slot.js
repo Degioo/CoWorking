@@ -55,56 +55,68 @@ let slotManager = {
     },
 
     // Aggiorna slot basato su prenotazioni reali
-    updateSlotsFromBookings(prenotazioni) {
+    updateSlotsFromBookings(prenotazioni, keepUserSelection = false) {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-
-        // Reset tutti gli slot
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            const orario = slot.textContent.trim();
-            const slotDate = new Date(selectedDateInizio);
-            slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
-
-            // Determina stato slot
-            let stato = 'available';
-            let motivo = 'Disponibile';
-
-            // Controlla se è passato
-            if (slotDate < now) {
-                stato = 'past-time';
-                motivo = 'Orario passato';
+        
+        console.log('🔄 Aggiornamento slot da prenotazioni:', { 
+            prenotazioni: prenotazioni.length, 
+            keepUserSelection,
+            selectedSlots: this.getSelectedSlots()
+        });
+        
+        // Se keepUserSelection = true, salva gli slot selezionati dall'utente
+        let userSelectedSlots = [];
+        if (keepUserSelection) {
+            userSelectedSlots = this.getSelectedSlots();
+            console.log('💾 Mantengo selezione utente:', userSelectedSlots);
+        }
+        
+        // Aggiorna ogni slot
+        this.slots.forEach((slotInfo, orario) => {
+            const slot = document.querySelector(`[data-orario="${orario}"]`);
+            if (!slot) return;
+            
+            // Trova prenotazioni per questo orario
+            const prenotazione = prenotazioni.find(p => {
+                const prenotazioneDate = new Date(p.data_inizio);
+                const prenotazioneOra = prenotazioneDate.toTimeString().split(' ')[0].substring(0, 5);
+                return prenotazioneOra === orario && p.stato === 'confermata';
+            });
+            
+            if (prenotazione) {
+                // Slot prenotato
+                this.updateSlotState(slot, orario, 'booked', 'Prenotato');
             } else {
-                // Controlla prenotazioni esistenti
-                for (const prenotazione of prenotazioni) {
-                    const dataInizio = new Date(prenotazione.data_inizio);
-                    const dataFine = new Date(prenotazione.data_fine);
-
-                    if (slotDate >= dataInizio && slotDate < dataFine) {
-                        stato = prenotazione.stato === 'confermata' ? 'booked' : 'occupied';
-                        motivo = prenotazione.stato === 'confermata' ? 'Prenotato' : 'In prenotazione';
-                        break;
+                // Controlla se è passato
+                const slotTime = new Date(`${today}T${orario}:00`);
+                if (slotTime < now) {
+                    this.updateSlotState(slot, orario, 'past-time', 'Orario passato');
+                } else {
+                    // Se keepUserSelection = true e l'utente aveva selezionato questo slot, mantienilo
+                    if (keepUserSelection && userSelectedSlots.includes(orario)) {
+                        console.log('💾 Mantengo selezione utente per slot:', orario);
+                        // Non fare nulla, mantieni lo stato attuale
+                    } else {
+                        // Slot disponibile
+                        this.updateSlotState(slot, orario, 'available', 'Disponibile');
                     }
                 }
             }
-
-            // Controlla se lo stato è cambiato per le notifiche
-            const statoPrecedente = this.slots.get(orario)?.stato;
-            const statoCambiato = statoPrecedente && statoPrecedente !== stato;
-
-            // Aggiorna slot
-            this.updateSlotState(slot, orario, stato, motivo);
-
-            // Mostra notifiche per cambiamenti di stato
-            if (statoCambiato) {
-                if (stato === 'available' && statoPrecedente !== 'available') {
-                    notificationSystem.notifySlotAvailable(orario);
-                } else if (stato === 'occupied' && statoPrecedente !== 'occupied') {
-                    notificationSystem.notifySlotOccupied(orario);
-                } else if (stato === 'past-time' && statoPrecedente !== 'past-time') {
-                    notificationSystem.notifySlotExpired(orario);
-                }
+        });
+        
+        console.log('✅ Aggiornamento slot completato');
+    },
+    
+    // Ottieni slot selezionati dall'utente
+    getSelectedSlots() {
+        const selectedSlots = [];
+        this.slots.forEach((slotInfo, orario) => {
+            if (slotInfo.stato === 'selected') {
+                selectedSlots.push(orario);
             }
         });
+        return selectedSlots;
     },
 
     // Aggiorna slot basato su stato locale (fallback)
@@ -131,15 +143,15 @@ let slotManager = {
     // Aggiorna stato di un singolo slot
     updateSlotState(slot, orario, stato, motivo) {
         console.log('🎨 updateSlotState chiamato:', { orario, stato, motivo, slotElement: slot });
-        
+
         // Rimuovi classi precedenti
         slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired', 'selected');
-        
+
         // Aggiungi nuova classe
         slot.classList.add(stato);
-        
+
         console.log('🎨 Classi dopo aggiornamento:', slot.classList.toString());
-        
+
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
@@ -163,10 +175,10 @@ let slotManager = {
                 slot.title = `Orario passato`;
                 break;
         }
-        
+
         // Aggiorna mappa locale
         this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
-        
+
         console.log('🎨 Stato slot aggiornato:', { orario, stato, motivo, classi: slot.classList.toString() });
     },
 
@@ -183,19 +195,29 @@ let slotManager = {
 
     // Avvia aggiornamento automatico
     startAutoUpdate() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-
-        // Aggiorna ogni 30 secondi
-        this.updateInterval = setInterval(() => {
-            this.updateAllSlots();
-        }, 30000);
-
-        // Primo aggiornamento immediato
-        this.updateAllSlots();
-
         console.log('⏰ Aggiornamento automatico slot avviato (30s)');
+        
+        // AGGIORNAMENTO INTELLIGENTE: non resetta gli slot selezionati dall'utente
+        this.autoUpdateInterval = setInterval(async () => {
+            console.log('🔄 Aggiornamento automatico slot in corso...');
+            
+            try {
+                // Recupera prenotazioni dal backend
+                const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const prenotazioni = await response.json();
+                    console.log('📋 Prenotazioni esistenti:', prenotazioni);
+                    
+                    // AGGIORNAMENTO INTELLIGENTE: mantieni stato utente
+                    this.updateSlotsFromBookings(prenotazioni, true); // true = mantieni selezione utente
+                }
+            } catch (error) {
+                console.error('❌ Errore aggiornamento automatico slot:', error);
+            }
+        }, 30000); // 30 secondi
     },
 
     // Ferma aggiornamento automatico
