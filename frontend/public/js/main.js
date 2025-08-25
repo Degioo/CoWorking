@@ -200,12 +200,20 @@ function viewSpazi(idSede) {
 }
 
 // Login
-function handleLogin(event) {
-  event.preventDefault();
+window.handleLogin = function (event, email, password) {
+  if (event && event.preventDefault) {
+    event.preventDefault();
+  }
+
+  // Se i parametri non sono forniti, leggi dal DOM (per compatibilità)
+  if (!email || !password) {
+    email = $('#loginEmail').val();
+    password = $('#loginPassword').val();
+  }
 
   const data = {
-    email: $('#loginEmail').val(),
-    password: $('#loginPassword').val()
+    email: email,
+    password: password
   };
 
   // Mostra loading
@@ -402,16 +410,28 @@ function handleLogin(event) {
 }
 
 // Registrazione
-function handleRegistrazione(event) {
-  event.preventDefault();
+window.handleRegistration = function (event, nome, cognome, email, password, telefono, ruolo) {
+  if (event && event.preventDefault) {
+    event.preventDefault();
+  }
+
+  // Se i parametri non sono forniti, leggi dal DOM (per compatibilità)
+  if (!nome || !cognome || !email || !password || !ruolo) {
+    nome = $('#regNome').val();
+    cognome = $('#regCognome').val();
+    email = $('#regEmail').val();
+    password = $('#regPassword').val();
+    ruolo = $('#regRuolo').val();
+    telefono = $('#regTelefono').val() || null;
+  }
 
   const data = {
-    nome: $('#regNome').val(),
-    cognome: $('#regCognome').val(),
-    email: $('#regEmail').val(),
-    password: $('#regPassword').val(),
-    ruolo: $('#regRuolo').val(),
-    telefono: $('#regTelefono').val() || null
+    nome: nome,
+    cognome: cognome,
+    email: email,
+    password: password,
+    ruolo: ruolo,
+    telefono: telefono || null
   };
 
   // Mostra loading
@@ -421,7 +441,7 @@ function handleRegistrazione(event) {
   submitBtn.prop('disabled', true);
 
   // Usa fetch invece di jQuery per migliore gestione errori
-  fetch(`${window.CONFIG.API_BASE}/register`, {
+  fetch(`${window.CONFIG.API_BASE}/registrazione`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -475,7 +495,7 @@ function handleRegistrazione(event) {
           // Se l'utente si registra dalla home, non forzare il redirect al pagamento
           // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
           localStorage.removeItem('pendingPrenotazione');
-          console.log('handleRegistrazione - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
+          console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
 
           // Mostra messaggio informativo
           showAlert('Registrazione completata! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
@@ -485,7 +505,7 @@ function handleRegistrazione(event) {
           }, 1500);
         } else {
           // Se l'utente si registra da una pagina di prenotazione, procedi al pagamento
-          console.log('handleRegistrazione - Registrazione durante prenotazione, procedo al pagamento');
+          console.log('handleRegistration - Registrazione durante prenotazione, procedo al pagamento');
 
           // Rimuovi i dati temporanei e vai direttamente al pagamento
           localStorage.removeItem('pendingPrenotazione');
@@ -596,7 +616,7 @@ $(document).ready(function () {
   $('#loginForm').submit(handleLogin);
 
   // Registrazione form
-  $('#registrazioneForm').submit(handleRegistrazione);
+  $('#registrazioneForm').submit(handleRegistration);
 
   // Gestione hash URL per tab registrazione
   if (window.location.hash === '#registrazione') {

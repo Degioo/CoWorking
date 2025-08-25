@@ -436,115 +436,7 @@
     </div>
   </footer>
 
-  <!-- Login/Registration Modal -->
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Accedi o Registrati</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <!-- Tab Navigation -->
-          <ul class="nav nav-tabs nav-fill mb-4" id="authTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button"
-                role="tab">
-                <i class="fas fa-sign-in-alt me-2"></i>Accedi
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="registrazione-tab" data-bs-toggle="tab" data-bs-target="#registrazione"
-                type="button" role="tab">
-                <i class="fas fa-user-plus me-2"></i>Registrati
-              </button>
-            </li>
-          </ul>
-
-          <!-- Tab Content -->
-          <div class="tab-content" id="authTabsContent">
-            <!-- Login Tab -->
-            <div class="tab-pane fade show active" id="login" role="tabpanel">
-              <form id="loginForm">
-                <div class="form-group">
-                  <label for="loginEmail" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                  <label for="loginPassword" class="form-label">Password</label>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="loginPassword" required>
-                    <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
-                      <i class="fas fa-eye" id="loginPasswordIcon"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback" id="loginPassword-error"></div>
-                </div>
-                <div class="d-grid">
-                  <button type="submit" class="btn btn-primary">Accedi</button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Registration Tab -->
-            <div class="tab-pane fade" id="registrazione" role="tabpanel">
-              <form id="registrationForm">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="regNome" class="form-label">Nome</label>
-                      <input type="text" class="form-control" id="regNome" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="regCognome" class="form-label">Cognome</label>
-                      <input type="text" class="form-control" id="regCognome" required>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="regEmail" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="regEmail" required>
-                </div>
-                <div class="form-group">
-                  <label for="regRole" class="form-label">Ruolo</label>
-                  <select class="form-control" id="regRole" required>
-                    <option value="">Seleziona il tuo ruolo</option>
-                    <option value="cliente">Cliente</option>
-                    <option value="gestore">Gestore</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="regPassword" class="form-label">Password</label>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="regPassword" required>
-                    <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword">
-                      <i class="fas fa-eye" id="regPasswordIcon"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback" id="regPassword-error"></div>
-                </div>
-                <div class="form-group">
-                  <label for="regConfirmPassword" class="form-label">Conferma Password</label>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="regConfirmPassword" required>
-                    <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword">
-                      <i class="fas fa-eye" id="regConfirmPasswordIcon"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback" id="regConfirmPassword-error"></div>
-                </div>
-                <div class="d-grid">
-                  <button type="submit" class="btn btn-primary">Registrati</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Il modal di autenticazione viene creato dinamicamente da auth-modal.js -->
 
 
 
@@ -553,6 +445,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/auth-modal.js"></script>
   <script src="js/modern-ui.js"></script>
 
   <script>
@@ -592,62 +485,7 @@
       statsObserver.observe(card);
     });
 
-    // Modal function
-    function showLoginModal() {
-      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-    }
-
-    // Password toggle functionality
-    document.addEventListener('DOMContentLoaded', function () {
-      // Toggle login password
-      document.getElementById('toggleLoginPassword').addEventListener('click', function () {
-        const passwordInput = document.getElementById('loginPassword');
-        const passwordIcon = document.getElementById('loginPasswordIcon');
-
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          passwordIcon.classList.remove('fa-eye');
-          passwordIcon.classList.add('fa-eye-slash');
-        } else {
-          passwordInput.type = 'password';
-          passwordIcon.classList.remove('fa-eye-slash');
-          passwordIcon.classList.add('fa-eye');
-        }
-      });
-
-      // Toggle registration password
-      document.getElementById('toggleRegPassword').addEventListener('click', function () {
-        const passwordInput = document.getElementById('regPassword');
-        const passwordIcon = document.getElementById('regPasswordIcon');
-
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          passwordIcon.classList.remove('fa-eye');
-          passwordIcon.classList.add('fa-eye-slash');
-        } else {
-          passwordInput.type = 'password';
-          passwordIcon.classList.remove('fa-eye-slash');
-          passwordIcon.classList.add('fa-eye');
-        }
-      });
-
-      // Toggle registration confirm password
-      document.getElementById('toggleRegConfirmPassword').addEventListener('click', function () {
-        const passwordInput = document.getElementById('regConfirmPassword');
-        const passwordIcon = document.getElementById('regConfirmPasswordIcon');
-
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          passwordIcon.classList.remove('fa-eye');
-          passwordIcon.classList.add('fa-eye-slash');
-        } else {
-          passwordInput.type = 'password';
-          passwordIcon.classList.remove('fa-eye-slash');
-          passwordIcon.classList.add('fa-eye');
-        }
-      });
-    });
+    // La gestione del modal di autenticazione è ora gestita da auth-modal.js
   </script>
 </body>
 

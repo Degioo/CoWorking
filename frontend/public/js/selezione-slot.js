@@ -14,59 +14,59 @@ let slotManager = {
     slots: new Map(), // Mappa degli slot con stato
     updateInterval: null,
     lastUpdate: null,
-    
+
     // Inizializza il manager
     init() {
         console.log('🚀 Inizializzazione Slot Manager');
         this.startAutoUpdate();
     },
-    
+
     // Aggiorna tutti gli slot
     async updateAllSlots() {
         try {
             console.log('🔄 Aggiornamento slot in corso...');
-            
+
             // Recupera prenotazioni esistenti per lo spazio e data selezionati
             const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
                 headers: getAuthHeaders()
             });
-            
+
             if (response.ok) {
                 const prenotazioni = await response.json();
                 console.log('📋 Prenotazioni esistenti:', prenotazioni);
-                
+
                 // Aggiorna stato slot basato su prenotazioni reali
                 this.updateSlotsFromBookings(prenotazioni);
             } else {
                 console.log('⚠️ Impossibile recuperare prenotazioni, uso stato locale');
                 this.updateSlotsFromLocalState();
             }
-            
+
             this.lastUpdate = Date.now();
             this.updateLastUpdateDisplay();
             console.log('✅ Aggiornamento slot completato');
-            
+
         } catch (error) {
             console.error('❌ Errore aggiornamento slot:', error);
             this.updateSlotsFromLocalState();
         }
     },
-    
+
     // Aggiorna slot basato su prenotazioni reali
     updateSlotsFromBookings(prenotazioni) {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        
+
         // Reset tutti gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
             const orario = slot.textContent.trim();
             const slotDate = new Date(selectedDateInizio);
             slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
-            
+
             // Determina stato slot
             let stato = 'available';
             let motivo = '';
-            
+
             // Controlla se è passato
             if (slotDate < now) {
                 stato = 'past-time';
@@ -76,7 +76,7 @@ let slotManager = {
                 for (const prenotazione of prenotazioni) {
                     const dataInizio = new Date(prenotazione.data_inizio);
                     const dataFine = new Date(prenotazione.data_fine);
-                    
+
                     if (slotDate >= dataInizio && slotDate < dataFine) {
                         stato = prenotazione.stato === 'confermata' ? 'booked' : 'occupied';
                         motivo = prenotazione.stato === 'confermata' ? 'Prenotato' : 'In prenotazione';
@@ -84,14 +84,14 @@ let slotManager = {
                     }
                 }
             }
-            
+
             // Controlla se lo stato è cambiato per le notifiche
             const statoPrecedente = this.slots.get(orario)?.stato;
             const statoCambiato = statoPrecedente && statoPrecedente !== stato;
-            
+
             // Aggiorna slot
             this.updateSlotState(slot, orario, stato, motivo);
-            
+
             // Mostra notifiche per cambiamenti di stato
             if (statoCambiato) {
                 if (stato === 'available' && statoPrecedente !== 'available') {
@@ -104,36 +104,36 @@ let slotManager = {
             }
         });
     },
-    
+
     // Aggiorna slot basato su stato locale (fallback)
     updateSlotsFromLocalState() {
         const now = new Date();
-        
+
         document.querySelectorAll('.time-slot').forEach(slot => {
             const orario = slot.textContent.trim();
             const slotDate = new Date(selectedDateInizio);
             slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
-            
+
             let stato = 'available';
             let motivo = '';
-            
+
             if (slotDate < now) {
                 stato = 'past-time';
                 motivo = 'Orario passato';
             }
-            
+
             this.updateSlotState(slot, orario, stato, motivo);
         });
     },
-    
+
     // Aggiorna stato di un singolo slot
     updateSlotState(slot, orario, stato, motivo) {
         // Rimuovi classi precedenti
         slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired');
-        
+
         // Aggiungi nuova classe
         slot.classList.add(stato);
-        
+
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
@@ -157,11 +157,11 @@ let slotManager = {
                 this.applyPastTimeStyle(slot);
                 break;
         }
-        
+
         // Aggiorna mappa locale
         this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
     },
-    
+
     // Applica stili per slot disponibili
     applyAvailableStyle(slot) {
         slot.style.setProperty('background-color', 'var(--success)', 'important');
@@ -171,7 +171,7 @@ let slotManager = {
         slot.style.setProperty('opacity', '1', 'important');
         slot.style.setProperty('background-image', 'none', 'important');
     },
-    
+
     // Applica stili per slot occupati
     applyOccupiedStyle(slot) {
         slot.style.setProperty('background-color', '#dc3545', 'important');
@@ -182,7 +182,7 @@ let slotManager = {
         slot.style.setProperty('background-image', 'none', 'important');
         slot.style.setProperty('animation', 'pulse-red 2s infinite', 'important');
     },
-    
+
     // Applica stili per slot prenotati
     applyBookedStyle(slot) {
         slot.style.setProperty('background-color', '#fd7e14', 'important');
@@ -193,7 +193,7 @@ let slotManager = {
         slot.style.setProperty('background-image', 'none', 'important');
         slot.style.setProperty('animation', 'pulse-orange 2s infinite', 'important');
     },
-    
+
     // Applica stili per slot passati
     applyPastTimeStyle(slot) {
         slot.style.setProperty('background-color', '#6c757d', 'important');
@@ -203,24 +203,24 @@ let slotManager = {
         slot.style.setProperty('opacity', '0.6', 'important');
         slot.style.setProperty('background-image', 'none', 'important');
     },
-    
+
     // Avvia aggiornamento automatico
     startAutoUpdate() {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
         }
-        
+
         // Aggiorna ogni 30 secondi
         this.updateInterval = setInterval(() => {
             this.updateAllSlots();
         }, 30000);
-        
+
         // Primo aggiornamento immediato
         this.updateAllSlots();
-        
+
         console.log('⏰ Aggiornamento automatico slot avviato (30s)');
     },
-    
+
     // Ferma aggiornamento automatico
     stopAutoUpdate() {
         if (this.updateInterval) {
@@ -229,14 +229,14 @@ let slotManager = {
             console.log('⏹️ Aggiornamento automatico slot fermato');
         }
     },
-    
+
     // Aggiorna display ultimo aggiornamento
     updateLastUpdateDisplay() {
         const lastUpdateElement = document.getElementById('lastUpdate');
         if (lastUpdateElement && this.lastUpdate) {
             const now = new Date();
             const diff = Math.floor((now - this.lastUpdate) / 1000);
-            
+
             if (diff < 60) {
                 lastUpdateElement.textContent = `Ultimo aggiornamento: ${diff}s fa`;
             } else if (diff < 3600) {
@@ -248,7 +248,7 @@ let slotManager = {
             }
         }
     },
-    
+
     // Verifica disponibilità per un intervallo specifico
     async checkAvailability(startTime, endTime) {
         try {
@@ -263,12 +263,12 @@ let slotManager = {
                     data_fine: `${selectedDateInizio.toISOString().split('T')[0]}T${endTime}:00`
                 })
             });
-            
+
             if (response.ok) {
                 const result = await response.json();
                 return result.disponibile;
             }
-            
+
             return false;
         } catch (error) {
             console.error('❌ Errore verifica disponibilità:', error);
@@ -280,12 +280,12 @@ let slotManager = {
 // Sistema di notifiche real-time
 let notificationSystem = {
     container: null,
-    
+
     init() {
         this.createNotificationContainer();
         console.log('🔔 Sistema notifiche inizializzato');
     },
-    
+
     createNotificationContainer() {
         // Crea container per notifiche se non esiste
         if (!this.container) {
@@ -301,7 +301,7 @@ let notificationSystem = {
             document.body.appendChild(this.container);
         }
     },
-    
+
     show(message, type = 'info', duration = 5000) {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -316,21 +316,21 @@ let notificationSystem = {
             transition: transform 0.3s ease;
             cursor: pointer;
         `;
-        
+
         notification.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span>${message}</span>
                 <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">×</button>
             </div>
         `;
-        
+
         this.container.appendChild(notification);
-        
+
         // Anima l'entrata
         setTimeout(() => {
             notification.style.transform = 'translateX(0)';
         }, 100);
-        
+
         // Rimuovi automaticamente
         setTimeout(() => {
             if (notification.parentElement) {
@@ -342,20 +342,20 @@ let notificationSystem = {
                 }, 300);
             }
         }, duration);
-        
+
         return notification;
     },
-    
+
     // Notifica quando uno slot diventa disponibile
     notifySlotAvailable(orario) {
         this.show(`🎉 Slot ${orario} è ora disponibile!`, 'success');
     },
-    
+
     // Notifica quando uno slot viene occupato
     notifySlotOccupied(orario) {
         this.show(`🚫 Slot ${orario} è stato occupato`, 'warning');
     },
-    
+
     // Notifica quando uno slot scade
     notifySlotExpired(orario) {
         this.show(`⏰ Slot ${orario} è scaduto`, 'info');
@@ -570,7 +570,10 @@ function initializeCalendar() {
 
                 // Carica gli orari disponibili per la data selezionata
                 if (selectedSede && selectedSpazio) {
+                    console.log('✅ Sede e spazio selezionati, chiamo loadOrariDisponibili');
                     loadOrariDisponibili();
+                } else {
+                    console.log('⚠️ Sede o spazio non selezionati, non posso caricare orari');
                 }
 
                 // Aggiorna il riepilogo
@@ -662,7 +665,16 @@ function setupEventListeners() {
 
 // Carica gli orari disponibili per la data selezionata
 async function loadOrariDisponibili() {
+    console.log('🔄 loadOrariDisponibili chiamata');
+    console.log('📍 Stato selezione:', {
+        sede: selectedSede,
+        spazio: selectedSpazio,
+        dataInizio: selectedDateInizio,
+        dataFine: selectedDateFine
+    });
+
     if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
+        console.log('❌ Selezione incompleta, esco da loadOrariDisponibili');
         return;
     }
 
@@ -676,8 +688,9 @@ async function loadOrariDisponibili() {
         // Simula una risposta di disponibilità (per ora tutti disponibili)
         const disponibilita = { disponibile: true, orari: [] };
 
+        console.log('✅ Chiamo displayTimeSlots con:', disponibilita);
         // Mostra gli orari disponibili
-        displayTimeSlots(disponibilita);
+        await displayTimeSlots(disponibilita);
 
     } catch (error) {
         console.error('❌ Errore caricamento orari:', error);
@@ -689,11 +702,20 @@ async function loadOrariDisponibili() {
 async function displayTimeSlots(disponibilita) {
     const timeSlotsContainer = document.getElementById('timeSlots');
 
+    console.log('🔍 displayTimeSlots chiamata, container:', timeSlotsContainer);
+
+    if (!timeSlotsContainer) {
+        console.error('❌ Container timeSlots non trovato!');
+        return;
+    }
+
     // Orari di apertura (9:00 - 18:00)
     const orariApertura = [];
     for (let hour = 9; hour <= 17; hour++) {
         orariApertura.push(`${hour.toString().padStart(2, '0')}:00`);
     }
+
+    console.log('⏰ Orari apertura:', orariApertura);
 
     // Pulisci il container
     timeSlotsContainer.innerHTML = '';
@@ -703,7 +725,7 @@ async function displayTimeSlots(disponibilita) {
         console.log('🔨 Creo slot per orario:', orario);
 
         const slot = document.createElement('div');
-        slot.className = 'time-slot';
+        slot.className = 'time-slot available';
         slot.textContent = orario;
         slot.dataset.orario = orario;
 
@@ -711,11 +733,61 @@ async function displayTimeSlots(disponibilita) {
         slot.addEventListener('click', () => selectTimeSlot(orario, slot));
         slot.title = 'Clicca per selezionare orario inizio/fine';
 
+        // Applica stili base per slot disponibili
+        slot.style.backgroundColor = 'var(--success)';
+        slot.style.color = 'white';
+        slot.style.cursor = 'pointer';
+        slot.style.border = '2px solid var(--success)';
+        slot.style.borderRadius = '8px';
+        slot.style.padding = '10px 15px';
+        slot.style.margin = '5px';
+        slot.style.display = 'inline-block';
+        slot.style.minWidth = '80px';
+        slot.style.textAlign = 'center';
+        slot.style.transition = 'all 0.3s ease';
+        slot.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+
+        // Stili aggiuntivi per assicurare visibilità
+        slot.style.position = 'relative';
+        slot.style.zIndex = '1';
+        slot.style.opacity = '1';
+        slot.style.visibility = 'visible';
+        slot.style.overflow = 'visible';
+
+        // Applica anche la classe CSS per compatibilità
+        slot.classList.add('time-slot', 'available');
+
         timeSlotsContainer.appendChild(slot);
+        console.log('✅ Slot creato e aggiunto:', slot);
     }
 
-    // Aggiorna tutti gli slot con il sistema real-time
-    await slotManager.updateAllSlots();
+    // Mostra il container
+    timeSlotsContainer.style.display = 'block';
+
+    // Assicurati che il container sia visibile
+    const timeSlotsSection = document.getElementById('timeSlots');
+    if (timeSlotsSection) {
+        timeSlotsSection.style.display = 'block';
+        console.log('🎯 Sezione timeSlots resa visibile');
+    }
+
+    console.log('🎯 Container slot mostrato, slot creati:', timeSlotsContainer.children.length);
+    console.log('🎯 Container HTML:', timeSlotsContainer.innerHTML.substring(0, 200) + '...');
+
+    // Verifica che gli slot siano visibili
+    const createdSlots = timeSlotsContainer.querySelectorAll('.time-slot');
+    console.log('🔍 Slot creati e trovati nel DOM:', createdSlots.length);
+    createdSlots.forEach((slot, index) => {
+        console.log(`🔍 Slot ${index + 1}:`, {
+            text: slot.textContent,
+            visible: slot.offsetParent !== null,
+            display: window.getComputedStyle(slot).display,
+            backgroundColor: window.getComputedStyle(slot).backgroundColor
+        });
+    });
+
+    // COMMENTO TEMPORANEAMENTE - Il slotManager sta causando problemi
+    // await slotManager.updateAllSlots();
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
@@ -746,7 +818,7 @@ async function checkTimeAvailability(orario, disponibilita) {
 
     // Usa il sistema di gestione slot real-time
     const slot = slotManager.slots.get(orario);
-    
+
     if (slot) {
         console.log('📋 Stato slot da cache:', slot);
         return {
@@ -755,7 +827,7 @@ async function checkTimeAvailability(orario, disponibilita) {
             class: slot.stato
         };
     }
-    
+
     // Se non è in cache, è disponibile (verrà aggiornato dal manager)
     console.log('✅ Orario', orario, 'non in cache, considerato disponibile');
     return { available: true, reason: 'available', class: 'available' };
@@ -841,10 +913,10 @@ async function selectTimeSlot(orario, slotElement) {
         // Blocca gli slot intermedi
         blockIntermediateSlots(selectedTimeInizio, selectedTimeFine);
 
-                // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
+        // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
         console.log('🔍 Verifica disponibilità finale prima di abilitare il bottone...');
         const disponibile = await slotManager.checkAvailability(selectedTimeInizio, selectedTimeFine);
-        
+
         if (!disponibile) {
             // Slot non disponibile, disabilita il bottone e mostra errore
             document.getElementById('btnBook').disabled = true;
