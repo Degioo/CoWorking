@@ -461,6 +461,32 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // Usa authHeaders per includere il token JWT
         console.log('Headers per creazione prenotazione:', authHeaders);
 
+        // VERIFICA DISPONIBILITÀ PRIMA DELLA PRENOTAZIONE
+        console.log('🔍 Verifico disponibilità slot prima della prenotazione...');
+        try {
+            const disponibilitaResponse = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/verifica-disponibilita`, {
+                method: 'POST',
+                headers: authHeaders,
+                body: JSON.stringify({
+                    id_spazio: prenotazioneData.id_spazio,
+                    data_inizio: prenotazioneData.data_inizio,
+                    data_fine: prenotazioneData.data_fine
+                })
+            }, 5000);
+
+            if (disponibilitaResponse.ok) {
+                const disponibilita = await disponibilitaResponse.json();
+                if (!disponibilita.disponibile) {
+                    throw new Error(`🚫 Slot non disponibile: ${disponibilita.motivo || 'Conflitto con prenotazione esistente'}`);
+                }
+                console.log('✅ Slot verificato disponibile');
+            } else {
+                console.log('⚠️ Verifica disponibilità non disponibile, procedo con la prenotazione');
+            }
+        } catch (error) {
+            console.log('⚠️ Errore verifica disponibilità:', error.message, '- Procedo con la prenotazione');
+        }
+
         const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
             method: 'POST',
             headers: authHeaders,  // ✅ Usa headers con token JWT
@@ -469,12 +495,22 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
 
         if (!response.ok) {
             const error = await response.json();
+            console.log('🔍 Errore backend ricevuto:', { status: response.status, error });
 
-            // Gestisci specificamente gli slot bloccati
-            if (response.status === 409 && error.minutiRimanenti) {
-                throw new Error(`Slot temporaneamente bloccato. Riprova tra ${error.minutiRimanenti} minuti.`);
+            // Gestisci specificamente gli errori 409 (Conflict)
+            if (response.status === 409) {
+                if (error.minutiRimanenti) {
+                    throw new Error(`⏰ Slot temporaneamente bloccato. Riprova tra ${error.minutiRimanenti} minuti.`);
+                } else if (error.error === 'Spazio non disponibile') {
+                    throw new Error(`🚫 Spazio non disponibile per l'orario selezionato. Lo slot potrebbe essere già prenotato o occupato.`);
+                } else if (error.error) {
+                    throw new Error(`🚫 Conflitto: ${error.error}`);
+                } else {
+                    throw new Error(`🚫 Conflitto nella prenotazione. Lo slot potrebbe essere già occupato.`);
+                }
             }
 
+            // Gestisci altri errori
             throw new Error(error.error || 'Errore nella creazione della prenotazione');
         }
 
