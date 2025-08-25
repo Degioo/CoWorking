@@ -414,20 +414,20 @@ async function checkTimeAvailability(orario, disponibilita) {
     // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
     // In futuro si implementerà la verifica contro le API
 
-        // LOGICA SLOT OCCUPATI E PRENOTATI
+    // LOGICA SLOT OCCUPATI E PRENOTATI
     // Simula prenotazioni esistenti per test
     const testBookings = [
         { start: '08:00', end: '14:00', status: 'occupied' }, // Prenotazione dalle 8 alle 14
         { start: '16:00', end: '18:00', status: 'booked' }   // Prenotazione dalle 16 alle 18
     ];
-    
+
     // Verifica se l'orario è incluso in una prenotazione esistente
     for (const booking of testBookings) {
         if (orario >= booking.start && orario < booking.end) {
-            return { 
-                available: false, 
-                reason: booking.status, 
-                class: booking.status 
+            return {
+                available: false,
+                reason: booking.status,
+                class: booking.status
             };
         }
     }
@@ -439,13 +439,13 @@ async function checkTimeAvailability(orario, disponibilita) {
 // Funzione per bloccare gli slot intermedi quando si seleziona un intervallo
 function blockIntermediateSlots(startTime, endTime) {
     console.log('🔒 Blocco slot intermedi:', { startTime, endTime });
-    
+
     // Trova tutti gli slot nell'intervallo selezionato
     const timeSlots = document.querySelectorAll('.time-slot');
-    
+
     timeSlots.forEach(slot => {
         const slotTime = slot.textContent.trim();
-        
+
         // Se lo slot è nell'intervallo selezionato, bloccalo
         if (slotTime >= startTime && slotTime < endTime) {
             // Non rimuovere la classe 'selected' dagli slot estremi
@@ -469,13 +469,13 @@ function selectTimeSlot(orario, slotElement) {
         slotElement.classList.remove('selected');
         selectedTimeInizio = null;
         selectedTimeFine = null;
-        
+
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
             slot.classList.remove('selected', 'occupied');
             slot.style.cursor = 'pointer';
         });
-        
+
         hideSummary();
         return;
     }
@@ -558,7 +558,7 @@ function hideSummary() {
     if (timeSlotsContainer) {
         timeSlotsContainer.querySelectorAll('.alert').forEach(alert => alert.remove());
     }
-    
+
     // Ripristina tutti gli slot quando si nasconde il riepilogo
     document.querySelectorAll('.time-slot').forEach(slot => {
         slot.classList.remove('selected', 'occupied');
