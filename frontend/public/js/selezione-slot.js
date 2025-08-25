@@ -18,72 +18,75 @@ let slotManager = {
 
     // Inizializza il manager
     init() {
-        console.log('🚀 Inizializzazione Slot Manager');
         this.initialized = true;
-        this.startAutoUpdate();
+        console.log('🚀 Inizializzazione Slot Manager');
+        
+        // RIMUOVO COMPLETAMENTE TIMER E NOTIFICHE
+        // this.startAutoUpdate();
+        // this.startNotifications();
+        
+        // Aggiornamento iniziale una sola volta
+        this.updateAllSlots();
     },
 
-    // Aggiorna tutti gli slot
+    // Aggiorna tutti gli slot dal backend
     async updateAllSlots() {
+        if (!this.initialized || !selectedSpazio) {
+            console.log('⏳ Sede o spazio non ancora selezionati, rimando aggiornamento...');
+            return;
+        }
+        
+        console.log('🔄 Aggiornamento slot in corso...');
+        
         try {
-            console.log('🔄 Aggiornamento slot in corso...');
-
-            // Recupera prenotazioni esistenti per lo spazio e data selezionati
             const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
                 headers: getAuthHeaders()
             });
-
+            
             if (response.ok) {
                 const prenotazioni = await response.json();
                 console.log('📋 Prenotazioni esistenti:', prenotazioni);
-
-                // Aggiorna stato slot basato su prenotazioni reali
-                this.updateSlotsFromBookings(prenotazioni);
-            } else {
-                console.log('⚠️ Impossibile recuperare prenotazioni, uso stato locale');
-                this.updateSlotsFromLocalState();
+                
+                // Aggiorna slot una sola volta senza timer
+                this.updateSlotsFromBookings(prenotazioni, false);
             }
-
-            this.lastUpdate = Date.now();
-            this.updateLastUpdateDisplay();
-            console.log('✅ Aggiornamento slot completato');
-
         } catch (error) {
             console.error('❌ Errore aggiornamento slot:', error);
-            this.updateSlotsFromLocalState();
         }
+        
+        console.log('✅ Aggiornamento slot completato');
     },
 
     // Aggiorna slot basato su prenotazioni reali
     updateSlotsFromBookings(prenotazioni, keepUserSelection = false) {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        
-        console.log('🔄 Aggiornamento slot da prenotazioni:', { 
-            prenotazioni: prenotazioni.length, 
+
+        console.log('🔄 Aggiornamento slot da prenotazioni:', {
+            prenotazioni: prenotazioni.length,
             keepUserSelection,
             selectedSlots: this.getSelectedSlots()
         });
-        
+
         // Se keepUserSelection = true, salva gli slot selezionati dall'utente
         let userSelectedSlots = [];
         if (keepUserSelection) {
             userSelectedSlots = this.getSelectedSlots();
             console.log('💾 Mantengo selezione utente:', userSelectedSlots);
         }
-        
+
         // Aggiorna ogni slot
         this.slots.forEach((slotInfo, orario) => {
             const slot = document.querySelector(`[data-orario="${orario}"]`);
             if (!slot) return;
-            
+
             // Trova prenotazioni per questo orario
             const prenotazione = prenotazioni.find(p => {
                 const prenotazioneDate = new Date(p.data_inizio);
                 const prenotazioneOra = prenotazioneDate.toTimeString().split(' ')[0].substring(0, 5);
                 return prenotazioneOra === orario && p.stato === 'confermata';
             });
-            
+
             if (prenotazione) {
                 // Slot prenotato
                 this.updateSlotState(slot, orario, 'booked', 'Prenotato');
@@ -104,10 +107,10 @@ let slotManager = {
                 }
             }
         });
-        
+
         console.log('✅ Aggiornamento slot completato');
     },
-    
+
     // Ottieni slot selezionati dall'utente
     getSelectedSlots() {
         const selectedSlots = [];
@@ -193,61 +196,6 @@ let slotManager = {
         }
     },
 
-    // Avvia aggiornamento automatico
-    startAutoUpdate() {
-        console.log('⏰ Aggiornamento automatico slot avviato (30s)');
-        
-        // AGGIORNAMENTO INTELLIGENTE: non resetta gli slot selezionati dall'utente
-        this.autoUpdateInterval = setInterval(async () => {
-            console.log('🔄 Aggiornamento automatico slot in corso...');
-            
-            try {
-                // Recupera prenotazioni dal backend
-                const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
-                    headers: getAuthHeaders()
-                });
-                
-                if (response.ok) {
-                    const prenotazioni = await response.json();
-                    console.log('📋 Prenotazioni esistenti:', prenotazioni);
-                    
-                    // AGGIORNAMENTO INTELLIGENTE: mantieni stato utente
-                    this.updateSlotsFromBookings(prenotazioni, true); // true = mantieni selezione utente
-                }
-            } catch (error) {
-                console.error('❌ Errore aggiornamento automatico slot:', error);
-            }
-        }, 30000); // 30 secondi
-    },
-
-    // Ferma aggiornamento automatico
-    stopAutoUpdate() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-            this.updateInterval = null;
-            console.log('⏹️ Aggiornamento automatico slot fermato');
-        }
-    },
-
-    // Aggiorna display ultimo aggiornamento
-    updateLastUpdateDisplay() {
-        const lastUpdateElement = document.getElementById('lastUpdate');
-        if (lastUpdateElement && this.lastUpdate) {
-            const now = new Date();
-            const diff = Math.floor((now - this.lastUpdate) / 1000);
-
-            if (diff < 60) {
-                lastUpdateElement.textContent = `Ultimo aggiornamento: ${diff}s fa`;
-            } else if (diff < 3600) {
-                const minutes = Math.floor(diff / 60);
-                lastUpdateElement.textContent = `Ultimo aggiornamento: ${minutes}m fa`;
-            } else {
-                const hours = Math.floor(diff / 3600);
-                lastUpdateElement.textContent = `Ultimo aggiornamento: ${hours}h fa`;
-            }
-        }
-    },
-
     // Verifica disponibilità per un intervallo specifico
     async checkAvailability(startTime, endTime) {
         try {
@@ -310,90 +258,8 @@ let slotManager = {
     }
 };
 
-// Sistema di notifiche real-time
-let notificationSystem = {
-    container: null,
-
-    init() {
-        this.createNotificationContainer();
-        console.log('🔔 Sistema notifiche inizializzato');
-    },
-
-    createNotificationContainer() {
-        // Crea container per notifiche se non esiste
-        if (!this.container) {
-            this.container = document.createElement('div');
-            this.container.id = 'notificationContainer';
-            this.container.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                max-width: 400px;
-            `;
-            document.body.appendChild(this.container);
-        }
-    },
-
-    show(message, type = 'info', duration = 5000) {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.style.cssText = `
-            background: ${type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : type === 'error' ? 'var(--danger)' : 'var(--primary)'};
-            color: white;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        `;
-
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span>${message}</span>
-                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">×</button>
-            </div>
-        `;
-
-        this.container.appendChild(notification);
-
-        // Anima l'entrata
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Rimuovi automaticamente
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (notification.parentElement) {
-                        notification.remove();
-                    }
-                }, 300);
-            }
-        }, duration);
-
-        return notification;
-    },
-
-    // Notifica quando uno slot diventa disponibile
-    notifySlotAvailable(orario) {
-        this.show(`🎉 Slot ${orario} è ora disponibile!`, 'success');
-    },
-
-    // Notifica quando uno slot viene occupato
-    notifySlotOccupied(orario) {
-        this.show(`🚫 Slot ${orario} è stato occupato`, 'warning');
-    },
-
-    // Notifica quando uno slot scade
-    notifySlotExpired(orario) {
-        this.show(`⏰ Slot ${orario} è scaduto`, 'info');
-    }
-};
+// RIMUOVO COMPLETAMENTE TIMER E NOTIFICHE
+// notificationSystem è stato eliminato
 
 // Inizializzazione della pagina
 document.addEventListener('DOMContentLoaded', function () {
@@ -441,7 +307,7 @@ async function initializePage() {
 
         // Inizializza il sistema di gestione slot real-time
         initializeSlotManager();
-        notificationSystem.init(); // Inizializza il sistema di notifiche
+        // notificationSystem.init(); // Inizializza il sistema di notifiche - Rimosso
 
     } catch (error) {
         console.error('❌ Errore durante l\'inizializzazione:', error);
@@ -1239,22 +1105,6 @@ async function checkSlotOccupancy(selectedDate, orario) {
 async function checkSlotBooked(selectedDate, orario) {
     // TODO: Implementare quando le API saranno disponibili
     return false;
-}
-
-// Aggiorna automaticamente gli slot scaduti
-async function updateExpiredSlots() {
-    if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
-        return;
-    }
-
-    // TEMPORANEO: Per ora salta l'aggiornamento automatico
-    // TODO: Implementare quando le API saranno disponibili
-    console.log('🔄 Aggiornamento automatico slot saltato (API non ancora implementate)');
-}
-
-// Avvia l'aggiornamento automatico degli slot ogni minuto
-function startAutoUpdate() {
-    setInterval(updateExpiredSlots, 60000); // Aggiorna ogni minuto
 }
 
 // Converte il motivo di non disponibilità in testo leggibile
