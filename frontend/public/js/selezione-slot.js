@@ -67,7 +67,7 @@ let slotManager = {
 
             // Determina stato slot
             let stato = 'available';
-            let motivo = '';
+            let motivo = 'Disponibile';
 
             // Controlla se è passato
             if (slotDate < now) {
@@ -243,6 +243,14 @@ let slotManager = {
             dataInizio.setHours(parseInt(oraInizio), 0, 0, 0);
             dataFine.setHours(parseInt(oraFine), 0, 0, 0);
 
+            console.log('🔍 Verifica disponibilità per:', {
+                spazio: selectedSpazio.id_spazio,
+                dataInizio: dataInizio.toISOString(),
+                dataFine: dataFine.toISOString(),
+                startTime,
+                endTime
+            });
+
             const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizio.toISOString()}&data_fine=${dataFine.toISOString()}`, {
                 method: 'GET',
                 headers: getAuthHeaders()
@@ -251,14 +259,15 @@ let slotManager = {
             if (response.ok) {
                 const result = await response.json();
                 console.log('✅ Verifica disponibilità:', result);
-
+                
                 // Se non è disponibile, aggiorna lo stato degli slot
                 if (!result.disponibile && result.motivo) {
                     console.log('❌ Slot non disponibile:', result.motivo);
+                    console.log('🔍 Motivo completo:', result);
                     // Aggiorna lo stato degli slot nell'intervallo
                     this.updateSlotRange(startTime, endTime, 'occupied', result.motivo);
                 }
-
+                
                 return result.disponibile;
             }
 
@@ -868,9 +877,14 @@ async function selectTimeSlot(orario, slotElement) {
 
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
+            // Rimuovi tutte le classi di stato
             slot.classList.remove('selected', 'occupied', 'intermediate');
+            // Ripristina la classe 'available' per tutti gli slot
+            slot.classList.add('available');
             // Rimuovi stili inline per permettere al CSS di funzionare
             slot.style.removeProperty('cursor');
+            // Ripristina il titolo originale
+            slot.title = 'Clicca per selezionare orario inizio/fine';
         });
 
         hideSummary();
@@ -1010,9 +1024,14 @@ function hideSummary() {
 
     // Ripristina tutti gli slot quando si nasconde il riepilogo
     document.querySelectorAll('.time-slot').forEach(slot => {
+        // Rimuovi tutte le classi di stato
         slot.classList.remove('selected', 'occupied', 'intermediate');
+        // Ripristina la classe 'available' per tutti gli slot
+        slot.classList.add('available');
         // Rimuovi stili inline per permettere al CSS di funzionare
         slot.style.removeProperty('cursor');
+        // Ripristina il titolo originale
+        slot.title = 'Clicca per selezionare orario inizio/fine';
     });
 }
 
