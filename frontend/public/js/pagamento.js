@@ -787,8 +787,26 @@ async function loadPrenotazioneData() {
 
         console.log('loadPrenotazioneData - ID prenotazione dall\'URL:', prenotazioneId);
 
+        // Se non c'è ID prenotazione, controlla se ci sono i parametri di selezione (flusso da selezione-slot)
         if (!prenotazioneId) {
-            throw new Error('ID prenotazione non specificato');
+            const sede = urlParams.get('sede');
+            const spazio = urlParams.get('spazio');
+            const dal = urlParams.get('dal');
+            const al = urlParams.get('al');
+            const orarioInizio = urlParams.get('orarioInizio');
+            const orarioFine = urlParams.get('orarioFine');
+
+            console.log('loadPrenotazioneData - Parametri selezione trovati:', { sede, spazio, dal, al, orarioInizio, orarioFine });
+
+            if (sede && spazio && dal && al && orarioInizio && orarioFine) {
+                console.log('loadPrenotazioneData - Flusso da selezione-slot, creo prenotazione automaticamente');
+                
+                // Crea la prenotazione automaticamente
+                await createPrenotazioneFromSelection(sede, spazio, dal, al, orarioInizio, orarioFine);
+                return;
+            } else {
+                throw new Error('Parametri prenotazione mancanti. Torna alla selezione e riprova.');
+            }
         }
 
         console.log('loadPrenotazioneData - Chiamo API:', `${window.CONFIG.API_BASE}/prenotazioni/${prenotazioneId}`);
@@ -824,6 +842,48 @@ async function loadPrenotazioneData() {
         document.getElementById('sede-prenotazione').textContent = 'Errore caricamento';
         document.getElementById('spazio-prenotazione').textContent = 'Errore caricamento';
         document.getElementById('totale-prenotazione').textContent = 'Errore caricamento';
+    }
+}
+
+// Crea una prenotazione dai parametri di selezione
+async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioInizio, orarioFine) {
+    try {
+        console.log('createPrenotazioneFromSelection - Creo prenotazione con parametri:', { sede, spazio, dal, al, orarioInizio, orarioFine });
+
+        // Combina data e orario per creare le date complete
+        const dataInizio = new Date(`${dal}T${orarioInizio}:00`);
+        const dataFine = new Date(`${al}T${orarioFine}:00`);
+
+        // Calcola la durata in ore
+        const durataMs = dataFine - dataInizio;
+        const durataOre = Math.max(0.5, (durataMs / (1000 * 60 * 60)).toFixed(1));
+
+        // Calcola l'importo (10€/ora, minimo 5€)
+        const importo = Math.max(5, Math.round(durataOre * 10));
+
+        // Crea l'oggetto prenotazione
+        prenotazioneData = {
+            id_sede: parseInt(sede),
+            id_spazio: parseInt(spazio),
+            data_inizio: dataInizio.toISOString(),
+            data_fine: dataFine.toISOString(),
+            orario_inizio: orarioInizio,
+            orario_fine: orarioFine,
+            durata_ore: parseFloat(durataOre),
+            importo: importo,
+            // Dati per la visualizzazione
+            sede: { id_sede: parseInt(sede) },
+            spazio: { id_spazio: parseInt(spazio) }
+        };
+
+        console.log('createPrenotazioneFromSelection - Prenotazione creata:', prenotazioneData);
+
+        // Popola i dettagli della prenotazione
+        populatePrenotazioneDetails();
+
+    } catch (error) {
+        console.error('createPrenotazioneFromSelection - Errore:', error);
+        throw new Error('Errore nella creazione della prenotazione: ' + error.message);
     }
 }
 
@@ -905,6 +965,20 @@ function populatePrenotazioneDetails() {
         spazioText = data.nome_spazio;
     } else if (data.id_spazio) {
         spazioText = `Spazio #${data.id_spazio}`;
+    }
+
+    // Se abbiamo orari specifici, usali per la visualizzazione
+    if (data.orario_inizio && data.orario_fine) {
+        const orarioInizio = data.orario_inizio;
+        const orarioFine = data.orario_fine;
+        
+        // Aggiorna la visualizzazione con orari specifici
+        document.getElementById('data-inizio-prenotazione').textContent = `${dataInizioFormattata} (${orarioInizio})`;
+        document.getElementById('data-fine-prenotazione').textContent = `${dataFineFormattata} (${orarioFine})`;
+    } else {
+        // Usa la visualizzazione standard
+        document.getElementById('data-inizio-prenotazione').textContent = dataInizioFormattata;
+        document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
     }
 
     document.getElementById('sede-prenotazione').textContent = sedeText;

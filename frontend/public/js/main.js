@@ -291,12 +291,49 @@ function handleLogin(event) {
         localStorage.removeItem('redirectAfterLogin');
         console.log('handleLogin - Redirect alla pagina originale:', redirectAfterLogin);
 
-        // Se il redirect è verso selezione-slot.html, torna alla selezione per completare la prenotazione
+        // Se il redirect è verso selezione-slot.html, vai direttamente al pagamento con i dati salvati
         if (redirectAfterLogin.includes('selezione-slot.html')) {
-          console.log('handleLogin - Redirect verso selezione-slot.html, torno alla selezione per completare prenotazione');
-          setTimeout(() => {
-            window.location.href = redirectAfterLogin;
-          }, 1000);
+          console.log('handleLogin - Redirect verso selezione-slot.html, vado direttamente al pagamento');
+          
+          // Controlla se c'è una prenotazione in attesa
+          const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+          if (pendingPrenotazione) {
+            try {
+              const prenotazioneData = JSON.parse(pendingPrenotazione);
+              console.log('handleLogin - Dati prenotazione per pagamento:', prenotazioneData);
+              
+              // Vai direttamente al pagamento con tutti i parametri
+              const pagamentoUrl = new URL('pagamento.html', window.location.origin);
+              pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
+              pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
+              pagamentoUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+              pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
+              pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
+              pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+              
+              // Pulisci i dati temporanei
+              localStorage.removeItem('pendingPrenotazione');
+              localStorage.removeItem('redirectAfterLogin');
+              
+              setTimeout(() => {
+                window.location.href = pagamentoUrl.toString();
+              }, 1000);
+              return;
+            } catch (error) {
+              console.error('handleLogin - Errore parsing prenotazione:', error);
+              // Fallback: vai alla dashboard
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1000);
+              return;
+            }
+          } else {
+            // Nessuna prenotazione in attesa, vai alla dashboard
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 1000);
+            return;
+          }
         } else {
           setTimeout(() => {
             window.location.href = redirectAfterLogin;

@@ -49,9 +49,7 @@ async function initializePage() {
         // Gestisci i parametri URL se presenti
         handleUrlParameters();
 
-        console.log('🔄 Gestione redirect post-login...');
-        // Gestisci il redirect dopo il login se presente
-        handlePostLoginRedirect();
+        // Nota: il redirect post-login ora gestisce direttamente il passaggio al pagamento
 
         console.log('✅ Pagina inizializzata correttamente');
 
@@ -165,48 +163,8 @@ function handleUrlParameters() {
     }
 }
 
-// Gestisci il redirect dopo il login
-function handlePostLoginRedirect() {
-    // Controlla se c'è un redirect salvato
-    const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
-    const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
-    
-    if (redirectAfterLogin && pendingPrenotazione) {
-        console.log('🔄 Rilevato redirect post-login con prenotazione in attesa');
-        
-        try {
-            const prenotazioneData = JSON.parse(pendingPrenotazione);
-            console.log('📋 Dati prenotazione in attesa:', prenotazioneData);
-            
-            // Ripristina i dati della prenotazione
-            if (prenotazioneData.sede) {
-                // Preseleziona la sede
-                setTimeout(() => {
-                    const sedeSelect = document.getElementById('sedeSelect');
-                    if (sedeSelect) {
-                        sedeSelect.value = prenotazioneData.sede;
-                        // Trigger del cambio sede
-                        const event = new Event('change');
-                        sedeSelect.dispatchEvent(event);
-                    }
-                }, 200);
-            }
-            
-            // Pulisci i dati temporanei
-            localStorage.removeItem('redirectAfterLogin');
-            localStorage.removeItem('pendingPrenotazione');
-            
-            // Mostra messaggio informativo
-            showSuccess('Prenotazione ripristinata! Completa la selezione e clicca "Prenota Ora".');
-            
-        } catch (error) {
-            console.error('❌ Errore parsing prenotazione in attesa:', error);
-            // Pulisci i dati corrotti
-            localStorage.removeItem('redirectAfterLogin');
-            localStorage.removeItem('pendingPrenotazione');
-        }
-    }
-}
+// Nota: la gestione del redirect post-login è ora gestita direttamente in main.js
+// per reindirizzare al pagamento senza passare per selezione-slot
 
 // Popola il select degli spazi
 function populateSpazioSelect() {
