@@ -448,12 +448,28 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
             dataFineCompleta.setHours(parseInt(oreFine), parseInt(minutiFine), 0, 0);
         }
 
+        // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
+        // Calcola l'offset del timezone locale
+        const timezoneOffset = dataInizioCompleta.getTimezoneOffset() * 60000; // in millisecondi
+        
+        // Crea le date in formato locale (senza conversione UTC)
+        const dataInizioLocale = new Date(dataInizioCompleta.getTime() - timezoneOffset);
+        const dataFineLocale = new Date(dataFineCompleta.getTime() - timezoneOffset);
+
+        console.log('🌍 Date create correttamente:', {
+            dataInizioOriginale: dataInizioCompleta.toLocaleString('it-IT'),
+            dataFineOriginale: dataFineCompleta.toLocaleString('it-IT'),
+            dataInizioLocale: dataInizioLocale.toLocaleString('it-IT'),
+            dataFineLocale: dataFineLocale.toLocaleString('it-IT'),
+            timezoneOffset: timezoneOffset / 60000 + ' minuti'
+        });
+
         // Crea la prenotazione
         const prenotazioneData = {
             id_utente: userData.id_utente,
             id_spazio: spazio,
-            data_inizio: dataInizioCompleta.toISOString(),
-            data_fine: dataFineCompleta.toISOString()
+            data_inizio: dataInizioLocale.toISOString(),
+            data_fine: dataFineLocale.toISOString()
         };
 
         console.log('Dati prenotazione da creare:', prenotazioneData);
@@ -944,11 +960,22 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         const dataInizioLocal = new Date(yearInizio, monthInizio - 1, dayInizio, hourInizio, minuteInizio, 0);
         const dataFineLocal = new Date(yearFine, monthFine - 1, dayFine, hourFine, minuteFine, 0);
 
+        // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
+        // Calcola l'offset del timezone locale
+        const timezoneOffset = dataInizioLocal.getTimezoneOffset() * 60000; // in millisecondi
+        
+        // Crea le date in formato locale (senza conversione UTC)
+        const dataInizioLocale = new Date(dataInizioLocal.getTime() - timezoneOffset);
+        const dataFineLocale = new Date(dataFineLocal.getTime() - timezoneOffset);
+
         console.log('createPrenotazioneFromSelection - Date create correttamente:', {
             dataInizioLocal: dataInizioLocal.toString(),
             dataFineLocal: dataFineLocal.toString(),
-            dataInizioISO: dataInizioLocal.toISOString(),
-            dataFineISO: dataFineLocal.toISOString()
+            dataInizioLocale: dataInizioLocale.toString(),
+            dataFineLocale: dataFineLocale.toString(),
+            dataInizioISO: dataInizioLocale.toISOString(),
+            dataFineISO: dataFineLocale.toISOString(),
+            timezoneOffset: timezoneOffset / 60000 + ' minuti'
         });
 
         // Calcola la durata in ore (considerando anche i minuti)
@@ -980,8 +1007,8 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         prenotazioneData = {
             id_sede: parseInt(sede),
             id_spazio: parseInt(spazio),
-            data_inizio: dataInizioLocal.toISOString(),
-            data_fine: dataFineLocal.toISOString(),
+            data_inizio: dataInizioLocale.toISOString(),
+            data_fine: dataFineLocale.toISOString(),
             orario_inizio: orarioInizio,
             orario_fine: orarioFine,
             durata_ore: parseFloat(durataOre),

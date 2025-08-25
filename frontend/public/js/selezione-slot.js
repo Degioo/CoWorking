@@ -243,15 +243,26 @@ let slotManager = {
             dataInizio.setHours(parseInt(oraInizio), 0, 0, 0);
             dataFine.setHours(parseInt(oraFine), 0, 0, 0);
 
+            // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
+            // Calcola l'offset del timezone locale
+            const timezoneOffset = dataInizio.getTimezoneOffset() * 60000; // in millisecondi
+            
+            // Crea le date in formato locale (senza conversione UTC)
+            const dataInizioLocale = new Date(dataInizio.getTime() - timezoneOffset);
+            const dataFineLocale = new Date(dataFine.getTime() - timezoneOffset);
+
             console.log('🔍 Verifica disponibilità per:', {
                 spazio: selectedSpazio.id_spazio,
-                dataInizio: dataInizio.toISOString(),
-                dataFine: dataFine.toISOString(),
+                dataInizioOriginale: dataInizio.toLocaleString('it-IT'),
+                dataFineOriginale: dataFine.toLocaleString('it-IT'),
+                dataInizioLocale: dataInizioLocale.toLocaleString('it-IT'),
+                dataFineLocale: dataFineLocale.toLocaleString('it-IT'),
                 startTime,
-                endTime
+                endTime,
+                timezoneOffset: timezoneOffset / 60000 + ' minuti'
             });
 
-            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizio.toISOString()}&data_fine=${dataFine.toISOString()}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
                 method: 'GET',
                 headers: getAuthHeaders()
             });
@@ -1281,7 +1292,23 @@ function initializeSlotManager() {
 // Ottiene gli orari disponibili dal backend
 async function getOrariDisponibili() {
     try {
-        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${selectedDateInizio.toISOString()}&data_fine=${selectedDateFine.toISOString()}`, {
+        // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
+        // Calcola l'offset del timezone locale
+        const timezoneOffset = selectedDateInizio.getTimezoneOffset() * 60000; // in millisecondi
+        
+        // Crea le date in formato locale (senza conversione UTC)
+        const dataInizioLocale = new Date(selectedDateInizio.getTime() - timezoneOffset);
+        const dataFineLocale = new Date(selectedDateFine.getTime() - timezoneOffset);
+
+        console.log('🌍 Date per orari disponibili:', {
+            dataInizioOriginale: selectedDateInizio.toLocaleString('it-IT'),
+            dataFineOriginale: selectedDateFine.toLocaleString('it-IT'),
+            dataInizioLocale: dataInizioLocale.toLocaleString('it-IT'),
+            dataFineLocale: dataFineLocale.toLocaleString('it-IT'),
+            timezoneOffset: timezoneOffset / 60000 + ' minuti'
+        });
+
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
             method: 'GET',
             headers: getAuthHeaders()
         });
