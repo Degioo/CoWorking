@@ -9,15 +9,17 @@ let selectedTimeInizio = null;
 let selectedTimeFine = null;
 let datePicker = null;
 
-// Sistema di gestione slot real-time
+// Slot Manager per gestione real-time degli slot
 let slotManager = {
-    slots: new Map(), // Mappa degli slot con stato
+    slots: new Map(),
     updateInterval: null,
     lastUpdate: null,
+    initialized: false,
 
     // Inizializza il manager
     init() {
         console.log('🚀 Inizializzazione Slot Manager');
+        this.initialized = true;
         this.startAutoUpdate();
     },
 
@@ -399,7 +401,7 @@ async function initializePage() {
         console.log('✅ Pagina inizializzata correttamente');
 
         // Inizializza il sistema di gestione slot real-time
-        slotManager.init();
+        initializeSlotManager();
         notificationSystem.init(); // Inizializza il sistema di notifiche
 
     } catch (error) {
@@ -658,35 +660,35 @@ function setupEventListeners() {
 // Carica gli orari disponibili per la data selezionata
 async function loadOrariDisponibili() {
     console.log('🔄 loadOrariDisponibili chiamata');
-    console.log('📍 Stato selezione:', {
-        sede: selectedSede,
-        spazio: selectedSpazio,
-        dataInizio: selectedDateInizio,
-        dataFine: selectedDateFine
-    });
+    console.log('📍 Stato selezione:', { selectedSede, selectedSpazio, selectedDateInizio, selectedDateFine });
 
-    if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
-        console.log('❌ Selezione incompleta, esco da loadOrariDisponibili');
+    if (!selectedSede || !selectedSpazio) {
+        console.log('⚠️ Sede o spazio non selezionati');
+        return;
+    }
+
+    if (!selectedDateInizio || !selectedDateFine) {
+        console.log('⚠️ Date non selezionate');
         return;
     }
 
     try {
         console.log(`🔄 Caricamento orari disponibili dal ${selectedDateInizio.toLocaleDateString('it-IT')} al ${selectedDateFine.toLocaleDateString('it-IT')}...`);
 
-        // Per ora, carica tutti gli orari disponibili senza verificare conflitti specifici
-        // In futuro si può implementare una verifica più sofisticata
+        // Inizializza il slotManager se non è ancora stato fatto
+        if (!slotManager.initialized) {
+            console.log('🔄 Inizializzazione slotManager...');
+            initializeSlotManager();
+        }
+
         console.log('📅 Caricamento orari per l\'intervallo selezionato');
-
-        // Simula una risposta di disponibilità (per ora tutti disponibili)
-        const disponibilita = { disponibile: true, orari: [] };
-
+        const disponibilita = await getOrariDisponibili();
         console.log('✅ Chiamo displayTimeSlots con:', disponibilita);
-        // Mostra gli orari disponibili
         await displayTimeSlots(disponibilita);
 
     } catch (error) {
-        console.error('❌ Errore caricamento orari:', error);
-        showError('Errore caricamento orari: ' + error.message);
+        console.error('❌ Errore caricamento orari disponibili:', error);
+        showError('Errore caricamento orari disponibili: ' + error.message);
     }
 }
 
@@ -840,10 +842,13 @@ function blockIntermediateSlots(startTime, endTime) {
         if (slotTime >= startTime && slotTime < endTime) {
             // Non rimuovere la classe 'selected' dagli slot estremi
             if (slotTime !== startTime && slotTime !== endTime) {
+                // Mantieni la classe 'available' ma aggiungi 'intermediate' per l'animazione
                 slot.classList.remove('selected');
-                slot.classList.add('occupied');
+                slot.classList.add('intermediate');
                 // Rimuovi stili inline per permettere al CSS di funzionare
                 slot.style.removeProperty('cursor');
+                slot.style.cursor = 'not-allowed';
+                slot.title = 'Slot intermedio selezionato';
                 console.log('🚫 Slot bloccato:', slotTime);
             }
         }
@@ -863,7 +868,7 @@ async function selectTimeSlot(orario, slotElement) {
 
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
-            slot.classList.remove('selected', 'occupied');
+            slot.classList.remove('selected', 'occupied', 'intermediate');
             // Rimuovi stili inline per permettere al CSS di funzionare
             slot.style.removeProperty('cursor');
         });
@@ -1005,7 +1010,7 @@ function hideSummary() {
 
     // Ripristina tutti gli slot quando si nasconde il riepilogo
     document.querySelectorAll('.time-slot').forEach(slot => {
-        slot.classList.remove('selected', 'occupied');
+        slot.classList.remove('selected', 'occupied', 'intermediate');
         // Rimuovi stili inline per permettere al CSS di funzionare
         slot.style.removeProperty('cursor');
     });
@@ -1237,5 +1242,43 @@ function getReasonText(reason) {
             return 'Errore di verifica';
         default:
             return 'Non disponibile';
+    }
+}
+
+// Inizializza il sistema di gestione slot
+function initializeSlotManager() {
+    console.log('🚀 Inizializzazione Slot Manager');
+
+    // Aspetta che sede e spazio siano selezionati
+    if (!selectedSede || !selectedSpazio) {
+        console.log('⏳ Sede o spazio non ancora selezionati, rimando inizializzazione...');
+        return false;
+    }
+
+    slotManager.init();
+    return true;
+}
+
+// Ottiene gli orari disponibili dal backend
+async function getOrariDisponibili() {
+    try {
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${selectedDateInizio.toISOString()}&data_fine=${selectedDateFine.toISOString()}`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Orari disponibili ottenuti:', result);
+            return result;
+        } else {
+            console.log('⚠️ Errore ottenimento orari disponibili:', response.status);
+            // Fallback: tutti gli orari disponibili
+            return { disponibile: true, orari: [] };
+        }
+    } catch (error) {
+        console.error('❌ Errore ottenimento orari disponibili:', error);
+        // Fallback: tutti gli orari disponibili
+        return { disponibile: true, orari: [] };
     }
 }
