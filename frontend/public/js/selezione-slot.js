@@ -130,10 +130,10 @@ let slotManager = {
     updateSlotState(slot, orario, stato, motivo) {
         // Rimuovi classi precedenti
         slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired', 'selected');
-        
+
         // Aggiungi nuova classe
         slot.classList.add(stato);
-        
+
         // Rimuovi stili inline per permettere al CSS di funzionare
         slot.style.removeProperty('background-color');
         slot.style.removeProperty('color');
@@ -142,7 +142,7 @@ let slotManager = {
         slot.style.removeProperty('opacity');
         slot.style.removeProperty('animation');
         slot.style.removeProperty('box-shadow');
-        
+
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
@@ -166,9 +166,20 @@ let slotManager = {
                 slot.title = `Orario passato`;
                 break;
         }
-        
+
         // Aggiorna mappa locale
         this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
+    },
+
+    // Aggiorna lo stato di un intervallo di slot
+    updateSlotRange(startTime, endTime, newStato, motivo) {
+        const orarioInizio = parseInt(startTime.split(':')[0]);
+        const orarioFine = parseInt(endTime.split(':')[0]);
+
+        for (let hour = orarioInizio; hour < orarioFine; hour++) {
+            const orario = `${hour.toString().padStart(2, '0')}:00`;
+            this.updateSlotState(document.querySelector(`.time-slot[data-orario="${orario}"]`), orario, newStato, motivo);
+        }
     },
 
     // Avvia aggiornamento automatico
@@ -238,6 +249,14 @@ let slotManager = {
             if (response.ok) {
                 const result = await response.json();
                 console.log('✅ Verifica disponibilità:', result);
+
+                // Se non è disponibile, aggiorna lo stato degli slot
+                if (!result.disponibile && result.motivo) {
+                    console.log('❌ Slot non disponibile:', result.motivo);
+                    // Aggiorna lo stato degli slot nell'intervallo
+                    this.updateSlotRange(startTime, endTime, 'occupied', result.motivo);
+                }
+
                 return result.disponibile;
             }
 
@@ -708,7 +727,7 @@ async function displayTimeSlots(disponibilita) {
 
         // Applica solo la classe CSS per compatibilità
         slot.classList.add('time-slot', 'available');
-        
+
         // Rimuovi tutti gli stili inline per permettere al CSS di funzionare
         slot.style.removeProperty('background-color');
         slot.style.removeProperty('color');

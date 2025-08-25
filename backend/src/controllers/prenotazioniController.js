@@ -4,44 +4,99 @@ const pool = require('../db');
 exports.checkDisponibilita = async (req, res) => {
   const { id } = req.params;
   const { data_inizio, data_fine } = req.query;
-  
+
   console.log('🔍 checkDisponibilita chiamata:', { id, data_inizio, data_fine });
-  
+
   if (!data_inizio || !data_fine) {
     console.log('❌ Parametri mancanti:', { data_inizio, data_fine });
-    return res.status(400).json({ 
+    return res.status(400).json({
       error: 'Fornire data_inizio e data_fine',
       received: { data_inizio, data_fine }
     });
   }
-  
+
   try {
     // Verifica che le date siano valide
     const dataInizio = new Date(data_inizio);
     const dataFine = new Date(data_fine);
-    
+
     if (isNaN(dataInizio.getTime()) || isNaN(dataFine.getTime())) {
       console.log('❌ Date non valide:', { data_inizio, data_fine });
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Formato date non valido. Usare formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)',
         received: { data_inizio, data_fine }
       });
     }
-    
+
     console.log('✅ Date valide:', { dataInizio, dataFine });
-    
-    const result = await pool.query(
+
+    // 1. Controlla lo stato dello spazio
+    const spazioResult = await pool.query(
+      `SELECT stato, ultima_prenotazione FROM Spazio WHERE id_spazio = $1`,
+      [id]
+    );
+
+    if (spazioResult.rowCount === 0) {
+      console.log('❌ Spazio non trovato');
+      return res.status(404).json({ disponibile: false, motivo: 'Spazio non trovato' });
+    }
+
+    const spazio = spazioResult.rows[0];
+    console.log('🏢 Stato spazio:', spazio);
+
+    // Se lo spazio è occupato, non è disponibile
+    if (spazio.stato === 'occupato') {
+      console.log('❌ Spazio occupato');
+      return res.json({ disponibile: false, motivo: 'Spazio occupato' });
+    }
+
+    // Se lo spazio è in prenotazione da meno di 15 minuti, non è disponibile
+    if (spazio.stato === 'in_prenotazione' && spazio.ultima_prenotazione) {
+      const minutiTrascorsi = Math.floor((Date.now() - new Date(spazio.ultima_prenotazione).getTime()) / (1000 * 60));
+
+      if (minutiTrascorsi < 15) {
+        const minutiRimanenti = 15 - minutiTrascorsi;
+        console.log(`❌ Spazio in prenotazione, riprova tra ${minutiRimanenti} minuti`);
+        return res.json({
+          disponibile: false,
+          motivo: `Spazio temporaneamente bloccato. Riprova tra ${minutiRimanenti} minuti.`,
+          minutiRimanenti: minutiRimanenti
+        });
+      }
+    }
+
+    // 2. Controlla prenotazioni confermate sovrapposte
+    const prenotazioniConfermate = await pool.query(
       `SELECT COUNT(*) FROM Prenotazione
        WHERE id_spazio = $1
          AND stato = 'confermata'
          AND (data_inizio, data_fine) OVERLAPS ($2::timestamp, $3::timestamp)`,
       [id, dataInizio, dataFine]
     );
-    
-    const disponibile = result.rows[0].count === '0';
-    console.log('✅ Risultato disponibilità:', { disponibile, count: result.rows[0].count });
-    
-    res.json({ disponibile });
+
+    if (prenotazioniConfermate.rows[0].count !== '0') {
+      console.log('❌ Prenotazioni confermate sovrapposte');
+      return res.json({ disponibile: false, motivo: 'Prenotazioni confermate sovrapposte' });
+    }
+
+    // 3. Controlla prenotazioni in attesa sovrapposte (che potrebbero scadere)
+    const prenotazioniInAttesa = await pool.query(
+      `SELECT COUNT(*) FROM Prenotazione
+       WHERE id_spazio = $1
+         AND stato = 'in attesa'
+         AND scadenza_slot > NOW()
+         AND (data_inizio, data_fine) OVERLAPS ($2::timestamp, $3::timestamp)`,
+      [id, dataInizio, dataFine]
+    );
+
+    if (prenotazioniInAttesa.rows[0].count !== '0') {
+      console.log('❌ Prenotazioni in attesa sovrapposte');
+      return res.json({ disponibile: false, motivo: 'Prenotazioni in attesa sovrapposte' });
+    }
+
+    console.log('✅ Spazio disponibile per l\'intervallo richiesto');
+    res.json({ disponibile: true, motivo: 'Spazio disponibile' });
+
   } catch (err) {
     console.error('❌ Errore checkDisponibilita:', err);
     res.status(500).json({ error: 'Errore server: ' + err.message });
