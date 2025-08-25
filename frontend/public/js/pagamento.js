@@ -463,13 +463,13 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
 
         // VERIFICA DISPONIBILITÀ PRIMA DELLA PRENOTAZIONE
         console.log('🔍 Verifico disponibilità slot prima della prenotazione...');
-        
+
         // VERIFICA LATO CLIENT: Controlla se lo slot è già occupato
         const slotOccupato = await verificaDisponibilitaLatoClient(prenotazioneData);
         if (slotOccupato) {
             throw new Error(`🚫 Slot non disponibile: ${slotOccupato.motivo}`);
         }
-        
+
         // VERIFICA LATO SERVER (se disponibile)
         try {
             const disponibilitaResponse = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/verifica-disponibilita`, {
@@ -593,43 +593,30 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
 // Verifica disponibilità lato client
 async function verificaDisponibilitaLatoClient(prenotazioneData) {
     console.log('🔍 Verifica disponibilità lato client per:', prenotazioneData);
-    
+
     try {
-        // Recupera tutte le prenotazioni esistenti per lo spazio
-        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${prenotazioneData.id_spazio}`, {
+        // Recupera disponibilità per lo spazio
+        const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/spazi/${prenotazioneData.id_spazio}/disponibilita`, {
             headers: getAuthHeaders()
         }, 5000);
-        
+
         if (response.ok) {
-            const prenotazioniEsistenti = await response.json();
-            console.log('📋 Prenotazioni esistenti per lo spazio:', prenotazioniEsistenti);
+            const disponibilita = await response.json();
+            console.log('📋 Disponibilità per lo spazio:', disponibilita);
             
-            // Verifica se c'è un conflitto
-            const conflitto = prenotazioniEsistenti.find(prenotazione => {
-                const dataInizioEsistente = new Date(prenotazione.data_inizio);
-                const dataFineEsistente = new Date(prenotazione.data_fine);
-                const dataInizioNuova = new Date(prenotazioneData.data_inizio);
-                const dataFineNuova = new Date(prenotazioneData.data_fine);
-                
-                // Verifica sovrapposizione temporale
-                return (
-                    (dataInizioNuova < dataFineEsistente && dataFineNuova > dataInizioEsistente) ||
-                    (dataInizioEsistente < dataFineNuova && dataFineEsistente > dataInizioNuova)
-                );
-            });
-            
-            if (conflitto) {
-                console.log('🚫 Conflitto trovato con prenotazione esistente:', conflitto);
+            // Verifica se lo spazio è disponibile per la data e orario selezionati
+            if (disponibilita.disponibile === false) {
+                console.log('🚫 Spazio non disponibile:', disponibilita.motivo);
                 return {
                     occupato: true,
-                    motivo: `Conflitto con prenotazione esistente (${conflitto.data_inizio} - ${conflitto.data_fine})`
+                    motivo: disponibilita.motivo || 'Spazio non disponibile per l\'orario selezionato'
                 };
             }
             
-            console.log('✅ Nessun conflitto trovato lato client');
+            console.log('✅ Spazio disponibile lato client');
             return null;
         } else {
-            console.log('⚠️ Impossibile verificare prenotazioni esistenti, procedo');
+            console.log('⚠️ Impossibile verificare disponibilità spazio, procedo');
             return null;
         }
     } catch (error) {

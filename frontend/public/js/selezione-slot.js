@@ -577,7 +577,7 @@ async function selectTimeSlot(orario, slotElement) {
         // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
         console.log('🔍 Verifica disponibilità finale prima di abilitare il bottone...');
         const disponibilitaFinale = await verificaDisponibilitaFinale();
-        
+
         if (!disponibilitaFinale.disponibile) {
             // Slot non disponibile, disabilita il bottone e mostra errore
             document.getElementById('btnBook').disabled = true;
@@ -598,46 +598,30 @@ async function selectTimeSlot(orario, slotElement) {
 // Verifica disponibilità finale prima di abilitare il bottone
 async function verificaDisponibilitaFinale() {
     console.log('🔍 Verifica disponibilità finale per slot selezionati...');
-    
+
     try {
-        // Recupera prenotazioni esistenti per lo spazio e data selezionati
-        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
+        // Recupera disponibilità per lo spazio e data selezionati
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita`, {
             headers: getAuthHeaders()
         });
-        
-        if (response.ok) {
-            const prenotazioniEsistenti = await response.json();
-            console.log('📋 Prenotazioni esistenti per lo spazio:', prenotazioniEsistenti);
+
+                if (response.ok) {
+            const disponibilita = await response.json();
+            console.log('📋 Disponibilità per lo spazio:', disponibilita);
             
-            // Verifica conflitti con le prenotazioni esistenti
-            const conflitto = prenotazioniEsistenti.find(prenotazione => {
-                const dataInizioEsistente = new Date(prenotazione.data_inizio);
-                const dataFineEsistente = new Date(prenotazione.data_fine);
-                
-                // Crea date complete per la selezione corrente
-                const [giorno, mese, anno] = selectedDateInizio.toLocaleDateString('it-IT').split('/');
-                const dataInizioSelezione = new Date(anno, mese - 1, giorno, parseInt(selectedTimeInizio.split(':')[0]), 0, 0);
-                const dataFineSelezione = new Date(anno, mese - 1, giorno, parseInt(selectedTimeFine.split(':')[0]), 0, 0);
-                
-                // Verifica sovrapposizione temporale
-                return (
-                    (dataInizioSelezione < dataFineEsistente && dataFineSelezione > dataInizioEsistente) ||
-                    (dataInizioEsistente < dataFineSelezione && dataFineEsistente > dataInizioSelezione)
-                );
-            });
-            
-            if (conflitto) {
-                console.log('🚫 Conflitto trovato con prenotazione esistente:', conflitto);
+            // Verifica se lo spazio è disponibile per la data e orario selezionati
+            if (disponibilita.disponibile === false) {
+                console.log('🚫 Spazio non disponibile:', disponibilita.motivo);
                 return {
                     disponibile: false,
-                    motivo: `Slot già prenotato per l'orario selezionato`
+                    motivo: disponibilita.motivo || 'Spazio non disponibile per l\'orario selezionato'
                 };
             }
             
-            console.log('✅ Nessun conflitto trovato, slot disponibile');
+            console.log('✅ Spazio disponibile per l\'orario selezionato');
             return { disponibile: true };
         } else {
-            console.log('⚠️ Impossibile verificare prenotazioni esistenti');
+            console.log('⚠️ Impossibile verificare disponibilità spazio');
             return { disponibile: true }; // Procedi se non puoi verificare
         }
     } catch (error) {
