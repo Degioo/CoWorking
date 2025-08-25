@@ -69,6 +69,15 @@
     box-sizing: border-box;
 }
 
+/* Elimina i pallini neri (marker) dalle liste */
+li::marker {
+    display: none !important;
+}
+
+ul, ol {
+    list-style: none !important;
+}
+
 html {
     scroll-behavior: smooth;
     font-size: 16px;

@@ -414,9 +414,9 @@ async function checkTimeAvailability(orario, disponibilita) {
     // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
     // In futuro si implementerà la verifica contro le API
 
-        // TEMPORANEO: Per ora tutti gli slot sono disponibili
+    // TEMPORANEO: Per ora tutti gli slot sono disponibili
     // TODO: Implementare verifica disponibilità quando le API saranno pronte
-    
+
     // Simula alcuni slot occupati per test (commenta per avere tutti disponibili)
     /*
     const testOccupiedSlots = ['10:00', '14:00']; // Slot di test occupati
