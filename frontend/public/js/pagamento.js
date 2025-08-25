@@ -851,14 +851,26 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         console.log('createPrenotazioneFromSelection - Creo prenotazione con parametri:', { sede, spazio, dal, al, orarioInizio, orarioFine });
 
         // Combina data e orario per creare le date complete
-        // Usa il fuso orario locale per evitare problemi di conversione
-        const dataInizio = new Date(`${dal}T${orarioInizio}:00`);
-        const dataFine = new Date(`${al}T${orarioFine}:00`);
-
-        // Assicurati che le date siano interpretate come locali, non UTC
-        // Questo evita lo shift di fuso orario
-        const dataInizioLocal = new Date(dataInizio.getTime() - (dataInizio.getTimezoneOffset() * 60000));
-        const dataFineLocal = new Date(dataFine.getTime() - (dataFine.getTimezoneOffset() * 60000));
+        // Crea le date in modo corretto per il fuso orario locale
+        
+        // Estrai anno, mese e giorno dalla data
+        const [yearInizio, monthInizio, dayInizio] = dal.split('-').map(Number);
+        const [yearFine, monthFine, dayFine] = al.split('-').map(Number);
+        
+        // Estrai ore e minuti dall'orario
+        const [hourInizio, minuteInizio] = orarioInizio.split(':').map(Number);
+        const [hourFine, minuteFine] = orarioFine.split(':').map(Number);
+        
+        // Crea le date locali (il mese è 0-based in JavaScript)
+        const dataInizioLocal = new Date(yearInizio, monthInizio - 1, dayInizio, hourInizio, minuteInizio, 0);
+        const dataFineLocal = new Date(yearFine, monthFine - 1, dayFine, hourFine, minuteFine, 0);
+        
+        console.log('createPrenotazioneFromSelection - Date create correttamente:', {
+            dataInizioLocal: dataInizioLocal.toString(),
+            dataFineLocal: dataFineLocal.toString(),
+            dataInizioISO: dataInizioLocal.toISOString(),
+            dataFineISO: dataFineLocal.toISOString()
+        });
 
         // Calcola la durata in ore (considerando anche i minuti)
         const durataMs = dataFineLocal - dataInizioLocal;
@@ -868,10 +880,10 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         const importo = Math.max(5, Math.round(durataOre * 10));
 
         console.log('createPrenotazioneFromSelection - Date create:', {
-            dataInizio: dataInizio.toISOString(),
-            dataFine: dataFine.toISOString(),
-            dataInizioLocal: dataInizioLocal.toISOString(),
-            dataFineLocal: dataFineLocal.toISOString(),
+            dataInizioLocal: dataInizioLocal.toString(),
+            dataFineLocal: dataFineLocal.toString(),
+            dataInizioISO: dataInizioLocal.toISOString(),
+            dataFineISO: dataFineLocal.toISOString(),
             orarioInizio: orarioInizio,
             orarioFine: orarioFine,
             durataOre: durataOre,
@@ -916,7 +928,14 @@ function populatePrenotazioneDetails() {
     const data = getPrenotazioneData();
     if (!data) return;
 
-    console.log('populatePrenotazioneDetails - Dati prenotazione:', data);
+    console.log('populatePrenotazioneDetails - Dati prenotazione completi:', {
+        data_inizio: data.data_inizio,
+        data_fine: data.data_fine,
+        orario_inizio: data.orario_inizio,
+        orario_fine: data.orario_fine,
+        durata_ore: data.durata_ore,
+        importo: data.importo
+    });
 
     const dataInizio = new Date(data.data_inizio);
     const dataFine = new Date(data.data_fine);
@@ -995,10 +1014,22 @@ function populatePrenotazioneDetails() {
         // Aggiorna la visualizzazione con data e orario separati
         document.getElementById('data-inizio-prenotazione').textContent = `${dataInizioSolo} dalle ${orarioInizio}`;
         document.getElementById('data-fine-prenotazione').textContent = `${dataFineSolo} alle ${orarioFine}`;
+        
+        console.log('populatePrenotazioneDetails - Visualizzazione con orari specifici:', {
+            dataInizioSolo: dataInizioSolo,
+            dataFineSolo: dataFineSolo,
+            orarioInizio: orarioInizio,
+            orarioFine: orarioFine
+        });
     } else {
         // Usa la visualizzazione standard
         document.getElementById('data-inizio-prenotazione').textContent = dataInizioFormattata;
         document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
+        
+        console.log('populatePrenotazioneDetails - Visualizzazione standard:', {
+            dataInizioFormattata: dataInizioFormattata,
+            dataFineFormattata: dataFineFormattata
+        });
     }
 
     // Formatta la durata in modo più leggibile

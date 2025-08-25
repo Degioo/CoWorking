@@ -52,7 +52,7 @@ async function initializePage() {
         // Nota: il redirect post-login ora gestisce direttamente il passaggio al pagamento
 
         console.log('✅ Pagina inizializzata correttamente');
-        
+
         // Avvia l'aggiornamento automatico degli slot scaduti
         startAutoUpdate();
 
@@ -358,7 +358,7 @@ function displayTimeSlots(disponibilita) {
         } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
             slot.classList.add(availability.class);
-            
+
             // Imposta il tooltip appropriato
             switch (availability.reason) {
                 case 'expired':
@@ -390,22 +390,22 @@ function displayTimeSlots(disponibilita) {
 function checkTimeAvailability(orario, disponibilita) {
     const now = new Date();
     const selectedDate = selectedDateInizio;
-    
+
     // Crea la data completa per l'orario selezionato
     const [hour] = orario.split(':');
     const slotDateTime = new Date(selectedDate);
     slotDateTime.setHours(parseInt(hour), 0, 0, 0);
-    
+
     // Se la data è passata, lo slot è scaduto
     if (selectedDate < now.toDateString()) {
         return { available: false, reason: 'expired', class: 'expired' };
     }
-    
+
     // Se è oggi e l'orario è passato, lo slot è scaduto
     if (selectedDate.toDateString() === now.toDateString() && slotDateTime < now) {
         return { available: false, reason: 'past-time', class: 'past-time' };
     }
-    
+
     // Qui in futuro si può implementare la verifica contro prenotazioni esistenti
     // Per ora, tutti gli orari futuri sono disponibili
     return { available: true, reason: 'available', class: 'available' };
@@ -677,16 +677,16 @@ function updateExpiredSlots() {
     if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
         return;
     }
-    
+
     const timeSlots = document.querySelectorAll('.time-slot');
     timeSlots.forEach(slot => {
         const orario = slot.dataset.orario;
         if (orario) {
             const availability = checkTimeAvailability(orario, {});
-            
+
             // Rimuovi tutte le classi di stato
             slot.classList.remove('available', 'occupied', 'expired', 'past-time', 'booked');
-            
+
             if (availability.available) {
                 slot.classList.add('available');
                 // Rimuovi event listener se non è già presente
