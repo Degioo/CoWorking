@@ -20,13 +20,58 @@ let slotManager = {
     init() {
         this.initialized = true;
         console.log('🚀 Inizializzazione Slot Manager');
-        
-        // RIMUOVO COMPLETAMENTE TIMER E NOTIFICHE
-        // this.startAutoUpdate();
-        // this.startNotifications();
-        
-        // Aggiornamento iniziale una sola volta
+
+        // SISTEMA DI POLLING INTELLIGENTE PER GESTIONE CONCORRENZA
+        this.startConcurrencyPolling();
+
+        // Aggiornamento iniziale
         this.updateAllSlots();
+    },
+
+    // SISTEMA DI POLLING INTELLIGENTE PER GESTIONE CONCORRENZA
+    startConcurrencyPolling() {
+        console.log('🔄 Avvio sistema polling concorrenza (10s)');
+        
+        // Polling ogni 10 secondi per gestire concorrenza
+        this.concurrencyInterval = setInterval(async () => {
+            if (this.initialized && selectedSpazio) {
+                console.log('🔄 Polling concorrenza in corso...');
+                await this.updateConcurrencyStatus();
+            }
+        }, 10000); // 10 secondi
+        
+        // Aggiungi pulsante manuale per aggiornamento
+        this.addManualUpdateButton();
+    },
+
+    // Aggiunge pulsante manuale per aggiornamento concorrenza
+    addManualUpdateButton() {
+        const container = document.querySelector('.slot-selector');
+        if (!container) return;
+        
+        // Crea pulsante se non esiste
+        if (!document.getElementById('btnUpdateConcurrency')) {
+            const updateButton = document.createElement('button');
+            updateButton.id = 'btnUpdateConcurrency';
+            updateButton.className = 'btn btn-outline-primary btn-sm ms-2';
+            updateButton.innerHTML = '🔄 Aggiorna Concorrenza';
+            updateButton.onclick = () => this.updateConcurrencyStatus();
+            
+            // Inserisci dopo il titolo
+            const title = container.querySelector('h3, h4, h5');
+            if (title) {
+                title.appendChild(updateButton);
+            }
+        }
+    },
+
+    // Ferma il polling di concorrenza
+    stopConcurrencyPolling() {
+        if (this.concurrencyInterval) {
+            clearInterval(this.concurrencyInterval);
+            this.concurrencyInterval = null;
+            console.log('⏹️ Polling concorrenza fermato');
+        }
     },
 
     // Aggiorna tutti gli slot dal backend
@@ -35,25 +80,25 @@ let slotManager = {
             console.log('⏳ Sede o spazio non ancora selezionati, rimando aggiornamento...');
             return;
         }
-        
+
         console.log('🔄 Aggiornamento slot in corso...');
-        
+
         try {
             const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
                 headers: getAuthHeaders()
             });
-            
+
             if (response.ok) {
                 const prenotazioni = await response.json();
                 console.log('📋 Prenotazioni esistenti:', prenotazioni);
-                
+
                 // Aggiorna slot una sola volta senza timer
                 this.updateSlotsFromBookings(prenotazioni, false);
             }
         } catch (error) {
             console.error('❌ Errore aggiornamento slot:', error);
         }
-        
+
         console.log('✅ Aggiornamento slot completato');
     },
 
@@ -109,6 +154,75 @@ let slotManager = {
         });
 
         console.log('✅ Aggiornamento slot completato');
+    },
+
+    // Aggiorna slot basato su stato concorrenza
+    updateSlotsFromConcurrency(statoConcorrenza) {
+        console.log('🔄 Aggiornamento slot da concorrenza:', statoConcorrenza);
+
+        // Aggiorna ogni slot con stato concorrenza
+        this.slots.forEach((slotInfo, orario) => {
+            const slot = document.querySelector(`[data-orario="${orario}"]`);
+            if (!slot) return;
+
+            // Trova stato concorrenza per questo orario
+            const statoOrario = statoConcorrenza.slot[orario];
+
+            if (statoOrario) {
+                switch (statoOrario.stato) {
+                    case 'disponibile':
+                        // Slot libero
+                        this.updateSlotState(slot, orario, 'available', 'Disponibile');
+                        break;
+
+                    case 'occupato_temporaneo':
+                        // Slot occupato da prenotazione in attesa (15 min)
+                        const tempoRimanente = Math.max(0, Math.ceil((statoOrario.scadenza - Date.now()) / 1000));
+                        this.updateSlotState(slot, orario, 'occupied', `Occupato (libera in ${tempoRimanente}s)`);
+
+                        // Se è scaduto, aggiorna automaticamente
+                        if (tempoRimanente <= 0) {
+                            this.updateSlotState(slot, orario, 'available', 'Disponibile');
+                        }
+                        break;
+
+                    case 'prenotato_confermato':
+                        // Slot prenotato e pagato
+                        this.updateSlotState(slot, orario, 'booked', 'Prenotato e pagato');
+                        break;
+
+                    case 'in_prenotazione':
+                        // Slot in fase di prenotazione da altro utente
+                        this.updateSlotState(slot, orario, 'occupied', 'In prenotazione da altro utente');
+                        break;
+
+                    default:
+                        // Stato sconosciuto, mantieni quello attuale
+                        break;
+                }
+            }
+        });
+
+        console.log('✅ Aggiornamento concorrenza completato');
+    },
+
+    // Aggiorna stato concorrenza dal backend
+    async updateConcurrencyStatus() {
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE}/concorrenza/spazi/${selectedSpazio.id_spazio}/stato-concorrenza`, {
+                headers: getAuthHeaders()
+            });
+            
+            if (response.ok) {
+                const statoConcorrenza = await response.json();
+                console.log('📊 Stato concorrenza aggiornato:', statoConcorrenza);
+                
+                // Aggiorna slot con stato concorrenza
+                this.updateSlotsFromConcurrency(statoConcorrenza);
+            }
+        } catch (error) {
+            console.error('❌ Errore aggiornamento concorrenza:', error);
+        }
     },
 
     // Ottieni slot selezionati dall'utente

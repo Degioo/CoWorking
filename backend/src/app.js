@@ -81,12 +81,26 @@ app.use('/webhook', webhookRoutes);
 const scadenzeRoutes = require('./routes/scadenze');
 app.use('/api', scadenzeRoutes);
 
+// Rotte per gestione concorrenza real-time
+const concorrenzaRoutes = require('./routes/concorrenza');
+app.use('/api/concorrenza', concorrenzaRoutes);
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
     message: 'Route scadenze caricate correttamente',
     timestamp: new Date().toISOString(),
     routes: ['/api/scadenze/check', '/api/scadenze/status', '/api/scadenze/prenotazioni-scadute', '/api/scadenze/prenotazioni-in-scadenza']
+  });
+});
+
+// Endpoint di test per la concorrenza
+app.get('/api/test-concorrenza', (req, res) => {
+  res.json({
+    message: 'Route concorrenza caricate correttamente',
+    timestamp: new Date().toISOString(),
+    routes: ['/api/concorrenza/spazi/:id/stato-concorrenza'],
+    test: 'Testa con: GET /api/concorrenza/spazi/1/stato-concorrenza'
   });
 });
 
