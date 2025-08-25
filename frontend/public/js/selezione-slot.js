@@ -307,8 +307,6 @@ async function loadOrariDisponibili() {
     }
 
     try {
-        showLoading(true);
-
         console.log(`🔄 Caricamento orari disponibili dal ${selectedDateInizio.toLocaleDateString('it-IT')} al ${selectedDateFine.toLocaleDateString('it-IT')}...`);
 
         // Per ora, carica tutti gli orari disponibili senza verificare conflitti specifici
@@ -324,8 +322,6 @@ async function loadOrariDisponibili() {
     } catch (error) {
         console.error('❌ Errore caricamento orari:', error);
         showError('Errore caricamento orari: ' + error.message);
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -605,13 +601,7 @@ function proceedToBooking() {
     }
 }
 
-// Mostra/nasconde il loading
-function showLoading(show) {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-        loadingOverlay.style.display = show ? 'flex' : 'none';
-    }
-}
+
 
 // Mostra messaggio di errore
 function showError(message) {
