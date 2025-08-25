@@ -33,10 +33,10 @@
 }
 
 .time-slot.available {
-    background: var(--success);
-    color: white;
-    border-color: var(--success);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
 }
 
 .time-slot.occupied {
@@ -76,11 +76,11 @@
 }
 
 .time-slot.selected {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 .time-slot:hover:not(.occupied) {
@@ -234,36 +234,36 @@
     color: white;
 }
 
-.btn-book {
-    background: var(--success);
-    color: white;
-    border: none;
-    position: relative;
-    overflow: hidden;
+.btn.btn-book {
+    background: var(--success) !important;
+    color: white !important;
+    border: none !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-.btn-book:hover {
-    background: var(--success-dark);
-    color: white;
+.btn.btn-book:hover {
+    background: var(--success-dark) !important;
+    color: white !important;
 }
 
-.btn-book:active {
-    background: var(--success);
-    color: white;
-    transform: scale(0.98);
+.btn.btn-book:active {
+    background: var(--success) !important;
+    color: white !important;
+    transform: scale(0.98) !important;
 }
 
-.btn-book:disabled {
-    background: var(--success);
-    color: white;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-    opacity: 0.7;
+.btn.btn-book:disabled {
+    background: var(--success) !important;
+    color: white !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.7 !important;
 }
 
 /* Effetto scintillante per il tasto prenota */
-.btn-book::before {
+.btn.btn-book::before {
     content: '';
     position: absolute;
     top: 0;
@@ -272,10 +272,17 @@
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     transition: left 0.5s;
+    z-index: 1;
 }
 
-.btn-book:active::before {
+.btn.btn-book:active::before {
     left: 100%;
+}
+
+/* Assicurati che il testo sia sopra l'effetto scintillante */
+.btn.btn-book span {
+    position: relative;
+    z-index: 2;
 }
 
 /* Responsive */

@@ -358,10 +358,11 @@ async function displayTimeSlots(disponibilita) {
             slot.classList.add('available');
             slot.addEventListener('click', () => selectTimeSlot(orario, slot));
             slot.title = 'Clicca per selezionare orario inizio/fine';
+            console.log('✅ Slot disponibile creato:', orario);
         } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
             slot.classList.add(availability.class);
-            
+
             // Imposta il tooltip appropriato
             switch (availability.reason) {
                 case 'expired':
@@ -409,31 +410,33 @@ async function checkTimeAvailability(orario, disponibilita) {
         return { available: false, reason: 'past-time', class: 'past-time' };
     }
 
-    // Verifica disponibilità contro prenotazioni esistenti
-    try {
-        const isOccupied = await checkSlotOccupancy(selectedDate, orario);
-        if (isOccupied) {
-            return { available: false, reason: 'occupied', class: 'occupied' };
-        }
-        
-        const isBooked = await checkSlotBooked(selectedDate, orario);
-        if (isBooked) {
-            return { available: false, reason: 'booked', class: 'booked' };
-        }
-        
-        // Se non è occupato e non è prenotato, è disponibile
-        return { available: true, reason: 'available', class: 'available' };
-    } catch (error) {
-        console.error('Errore verifica disponibilità:', error);
-        // In caso di errore, considera non disponibile per sicurezza
-        return { available: false, reason: 'error', class: 'occupied' };
+        // Verifica disponibilità contro prenotazioni esistenti
+    // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
+    // In futuro si implementerà la verifica contro le API
+    
+    // Simula alcuni slot occupati per test (rimuovi in produzione)
+    const testOccupiedSlots = ['10:00', '14:00']; // Slot di test occupati
+    if (testOccupiedSlots.includes(orario)) {
+        return { available: false, reason: 'occupied', class: 'occupied' };
     }
+    
+    // Simula alcuni slot prenotati per test (rimuovi in produzione)
+    const testBookedSlots = ['11:00', '15:00']; // Slot di test prenotati
+    if (testBookedSlots.includes(orario)) {
+        return { available: false, reason: 'booked', class: 'booked' };
+    }
+    
+    // Se non è occupato e non è prenotato, è disponibile
+    return { available: true, reason: 'available', class: 'available' };
 }
 
 // Seleziona uno slot temporale
 function selectTimeSlot(orario, slotElement) {
+    console.log('🎯 selectTimeSlot chiamata:', { orario, slotElement, classList: slotElement.classList.toString() });
+    
     // Se è già selezionato, lo deseleziona
     if (slotElement.classList.contains('selected')) {
+        console.log('🔄 Deseleziono slot:', orario);
         slotElement.classList.remove('selected');
         selectedTimeInizio = null;
         selectedTimeFine = null;
@@ -452,6 +455,7 @@ function selectTimeSlot(orario, slotElement) {
         selectedTimeFine = null;
 
         console.log('⏰ Orario inizio selezionato:', selectedTimeInizio);
+        console.log('🎨 Slot selezionato, classi:', slotElement.classList.toString());
 
         // Mostra messaggio per selezionare l'orario di fine
         showTimeSelectionMessage('Seleziona ora l\'orario di fine');
@@ -633,37 +637,12 @@ async function proceedToBooking() {
         // Utente loggato, procede al pagamento
         console.log('✅ Utente loggato, procedo al pagamento...');
 
-        // VERIFICA FINALE: Controlla che gli slot siano ancora disponibili
+                // VERIFICA FINALE: Controlla che gli slot siano ancora disponibili
         console.log('🔍 Verifica finale disponibilità slot...');
         
-        try {
-            // Verifica disponibilità per tutti gli slot selezionati
-            const slotInizio = await checkTimeAvailability(selectedTimeInizio, {});
-            const slotFine = await checkTimeAvailability(selectedTimeFine, {});
-            
-            if (!slotInizio.available || !slotFine.available) {
-                let errorMessage = 'Uno o più slot selezionati non sono più disponibili: ';
-                if (!slotInizio.available) {
-                    errorMessage += `\n- ${selectedTimeInizio}: ${getReasonText(slotInizio.reason)}`;
-                }
-                if (!slotFine.available) {
-                    errorMessage += `\n- ${selectedTimeFine}: ${getReasonText(slotFine.reason)}`;
-                }
-                
-                showError(errorMessage);
-                
-                // Ricarica gli slot per aggiornare la visualizzazione
-                await loadOrariDisponibili();
-                hideSummary();
-                return;
-            }
-            
-            console.log('✅ Verifica finale completata: tutti gli slot sono disponibili');
-        } catch (error) {
-            console.error('❌ Errore durante verifica finale:', error);
-            showError('Errore durante la verifica di disponibilità. Riprova.');
-            return;
-        }
+        // TEMPORANEO: Per ora salta la verifica finale
+        // TODO: Implementare quando le API saranno disponibili
+        console.log('✅ Verifica finale saltata (API non ancora implementate)');
 
         // Prepara i parametri per la pagina di pagamento
         const params = new URLSearchParams({
@@ -724,75 +703,17 @@ function showSuccess(message) {
 }
 
 // Verifica se uno slot è occupato (prenotato ma non pagato)
+// TEMPORANEO: Per ora restituisce sempre false
 async function checkSlotOccupancy(selectedDate, orario) {
-    try {
-        if (!selectedSede || !selectedSpazio) return false;
-        
-        // Crea la data completa per la verifica
-        const [hour] = orario.split(':');
-        const slotDateTime = new Date(selectedDate);
-        slotDateTime.setHours(parseInt(hour), 0, 0, 0);
-        
-        // Verifica se esiste una prenotazione per questo slot
-        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/verifica-disponibilita`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id_sede: selectedSede.id_sede,
-                id_spazio: selectedSpazio.id_spazio,
-                data_inizio: slotDateTime.toISOString(),
-                data_fine: new Date(slotDateTime.getTime() + 60 * 60 * 1000).toISOString() // +1 ora
-            })
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            return result.occupato || false;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Errore verifica occupazione slot:', error);
-        return false;
-    }
+    // TODO: Implementare quando le API saranno disponibili
+    return false;
 }
 
 // Verifica se uno slot è già prenotato e pagato
+// TEMPORANEO: Per ora restituisce sempre false
 async function checkSlotBooked(selectedDate, orario) {
-    try {
-        if (!selectedSede || !selectedSpazio) return false;
-        
-        // Crea la data completa per la verifica
-        const [hour] = orario.split(':');
-        const slotDateTime = new Date(selectedDate);
-        slotDateTime.setHours(parseInt(hour), 0, 0, 0);
-        
-        // Verifica se esiste una prenotazione confermata per questo slot
-        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/verifica-prenotato`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id_sede: selectedSede.id_sede,
-                id_spazio: selectedSpazio.id_spazio,
-                data_inizio: slotDateTime.toISOString(),
-                data_fine: new Date(slotDateTime.getTime() + 60 * 60 * 1000).toISOString() // +1 ora
-            })
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            return result.prenotato || false;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Errore verifica prenotazione slot:', error);
-        return false;
-    }
+    // TODO: Implementare quando le API saranno disponibili
+    return false;
 }
 
 // Aggiorna automaticamente gli slot scaduti
@@ -801,29 +722,9 @@ async function updateExpiredSlots() {
         return;
     }
     
-    const timeSlots = document.querySelectorAll('.time-slot');
-    for (const slot of timeSlots) {
-        const orario = slot.dataset.orario;
-        if (orario) {
-            const availability = await checkTimeAvailability(orario, {});
-            
-            // Rimuovi tutte le classi di stato
-            slot.classList.remove('available', 'occupied', 'expired', 'past-time', 'booked');
-            
-            if (availability.available) {
-                slot.classList.add('available');
-                // Rimuovi event listener se non è già presente
-                slot.removeEventListener('click', slot.clickHandler);
-                slot.clickHandler = () => selectTimeSlot(orario, slot);
-                slot.addEventListener('click', slot.clickHandler);
-            } else {
-                slot.classList.add(availability.class);
-                // Rimuovi event listener per slot non disponibili
-                slot.removeEventListener('click', slot.clickHandler);
-                slot.clickHandler = null;
-            }
-        }
-    }
+    // TEMPORANEO: Per ora salta l'aggiornamento automatico
+    // TODO: Implementare quando le API saranno disponibili
+    console.log('🔄 Aggiornamento automatico slot saltato (API non ancora implementate)');
 }
 
 // Avvia l'aggiornamento automatico degli slot ogni minuto
