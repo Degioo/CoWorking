@@ -9,6 +9,359 @@ let selectedTimeInizio = null;
 let selectedTimeFine = null;
 let datePicker = null;
 
+// Sistema di gestione slot real-time
+let slotManager = {
+    slots: new Map(), // Mappa degli slot con stato
+    updateInterval: null,
+    lastUpdate: null,
+    
+    // Inizializza il manager
+    init() {
+        console.log('🚀 Inizializzazione Slot Manager');
+        this.startAutoUpdate();
+    },
+    
+    // Aggiorna tutti gli slot
+    async updateAllSlots() {
+        try {
+            console.log('🔄 Aggiornamento slot in corso...');
+            
+            // Recupera prenotazioni esistenti per lo spazio e data selezionati
+            const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/spazio/${selectedSpazio.id_spazio}`, {
+                headers: getAuthHeaders()
+            });
+            
+            if (response.ok) {
+                const prenotazioni = await response.json();
+                console.log('📋 Prenotazioni esistenti:', prenotazioni);
+                
+                // Aggiorna stato slot basato su prenotazioni reali
+                this.updateSlotsFromBookings(prenotazioni);
+            } else {
+                console.log('⚠️ Impossibile recuperare prenotazioni, uso stato locale');
+                this.updateSlotsFromLocalState();
+            }
+            
+            this.lastUpdate = Date.now();
+            this.updateLastUpdateDisplay();
+            console.log('✅ Aggiornamento slot completato');
+            
+        } catch (error) {
+            console.error('❌ Errore aggiornamento slot:', error);
+            this.updateSlotsFromLocalState();
+        }
+    },
+    
+    // Aggiorna slot basato su prenotazioni reali
+    updateSlotsFromBookings(prenotazioni) {
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        
+        // Reset tutti gli slot
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            const orario = slot.textContent.trim();
+            const slotDate = new Date(selectedDateInizio);
+            slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
+            
+            // Determina stato slot
+            let stato = 'available';
+            let motivo = '';
+            
+            // Controlla se è passato
+            if (slotDate < now) {
+                stato = 'past-time';
+                motivo = 'Orario passato';
+            } else {
+                // Controlla prenotazioni esistenti
+                for (const prenotazione of prenotazioni) {
+                    const dataInizio = new Date(prenotazione.data_inizio);
+                    const dataFine = new Date(prenotazione.data_fine);
+                    
+                    if (slotDate >= dataInizio && slotDate < dataFine) {
+                        stato = prenotazione.stato === 'confermata' ? 'booked' : 'occupied';
+                        motivo = prenotazione.stato === 'confermata' ? 'Prenotato' : 'In prenotazione';
+                        break;
+                    }
+                }
+            }
+            
+            // Controlla se lo stato è cambiato per le notifiche
+            const statoPrecedente = this.slots.get(orario)?.stato;
+            const statoCambiato = statoPrecedente && statoPrecedente !== stato;
+            
+            // Aggiorna slot
+            this.updateSlotState(slot, orario, stato, motivo);
+            
+            // Mostra notifiche per cambiamenti di stato
+            if (statoCambiato) {
+                if (stato === 'available' && statoPrecedente !== 'available') {
+                    notificationSystem.notifySlotAvailable(orario);
+                } else if (stato === 'occupied' && statoPrecedente !== 'occupied') {
+                    notificationSystem.notifySlotOccupied(orario);
+                } else if (stato === 'past-time' && statoPrecedente !== 'past-time') {
+                    notificationSystem.notifySlotExpired(orario);
+                }
+            }
+        });
+    },
+    
+    // Aggiorna slot basato su stato locale (fallback)
+    updateSlotsFromLocalState() {
+        const now = new Date();
+        
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            const orario = slot.textContent.trim();
+            const slotDate = new Date(selectedDateInizio);
+            slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
+            
+            let stato = 'available';
+            let motivo = '';
+            
+            if (slotDate < now) {
+                stato = 'past-time';
+                motivo = 'Orario passato';
+            }
+            
+            this.updateSlotState(slot, orario, stato, motivo);
+        });
+    },
+    
+    // Aggiorna stato di un singolo slot
+    updateSlotState(slot, orario, stato, motivo) {
+        // Rimuovi classi precedenti
+        slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired');
+        
+        // Aggiungi nuova classe
+        slot.classList.add(stato);
+        
+        // Aggiorna stile e comportamento
+        switch (stato) {
+            case 'available':
+                slot.style.cursor = 'pointer';
+                slot.title = 'Disponibile';
+                this.applyAvailableStyle(slot);
+                break;
+            case 'occupied':
+                slot.style.cursor = 'not-allowed';
+                slot.title = `Occupato: ${motivo}`;
+                this.applyOccupiedStyle(slot);
+                break;
+            case 'booked':
+                slot.style.cursor = 'not-allowed';
+                slot.title = `Prenotato: ${motivo}`;
+                this.applyBookedStyle(slot);
+                break;
+            case 'past-time':
+                slot.style.cursor = 'not-allowed';
+                slot.title = `Orario passato`;
+                this.applyPastTimeStyle(slot);
+                break;
+        }
+        
+        // Aggiorna mappa locale
+        this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
+    },
+    
+    // Applica stili per slot disponibili
+    applyAvailableStyle(slot) {
+        slot.style.setProperty('background-color', 'var(--success)', 'important');
+        slot.style.setProperty('color', 'white', 'important');
+        slot.style.setProperty('border-color', 'var(--success)', 'important');
+        slot.style.setProperty('cursor', 'pointer', 'important');
+        slot.style.setProperty('opacity', '1', 'important');
+        slot.style.setProperty('background-image', 'none', 'important');
+    },
+    
+    // Applica stili per slot occupati
+    applyOccupiedStyle(slot) {
+        slot.style.setProperty('background-color', '#dc3545', 'important');
+        slot.style.setProperty('color', 'white', 'important');
+        slot.style.setProperty('border-color', '#dc3545', 'important');
+        slot.style.setProperty('cursor', 'not-allowed', 'important');
+        slot.style.setProperty('opacity', '0.8', 'important');
+        slot.style.setProperty('background-image', 'none', 'important');
+        slot.style.setProperty('animation', 'pulse-red 2s infinite', 'important');
+    },
+    
+    // Applica stili per slot prenotati
+    applyBookedStyle(slot) {
+        slot.style.setProperty('background-color', '#fd7e14', 'important');
+        slot.style.setProperty('color', 'white', 'important');
+        slot.style.setProperty('border-color', '#fd7e14', 'important');
+        slot.style.setProperty('cursor', 'not-allowed', 'important');
+        slot.style.setProperty('opacity', '0.8', 'important');
+        slot.style.setProperty('background-image', 'none', 'important');
+        slot.style.setProperty('animation', 'pulse-orange 2s infinite', 'important');
+    },
+    
+    // Applica stili per slot passati
+    applyPastTimeStyle(slot) {
+        slot.style.setProperty('background-color', '#6c757d', 'important');
+        slot.style.setProperty('color', 'white', 'important');
+        slot.style.setProperty('border-color', '#6c757d', 'important');
+        slot.style.setProperty('cursor', 'not-allowed', 'important');
+        slot.style.setProperty('opacity', '0.6', 'important');
+        slot.style.setProperty('background-image', 'none', 'important');
+    },
+    
+    // Avvia aggiornamento automatico
+    startAutoUpdate() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
+        
+        // Aggiorna ogni 30 secondi
+        this.updateInterval = setInterval(() => {
+            this.updateAllSlots();
+        }, 30000);
+        
+        // Primo aggiornamento immediato
+        this.updateAllSlots();
+        
+        console.log('⏰ Aggiornamento automatico slot avviato (30s)');
+    },
+    
+    // Ferma aggiornamento automatico
+    stopAutoUpdate() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+            console.log('⏹️ Aggiornamento automatico slot fermato');
+        }
+    },
+    
+    // Aggiorna display ultimo aggiornamento
+    updateLastUpdateDisplay() {
+        const lastUpdateElement = document.getElementById('lastUpdate');
+        if (lastUpdateElement && this.lastUpdate) {
+            const now = new Date();
+            const diff = Math.floor((now - this.lastUpdate) / 1000);
+            
+            if (diff < 60) {
+                lastUpdateElement.textContent = `Ultimo aggiornamento: ${diff}s fa`;
+            } else if (diff < 3600) {
+                const minutes = Math.floor(diff / 60);
+                lastUpdateElement.textContent = `Ultimo aggiornamento: ${minutes}m fa`;
+            } else {
+                const hours = Math.floor(diff / 3600);
+                lastUpdateElement.textContent = `Ultimo aggiornamento: ${hours}h fa`;
+            }
+        }
+    },
+    
+    // Verifica disponibilità per un intervallo specifico
+    async checkAvailability(startTime, endTime) {
+        try {
+            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita`, {
+                method: 'POST',
+                headers: {
+                    ...getAuthHeaders(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data_inizio: `${selectedDateInizio.toISOString().split('T')[0]}T${startTime}:00`,
+                    data_fine: `${selectedDateInizio.toISOString().split('T')[0]}T${endTime}:00`
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                return result.disponibile;
+            }
+            
+            return false;
+        } catch (error) {
+            console.error('❌ Errore verifica disponibilità:', error);
+            return false;
+        }
+    }
+};
+
+// Sistema di notifiche real-time
+let notificationSystem = {
+    container: null,
+    
+    init() {
+        this.createNotificationContainer();
+        console.log('🔔 Sistema notifiche inizializzato');
+    },
+    
+    createNotificationContainer() {
+        // Crea container per notifiche se non esiste
+        if (!this.container) {
+            this.container = document.createElement('div');
+            this.container.id = 'notificationContainer';
+            this.container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 400px;
+            `;
+            document.body.appendChild(this.container);
+        }
+    },
+    
+    show(message, type = 'info', duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            background: ${type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : type === 'error' ? 'var(--danger)' : 'var(--primary)'};
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">×</button>
+            </div>
+        `;
+        
+        this.container.appendChild(notification);
+        
+        // Anima l'entrata
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Rimuovi automaticamente
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, duration);
+        
+        return notification;
+    },
+    
+    // Notifica quando uno slot diventa disponibile
+    notifySlotAvailable(orario) {
+        this.show(`🎉 Slot ${orario} è ora disponibile!`, 'success');
+    },
+    
+    // Notifica quando uno slot viene occupato
+    notifySlotOccupied(orario) {
+        this.show(`🚫 Slot ${orario} è stato occupato`, 'warning');
+    },
+    
+    // Notifica quando uno slot scade
+    notifySlotExpired(orario) {
+        this.show(`⏰ Slot ${orario} è scaduto`, 'info');
+    }
+};
+
 // Inizializzazione della pagina
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 selezione-slot.js - DOMContentLoaded - Pagina caricata!');
@@ -53,8 +406,9 @@ async function initializePage() {
 
         console.log('✅ Pagina inizializzata correttamente');
 
-        // Avvia l'aggiornamento automatico degli slot scaduti
-        startAutoUpdate();
+        // Inizializza il sistema di gestione slot real-time
+        slotManager.init();
+        notificationSystem.init(); // Inizializza il sistema di notifiche
 
     } catch (error) {
         console.error('❌ Errore durante l\'inizializzazione:', error);
@@ -353,86 +707,15 @@ async function displayTimeSlots(disponibilita) {
         slot.textContent = orario;
         slot.dataset.orario = orario;
 
-        // Verifica se l'orario è disponibile (ora asincrona)
-        const availability = await checkTimeAvailability(orario, disponibilita);
-
-        if (availability.available) {
-            slot.classList.add('available');
-            slot.addEventListener('click', () => selectTimeSlot(orario, slot));
-            slot.title = 'Clicca per selezionare orario inizio/fine';
-
-            // CSS inline per slot disponibili
-            slot.style.setProperty('background-color', '#10b981', 'important');
-            slot.style.setProperty('color', 'white', 'important');
-            slot.style.setProperty('border-color', '#10b981', 'important');
-            slot.style.setProperty('cursor', 'pointer', 'important');
-            slot.style.setProperty('background-image', 'none', 'important');
-            slot.style.setProperty('background', '#10b981', 'important');
-
-            console.log('✅ Slot disponibile creato:', orario, 'CSS inline applicato');
-        } else {
-            // Aggiungi la classe appropriata per lo stato non disponibile
-            slot.classList.add(availability.class);
-
-            // NON aggiungere event listener per slot non disponibili
-            slot.style.cursor = 'not-allowed';
-
-            // CSS INLINE DI EMERGENZA per assicurarsi che gli slot siano colorati
-            if (availability.reason === 'occupied') {
-                // Applica stili uno per uno per evitare conflitti
-                slot.style.setProperty('background-color', '#dc3545', 'important');
-                slot.style.setProperty('color', 'white', 'important');
-                slot.style.setProperty('border-color', '#dc3545', 'important');
-                slot.style.setProperty('cursor', 'not-allowed', 'important');
-                slot.style.setProperty('opacity', '0.7', 'important');
-                slot.style.setProperty('background-image', 'none', 'important');
-                slot.style.setProperty('background', '#dc3545', 'important');
-                console.log('🚫 Slot occupato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
-            } else if (availability.reason === 'booked') {
-                // Applica stili uno per uno per evitare conflitti
-                slot.style.setProperty('background-color', '#ffc107', 'important');
-                slot.style.setProperty('color', 'white', 'important');
-                slot.style.setProperty('border-color', '#ffc107', 'important');
-                slot.style.setProperty('cursor', 'not-allowed', 'important');
-                slot.style.setProperty('opacity', '0.8', 'important');
-                slot.style.setProperty('background-image', 'none', 'important');
-                slot.style.setProperty('background', '#ffc107', 'important');
-                console.log('🚫 Slot prenotato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
-            } else if (availability.reason === 'past-time') {
-                // Applica stili uno per uno per evitare conflitti
-                slot.style.setProperty('background-color', '#6c757d', 'important');
-                slot.style.setProperty('color', 'white', 'important');
-                slot.style.setProperty('border-color', '#6c757d', 'important');
-                slot.style.setProperty('cursor', 'not-allowed', 'important');
-                slot.style.setProperty('opacity', '0.4', 'important');
-                slot.style.setProperty('background-image', 'none', 'important');
-                slot.style.setProperty('background', '#6c757d', 'important');
-                console.log('🚫 Slot passato creato:', orario, 'classe:', availability.class, 'CSS inline applicato');
-            }
-
-            // Imposta il tooltip appropriato
-            switch (availability.reason) {
-                case 'expired':
-                    slot.title = 'Data scaduta';
-                    break;
-                case 'past-time':
-                    slot.title = 'Orario già passato';
-                    break;
-                case 'occupied':
-                    slot.title = 'Orario già prenotato';
-                    break;
-                case 'booked':
-                    slot.title = 'Orario già pagato';
-                    break;
-                default:
-                    slot.title = 'Orario non disponibile';
-            }
-
-            console.log('❌ Slot non disponibile creato:', orario, 'stato:', availability.reason, 'classe:', availability.class);
-        }
+        // Aggiungi event listener per tutti gli slot
+        slot.addEventListener('click', () => selectTimeSlot(orario, slot));
+        slot.title = 'Clicca per selezionare orario inizio/fine';
 
         timeSlotsContainer.appendChild(slot);
     }
+
+    // Aggiorna tutti gli slot con il sistema real-time
+    await slotManager.updateAllSlots();
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
@@ -461,36 +744,20 @@ async function checkTimeAvailability(orario, disponibilita) {
         return { available: false, reason: 'past-time', class: 'past-time' };
     }
 
-    // Verifica disponibilità contro prenotazioni esistenti
-    // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
-    // In futuro si implementerà la verifica contro le API
-
-    // LOGICA SLOT OCCUPATI E PRENOTATI
-    // Simula prenotazioni esistenti per test
-    const testBookings = [
-        { start: '08:00', end: '14:00', status: 'occupied' }, // Prenotazione dalle 8 alle 14
-        { start: '16:00', end: '18:00', status: 'booked' }   // Prenotazione dalle 16 alle 18
-    ];
-
-    console.log('📋 Verifico prenotazioni per orario:', orario);
-    console.log('📋 Prenotazioni di test:', testBookings);
-
-    // Verifica se l'orario è incluso in una prenotazione esistente
-    for (const booking of testBookings) {
-        console.log('🔍 Controllo prenotazione:', booking.start, '-', booking.end, 'vs orario:', orario);
-        if (orario >= booking.start && orario < booking.end) {
-            console.log('❌ Orario', orario, 'è incluso in prenotazione:', booking.start, '-', booking.end, 'stato:', booking.status);
-            return {
-                available: false,
-                reason: booking.status,
-                class: booking.status
-            };
-        }
+    // Usa il sistema di gestione slot real-time
+    const slot = slotManager.slots.get(orario);
+    
+    if (slot) {
+        console.log('📋 Stato slot da cache:', slot);
+        return {
+            available: slot.stato === 'available',
+            reason: slot.motivo,
+            class: slot.stato
+        };
     }
-
-    console.log('✅ Orario', orario, 'è disponibile');
-
-    // Se non è occupato e non è prenotato, è disponibile
+    
+    // Se non è in cache, è disponibile (verrà aggiornato dal manager)
+    console.log('✅ Orario', orario, 'non in cache, considerato disponibile');
     return { available: true, reason: 'available', class: 'available' };
 }
 
@@ -574,16 +841,16 @@ async function selectTimeSlot(orario, slotElement) {
         // Blocca gli slot intermedi
         blockIntermediateSlots(selectedTimeInizio, selectedTimeFine);
 
-        // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
+                // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
         console.log('🔍 Verifica disponibilità finale prima di abilitare il bottone...');
-        const disponibilitaFinale = await verificaDisponibilitaFinale();
-
-        if (!disponibilitaFinale.disponibile) {
+        const disponibile = await slotManager.checkAvailability(selectedTimeInizio, selectedTimeFine);
+        
+        if (!disponibile) {
             // Slot non disponibile, disabilita il bottone e mostra errore
             document.getElementById('btnBook').disabled = true;
             document.getElementById('btnBook').classList.add('btn-danger');
             document.getElementById('btnBook').textContent = 'Slot Non Disponibile';
-            showError(`🚫 ${disponibilitaFinale.motivo}`);
+            showError('🚫 Slot non disponibile per l\'orario selezionato');
             return;
         }
 
@@ -605,10 +872,10 @@ async function verificaDisponibilitaFinale() {
             headers: getAuthHeaders()
         });
 
-                if (response.ok) {
+        if (response.ok) {
             const disponibilita = await response.json();
             console.log('📋 Disponibilità per lo spazio:', disponibilita);
-            
+
             // Verifica se lo spazio è disponibile per la data e orario selezionati
             if (disponibilita.disponibile === false) {
                 console.log('🚫 Spazio non disponibile:', disponibilita.motivo);
@@ -617,7 +884,7 @@ async function verificaDisponibilitaFinale() {
                     motivo: disponibilita.motivo || 'Spazio non disponibile per l\'orario selezionato'
                 };
             }
-            
+
             console.log('✅ Spazio disponibile per l\'orario selezionato');
             return { disponibile: true };
         } else {

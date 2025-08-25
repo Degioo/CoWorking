@@ -603,7 +603,7 @@ async function verificaDisponibilitaLatoClient(prenotazioneData) {
         if (response.ok) {
             const disponibilita = await response.json();
             console.log('📋 Disponibilità per lo spazio:', disponibilita);
-            
+
             // Verifica se lo spazio è disponibile per la data e orario selezionati
             if (disponibilita.disponibile === false) {
                 console.log('🚫 Spazio non disponibile:', disponibilita.motivo);
@@ -612,7 +612,7 @@ async function verificaDisponibilitaLatoClient(prenotazioneData) {
                     motivo: disponibilita.motivo || 'Spazio non disponibile per l\'orario selezionato'
                 };
             }
-            
+
             console.log('✅ Spazio disponibile lato client');
             return null;
         } else {
