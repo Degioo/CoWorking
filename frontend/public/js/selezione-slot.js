@@ -410,22 +410,27 @@ async function checkTimeAvailability(orario, disponibilita) {
         return { available: false, reason: 'past-time', class: 'past-time' };
     }
 
-        // Verifica disponibilità contro prenotazioni esistenti
+    // Verifica disponibilità contro prenotazioni esistenti
     // TEMPORANEO: Per ora tutti gli orari futuri sono disponibili
     // In futuro si implementerà la verifica contro le API
+
+        // TEMPORANEO: Per ora tutti gli slot sono disponibili
+    // TODO: Implementare verifica disponibilità quando le API saranno pronte
     
-    // Simula alcuni slot occupati per test (rimuovi in produzione)
+    // Simula alcuni slot occupati per test (commenta per avere tutti disponibili)
+    /*
     const testOccupiedSlots = ['10:00', '14:00']; // Slot di test occupati
     if (testOccupiedSlots.includes(orario)) {
         return { available: false, reason: 'occupied', class: 'occupied' };
     }
     
-    // Simula alcuni slot prenotati per test (rimuovi in produzione)
+    // Simula alcuni slot prenotati per test (commenta per avere tutti disponibili)
     const testBookedSlots = ['11:00', '15:00']; // Slot di test prenotati
     if (testBookedSlots.includes(orario)) {
         return { available: false, reason: 'booked', class: 'booked' };
     }
-    
+    */
+
     // Se non è occupato e non è prenotato, è disponibile
     return { available: true, reason: 'available', class: 'available' };
 }
@@ -433,7 +438,7 @@ async function checkTimeAvailability(orario, disponibilita) {
 // Seleziona uno slot temporale
 function selectTimeSlot(orario, slotElement) {
     console.log('🎯 selectTimeSlot chiamata:', { orario, slotElement, classList: slotElement.classList.toString() });
-    
+
     // Se è già selezionato, lo deseleziona
     if (slotElement.classList.contains('selected')) {
         console.log('🔄 Deseleziono slot:', orario);
@@ -637,9 +642,9 @@ async function proceedToBooking() {
         // Utente loggato, procede al pagamento
         console.log('✅ Utente loggato, procedo al pagamento...');
 
-                // VERIFICA FINALE: Controlla che gli slot siano ancora disponibili
+        // VERIFICA FINALE: Controlla che gli slot siano ancora disponibili
         console.log('🔍 Verifica finale disponibilità slot...');
-        
+
         // TEMPORANEO: Per ora salta la verifica finale
         // TODO: Implementare quando le API saranno disponibili
         console.log('✅ Verifica finale saltata (API non ancora implementate)');
@@ -721,7 +726,7 @@ async function updateExpiredSlots() {
     if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
         return;
     }
-    
+
     // TEMPORANEO: Per ora salta l'aggiornamento automatico
     // TODO: Implementare quando le API saranno disponibili
     console.log('🔄 Aggiornamento automatico slot saltato (API non ancora implementate)');
