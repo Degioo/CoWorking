@@ -129,79 +129,46 @@ let slotManager = {
     // Aggiorna stato di un singolo slot
     updateSlotState(slot, orario, stato, motivo) {
         // Rimuovi classi precedenti
-        slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired');
-
+        slot.classList.remove('available', 'occupied', 'booked', 'past-time', 'expired', 'selected');
+        
         // Aggiungi nuova classe
         slot.classList.add(stato);
-
+        
+        // Rimuovi stili inline per permettere al CSS di funzionare
+        slot.style.removeProperty('background-color');
+        slot.style.removeProperty('color');
+        slot.style.removeProperty('border-color');
+        slot.style.removeProperty('cursor');
+        slot.style.removeProperty('opacity');
+        slot.style.removeProperty('animation');
+        slot.style.removeProperty('box-shadow');
+        
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
                 slot.style.cursor = 'pointer';
                 slot.title = 'Disponibile';
-                this.applyAvailableStyle(slot);
+                break;
+            case 'selected':
+                slot.style.cursor = 'pointer';
+                slot.title = 'Selezionato';
                 break;
             case 'occupied':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Occupato: ${motivo}`;
-                this.applyOccupiedStyle(slot);
                 break;
             case 'booked':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Prenotato: ${motivo}`;
-                this.applyBookedStyle(slot);
                 break;
             case 'past-time':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Orario passato`;
-                this.applyPastTimeStyle(slot);
                 break;
         }
-
+        
         // Aggiorna mappa locale
         this.slots.set(orario, { stato, motivo, timestamp: Date.now() });
-    },
-
-    // Applica stili per slot disponibili
-    applyAvailableStyle(slot) {
-        slot.style.setProperty('background-color', 'var(--success)', 'important');
-        slot.style.setProperty('color', 'white', 'important');
-        slot.style.setProperty('border-color', 'var(--success)', 'important');
-        slot.style.setProperty('cursor', 'pointer', 'important');
-        slot.style.setProperty('opacity', '1', 'important');
-        slot.style.setProperty('background-image', 'none', 'important');
-    },
-
-    // Applica stili per slot occupati
-    applyOccupiedStyle(slot) {
-        slot.style.setProperty('background-color', '#dc3545', 'important');
-        slot.style.setProperty('color', 'white', 'important');
-        slot.style.setProperty('border-color', '#dc3545', 'important');
-        slot.style.setProperty('cursor', 'not-allowed', 'important');
-        slot.style.setProperty('opacity', '0.8', 'important');
-        slot.style.setProperty('background-image', 'none', 'important');
-        slot.style.setProperty('animation', 'pulse-red 2s infinite', 'important');
-    },
-
-    // Applica stili per slot prenotati
-    applyBookedStyle(slot) {
-        slot.style.setProperty('background-color', '#fd7e14', 'important');
-        slot.style.setProperty('color', 'white', 'important');
-        slot.style.setProperty('border-color', '#fd7e14', 'important');
-        slot.style.setProperty('cursor', 'not-allowed', 'important');
-        slot.style.setProperty('opacity', '0.8', 'important');
-        slot.style.setProperty('background-image', 'none', 'important');
-        slot.style.setProperty('animation', 'pulse-orange 2s infinite', 'important');
-    },
-
-    // Applica stili per slot passati
-    applyPastTimeStyle(slot) {
-        slot.style.setProperty('background-color', '#6c757d', 'important');
-        slot.style.setProperty('color', 'white', 'important');
-        slot.style.setProperty('border-color', '#6c757d', 'important');
-        slot.style.setProperty('cursor', 'not-allowed', 'important');
-        slot.style.setProperty('opacity', '0.6', 'important');
-        slot.style.setProperty('background-image', 'none', 'important');
     },
 
     // Avvia aggiornamento automatico
@@ -255,14 +222,14 @@ let slotManager = {
             // Costruisci le date complete per l'intervallo selezionato
             const dataInizio = new Date(selectedDateInizio);
             const dataFine = new Date(selectedDateFine);
-            
+
             // Imposta gli orari specifici
             const [oraInizio] = startTime.split(':');
             const [oraFine] = endTime.split(':');
-            
+
             dataInizio.setHours(parseInt(oraInizio), 0, 0, 0);
             dataFine.setHours(parseInt(oraFine), 0, 0, 0);
-            
+
             const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizio.toISOString()}&data_fine=${dataFine.toISOString()}`, {
                 method: 'GET',
                 headers: getAuthHeaders()
@@ -739,29 +706,27 @@ async function displayTimeSlots(disponibilita) {
         slot.addEventListener('click', () => selectTimeSlot(orario, slot));
         slot.title = 'Clicca per selezionare orario inizio/fine';
 
-        // Applica stili base per slot disponibili
-        slot.style.backgroundColor = 'var(--success)';
-        slot.style.color = 'white';
-        slot.style.cursor = 'pointer';
-        slot.style.border = '2px solid var(--success)';
-        slot.style.borderRadius = '8px';
-        slot.style.padding = '10px 15px';
-        slot.style.margin = '5px';
-        slot.style.display = 'inline-block';
-        slot.style.minWidth = '80px';
-        slot.style.textAlign = 'center';
-        slot.style.transition = 'all 0.3s ease';
-        slot.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
-
-        // Stili aggiuntivi per assicurare visibilità
-        slot.style.position = 'relative';
-        slot.style.zIndex = '1';
-        slot.style.opacity = '1';
-        slot.style.visibility = 'visible';
-        slot.style.overflow = 'visible';
-
-        // Applica anche la classe CSS per compatibilità
+        // Applica solo la classe CSS per compatibilità
         slot.classList.add('time-slot', 'available');
+        
+        // Rimuovi tutti gli stili inline per permettere al CSS di funzionare
+        slot.style.removeProperty('background-color');
+        slot.style.removeProperty('color');
+        slot.style.removeProperty('cursor');
+        slot.style.removeProperty('border');
+        slot.style.removeProperty('border-radius');
+        slot.style.removeProperty('padding');
+        slot.style.removeProperty('margin');
+        slot.style.removeProperty('display');
+        slot.style.removeProperty('min-width');
+        slot.style.removeProperty('text-align');
+        slot.style.removeProperty('transition');
+        slot.style.removeProperty('box-shadow');
+        slot.style.removeProperty('position');
+        slot.style.removeProperty('z-index');
+        slot.style.removeProperty('opacity');
+        slot.style.removeProperty('visibility');
+        slot.style.removeProperty('overflow');
 
         timeSlotsContainer.appendChild(slot);
         console.log('✅ Slot creato e aggiunto:', slot);
@@ -794,7 +759,7 @@ async function displayTimeSlots(disponibilita) {
 
     // COMMENTO TEMPORANEAMENTE - Il slotManager sta causando problemi
     // await slotManager.updateAllSlots();
-    
+
     // Riabilito il slotManager ora che le API sono disponibili
     await slotManager.updateAllSlots();
 
@@ -858,7 +823,8 @@ function blockIntermediateSlots(startTime, endTime) {
             if (slotTime !== startTime && slotTime !== endTime) {
                 slot.classList.remove('selected');
                 slot.classList.add('occupied');
-                slot.style.cursor = 'not-allowed';
+                // Rimuovi stili inline per permettere al CSS di funzionare
+                slot.style.removeProperty('cursor');
                 console.log('🚫 Slot bloccato:', slotTime);
             }
         }
@@ -879,7 +845,8 @@ async function selectTimeSlot(orario, slotElement) {
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
             slot.classList.remove('selected', 'occupied');
-            slot.style.cursor = 'pointer';
+            // Rimuovi stili inline per permettere al CSS di funzionare
+            slot.style.removeProperty('cursor');
         });
 
         hideSummary();
@@ -929,7 +896,8 @@ async function selectTimeSlot(orario, slotElement) {
         if (!disponibile) {
             // Slot non disponibile, disabilita il bottone e mostra errore
             document.getElementById('btnBook').disabled = true;
-            document.getElementById('btnBook').classList.add('btn-danger');
+            // Rimuovi stili inline per permettere al CSS di funzionare
+            document.getElementById('btnBook').classList.remove('btn-danger');
             document.getElementById('btnBook').textContent = 'Slot Non Disponibile';
             showError('🚫 Slot non disponibile per l\'orario selezionato');
             return;
@@ -994,6 +962,9 @@ function updateSummary() {
 
         // Abilita il pulsante prenota
         document.getElementById('btnBook').disabled = false;
+        document.getElementById('btnBook').textContent = 'Prenota Ora';
+        // Rimuovi eventuali classi di errore
+        document.getElementById('btnBook').classList.remove('btn-danger');
     }
 }
 
@@ -1016,7 +987,8 @@ function hideSummary() {
     // Ripristina tutti gli slot quando si nasconde il riepilogo
     document.querySelectorAll('.time-slot').forEach(slot => {
         slot.classList.remove('selected', 'occupied');
-        slot.style.cursor = 'pointer';
+        // Rimuovi stili inline per permettere al CSS di funzionare
+        slot.style.removeProperty('cursor');
     });
 }
 

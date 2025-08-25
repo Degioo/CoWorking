@@ -4,21 +4,47 @@ const pool = require('../db');
 exports.checkDisponibilita = async (req, res) => {
   const { id } = req.params;
   const { data_inizio, data_fine } = req.query;
+  
+  console.log('🔍 checkDisponibilita chiamata:', { id, data_inizio, data_fine });
+  
   if (!data_inizio || !data_fine) {
-    return res.status(400).json({ error: 'Fornire data_inizio e data_fine' });
+    console.log('❌ Parametri mancanti:', { data_inizio, data_fine });
+    return res.status(400).json({ 
+      error: 'Fornire data_inizio e data_fine',
+      received: { data_inizio, data_fine }
+    });
   }
+  
   try {
+    // Verifica che le date siano valide
+    const dataInizio = new Date(data_inizio);
+    const dataFine = new Date(data_fine);
+    
+    if (isNaN(dataInizio.getTime()) || isNaN(dataFine.getTime())) {
+      console.log('❌ Date non valide:', { data_inizio, data_fine });
+      return res.status(400).json({ 
+        error: 'Formato date non valido. Usare formato ISO (YYYY-MM-DDTHH:mm:ss.sssZ)',
+        received: { data_inizio, data_fine }
+      });
+    }
+    
+    console.log('✅ Date valide:', { dataInizio, dataFine });
+    
     const result = await pool.query(
       `SELECT COUNT(*) FROM Prenotazione
        WHERE id_spazio = $1
          AND stato = 'confermata'
          AND (data_inizio, data_fine) OVERLAPS ($2::timestamp, $3::timestamp)`,
-      [id, data_inizio, data_fine]
+      [id, dataInizio, dataFine]
     );
+    
     const disponibile = result.rows[0].count === '0';
+    console.log('✅ Risultato disponibilità:', { disponibile, count: result.rows[0].count });
+    
     res.json({ disponibile });
   } catch (err) {
-    res.status(500).json({ error: 'Errore server' });
+    console.error('❌ Errore checkDisponibilita:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
   }
 };
 
@@ -495,7 +521,7 @@ exports.handleMultiplePrenotazioniSala = async (req, res) => {
 // Recupera tutte le prenotazioni per uno spazio specifico
 exports.getPrenotazioniSpazio = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     // Recupera tutte le prenotazioni per lo spazio specificato
     const result = await pool.query(

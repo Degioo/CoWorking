@@ -39,12 +39,30 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
 }
 
+.time-slot.selected {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
 .time-slot.occupied {
+    background: var(--warning) !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+.time-slot.booked {
     background: var(--danger) !important;
     color: white !important;
     border-color: var(--danger) !important;
     cursor: not-allowed !important;
-    opacity: 0.7 !important;
+    opacity: 0.8 !important;
     animation: pulse-red 2s infinite !important;
     box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
 }
@@ -79,37 +97,6 @@ div.time-slot.occupied:active {
     animation: fade-out 0.5s ease-in !important;
 }
 
-.time-slot.booked {
-    background: var(--warning) !important;
-    color: white !important;
-    border-color: var(--warning) !important;
-    cursor: not-allowed !important;
-    opacity: 0.8 !important;
-    animation: pulse-orange 2s infinite !important;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
-}
-
-/* Stili specifici per Bootstrap che potrebbero interferire */
-.btn.time-slot.booked,
-button.time-slot.booked,
-input.time-slot.booked {
-    background: var(--warning) !important;
-    color: white !important;
-    border-color: var(--warning) !important;
-}
-
-/* CSS ULTRA SPECIFICO per sovrascrivere Bootstrap */
-div.time-slot.booked,
-div.time-slot.booked:hover,
-div.time-slot.booked:focus,
-div.time-slot.booked:active {
-    background-color: var(--warning) !important;
-    background-image: none !important;
-    color: white !important;
-    border-color: var(--warning) !important;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
-}
-
 .time-slot.past-time {
     background: var(--gray-500) !important;
     color: white !important;
@@ -117,14 +104,6 @@ div.time-slot.booked:active {
     cursor: not-allowed !important;
     opacity: 0.4 !important;
     animation: shake 0.5s ease-in-out !important;
-}
-
-.time-slot.selected {
-    background: var(--primary) !important;
-    color: white !important;
-    border-color: var(--primary) !important;
-    transform: scale(1.1) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 .time-slot:hover:not(.occupied) {
