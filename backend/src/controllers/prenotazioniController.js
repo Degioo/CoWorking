@@ -490,4 +490,27 @@ exports.handleMultiplePrenotazioniSala = async (req, res) => {
     console.error('Errore gestione prenotazioni multiple:', err);
     res.status(500).json({ error: 'Errore server: ' + err.message });
   }
+};
+
+// Recupera tutte le prenotazioni per uno spazio specifico
+exports.getPrenotazioniSpazio = async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    // Recupera tutte le prenotazioni per lo spazio specificato
+    const result = await pool.query(
+      `SELECT p.id_prenotazione, p.id_utente, p.data_inizio, p.data_fine, p.stato, p.scadenza_slot,
+              u.nome, u.cognome
+       FROM Prenotazione p
+       JOIN Utente u ON p.id_utente = u.id_utente
+       WHERE p.id_spazio = $1
+       ORDER BY p.data_inizio ASC`,
+      [id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Errore recupero prenotazioni spazio:', err);
+    res.status(500).json({ error: 'Errore server: ' + err.message });
+  }
 }; 

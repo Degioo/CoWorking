@@ -6,6 +6,9 @@ const { authenticateToken } = require('../middleware/auth');
 // Verifica disponibilità di uno spazio (pubblica - non richiede autenticazione)
 router.get('/spazi/:id/disponibilita', prenotazioniController.checkDisponibilita);
 
+// Recupera prenotazioni per uno spazio specifico
+router.get('/prenotazioni/spazio/:id', prenotazioniController.getPrenotazioniSpazio);
+
 // Crea una nuova prenotazione
 router.post('/prenotazioni', authenticateToken, prenotazioniController.creaPrenotazione);
 

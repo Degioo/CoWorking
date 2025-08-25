@@ -252,23 +252,29 @@ let slotManager = {
     // Verifica disponibilità per un intervallo specifico
     async checkAvailability(startTime, endTime) {
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita`, {
-                method: 'POST',
-                headers: {
-                    ...getAuthHeaders(),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    data_inizio: `${selectedDateInizio.toISOString().split('T')[0]}T${startTime}:00`,
-                    data_fine: `${selectedDateInizio.toISOString().split('T')[0]}T${endTime}:00`
-                })
+            // Costruisci le date complete per l'intervallo selezionato
+            const dataInizio = new Date(selectedDateInizio);
+            const dataFine = new Date(selectedDateFine);
+            
+            // Imposta gli orari specifici
+            const [oraInizio] = startTime.split(':');
+            const [oraFine] = endTime.split(':');
+            
+            dataInizio.setHours(parseInt(oraInizio), 0, 0, 0);
+            dataFine.setHours(parseInt(oraFine), 0, 0, 0);
+            
+            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizio.toISOString()}&data_fine=${dataFine.toISOString()}`, {
+                method: 'GET',
+                headers: getAuthHeaders()
             });
 
             if (response.ok) {
                 const result = await response.json();
+                console.log('✅ Verifica disponibilità:', result);
                 return result.disponibile;
             }
 
+            console.log('⚠️ Errore verifica disponibilità:', response.status);
             return false;
         } catch (error) {
             console.error('❌ Errore verifica disponibilità:', error);
@@ -788,6 +794,9 @@ async function displayTimeSlots(disponibilita) {
 
     // COMMENTO TEMPORANEAMENTE - Il slotManager sta causando problemi
     // await slotManager.updateAllSlots();
+    
+    // Riabilito il slotManager ora che le API sono disponibili
+    await slotManager.updateAllSlots();
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
