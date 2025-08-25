@@ -140,15 +140,6 @@ let slotManager = {
         
         console.log('🎨 Classi dopo aggiornamento:', slot.classList.toString());
         
-        // Rimuovi stili inline per permettere al CSS di funzionare
-        slot.style.removeProperty('background-color');
-        slot.style.removeProperty('color');
-        slot.style.removeProperty('border-color');
-        slot.style.removeProperty('cursor');
-        slot.style.removeProperty('opacity');
-        slot.style.removeProperty('animation');
-        slot.style.removeProperty('box-shadow');
-        
         // Aggiorna stile e comportamento
         switch (stato) {
             case 'available':
@@ -162,20 +153,10 @@ let slotManager = {
             case 'occupied':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Occupato: ${motivo}`;
-                // FORZA il colore rosso con stili inline se il CSS non funziona
-                slot.style.backgroundColor = '#dc3545';
-                slot.style.color = 'white';
-                slot.style.borderColor = '#dc3545';
-                console.log('🔴 Slot occupato - Stili inline applicati');
                 break;
             case 'booked':
                 slot.style.cursor = 'not-allowed';
                 slot.title = `Prenotato: ${motivo}`;
-                // FORZA il colore arancione con stili inline se il CSS non funziona
-                slot.style.backgroundColor = '#fd7e14';
-                slot.style.color = 'white';
-                slot.style.borderColor = '#fd7e14';
-                console.log('🟠 Slot prenotato - Stili inline applicati');
                 break;
             case 'past-time':
                 slot.style.cursor = 'not-allowed';
@@ -765,25 +746,6 @@ async function displayTimeSlots(disponibilita) {
 
         // Applica solo la classe CSS per compatibilità
         slot.classList.add('time-slot', 'available');
-
-        // Rimuovi tutti gli stili inline per permettere al CSS di funzionare
-        slot.style.removeProperty('background-color');
-        slot.style.removeProperty('color');
-        slot.style.removeProperty('cursor');
-        slot.style.removeProperty('border');
-        slot.style.removeProperty('border-radius');
-        slot.style.removeProperty('padding');
-        slot.style.removeProperty('margin');
-        slot.style.removeProperty('display');
-        slot.style.removeProperty('min-width');
-        slot.style.removeProperty('text-align');
-        slot.style.removeProperty('transition');
-        slot.style.removeProperty('box-shadow');
-        slot.style.removeProperty('position');
-        slot.style.removeProperty('z-index');
-        slot.style.removeProperty('opacity');
-        slot.style.removeProperty('visibility');
-        slot.style.removeProperty('overflow');
 
         timeSlotsContainer.appendChild(slot);
         console.log('✅ Slot creato e aggiunto:', slot);

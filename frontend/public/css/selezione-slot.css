@@ -445,3 +445,154 @@ main {
 .text-info {
     color: #17a2b8 !important;
 }
+
+/* CSS CON SPECIFICITÀ MASSIMA - DEVE SOVRASCRIVERE BOOTSTRAP */
+
+/* SLOT OCCUPATI - DEVE ESSERE ROSSO */
+.time-slot.occupied,
+div.time-slot.occupied,
+.time-slot.occupied:hover,
+.time-slot.occupied:focus,
+.time-slot.occupied:active,
+.time-slot.occupied:visited,
+.time-slot.occupied:link,
+.time-slot.occupied:before,
+.time-slot.occupied:after,
+.time-slot.occupied *,
+div.time-slot.occupied *,
+.time-slot.occupied.btn,
+.time-slot.occupied.btn:hover,
+.time-slot.occupied.btn:focus,
+.time-slot.occupied.btn:active,
+.time-slot.occupied.btn:visited,
+.time-slot.occupied.btn:link,
+.time-slot.occupied.btn:before,
+.time-slot.occupied.btn:after,
+.time-slot.occupied.btn *,
+div.time-slot.occupied.btn * {
+    background-color: #dc3545 !important;
+    background-image: none !important;
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* SLOT PRENOTATI - DEVE ESSERE ARANCIONE */
+.time-slot.booked,
+div.time-slot.booked,
+.time-slot.booked:hover,
+.time-slot.booked:focus,
+.time-slot.booked:active,
+.time-slot.booked:visited,
+.time-slot.booked:link,
+.time-slot.booked:before,
+.time-slot.booked:after,
+.time-slot.booked *,
+div.time-slot.booked *,
+.time-slot.booked.btn,
+.time-slot.booked.btn:hover,
+.time-slot.booked.btn:focus,
+.time-slot.booked.btn:active,
+.time-slot.booked.btn:visited,
+.time-slot.booked.btn:link,
+.time-slot.booked.btn:before,
+.time-slot.booked.btn:after,
+.time-slot.booked.btn *,
+div.time-slot.booked.btn * {
+    background-color: #fd7e14 !important;
+    background-image: none !important;
+    background: #fd7e14 !important;
+    color: white !important;
+    border-color: #fd7e14 !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+/* SLOT SELEZIONATI - DEVE ESSERE BLU */
+.time-slot.selected,
+div.time-slot.selected,
+.time-slot.selected:hover,
+.time-slot.selected:focus,
+.time-slot.selected:active,
+.time-slot.selected:visited,
+.time-slot.selected:link,
+.time-slot.selected:before,
+.time-slot.selected:after,
+.time-slot.selected *,
+div.time-slot.selected *,
+.time-slot.selected.btn,
+.time-slot.selected.btn:hover,
+.time-slot.selected.btn:focus,
+.time-slot.selected.btn:active,
+.time-slot.selected.btn:visited,
+.time-slot.selected.btn:link,
+.time-slot.selected.btn:before,
+.time-slot.selected.btn:after,
+.time-slot.selected.btn *,
+div.time-slot.selected.btn * {
+    background-color: #007bff !important;
+    background-image: none !important;
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    cursor: pointer !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3) !important;
+}
+
+/* SLOT INTERMEDI - DEVE ESSERE VERDE ANIMATO */
+.time-slot.intermediate,
+div.time-slot.intermediate,
+.time-slot.intermediate:hover,
+.time-slot.intermediate:focus,
+.time-slot.intermediate:active,
+.time-slot.intermediate:visited,
+.time-slot.intermediate:link,
+.time-slot.intermediate:before,
+.time-slot.intermediate:after,
+.time-slot.intermediate *,
+div.time-slot.intermediate *,
+.time-slot.intermediate.btn,
+.time-slot.intermediate.btn:hover,
+.time-slot.intermediate.btn:focus,
+.time-slot.intermediate.btn:active,
+.time-slot.intermediate.btn:visited,
+.time-slot.intermediate.btn:link,
+.time-slot.intermediate.btn:before,
+.time-slot.intermediate.btn:after,
+.time-slot.intermediate.btn *,
+div.time-slot.intermediate.btn * {
+    background-color: #28a745 !important;
+    background-image: none !important;
+    background: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+    cursor: not-allowed !important;
+    animation: pulse-green 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* ANIMAZIONI */
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); }
+    50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); }
+}
+
+@keyframes pulse-orange {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); }
+    50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3); }
+}
+
+@keyframes pulse-green {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+    50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+}
