@@ -69,13 +69,27 @@
     box-sizing: border-box;
 }
 
-/* Elimina i pallini neri (marker) dalle liste */
-li::marker {
+/* Elimina i pallini neri (marker) dalle liste - APPROCCIO SPECIFICO */
+.navbar-nav li::marker,
+.navbar-nav ul li::marker,
+.navbar-nav ol li::marker,
+.dynamic-nav-item::marker,
+.nav-item::marker {
     display: none !important;
 }
 
-ul, ol {
+.navbar-nav ul,
+.navbar-nav ol,
+.navbar-nav .navbar-nav {
     list-style: none !important;
+}
+
+/* Approccio alternativo per Bootstrap */
+.navbar-nav li,
+.dynamic-nav-item,
+.nav-item {
+    list-style: none !important;
+    list-style-type: none !important;
 }
 
 html {
