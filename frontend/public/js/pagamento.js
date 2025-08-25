@@ -852,19 +852,19 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 
         // Combina data e orario per creare le date complete
         // Crea le date in modo corretto per il fuso orario locale
-        
+
         // Estrai anno, mese e giorno dalla data
         const [yearInizio, monthInizio, dayInizio] = dal.split('-').map(Number);
         const [yearFine, monthFine, dayFine] = al.split('-').map(Number);
-        
+
         // Estrai ore e minuti dall'orario
         const [hourInizio, minuteInizio] = orarioInizio.split(':').map(Number);
         const [hourFine, minuteFine] = orarioFine.split(':').map(Number);
-        
+
         // Crea le date locali (il mese è 0-based in JavaScript)
         const dataInizioLocal = new Date(yearInizio, monthInizio - 1, dayInizio, hourInizio, minuteInizio, 0);
         const dataFineLocal = new Date(yearFine, monthFine - 1, dayFine, hourFine, minuteFine, 0);
-        
+
         console.log('createPrenotazioneFromSelection - Date create correttamente:', {
             dataInizioLocal: dataInizioLocal.toString(),
             dataFineLocal: dataFineLocal.toString(),
@@ -1014,7 +1014,7 @@ function populatePrenotazioneDetails() {
         // Aggiorna la visualizzazione con data e orario separati
         document.getElementById('data-inizio-prenotazione').textContent = `${dataInizioSolo} dalle ${orarioInizio}`;
         document.getElementById('data-fine-prenotazione').textContent = `${dataFineSolo} alle ${orarioFine}`;
-        
+
         console.log('populatePrenotazioneDetails - Visualizzazione con orari specifici:', {
             dataInizioSolo: dataInizioSolo,
             dataFineSolo: dataFineSolo,
@@ -1025,7 +1025,7 @@ function populatePrenotazioneDetails() {
         // Usa la visualizzazione standard
         document.getElementById('data-inizio-prenotazione').textContent = dataInizioFormattata;
         document.getElementById('data-fine-prenotazione').textContent = dataFineFormattata;
-        
+
         console.log('populatePrenotazioneDetails - Visualizzazione standard:', {
             dataInizioFormattata: dataInizioFormattata,
             dataFineFormattata: dataFineFormattata

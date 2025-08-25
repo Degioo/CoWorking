@@ -296,7 +296,10 @@ function setupEventListeners() {
         console.log('🖱️ Pulsante Prenota Ora cliccato!');
         if (validateSelection()) {
             console.log('✅ Selezione valida, chiamo proceedToBooking');
-            proceedToBooking();
+            proceedToBooking().catch(error => {
+                console.error('❌ Errore in proceedToBooking:', error);
+                showError('Errore durante la prenotazione: ' + error.message);
+            });
         } else {
             console.log('❌ Selezione non valida, non chiamo proceedToBooking');
         }
@@ -329,7 +332,7 @@ async function loadOrariDisponibili() {
 }
 
 // Mostra gli slot temporali disponibili
-function displayTimeSlots(disponibilita) {
+async function displayTimeSlots(disponibilita) {
     const timeSlotsContainer = document.getElementById('timeSlots');
 
     // Orari di apertura (9:00 - 18:00)
@@ -342,14 +345,14 @@ function displayTimeSlots(disponibilita) {
     timeSlotsContainer.innerHTML = '';
 
     // Crea gli slot temporali
-    orariApertura.forEach(orario => {
+    for (const orario of orariApertura) {
         const slot = document.createElement('div');
         slot.className = 'time-slot';
         slot.textContent = orario;
         slot.dataset.orario = orario;
 
-        // Verifica se l'orario è disponibile
-        const availability = checkTimeAvailability(orario, disponibilita);
+        // Verifica se l'orario è disponibile (ora asincrona)
+        const availability = await checkTimeAvailability(orario, disponibilita);
 
         if (availability.available) {
             slot.classList.add('available');
@@ -358,7 +361,7 @@ function displayTimeSlots(disponibilita) {
         } else {
             // Aggiungi la classe appropriata per lo stato non disponibile
             slot.classList.add(availability.class);
-
+            
             // Imposta il tooltip appropriato
             switch (availability.reason) {
                 case 'expired':
@@ -379,7 +382,7 @@ function displayTimeSlots(disponibilita) {
         }
 
         timeSlotsContainer.appendChild(slot);
-    });
+    }
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
@@ -387,7 +390,7 @@ function displayTimeSlots(disponibilita) {
 }
 
 // Verifica disponibilità di un orario specifico
-function checkTimeAvailability(orario, disponibilita) {
+async function checkTimeAvailability(orario, disponibilita) {
     const now = new Date();
     const selectedDate = selectedDateInizio;
 
@@ -406,9 +409,25 @@ function checkTimeAvailability(orario, disponibilita) {
         return { available: false, reason: 'past-time', class: 'past-time' };
     }
 
-    // Qui in futuro si può implementare la verifica contro prenotazioni esistenti
-    // Per ora, tutti gli orari futuri sono disponibili
-    return { available: true, reason: 'available', class: 'available' };
+    // Verifica disponibilità contro prenotazioni esistenti
+    try {
+        const isOccupied = await checkSlotOccupancy(selectedDate, orario);
+        if (isOccupied) {
+            return { available: false, reason: 'occupied', class: 'occupied' };
+        }
+        
+        const isBooked = await checkSlotBooked(selectedDate, orario);
+        if (isBooked) {
+            return { available: false, reason: 'booked', class: 'booked' };
+        }
+        
+        // Se non è occupato e non è prenotato, è disponibile
+        return { available: true, reason: 'available', class: 'available' };
+    } catch (error) {
+        console.error('Errore verifica disponibilità:', error);
+        // In caso di errore, considera non disponibile per sicurezza
+        return { available: false, reason: 'error', class: 'occupied' };
+    }
 }
 
 // Seleziona uno slot temporale
@@ -524,7 +543,7 @@ function validateSelection() {
 }
 
 // Procede alla prenotazione
-function proceedToBooking() {
+async function proceedToBooking() {
     console.log('🚀 FUNZIONE PROCEEDTOBOOKING CHIAMATA!');
 
     try {
@@ -614,6 +633,38 @@ function proceedToBooking() {
         // Utente loggato, procede al pagamento
         console.log('✅ Utente loggato, procedo al pagamento...');
 
+        // VERIFICA FINALE: Controlla che gli slot siano ancora disponibili
+        console.log('🔍 Verifica finale disponibilità slot...');
+        
+        try {
+            // Verifica disponibilità per tutti gli slot selezionati
+            const slotInizio = await checkTimeAvailability(selectedTimeInizio, {});
+            const slotFine = await checkTimeAvailability(selectedTimeFine, {});
+            
+            if (!slotInizio.available || !slotFine.available) {
+                let errorMessage = 'Uno o più slot selezionati non sono più disponibili: ';
+                if (!slotInizio.available) {
+                    errorMessage += `\n- ${selectedTimeInizio}: ${getReasonText(slotInizio.reason)}`;
+                }
+                if (!slotFine.available) {
+                    errorMessage += `\n- ${selectedTimeFine}: ${getReasonText(slotFine.reason)}`;
+                }
+                
+                showError(errorMessage);
+                
+                // Ricarica gli slot per aggiornare la visualizzazione
+                await loadOrariDisponibili();
+                hideSummary();
+                return;
+            }
+            
+            console.log('✅ Verifica finale completata: tutti gli slot sono disponibili');
+        } catch (error) {
+            console.error('❌ Errore durante verifica finale:', error);
+            showError('Errore durante la verifica di disponibilità. Riprova.');
+            return;
+        }
+
         // Prepara i parametri per la pagina di pagamento
         const params = new URLSearchParams({
             sede: selectedSede.id_sede,
@@ -672,21 +723,93 @@ function showSuccess(message) {
     }
 }
 
+// Verifica se uno slot è occupato (prenotato ma non pagato)
+async function checkSlotOccupancy(selectedDate, orario) {
+    try {
+        if (!selectedSede || !selectedSpazio) return false;
+        
+        // Crea la data completa per la verifica
+        const [hour] = orario.split(':');
+        const slotDateTime = new Date(selectedDate);
+        slotDateTime.setHours(parseInt(hour), 0, 0, 0);
+        
+        // Verifica se esiste una prenotazione per questo slot
+        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/verifica-disponibilita`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_sede: selectedSede.id_sede,
+                id_spazio: selectedSpazio.id_spazio,
+                data_inizio: slotDateTime.toISOString(),
+                data_fine: new Date(slotDateTime.getTime() + 60 * 60 * 1000).toISOString() // +1 ora
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return result.occupato || false;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Errore verifica occupazione slot:', error);
+        return false;
+    }
+}
+
+// Verifica se uno slot è già prenotato e pagato
+async function checkSlotBooked(selectedDate, orario) {
+    try {
+        if (!selectedSede || !selectedSpazio) return false;
+        
+        // Crea la data completa per la verifica
+        const [hour] = orario.split(':');
+        const slotDateTime = new Date(selectedDate);
+        slotDateTime.setHours(parseInt(hour), 0, 0, 0);
+        
+        // Verifica se esiste una prenotazione confermata per questo slot
+        const response = await fetch(`${window.CONFIG.API_BASE}/prenotazioni/verifica-prenotato`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_sede: selectedSede.id_sede,
+                id_spazio: selectedSpazio.id_spazio,
+                data_inizio: slotDateTime.toISOString(),
+                data_fine: new Date(slotDateTime.getTime() + 60 * 60 * 1000).toISOString() // +1 ora
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return result.prenotato || false;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Errore verifica prenotazione slot:', error);
+        return false;
+    }
+}
+
 // Aggiorna automaticamente gli slot scaduti
-function updateExpiredSlots() {
+async function updateExpiredSlots() {
     if (!selectedSede || !selectedSpazio || !selectedDateInizio || !selectedDateFine) {
         return;
     }
-
+    
     const timeSlots = document.querySelectorAll('.time-slot');
-    timeSlots.forEach(slot => {
+    for (const slot of timeSlots) {
         const orario = slot.dataset.orario;
         if (orario) {
-            const availability = checkTimeAvailability(orario, {});
-
+            const availability = await checkTimeAvailability(orario, {});
+            
             // Rimuovi tutte le classi di stato
             slot.classList.remove('available', 'occupied', 'expired', 'past-time', 'booked');
-
+            
             if (availability.available) {
                 slot.classList.add('available');
                 // Rimuovi event listener se non è già presente
@@ -700,10 +823,28 @@ function updateExpiredSlots() {
                 slot.clickHandler = null;
             }
         }
-    });
+    }
 }
 
 // Avvia l'aggiornamento automatico degli slot ogni minuto
 function startAutoUpdate() {
     setInterval(updateExpiredSlots, 60000); // Aggiorna ogni minuto
+}
+
+// Converte il motivo di non disponibilità in testo leggibile
+function getReasonText(reason) {
+    switch (reason) {
+        case 'expired':
+            return 'Data scaduta';
+        case 'past-time':
+            return 'Orario già passato';
+        case 'occupied':
+            return 'Orario già prenotato';
+        case 'booked':
+            return 'Orario già pagato';
+        case 'error':
+            return 'Errore di verifica';
+        default:
+            return 'Non disponibile';
+    }
 }
