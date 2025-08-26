@@ -70,7 +70,7 @@ class SlotManager {
             if (response.ok) {
                 const data = await response.json();
                 console.log('📋 SlotManager - Risposta ricevuta:', data);
-                
+
                 // Gestisci entrambi i formati di risposta
                 let slotsArray;
                 if (data.data && data.data.slots) {
@@ -86,7 +86,7 @@ class SlotManager {
                     console.error('❌ SlotManager - Formato risposta non riconosciuto:', data);
                     return;
                 }
-                
+
                 this.updateSlotsFromStatus(slotsArray);
                 console.log('✅ SlotManager - Stato iniziale slot caricato:', slotsArray.length, 'slot');
             } else {
@@ -207,7 +207,7 @@ class SlotManager {
     updateAllSlotButtons() {
         console.log('🔄 SlotManager - Aggiornamento di tutti i bottoni');
         console.log('📊 Stato slot corrente:', Array.from(this.slotsStatus.entries()));
-        
+
         this.slotsStatus.forEach((slot, slotId) => {
             console.log(`🔄 Aggiornamento bottone per slot ${slotId}:`, slot);
             this.updateSlotButton(slotId, slot.status, slot);

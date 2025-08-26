@@ -93,6 +93,9 @@ app.use('/api/sse', sseRoutes);
 const spaziRoutes = require('./routes/spazi');
 app.use('/api/spazi', spaziRoutes);
 
+// Log delle route caricate
+console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.path).filter(Boolean));
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
@@ -194,6 +197,29 @@ app.get('/api/debug/sedi-test', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// Endpoint di test per le route spazi
+app.get('/api/test-spazi', (req, res) => {
+  res.json({
+    message: 'Route spazi test successful',
+    origin: req.headers.origin,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    test: 'Questo endpoint dovrebbe funzionare come /api/spazi'
+  });
+});
+
+// Endpoint di test per disponibilità slot
+app.get('/api/test-disponibilita-slot', (req, res) => {
+  const { id_spazio, data } = req.query;
+  res.json({
+    message: 'Test disponibilità slot senza auth',
+    id_spazio,
+    data,
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Avvia il cron job per le scadenze
