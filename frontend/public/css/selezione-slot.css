@@ -1,5 +1,11 @@
 /* ===== STILI PER I BOTTONI DEGLI SLOT ===== */
 
+/* Override Bootstrap per rimuovere background grigio */
+.btn {
+    background-color: transparent !important;
+    border: 2px solid #dee2e6 !important;
+}
+
 /* Stati degli slot - solo colori, nessun sfondo grigio */
 .slot-available {
     background-color: #28a745 !important;
