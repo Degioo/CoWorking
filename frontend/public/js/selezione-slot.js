@@ -51,7 +51,18 @@ async function checkAvailability(orarioInizio, orarioFine) {
     console.log('🔍 checkAvailability chiamato per:', { orarioInizio, orarioFine });
 
     try {
-        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${window.selectedSpazio.id_spazio}/disponibilita`, {
+        // Formatta la data selezionata per l'API
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const dataSelezionata = formatDate(window.selectedDateInizio);
+        console.log('📅 Data per verifica disponibilità:', dataSelezionata);
+
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${window.selectedSpazio.id_spazio}/disponibilita-slot/${dataSelezionata}`, {
             headers: getAuthHeaders()
         });
 
@@ -59,8 +70,29 @@ async function checkAvailability(orarioInizio, orarioFine) {
             const disponibilita = await response.json();
             console.log('📋 Disponibilità per lo spazio:', disponibilita);
 
-            // Verifica se lo spazio è disponibile per la data e orario selezionati
-            return disponibilita.disponibile;
+            // Verifica se gli slot selezionati sono disponibili
+            if (disponibilita.success && disponibilita.data) {
+                const orarioInizioHour = parseInt(orarioInizio.split(':')[0]);
+                const orarioFineHour = parseInt(orarioFine.split(':')[0]);
+                
+                // Controlla se tutti gli slot nell'intervallo sono disponibili
+                for (let hour = orarioInizioHour; hour < orarioFineHour; hour++) {
+                    const orarioSlot = `${hour.toString().padStart(2, '0')}:00`;
+                    const slot = disponibilita.data.find(s => s.orario === orarioSlot);
+                    
+                    if (!slot || slot.status !== 'available') {
+                        console.log(`❌ Slot ${orarioSlot} non disponibile:`, slot);
+                        return false;
+                    }
+                }
+                
+                console.log('✅ Tutti gli slot sono disponibili');
+                return true;
+            }
+            
+            return false;
+        } else {
+            console.error('❌ Errore API disponibilità:', response.status, response.statusText);
         }
     } catch (error) {
         console.error('❌ Errore verifica disponibilità:', error);
