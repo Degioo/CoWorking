@@ -973,6 +973,8 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             dataFineLocale: dataFineLocale.toString(),
             dataInizioISO: dataInizioLocale.toISOString(),
             dataFineISO: dataFineLocale.toISOString(),
+            dataInizioLocalString: dataInizioLocale.toString(),
+            dataFineLocalString: dataFineLocale.toString(),
             timezoneLocale: 'Mantenuto locale senza conversione',
             parametriOriginali: { dal, al, orarioInizio, orarioFine }
         });
@@ -1004,6 +1006,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         });
 
         // Crea l'oggetto prenotazione
+        // IMPORTANTE: Salva le date come stringhe locali per evitare problemi di timezone
         prenotazioneData = {
             id_sede: parseInt(sede),
             id_spazio: parseInt(spazio),
@@ -1013,6 +1016,9 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             orario_fine: orarioFine,
             durata_ore: parseFloat(durataOre),
             importo: importo,
+            // Dati per la visualizzazione - SALVA DATE LOCALI
+            data_inizio_local: dataInizioLocale.toString(),
+            data_fine_local: dataFineLocale.toString(),
             // Dati per la visualizzazione
             sede: { id_sede: parseInt(sede) },
             spazio: { id_spazio: parseInt(spazio) }
@@ -1052,13 +1058,43 @@ function populatePrenotazioneDetails() {
         importo: data.importo
     });
 
-    const dataInizio = new Date(data.data_inizio);
-    const dataFine = new Date(data.data_fine);
+    // IMPORTANTE: Usa le date locali salvate per evitare problemi di timezone
+    let dataInizio, dataFine;
+    
+    if (data.data_inizio_local && data.data_fine_local) {
+        // Usa le date locali salvate
+        dataInizio = new Date(data.data_inizio_local);
+        dataFine = new Date(data.data_fine_local);
+        console.log('populatePrenotazioneDetails - Usando date locali salvate:', {
+            data_inizio_local: data.data_inizio_local,
+            data_fine_local: data.data_fine_local,
+            dataInizio: dataInizio.toString(),
+            dataFine: dataFine.toString()
+        });
+    } else {
+        // Fallback alle date ISO (per compatibilità)
+        dataInizio = new Date(data.data_inizio);
+        dataFine = new Date(data.data_fine);
+        console.log('populatePrenotazioneDetails - Fallback a date ISO:', {
+            data_inizio: data.data_inizio,
+            data_fine: data.data_fine,
+            dataInizio: dataInizio.toString(),
+            dataFine: dataFine.toString()
+        });
+    }
 
     // Calcola la durata in ore (considerando anche i minuti)
     // IMPORTANTE: Usa le date locali per il calcolo corretto
     const durataMs = dataFine - dataInizio;
     const durataOre = Math.max(0.5, parseFloat((durataMs / (1000 * 60 * 60)).toFixed(1)));
+    
+    console.log('populatePrenotazioneDetails - Calcolo durata:', {
+        dataInizio: dataInizio.toString(),
+        dataFine: dataFine.toString(),
+        durataMs: durataMs,
+        durataOre: durataOre,
+        diffOre: durataMs / (1000 * 60 * 60)
+    });
 
     // Calcola l'importo (10€/ora, minimo 5€)
     const importo = Math.max(5, Math.round(durataOre * 10));
@@ -1139,7 +1175,10 @@ function populatePrenotazioneDetails() {
             dataInizioOriginale: dataInizio.toString(),
             dataFineOriginale: dataFine.toString(),
             dataInizioISO: data.data_inizio,
-            dataFineISO: data.data_fine
+            dataFineISO: data.data_fine,
+            dataInizioLocal: data.data_inizio_local,
+            dataFineLocal: data.data_fine_local,
+            orariSalvati: { orario_inizio: data.orario_inizio, orario_fine: data.orario_fine }
         });
     } else {
         // Usa la visualizzazione standard
@@ -1152,7 +1191,9 @@ function populatePrenotazioneDetails() {
             dataInizioOriginale: dataInizio.toString(),
             dataFineOriginale: dataFine.toString(),
             dataInizioISO: data.data_inizio,
-            dataFineISO: data.data_fine
+            dataFineISO: data.data_fine,
+            dataInizioLocal: data.data_inizio_local,
+            dataFineLocal: data.data_fine_local
         });
     }
 
