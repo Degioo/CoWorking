@@ -22,7 +22,8 @@ let slotManager = {
         console.log('🚀 Inizializzazione Slot Manager');
 
         // SISTEMA DI POLLING INTELLIGENTE PER GESTIONE CONCORRENZA
-        this.startConcurrencyPolling();
+        // TEMPORANEAMENTE DISABILITATO PER EVITARE LOOP INFINITO
+        // this.startConcurrencyPolling();
 
         // Aggiornamento iniziale
         this.updateAllSlots();
@@ -31,7 +32,7 @@ let slotManager = {
     // SISTEMA DI POLLING INTELLIGENTE PER GESTIONE CONCORRENZA
     startConcurrencyPolling() {
         console.log('🔄 Avvio sistema polling concorrenza (10s)');
-        
+
         // Polling ogni 10 secondi per gestire concorrenza
         this.concurrencyInterval = setInterval(async () => {
             if (this.initialized && selectedSpazio) {
@@ -39,7 +40,7 @@ let slotManager = {
                 await this.updateConcurrencyStatus();
             }
         }, 10000); // 10 secondi
-        
+
         // Aggiungi pulsante manuale per aggiornamento
         this.addManualUpdateButton();
     },
@@ -48,7 +49,7 @@ let slotManager = {
     addManualUpdateButton() {
         const container = document.querySelector('.slot-selector');
         if (!container) return;
-        
+
         // Crea pulsante se non esiste
         if (!document.getElementById('btnUpdateConcurrency')) {
             const updateButton = document.createElement('button');
@@ -56,7 +57,7 @@ let slotManager = {
             updateButton.className = 'btn btn-outline-primary btn-sm ms-2';
             updateButton.innerHTML = '🔄 Aggiorna Concorrenza';
             updateButton.onclick = () => this.updateConcurrencyStatus();
-            
+
             // Inserisci dopo il titolo
             const title = container.querySelector('h3, h4, h5');
             if (title) {
@@ -212,11 +213,11 @@ let slotManager = {
             const response = await fetch(`${window.CONFIG.API_BASE}/concorrenza/spazi/${selectedSpazio.id_spazio}/stato-concorrenza`, {
                 headers: getAuthHeaders()
             });
-            
+
             if (response.ok) {
                 const statoConcorrenza = await response.json();
                 console.log('📊 Stato concorrenza aggiornato:', statoConcorrenza);
-                
+
                 // Aggiorna slot con stato concorrenza
                 this.updateSlotsFromConcurrency(statoConcorrenza);
             }

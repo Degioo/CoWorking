@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+const pool = require('../db');
 
 // Gestisce lo stato di concorrenza per uno spazio specifico
 exports.getStatoConcorrenza = async (req, res) => {
@@ -119,3 +119,5 @@ exports.getStatoConcorrenza = async (req, res) => {
         res.status(500).json({ error: 'Errore server: ' + err.message });
     }
 };
+
+

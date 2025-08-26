@@ -8,3 +8,5 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/spazi/:id/stato-concorrenza', authenticateToken, concorrenzaController.getStatoConcorrenza);
 
 module.exports = router;
+
+
