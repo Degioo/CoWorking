@@ -629,3 +629,112 @@ div.time-slot.intermediate.btn * {
         box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
     }
 }
+
+/* ===== STILI PER I BOTTONI DEGLI SLOT ===== */
+
+/* Stati degli slot - solo colori, nessun sfondo grigio */
+.slot-available {
+    background-color: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+}
+
+.slot-available:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.slot-selected {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+.slot-selected:hover {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+.slot-intermediate {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    border-color: #17a2b8 !important;
+    opacity: 0.8;
+}
+
+.slot-intermediate:hover {
+    background-color: #138496 !important;
+    border-color: #117a8b !important;
+    opacity: 1;
+}
+
+.slot-booked {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    cursor: not-allowed;
+}
+
+.slot-booked:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+    transform: none;
+    box-shadow: none;
+}
+
+.slot-occupied {
+    background-color: #fd7e14 !important;
+    color: white !important;
+    border-color: #fd7e14 !important;
+    cursor: not-allowed;
+}
+
+.slot-occupied:hover {
+    background-color: #e8690b !important;
+    border-color: #d63384 !important;
+    transform: none;
+    box-shadow: none;
+}
+
+.slot-past {
+    background-color: #6c757d !important;
+    color: #adb5bd !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+.slot-past:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Container degli slot - solo spacing, no sfondo grigio */
+#timeSlots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+/* Responsive design per i bottoni */
+@media (max-width: 768px) {
+    #timeSlots {
+        gap: 10px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    #timeSlots {
+        gap: 8px;
+        padding: 10px;
+    }
+}

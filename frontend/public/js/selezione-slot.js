@@ -439,7 +439,7 @@ function createTimeSlots() {
         console.log('🔨 Creo slot per orario:', orario);
 
         const slot = document.createElement('button');
-        slot.className = 'btn slot-button slot-available';
+        slot.className = 'btn btn-lg slot-button slot-available';
         slot.textContent = orario;
         slot.dataset.orario = orario;
         slot.dataset.slotId = i + 1; // ID univoco per ogni slot
@@ -495,7 +495,7 @@ async function displayTimeSlots(disponibilita) {
         console.log('🔨 Creo slot per orario:', orario);
 
         const slot = document.createElement('button');
-        slot.className = 'btn slot-button slot-available';
+        slot.className = 'btn btn-lg slot-button slot-available';
         slot.textContent = orario;
         slot.dataset.orario = orario;
         slot.dataset.slotId = i + 1; // ID univoco per ogni slot
