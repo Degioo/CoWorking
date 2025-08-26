@@ -241,7 +241,10 @@ main.container {
     transform: translateX(400px) scale(0.8) !important;
     /* Nascondi a destra */
     opacity: 0 !important;
-    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    /* ✅ ANIMAZIONE MIGLIORATA: Transizione più fluida e elegante */
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    /* Aggiungi transizione per il movimento della pagina */
+    scroll-behavior: smooth !important;
 }
 
 /* Nascondi riepilogo di default */
@@ -259,6 +262,26 @@ main.container {
     background: linear-gradient(135deg, #007bff 80%, #28a745 100%) !important;
     /* Blu molto dominante, verde solo all'angolo */
     box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4) !important;
+    /* ✅ ANIMAZIONE PAGINA: Effetto di "spinta" verso il basso */
+    animation: summaryAppear 0.8s ease-out forwards !important;
+}
+
+/* ✅ KEYFRAME PER ANIMAZIONE COMPARSA RIEPILOGO */
+@keyframes summaryAppear {
+    0% {
+        transform: translateX(400px) scale(0.8) !important;
+        opacity: 0 !important;
+    }
+    
+    50% {
+        transform: translateX(0) scale(1.05) !important;
+        opacity: 0.8 !important;
+    }
+    
+    100% {
+        transform: translateX(0) scale(1) !important;
+        opacity: 1 !important;
+    }
 }
 
 /* NO HOVER EFFECT - Mantieni stile fisso */
@@ -502,26 +525,26 @@ main.container {
     .auth-modal-dialog {
         margin: 10px !important;
     }
-    
+
     .auth-modal-header {
         padding: 20px !important;
     }
-    
+
     .auth-modal-body {
         padding: 20px !important;
     }
-    
+
     .auth-modal-footer {
         padding: 20px !important;
         flex-direction: column !important;
     }
-    
+
     .auth-summary-row {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 5px !important;
     }
-    
+
     .auth-summary-value {
         text-align: left !important;
     }
@@ -568,4 +591,38 @@ main.container {
         padding: 10px 20px !important;
         font-size: 14px !important;
     }
+}
+
+/* ✅ ANIMAZIONI PAGINA PER SCORRIMENTO FLUIDO */
+html {
+    scroll-behavior: smooth !important;
+}
+
+body {
+    /* ✅ TRANSIZIONE FLUIDA PER MOVIMENTO PAGINA */
+    transition: scroll-behavior 0.3s ease-in-out !important;
+}
+
+/* ✅ EFFETTO DI "SPINTA" QUANDO IL RIEPILOGO APPARA */
+.summary-card.active {
+    /* ✅ ANIMAZIONE PAGINA: Effetto di "spinta" verso il basso */
+    animation: summaryAppear 0.8s ease-out forwards !important;
+}
+
+/* ✅ ANIMAZIONE COMPLEMENTARE PER IL MOVIMENTO DELLA PAGINA */
+@keyframes pageScroll {
+    0% {
+        transform: translateY(0) !important;
+    }
+    
+    100% {
+        transform: translateY(-20px) !important;
+    }
+}
+
+/* ✅ APPLICA ANIMAZIONE ALLA PAGINA QUANDO IL RIEPILOGO È ATTIVO */
+.summary-card.active ~ * {
+    animation: pageScroll 0.8s ease-out forwards !important;
+}
+
 }

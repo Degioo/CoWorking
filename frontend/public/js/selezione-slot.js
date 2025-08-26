@@ -782,7 +782,28 @@ function showSummary() {
     if (summaryCard) {
         summaryCard.classList.remove('hidden');
         summaryCard.classList.add('active');
+        
+        // Aggiorna il riepilogo con i dati attuali
         updateSummary();
+        
+        // ✅ ANIMAZIONE: Scorri la pagina verso il basso per mostrare il riepilogo
+        setTimeout(() => {
+            console.log('🎬 Avvio animazione scorrimento pagina verso il basso...');
+            
+            // Calcola la posizione del riepilogo
+            const summaryPosition = summaryCard.offsetTop;
+            const windowHeight = window.innerHeight;
+            const scrollTarget = summaryPosition - (windowHeight * 0.2); // Mostra con 20% di margine sopra
+            
+            // Scorri con animazione fluida
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth',
+                duration: 1000
+            });
+            
+            console.log('✅ Animazione scorrimento completata, riepilogo ora visibile');
+        }, 300); // Aspetta 300ms per permettere all'animazione del riepilogo di iniziare
     }
 }
 
