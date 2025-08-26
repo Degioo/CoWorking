@@ -113,7 +113,7 @@ async function initializePage() {
         } else {
             console.log('⏳ Sedi non ancora caricate, rimando inizializzazione slot manager...');
         }
-        
+
         // Nascondi il riepilogo all'inizializzazione
         hideSummary();
 
@@ -680,14 +680,14 @@ function showInfo(message) {
 // Aggiorna riepilogo
 function updateSummary() {
     console.log('📋 Aggiornamento riepilogo');
-    
+
     // Aggiorna i campi del riepilogo
     const summarySede = document.getElementById('summarySede');
     const summaryStanza = document.getElementById('summaryStanza');
     const summaryData = document.getElementById('summaryData');
     const summaryOrario = document.getElementById('summaryOrario');
     const summaryPrezzo = document.getElementById('summaryPrezzo');
-    
+
     if (summarySede) summarySede.textContent = window.selectedSede ? window.selectedSede.nome : '-';
     if (summaryStanza) summaryStanza.textContent = window.selectedSpazio ? window.selectedSpazio.nome : '-';
     if (summaryData) summaryData.textContent = window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : '-';

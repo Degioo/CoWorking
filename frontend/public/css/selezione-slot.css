@@ -6,6 +6,25 @@
     border: 2px solid #dee2e6 !important;
 }
 
+/* ===== STILI SPECIFICI PER BOTTONI SLOT ===== */
+
+/* Bottoni slot - dimensioni e spacing ottimizzati */
+.slot-button {
+    min-width: 80px !important;
+    min-height: 50px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    margin: 5px !important; /* Spacing aggiuntivo tra bottoni */
+}
+
+/* Hover per tutti i bottoni slot */
+.slot-button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Stati degli slot - CSS ULTRA-SPECIFICO per sovrascrivere Bootstrap */
 .btn.slot-available,
 button.slot-available,
@@ -104,10 +123,113 @@ button.slot-past,
 #timeSlots {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 20px !important; /* Aumentato spacing tra bottoni */
     justify-content: center;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 30px !important; /* Aumentato padding interno */
+    margin: 30px 0 !important; /* Aumentato margin esterno */
+}
+
+/* Spacing tra sezioni principali */
+.slot-selector {
+    margin-bottom: 40px !important; /* Spacing sedi dal calendario */
+}
+
+.calendar-container {
+    margin-bottom: 50px !important; /* Spacing calendario dal riepilogo */
+}
+
+.summary-card {
+    margin-bottom: 40px !important; /* Spacing riepilogo dai bottoni */
+}
+
+/* Bottoni azione - posizionamento fisso in fondo */
+.action-buttons {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    padding: 20px !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1) !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+}
+
+/* Aggiungi padding bottom al main per i bottoni fissi */
+main.container {
+    padding-bottom: 100px !important;
+}
+
+/* ===== ANIMAZIONI BOTTONI AZIONE ===== */
+
+/* Bottoni personalizzati con animazioni */
+.btn-custom {
+    transition: all 0.3s ease !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Bottone Torna Indietro */
+.btn-back {
+    background: linear-gradient(45deg, #6c757d, #495057) !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+}
+
+.btn-back:hover {
+    background: linear-gradient(45deg, #495057, #343a40) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+}
+
+/* Bottone Prenota Ora */
+.btn-book {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+.btn-book:hover {
+    background: linear-gradient(45deg, #20c997, #17a2b8) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+}
+
+/* Bottone disabilitato */
+.btn-book:disabled {
+    background: linear-gradient(45deg, #6c757d, #495057) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2) !important;
+}
+
+/* Effetto ripple sui bottoni */
+.btn-custom::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s, height 0.6s !important;
+}
+
+.btn-custom:active::before {
+    width: 300px !important;
+    height: 300px !important;
 }
 
 /* Responsive design per i bottoni */
@@ -137,6 +259,7 @@ button.slot-past,
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
