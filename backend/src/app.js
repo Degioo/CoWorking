@@ -89,6 +89,10 @@ app.use('/api/concorrenza', concorrenzaRoutes);
 const sseRoutes = require('./routes/sse');
 app.use('/api/sse', sseRoutes);
 
+// Rotte per spazi (endpoint pubblici per disponibilità)
+const spaziRoutes = require('./routes/spazi');
+app.use('/api/spazi', spaziRoutes);
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({

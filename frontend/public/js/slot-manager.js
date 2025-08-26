@@ -34,9 +34,12 @@ class SlotManager {
             // Connessione SSE per aggiornamenti real-time
             this.connectSSE();
         } else {
-            console.log('👤 SlotManager - Utente non autenticato, modalità base senza SSE');
-            // Modalità base: tutti gli slot sono disponibili per selezione
-            this.initializeBasicMode();
+            console.log('👤 SlotManager - Utente non autenticato, carico stato slot senza SSE');
+            // Utenti non autenticati vedono lo stato reale degli slot
+            // ma non ricevono aggiornamenti real-time
+            this.loadInitialSlotsStatus();
+            // Gestisci utente non autenticato dopo caricamento stato
+            setTimeout(() => this.handleUnauthenticatedUser(), 100);
         }
     }
 
@@ -45,16 +48,24 @@ class SlotManager {
         try {
             // Ottieni il token di autenticazione
             const token = localStorage.getItem('token');
-            if (!token) {
-                console.error('❌ SlotManager - Token di autenticazione mancante per stato iniziale');
-                return;
+            
+            let response;
+            
+            if (token) {
+                // Utente autenticato: usa endpoint protetto
+                response = await fetch(`${window.CONFIG.API_BASE}/sse/slots-status/${this.currentSede}/${this.currentSpazio}/${this.currentDate}?token=${encodeURIComponent(token)}`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } else {
+                // Utente non autenticato: usa endpoint pubblico per stato slot
+                response = await fetch(`${window.CONFIG.API_BASE}/spazi/${this.currentSpazio}/disponibilita-slot/${this.currentDate}`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
             }
-
-            const response = await fetch(`${window.CONFIG.API_BASE}/sse/slots-status/${this.currentSede}/${this.currentSpazio}/${this.currentDate}?token=${encodeURIComponent(token)}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
 
             if (response.ok) {
                 const data = await response.json();
@@ -330,26 +341,18 @@ class SlotManager {
         console.log('🧹 SlotManager - Pulizia completata');
     }
 
-    // Modalità base per utenti non autenticati
-    initializeBasicMode() {
-        console.log('👤 SlotManager - Inizializzazione modalità base');
+    // Metodo per gestire utenti non autenticati
+    handleUnauthenticatedUser() {
+        console.log('👤 SlotManager - Gestione utente non autenticato');
         
-        // In modalità base, tutti gli slot sono disponibili
-        // Non carichiamo stati dal backend, tutti i bottoni sono verdi
-        this.updateAllButtonsToAvailable();
-    }
-
-    // Aggiorna tutti i bottoni a disponibili (modalità base)
-    updateAllButtonsToAvailable() {
+        // Per utenti non autenticati, disabilita la prenotazione
+        // ma mantieni la visualizzazione dello stato reale degli slot
         const allButtons = document.querySelectorAll('[data-slot-id]');
         allButtons.forEach(button => {
-            button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
-            button.classList.add('btn-success', 'slot-available');
-            button.disabled = false;
-            button.title = 'Slot disponibile (login richiesto per prenotazione)';
+            if (button.classList.contains('slot-available')) {
+                button.title = 'Slot disponibile (login richiesto per prenotazione)';
+            }
         });
-        
-        console.log('✅ SlotManager - Modalità base: tutti gli slot impostati come disponibili');
     }
 
     // Riconnetti manualmente
