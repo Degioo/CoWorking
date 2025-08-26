@@ -70,24 +70,24 @@ async function checkAvailability(orarioInizio, orarioFine) {
             const disponibilita = await response.json();
             console.log('📋 Disponibilità per lo spazio:', disponibilita);
 
-                        // Verifica se gli slot selezionati sono disponibili
+            // Verifica se gli slot selezionati sono disponibili
             if (disponibilita.success && disponibilita.data && disponibilita.data.slots) {
                 const orarioInizioHour = parseInt(orarioInizio.split(':')[0]);
                 const orarioFineHour = parseInt(orarioFine.split(':')[0]);
-                
+
                 console.log('🔍 Verifico disponibilità slot:', disponibilita.data.slots);
-                
+
                 // Controlla se tutti gli slot nell'intervallo sono disponibili
                 for (let hour = orarioInizioHour; hour < orarioFineHour; hour++) {
                     const orarioSlot = `${hour.toString().padStart(2, '0')}:00`;
                     const slot = disponibilita.data.slots.find(s => s.orario === orarioSlot);
-                    
+
                     if (!slot || slot.status !== 'available') {
                         console.log(`❌ Slot ${orarioSlot} non disponibile:`, slot);
                         return false;
                     }
                 }
-                
+
                 console.log('✅ Tutti gli slot sono disponibili');
                 return true;
             }
@@ -716,6 +716,27 @@ function showInfo(message) {
     console.log('ℹ️ Info:', message);
 }
 
+// Calcola il prezzo della prenotazione
+function calculatePrice() {
+    if (!window.selectedTimeInizio || !window.selectedTimeFine) {
+        return 0;
+    }
+    
+    // Calcola le ore totali
+    const orarioInizio = parseInt(window.selectedTimeInizio.split(':')[0]);
+    const orarioFine = parseInt(window.selectedTimeFine.split(':')[0]);
+    const oreTotali = orarioFine - orarioInizio;
+    
+    // Prezzo base per ora (€15/ora)
+    const prezzoPerOra = 15;
+    const prezzoTotale = oreTotali * prezzoPerOra;
+    
+    console.log(`⏰ Ore calcolate: ${orarioInizio}:00 - ${orarioFine}:00 = ${oreTotali} ore`);
+    console.log(`💰 Prezzo: ${oreTotali} ore × €${prezzoPerOra} = €${prezzoTotale}`);
+    
+    return prezzoTotale;
+}
+
 // Aggiorna riepilogo
 function updateSummary() {
     console.log('📋 Aggiornamento riepilogo');
@@ -731,7 +752,13 @@ function updateSummary() {
     if (summaryStanza) summaryStanza.textContent = window.selectedSpazio ? window.selectedSpazio.nome : '-';
     if (summaryData) summaryData.textContent = window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : '-';
     if (summaryOrario) summaryOrario.textContent = window.selectedTimeInizio && window.selectedTimeFine ? `${window.selectedTimeInizio} - ${window.selectedTimeFine}` : '-';
-    if (summaryPrezzo) summaryPrezzo.textContent = '0'; // TODO: Calcola prezzo reale
+    
+    // Calcola il prezzo reale
+    if (summaryPrezzo) {
+        const prezzo = calculatePrice();
+        summaryPrezzo.textContent = `€${prezzo.toFixed(2)}`;
+        console.log('💰 Prezzo calcolato:', prezzo);
+    }
 }
 
 // Mostra riepilogo
