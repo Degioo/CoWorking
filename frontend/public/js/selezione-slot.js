@@ -331,6 +331,51 @@ function setupEventListeners() {
         });
     }
 
+    // Event listener per il bottone "Prenota Ora"
+    const btnBook = document.getElementById('btnBook');
+    if (btnBook) {
+        btnBook.addEventListener('click', async function() {
+            console.log('🎯 Bottone Prenota Ora cliccato');
+            
+            // Controlla se l'utente è autenticato
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                // Utente non autenticato: mostra modal di login
+                console.log('👤 Utente non autenticato, mostro modal di login');
+                if (window.showAuthModal) {
+                    window.showAuthModal();
+                } else {
+                    // Fallback: reindirizza alla pagina di login
+                    window.location.href = '/login.html';
+                }
+                return;
+            }
+            
+            // Utente autenticato: procedi con la prenotazione
+            console.log('🔐 Utente autenticato, procedo con prenotazione');
+            
+            // Verifica che tutti i campi siano selezionati
+            if (!window.selectedSede || !window.selectedSpazio || !window.selectedDateInizio || !window.selectedTimeInizio || !window.selectedTimeFine) {
+                showError('Seleziona tutti i campi richiesti prima di procedere');
+                return;
+            }
+            
+            // Crea l'URL per la pagina di pagamento con i parametri
+            const params = new URLSearchParams({
+                sede: window.selectedSede.id_sede,
+                spazio: window.selectedSpazio.id_spazio,
+                data_inizio: window.selectedDateInizio.toISOString().split('T')[0],
+                data_fine: window.selectedDateFine.toISOString().split('T')[0],
+                time_inizio: window.selectedTimeInizio,
+                time_fine: window.selectedTimeFine
+            });
+            
+            // Reindirizza alla pagina di pagamento
+            window.location.href = `/pagamento.html?${params.toString()}`;
+        });
+    }
+
     console.log('✅ Event listener configurati');
 }
 
@@ -415,6 +460,16 @@ async function displayTimeSlots(disponibilita) {
     // Inizializza il slot manager se tutto è pronto
     if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio) {
         initializeSlotManager();
+    } else {
+        // Se non abbiamo ancora tutte le informazioni, mostra tutti gli slot come disponibili
+        // (modalità base per utenti non autenticati)
+        const allButtons = document.querySelectorAll('[data-slot-id]');
+        allButtons.forEach(button => {
+            button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
+            button.classList.add('btn-success', 'slot-available');
+            button.disabled = false;
+            button.title = 'Clicca per selezionare orario inizio/fine';
+        });
     }
 
     if (orariApertura.length === 0) {
@@ -491,6 +546,23 @@ async function selectTimeSlot(orario, slotElement) {
 
         // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
         console.log('🔍 Verifica disponibilità finale prima di abilitare il bottone...');
+        
+        // Controlla se l'utente è autenticato
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            // Utente non autenticato: abilita bottone per reindirizzamento al login
+            console.log('👤 Utente non autenticato, abilito bottone per reindirizzamento al login');
+            document.getElementById('btnBook').disabled = false;
+            document.getElementById('btnBook').textContent = 'Prenota Ora (Login Richiesto)';
+            document.getElementById('btnBook').classList.add('btn-warning');
+            
+            // Mostra messaggio informativo
+            showInfo('Orari selezionati! Effettua il login per completare la prenotazione.');
+            return;
+        }
+        
+        // Utente autenticato: verifica disponibilità
         const disponibile = await checkAvailability(window.selectedTimeInizio, window.selectedTimeFine);
 
         if (!disponibile) {
@@ -539,6 +611,12 @@ function showError(message) {
     console.error('❌ Errore:', message);
 }
 
+// Mostra messaggio informativo
+function showInfo(message) {
+    // Implementa la logica per mostrare il messaggio informativo
+    console.log('ℹ️ Info:', message);
+}
+
 // Aggiorna riepilogo
 function updateSummary() {
     // Implementa la logica per aggiornare il riepilogo
@@ -565,3 +643,66 @@ function getAuthHeaders() {
         'Content-Type': 'application/json'
     };
 }
+
+// Funzione per mostrare il modal di autenticazione
+function showAuthModal() {
+    console.log('🔐 Mostro modal di autenticazione');
+    
+    // Crea il modal HTML se non esiste
+    if (!document.getElementById('authModal')) {
+        const modalHTML = `
+            <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="authModalLabel">🔐 Autenticazione Richiesta</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Per completare la prenotazione devi effettuare il login o registrarti.</p>
+                            <p><strong>Orari selezionati:</strong></p>
+                            <ul>
+                                <li><strong>Sede:</strong> ${window.selectedSede ? window.selectedSede.nome : 'Non selezionata'}</li>
+                                <li><strong>Spazio:</strong> ${window.selectedSpazio ? window.selectedSpazio.nome : 'Non selezionato'}</li>
+                                <li><strong>Data:</strong> ${window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : 'Non selezionata'}</li>
+                                <li><strong>Orario:</strong> ${window.selectedTimeInizio ? window.selectedTimeInizio + ' - ' + window.selectedTimeFine : 'Non selezionato'}</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-primary" onclick="goToLogin()">Vai al Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    // Mostra il modal
+    const modal = new bootstrap.Modal(document.getElementById('authModal'));
+    modal.show();
+}
+
+// Funzione per andare al login
+function goToLogin() {
+    // Salva i dati della selezione nel localStorage per ripristinarli dopo il login
+    const selectionData = {
+        sede: window.selectedSede,
+        spazio: window.selectedSpazio,
+        data_inizio: window.selectedDateInizio ? window.selectedDateInizio.toISOString() : null,
+        data_fine: window.selectedDateFine ? window.selectedDateFine.toISOString() : null,
+        time_inizio: window.selectedTimeInizio,
+        time_fine: window.selectedTimeFine
+    };
+    
+    localStorage.setItem('pendingSelection', JSON.stringify(selectionData));
+    
+    // Reindirizza alla pagina di login
+    window.location.href = '/login.html';
+}
+
+// Rendi le funzioni disponibili globalmente
+window.showAuthModal = showAuthModal;
+window.goToLogin = goToLogin;

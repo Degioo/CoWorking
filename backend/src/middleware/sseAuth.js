@@ -9,11 +9,27 @@ const authenticateSSEToken = (req, res, next) => {
         // Cerca il token nella query string
         const token = req.query.token;
         
+        console.log('🔍 SSE Auth Debug:', {
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0,
+            tokenStart: token ? token.substring(0, 20) + '...' : 'none',
+            hasJWTSecret: !!process.env.JWT_SECRET,
+            jwtSecretLength: process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0
+        });
+
         if (!token) {
             console.log('❌ SSE Auth: Token mancante nella query string');
-            return res.status(401).json({ 
-                success: false, 
-                error: 'Token di autenticazione richiesto' 
+            return res.status(401).json({
+                success: false,
+                error: 'Token di autenticazione richiesto'
+            });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            console.error('❌ SSE Auth: JWT_SECRET non configurato');
+            return res.status(500).json({
+                success: false,
+                error: 'Configurazione server non valida'
             });
         }
 
@@ -21,9 +37,14 @@ const authenticateSSEToken = (req, res, next) => {
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 console.log('❌ SSE Auth: Token non valido:', err.message);
-                return res.status(401).json({ 
-                    success: false, 
-                    error: 'Token non valido' 
+                console.log('🔍 SSE Auth: Dettagli errore JWT:', {
+                    name: err.name,
+                    message: err.message,
+                    expiredAt: err.expiredAt
+                });
+                return res.status(401).json({
+                    success: false,
+                    error: 'Token non valido'
                 });
             }
 
@@ -35,9 +56,9 @@ const authenticateSSEToken = (req, res, next) => {
 
     } catch (error) {
         console.error('❌ SSE Auth: Errore durante autenticazione:', error);
-        return res.status(500).json({ 
-            success: false, 
-            error: 'Errore durante autenticazione' 
+        return res.status(500).json({
+            success: false,
+            error: 'Errore durante autenticazione'
         });
     }
 };

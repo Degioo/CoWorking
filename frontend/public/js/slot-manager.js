@@ -24,11 +24,20 @@ class SlotManager {
 
         console.log('🚀 SlotManager - Inizializzazione per:', { sedeId, spazioId, date });
 
-        // Carica stato iniziale degli slot
-        this.loadInitialSlotsStatus();
-
-        // Connessione SSE per aggiornamenti real-time
-        this.connectSSE();
+        // Controlla se l'utente è autenticato
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+            console.log('🔐 SlotManager - Utente autenticato, attivo modalità SSE');
+            // Carica stato iniziale degli slot
+            this.loadInitialSlotsStatus();
+            // Connessione SSE per aggiornamenti real-time
+            this.connectSSE();
+        } else {
+            console.log('👤 SlotManager - Utente non autenticato, modalità base senza SSE');
+            // Modalità base: tutti gli slot sono disponibili per selezione
+            this.initializeBasicMode();
+        }
     }
 
     // Carica stato iniziale degli slot
@@ -72,7 +81,7 @@ class SlotManager {
             // Crea URL con token nella query string per autenticazione SSE
             const url = `${window.CONFIG.API_BASE}/sse/status-stream?token=${encodeURIComponent(token)}`;
             console.log('🔗 SlotManager - Connessione SSE con URL:', url);
-            
+
             this.eventSource = new EventSource(url);
 
             this.eventSource.onopen = () => {
@@ -319,6 +328,28 @@ class SlotManager {
 
         this.isConnected = false;
         console.log('🧹 SlotManager - Pulizia completata');
+    }
+
+    // Modalità base per utenti non autenticati
+    initializeBasicMode() {
+        console.log('👤 SlotManager - Inizializzazione modalità base');
+        
+        // In modalità base, tutti gli slot sono disponibili
+        // Non carichiamo stati dal backend, tutti i bottoni sono verdi
+        this.updateAllButtonsToAvailable();
+    }
+
+    // Aggiorna tutti i bottoni a disponibili (modalità base)
+    updateAllButtonsToAvailable() {
+        const allButtons = document.querySelectorAll('[data-slot-id]');
+        allButtons.forEach(button => {
+            button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
+            button.classList.add('btn-success', 'slot-available');
+            button.disabled = false;
+            button.title = 'Slot disponibile (login richiesto per prenotazione)';
+        });
+        
+        console.log('✅ SlotManager - Modalità base: tutti gli slot impostati come disponibili');
     }
 
     // Riconnetti manualmente
