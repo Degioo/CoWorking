@@ -72,6 +72,7 @@ async function getDisponibilitaSlot(req, res) {
 
             // Controlla se l'orario è passato (solo per oggi)
             if (selectedDate.toDateString() === now.toDateString() && orarioHour <= now.getHours()) {
+                console.log(`⏰ Slot ${slotId} (${orario}) marcato come PASSATO - ora corrente: ${now.getHours()}:00`);
                 return {
                     id_slot: slotId,
                     orario: orario,
@@ -162,9 +163,59 @@ async function testEndpoint(req, res) {
     }
 }
 
+// Endpoint di test per simulare prenotazioni
+async function testSimulateBookings(req, res) {
+    try {
+        console.log('🧪 Test simulazione prenotazioni chiamato');
+        
+        // Simula alcune prenotazioni per test
+        const testBookings = [
+            {
+                id_slot: 1,
+                orario: '09:00',
+                status: 'booked',
+                title: 'Slot prenotato (TEST)'
+            },
+            {
+                id_slot: 2,
+                orario: '10:00',
+                status: 'occupied',
+                title: 'Slot occupato (TEST)',
+                hold_time_remaining: 15
+            },
+            {
+                id_slot: 3,
+                orario: '11:00',
+                status: 'past',
+                title: 'Orario passato (TEST)'
+            }
+        ];
+        
+        res.json({
+            success: true,
+            message: 'Simulazione prenotazioni per test',
+            data: {
+                spazio: {
+                    id: 1,
+                    nome: 'Spazio Test'
+                },
+                data: new Date().toISOString().split('T')[0],
+                slots: testBookings
+            }
+        });
+    } catch (error) {
+        console.error('❌ Errore test simulazione prenotazioni:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Errore test simulazione prenotazioni'
+        });
+    }
+}
+
 module.exports = {
     getDisponibilitaSlot,
-    testEndpoint
+    testEndpoint,
+    testSimulateBookings
 };
 
 

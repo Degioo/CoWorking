@@ -14,6 +14,9 @@ router.use((req, res, next) => {
 // Endpoint di test
 router.get('/test', spaziController.testEndpoint);
 
+// Endpoint di test per simulare prenotazioni
+router.get('/test-simulate-bookings', spaziController.testSimulateBookings);
+
 // Endpoint pubblico per ottenere disponibilità slot (senza autenticazione)
 router.get('/:id_spazio/disponibilita-slot/:data', spaziController.getDisponibilitaSlot);
 

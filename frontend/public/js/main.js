@@ -353,7 +353,7 @@ window.handleLogin = function (event, email, password) {
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
       console.log('🔍 handleLogin - Controllo pendingPrenotazione:', pendingPrenotazione);
-      
+
       if (pendingPrenotazione) {
         // Controlla se l'utente è arrivato dalla home o da una prenotazione
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';

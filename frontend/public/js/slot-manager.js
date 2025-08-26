@@ -216,6 +216,8 @@ class SlotManager {
 
     // Aggiorna singolo bottone slot
     updateSlotButton(slotId, status, slotData = {}) {
+        console.log(`🎯 SlotManager - Aggiornamento bottone slot ${slotId} con status: ${status}`, slotData);
+        
         // Cerca il bottone per data-slot-id o per orario
         let button = document.querySelector(`[data-slot-id="${slotId}"]`);
         if (!button) {
