@@ -599,7 +599,7 @@ async function selectTimeSlot(orario, slotElement) {
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.slot-button').forEach(slot => {
             // Rimuovi tutte le classi di stato
-            slot.classList.remove('slot-selected', 'slot-intermediate');
+            slot.classList.remove('slot-selected', 'slot-intermediate', 'slot-occupied', 'slot-booked', 'slot-expired', 'slot-past-time');
             // Ripristina la classe 'slot-available' per tutti gli slot
             slot.classList.add('slot-available');
             // Ripristina il titolo originale
@@ -613,12 +613,19 @@ async function selectTimeSlot(orario, slotElement) {
     // Se è il primo orario selezionato
     if (!selectedTimeInizio) {
         // Rimuovi selezione precedente
-        document.querySelectorAll('.slot-selected').forEach(s => s.classList.remove('slot-selected'));
+        document.querySelectorAll('.slot-selected').forEach(s => {
+            s.classList.remove('slot-selected');
+            s.classList.add('slot-available');
+        });
 
         // Seleziona il primo slot usando il nuovo SlotManager
         if (slotManager) {
             slotManager.selectSlot(slotElement.dataset.slotId);
         }
+
+        // Aggiungi la classe per lo slot selezionato
+        slotElement.classList.remove('slot-available');
+        slotElement.classList.add('slot-selected');
 
         window.selectedTimeInizio = orario;
         window.selectedTimeFine = null;
@@ -644,6 +651,10 @@ async function selectTimeSlot(orario, slotElement) {
         if (slotManager) {
             slotManager.selectSlot(slotElement.dataset.slotId);
         }
+
+        // Aggiungi la classe per lo slot selezionato
+        slotElement.classList.remove('slot-available');
+        slotElement.classList.add('slot-selected');
 
         window.selectedTimeFine = orario;
 
@@ -711,7 +722,7 @@ function blockIntermediateSlots(orarioInizio, orarioFine) {
         const orarioHour = parseInt(orario.split(':')[0]);
 
         if (orarioHour > orarioInizioHour && orarioHour < orarioFineHour) {
-            slot.classList.remove('slot-available');
+            slot.classList.remove('slot-available', 'slot-selected');
             slot.classList.add('slot-intermediate');
             slot.disabled = true;
             slot.title = 'Orario intermedio selezionato';

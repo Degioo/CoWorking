@@ -97,12 +97,74 @@ html {
     font-size: 16px;
 }
 
+/* ===== HIDE VERTICAL SCROLLBAR ===== */
+html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
 body {
     font-family: var(--font-primary);
     line-height: 1.6;
     color: var(--gray-800);
     background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
     min-height: 100vh;
+    overflow-x: hidden; /* Previene scroll orizzontale */
+}
+
+/* ===== HIDE ALL SCROLLBARS ===== */
+* {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* ===== SPECIFIC CONTAINER SCROLLBAR HIDING ===== */
+.container,
+.row,
+.col,
+.col-md-4,
+.col-md-6,
+.col-md-8,
+.col-lg-6,
+.col-lg-8,
+main,
+section,
+.navbar,
+.navbar-nav {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.container::-webkit-scrollbar,
+.row::-webkit-scrollbar,
+.col::-webkit-scrollbar,
+.col-md-4::-webkit-scrollbar,
+.col-md-6::-webkit-scrollbar,
+.col-md-8::-webkit-scrollbar,
+.col-lg-6::-webkit-scrollbar,
+.col-lg-8::-webkit-scrollbar,
+main::-webkit-scrollbar,
+section::-webkit-scrollbar,
+.navbar::-webkit-scrollbar,
+.navbar-nav::-webkit-scrollbar {
+    display: none !important;
 }
 
 /* ===== TYPOGRAPHY ===== */
