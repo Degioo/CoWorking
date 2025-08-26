@@ -1,12 +1,12 @@
 // Configurazione e variabili globali
-let sedi = [];
-let spazi = [];
-let selectedSede = null;
-let selectedSpazio = null;
-let selectedDateInizio = null;
-let selectedDateFine = null;
-let selectedTimeInizio = null;
-let selectedTimeFine = null;
+window.sedi = [];
+window.spazi = [];
+window.selectedSede = null;
+window.selectedSpazio = null;
+window.selectedDateInizio = null;
+window.selectedDateFine = null;
+window.selectedTimeInizio = null;
+window.selectedTimeFine = null;
 let datePicker = null;
 
 // Slot Manager per gestione real-time degli slot
@@ -241,7 +241,7 @@ let slotManager = {
 
         document.querySelectorAll('.time-slot').forEach(slot => {
             const orario = slot.textContent.trim();
-            const slotDate = new Date(selectedDateInizio);
+            const slotDate = new Date(window.selectedDateInizio);
             slotDate.setHours(parseInt(orario.split(':')[0]), 0, 0, 0);
 
             let stato = 'available';
@@ -313,8 +313,8 @@ let slotManager = {
     async checkAvailability(startTime, endTime) {
         try {
             // Costruisci le date complete per l'intervallo selezionato
-            const dataInizio = new Date(selectedDateInizio);
-            const dataFine = new Date(selectedDateFine);
+            const dataInizio = new Date(window.selectedDateInizio);
+            const dataFine = new Date(window.selectedDateFine);
 
             // Imposta gli orari specifici
             const [oraInizio] = startTime.split(':');
@@ -332,7 +332,7 @@ let slotManager = {
             const dataFineLocale = new Date(dataFine.getTime() - timezoneOffset);
 
             console.log('🔍 Verifica disponibilità per:', {
-                spazio: selectedSpazio.id_spazio,
+                spazio: window.selectedSpazio.id_spazio,
                 dataInizioOriginale: dataInizio.toLocaleString('it-IT'),
                 dataFineOriginale: dataFine.toLocaleString('it-IT'),
                 dataInizioLocale: dataInizioLocale.toLocaleString('it-IT'),
@@ -342,7 +342,7 @@ let slotManager = {
                 timezoneOffset: timezoneOffset / 60000 + ' minuti'
             });
 
-            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
+            const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${window.selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
                 method: 'GET',
                 headers: getAuthHeaders()
             });
@@ -722,12 +722,12 @@ function initializeCalendar() {
         ],
         onChange: function (selectedDates, dateStr, instance) {
             if (selectedDates.length === 2) {
-                selectedDateInizio = selectedDates[0];
-                selectedDateFine = selectedDates[1];
+                window.selectedDateInizio = selectedDates[0];
+                window.selectedDateFine = selectedDates[1];
                 console.log('📅 Date selezionate:', selectedDateInizio, 'a', selectedDateFine);
 
                 // Carica gli orari disponibili per la data selezionata
-                if (selectedSede && selectedSpazio) {
+                if (window.selectedSede && window.selectedSpazio) {
                     console.log('✅ Sede e spazio selezionati, chiamo loadOrariDisponibili');
                     loadOrariDisponibili();
                 } else {
@@ -738,8 +738,8 @@ function initializeCalendar() {
                 updateSummary();
             } else if (selectedDates.length === 1) {
                 // Reset se viene selezionata solo una data
-                selectedDateInizio = null;
-                selectedDateFine = null;
+                window.selectedDateInizio = null;
+                window.selectedDateFine = null;
                 hideSummary();
             }
         }
@@ -755,29 +755,29 @@ function setupEventListeners() {
         const sedeId = e.target.value;
 
         if (sedeId) {
-            selectedSede = window.sedi.find(s => s.id_sede == sedeId);
-            console.log('🏢 Sede selezionata:', selectedSede);
+            window.selectedSede = window.sedi.find(s => s.id_sede == sedeId);
+            console.log('🏢 Sede selezionata:', window.selectedSede);
 
             // Carica gli spazi per questa sede
             loadSpazi(sedeId);
 
             // Reset selezione spazio
-            selectedSpazio = null;
+            window.selectedSpazio = null;
             document.getElementById('stanzaSelect').value = '';
             document.getElementById('stanzaSelect').disabled = true;
 
             // Reset calendario
             if (datePicker) {
                 datePicker.clear();
-                selectedDateInizio = null;
-                selectedDateFine = null;
+                window.selectedDateInizio = null;
+                window.selectedDateFine = null;
             }
 
             // Nascondi riepilogo
             hideSummary();
 
         } else {
-            selectedSede = null;
+            window.selectedSede = null;
             document.getElementById('stanzaSelect').disabled = true;
             document.getElementById('stanzaSelect').innerHTML = '<option value="">Prima seleziona una sede...</option>';
         }
@@ -788,21 +788,21 @@ function setupEventListeners() {
         const spazioId = e.target.value;
 
         if (spazioId) {
-            selectedSpazio = spazi.find(s => s.id_spazio == spazioId);
+            selectedSpazio = window.spazi.find(s => s.id_spazio == spazioId);
             console.log('🚪 Spazio selezionato:', selectedSpazio);
 
             // Reset calendario
             if (datePicker) {
                 datePicker.clear();
-                selectedDateInizio = null;
-                selectedDateFine = null;
+                window.selectedDateInizio = null;
+                window.selectedDateFine = null;
             }
 
             // Nascondi riepilogo
             hideSummary();
 
         } else {
-            selectedSpazio = null;
+            window.selectedSpazio = null;
         }
     });
 
@@ -824,20 +824,20 @@ function setupEventListeners() {
 // Carica gli orari disponibili per la data selezionata
 async function loadOrariDisponibili() {
     console.log('🔄 loadOrariDisponibili chiamata');
-    console.log('📍 Stato selezione:', { selectedSede, selectedSpazio, selectedDateInizio, selectedDateFine });
+    console.log('📍 Stato selezione:', { selectedSede: window.selectedSede, selectedSpazio: window.selectedSpazio, selectedDateInizio: window.selectedDateInizio, selectedDateFine: window.selectedDateFine });
 
-    if (!selectedSede || !selectedSpazio) {
+    if (!window.selectedSede || !window.selectedSpazio) {
         console.log('⚠️ Sede o spazio non selezionati');
         return;
     }
 
-    if (!selectedDateInizio || !selectedDateFine) {
+    if (!window.selectedDateInizio || !window.selectedDateFine) {
         console.log('⚠️ Date non selezionate');
         return;
     }
 
     try {
-        console.log(`🔄 Caricamento orari disponibili dal ${selectedDateInizio.toLocaleDateString('it-IT')} al ${selectedDateFine.toLocaleDateString('it-IT')}...`);
+        console.log(`🔄 Caricamento orari disponibili dal ${window.selectedDateInizio.toLocaleDateString('it-IT')} al ${window.selectedDateFine.toLocaleDateString('it-IT')}...`);
 
         // Inizializza il slotManager se non è ancora stato fatto
         if (!slotManager.initialized) {
@@ -939,7 +939,7 @@ async function checkTimeAvailability(orario, disponibilita) {
     console.log('🔍 checkTimeAvailability chiamato per:', orario);
 
     const now = new Date();
-    const selectedDate = selectedDateInizio;
+    const selectedDate = window.selectedDateInizio;
 
     // Crea la data completa per l'orario selezionato
     const [hour] = orario.split(':');
@@ -1008,8 +1008,8 @@ async function selectTimeSlot(orario, slotElement) {
     if (slotElement.classList.contains('selected')) {
         console.log('🔄 Deseleziono slot:', orario);
         slotElement.classList.remove('selected');
-        selectedTimeInizio = null;
-        selectedTimeFine = null;
+        window.selectedTimeInizio = null;
+        window.selectedTimeFine = null;
 
         // Rimuovi tutti i blocchi e ripristina gli slot
         document.querySelectorAll('.time-slot').forEach(slot => {
@@ -1034,10 +1034,10 @@ async function selectTimeSlot(orario, slotElement) {
 
         // Seleziona il primo slot
         slotElement.classList.add('selected');
-        selectedTimeInizio = orario;
-        selectedTimeFine = null;
+        window.selectedTimeInizio = orario;
+        window.selectedTimeFine = null;
 
-        console.log('⏰ Orario inizio selezionato:', selectedTimeInizio);
+        console.log('⏰ Orario inizio selezionato:', window.selectedTimeInizio);
         console.log('🎨 Slot selezionato, classi:', slotElement.classList.toString());
 
         // Mostra messaggio per selezionare l'orario di fine
@@ -1046,7 +1046,7 @@ async function selectTimeSlot(orario, slotElement) {
     } else {
         // È il secondo orario (fine)
         // Verifica che sia successivo all'orario di inizio
-        const orarioInizio = parseInt(selectedTimeInizio.split(':')[0]);
+        const orarioInizio = parseInt(window.selectedTimeInizio.split(':')[0]);
         const orarioFine = parseInt(orario.split(':')[0]);
 
         if (orarioFine <= orarioInizio) {
@@ -1056,16 +1056,16 @@ async function selectTimeSlot(orario, slotElement) {
 
         // Seleziona il secondo slot
         slotElement.classList.add('selected');
-        selectedTimeFine = orario;
+        window.selectedTimeFine = orario;
 
-        console.log('⏰ Orario fine selezionato:', selectedTimeFine);
+        console.log('⏰ Orario fine selezionato:', window.selectedTimeFine);
 
         // Blocca gli slot intermedi
-        blockIntermediateSlots(selectedTimeInizio, selectedTimeFine);
+        blockIntermediateSlots(window.selectedTimeInizio, window.selectedTimeFine);
 
         // VERIFICA DISPONIBILITÀ FINALE PRIMA DI ABILITARE IL BOTTONE
         console.log('🔍 Verifica disponibilità finale prima di abilitare il bottone...');
-        const disponibile = await slotManager.checkAvailability(selectedTimeInizio, selectedTimeFine);
+        const disponibile = await slotManager.checkAvailability(window.selectedTimeInizio, window.selectedTimeFine);
 
         if (!disponibile) {
             // Slot non disponibile, disabilita il bottone e mostra errore
@@ -1091,7 +1091,7 @@ async function verificaDisponibilitaFinale() {
 
     try {
         // Recupera disponibilità per lo spazio e data selezionati
-        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita`, {
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${window.selectedSpazio.id_spazio}/disponibilita`, {
             headers: getAuthHeaders()
         });
 
@@ -1122,16 +1122,16 @@ async function verificaDisponibilitaFinale() {
 
 // Aggiorna il riepilogo della selezione
 function updateSummary() {
-    if (selectedSede && selectedSpazio && selectedDateInizio && selectedDateFine && selectedTimeInizio && selectedTimeFine) {
-        document.getElementById('summarySede').textContent = selectedSede.nome;
-        document.getElementById('summaryStanza').textContent = selectedSpazio.nome;
-        document.getElementById('summaryData').textContent = `${selectedDateInizio.toLocaleDateString('it-IT')} - ${selectedDateFine.toLocaleDateString('it-IT')}`;
-        document.getElementById('summaryOrario').textContent = `${selectedTimeInizio} - ${selectedTimeFine}`;
+    if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio && window.selectedDateFine && window.selectedTimeInizio && window.selectedTimeFine) {
+        document.getElementById('summarySede').textContent = window.selectedSede.nome;
+        document.getElementById('summaryStanza').textContent = window.selectedSpazio.nome;
+        document.getElementById('summaryData').textContent = `${window.selectedDateInizio.toLocaleDateString('it-IT')} - ${window.selectedDateFine.toLocaleDateString('it-IT')}`;
+        document.getElementById('summaryOrario').textContent = `${window.selectedTimeInizio} - ${window.selectedTimeFine}`;
 
         // Calcola il prezzo totale per il numero di giorni e ore
-        const giorni = Math.ceil((selectedDateFine - selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
-        const ore = parseInt(selectedTimeFine.split(':')[0]) - parseInt(selectedTimeInizio.split(':')[0]);
-        const prezzoTotale = (selectedSpazio.prezzo_ora || 10) * giorni * Math.max(1, ore);
+        const giorni = Math.ceil((window.selectedDateFine - window.selectedDateInizio) / (1000 * 60 * 60 * 24)) + 1;
+        const ore = parseInt(window.selectedTimeFine.split(':')[0]) - parseInt(window.selectedTimeInizio.split(':')[0]);
+        const prezzoTotale = (window.selectedSpazio.prezzo_ora || 10) * giorni * Math.max(1, ore);
         document.getElementById('summaryPrezzo').textContent = `€${prezzoTotale}`;
 
         // Abilita il pulsante prenota
@@ -1173,22 +1173,22 @@ function hideSummary() {
 
 // Valida la selezione completa
 function validateSelection() {
-    if (!selectedSede) {
+    if (!window.selectedSede) {
         showError('Seleziona una sede');
         return false;
     }
 
-    if (!selectedSpazio) {
+    if (!window.selectedSpazio) {
         showError('Seleziona una stanza');
         return false;
     }
 
-    if (!selectedDateInizio || !selectedDateFine) {
+    if (!window.selectedDateInizio || !window.selectedDateFine) {
         showError('Seleziona un intervallo di date');
         return false;
     }
 
-    if (!selectedTimeInizio || !selectedTimeFine) {
+    if (!window.selectedTimeInizio || !window.selectedTimeFine) {
         showError('Seleziona un intervallo di orari (inizio e fine)');
         return false;
     }
@@ -1266,13 +1266,13 @@ async function proceedToBooking() {
 
             // Salva i dati della prenotazione per il redirect post-login
             const prenotazioneData = {
-                sede: selectedSede.id_sede,
-                spazio: selectedSpazio.id_spazio,
-                dataInizio: selectedDateInizio.toISOString().split('T')[0],
-                dataFine: selectedDateFine.toISOString().split('T')[0],
-                orarioInizio: selectedTimeInizio,
-                orarioFine: selectedTimeFine,
-                prezzo: selectedSpazio.prezzo_ora || 10,
+                sede: window.selectedSede.id_sede,
+                spazio: window.selectedSpazio.id_spazio,
+                dataInizio: window.selectedDateInizio.toISOString().split('T')[0],
+                dataFine: window.selectedDateFine.toISOString().split('T')[0],
+                orarioInizio: window.selectedTimeInizio,
+                orarioFine: window.selectedTimeFine,
+                prezzo: window.selectedSpazio.prezzo_ora || 10,
                 timestamp: Date.now() // Aggiungi timestamp per pulizia automatica
             };
 
@@ -1296,12 +1296,12 @@ async function proceedToBooking() {
 
         // Prepara i parametri per la pagina di pagamento
         const params = new URLSearchParams({
-            sede: selectedSede.id_sede,
-            spazio: selectedSpazio.id_spazio,
-            dal: selectedDateInizio.toISOString().split('T')[0],
-            al: selectedDateFine.toISOString().split('T')[0],
-            orarioInizio: selectedTimeInizio,
-            orarioFine: selectedTimeFine
+            sede: window.selectedSede.id_sede,
+            spazio: window.selectedSpazio.id_spazio,
+            dal: window.selectedDateInizio.toISOString().split('T')[0],
+            al: window.selectedDateFine.toISOString().split('T')[0],
+            orarioInizio: window.selectedTimeInizio,
+            orarioFine: window.selectedTimeFine
         });
 
         console.log('📋 Parametri URL per pagamento:', params.toString());
@@ -1389,7 +1389,7 @@ function initializeSlotManager() {
     console.log('🚀 Inizializzazione Slot Manager');
 
     // Aspetta che sede e spazio siano selezionati
-    if (!selectedSede || !selectedSpazio) {
+    if (!window.selectedSede || !window.selectedSpazio) {
         console.log('⏳ Sede o spazio non ancora selezionati, rimando inizializzazione...');
         return false;
     }
@@ -1403,21 +1403,21 @@ async function getOrariDisponibili() {
     try {
         // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
         // Calcola l'offset del timezone locale
-        const timezoneOffset = selectedDateInizio.getTimezoneOffset() * 60000; // in millisecondi
+        const timezoneOffset = window.selectedDateInizio.getTimezoneOffset() * 60000; // in millisecondi
 
         // Crea le date in formato locale (senza conversione UTC)
-        const dataInizioLocale = new Date(selectedDateInizio.getTime() - timezoneOffset);
-        const dataFineLocale = new Date(selectedDateFine.getTime() - timezoneOffset);
+        const dataInizioLocale = new Date(window.selectedDateInizio.getTime() - timezoneOffset);
+        const dataFineLocale = new Date(window.selectedDateFine.getTime() - timezoneOffset);
 
         console.log('🌍 Date per orari disponibili:', {
-            dataInizioOriginale: selectedDateInizio.toLocaleString('it-IT'),
-            dataFineOriginale: selectedDateFine.toLocaleString('it-IT'),
+            dataInizioOriginale: window.selectedDateInizio.toLocaleString('it-IT'),
+            dataFineOriginale: window.selectedDateFine.toLocaleString('it-IT'),
             dataInizioLocale: dataInizioLocale.toLocaleString('it-IT'),
             dataFineLocale: dataFineLocale.toLocaleString('it-IT'),
             timezoneOffset: timezoneOffset / 60000 + ' minuti'
         });
 
-        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi/${window.selectedSpazio.id_spazio}/disponibilita?data_inizio=${dataInizioLocale.toISOString()}&data_fine=${dataFineLocale.toISOString()}`, {
             method: 'GET',
             headers: getAuthHeaders()
         });
