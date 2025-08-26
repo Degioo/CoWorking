@@ -17,7 +17,11 @@ function initializeSlotManager() {
     if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio) {
         const sedeId = window.selectedSede.id_sede;
         const spazioId = window.selectedSpazio.id_spazio;
-        const date = window.selectedDateInizio.toISOString().split('T')[0];
+        // Mantieni il timezone locale invece di convertire in UTC
+        const year = window.selectedDateInizio.getFullYear();
+        const month = String(window.selectedDateInizio.getMonth() + 1).padStart(2, '0');
+        const day = String(window.selectedDateInizio.getDate()).padStart(2, '0');
+        const date = `${year}-${month}-${day}`;
 
         console.log('🚀 Inizializzazione nuovo Slot Manager per:', { sedeId, spazioId, date });
 
@@ -365,11 +369,19 @@ function setupEventListeners() {
             }
 
             // Crea l'URL per la pagina di pagamento con i parametri
+            // Mantieni il timezone locale invece di convertire in UTC
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
             const params = new URLSearchParams({
                 sede: window.selectedSede.id_sede,
                 spazio: window.selectedSpazio.id_spazio,
-                data_inizio: window.selectedDateInizio.toISOString().split('T')[0],
-                data_fine: window.selectedDateFine.toISOString().split('T')[0],
+                data_inizio: formatDate(window.selectedDateInizio),
+                data_fine: formatDate(window.selectedDateFine),
                 time_inizio: window.selectedTimeInizio,
                 time_fine: window.selectedTimeFine
             });
@@ -762,11 +774,20 @@ function showAuthModal() {
 // Funzione per andare al login
 function goToLogin() {
     // Salva i dati della selezione nel localStorage per ripristinarli dopo il login
+    // Mantieni il timezone locale invece di convertire in UTC
+    const formatDate = (date) => {
+        if (!date) return null;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const selectionData = {
         sede: window.selectedSede,
         spazio: window.selectedSpazio,
-        dataInizio: window.selectedDateInizio ? window.selectedDateInizio.toISOString().split('T')[0] : null,
-        dataFine: window.selectedDateFine ? window.selectedDateFine.toISOString().split('T')[0] : null,
+        dataInizio: formatDate(window.selectedDateInizio),
+        dataFine: formatDate(window.selectedDateFine),
         orarioInizio: window.selectedTimeInizio,
         orarioFine: window.selectedTimeFine
     };
