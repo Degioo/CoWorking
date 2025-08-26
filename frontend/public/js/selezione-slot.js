@@ -523,8 +523,8 @@ async function displayTimeSlots(disponibilita) {
     // Mostra tutti gli slot come disponibili (SlotManager si occuperà di aggiornarli)
     const allButtons = document.querySelectorAll('[data-slot-id]');
     allButtons.forEach(button => {
-        button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
-        button.classList.add('btn-success', 'slot-available');
+        button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary', 'btn-success');
+        button.classList.add('slot-available');
         button.disabled = false;
         button.title = 'Clicca per selezionare orario inizio/fine';
     });

@@ -237,31 +237,31 @@ class SlotManager {
         // Applica classe e stato in base al status
         switch (status) {
             case 'available':
-                button.classList.add('btn-success', 'slot-available');
+                button.classList.add('slot-available');
                 button.disabled = false;
                 button.title = 'Slot disponibile';
                 break;
 
             case 'booked':
-                button.classList.add('btn-danger', 'slot-booked');
+                button.classList.add('slot-booked');
                 button.disabled = true;
                 button.title = 'Slot prenotato';
                 break;
 
             case 'occupied':
-                button.classList.add('btn-warning', 'slot-occupied');
+                button.classList.add('slot-occupied');
                 button.disabled = true;
                 button.title = `Slot occupato (hold scade in ${slotData.hold_time_remaining || '?'} min)`;
                 break;
 
             case 'past':
-                button.classList.add('btn-secondary', 'slot-past');
+                button.classList.add('slot-past');
                 button.disabled = true;
                 button.title = 'Orario passato';
                 break;
 
             default:
-                button.classList.add('btn-outline-primary');
+                button.classList.add('slot-available');
                 button.disabled = false;
                 button.title = 'Stato sconosciuto';
         }
@@ -307,13 +307,13 @@ class SlotManager {
 
         // Rimuovi selezione precedente
         document.querySelectorAll('.slot-selected').forEach(btn => {
-            btn.classList.remove('btn-primary', 'slot-selected');
-            btn.classList.add('btn-success', 'slot-available');
+            btn.classList.remove('slot-selected');
+            btn.classList.add('slot-available');
         });
 
         // Seleziona nuovo slot
-        button.classList.remove('btn-success', 'slot-available');
-        button.classList.add('btn-primary', 'slot-selected');
+        button.classList.remove('slot-available');
+        button.classList.add('slot-selected');
         button.title = 'Slot selezionato';
 
         console.log('✅ SlotManager - Slot selezionato:', slotId);
