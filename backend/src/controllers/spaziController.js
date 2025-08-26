@@ -5,7 +5,7 @@ async function getDisponibilitaSlot(req, res) {
         console.log('🚀 getDisponibilitaSlot chiamato');
         console.log('📋 Request params:', req.params);
         console.log('📋 Request query:', req.query);
-        
+
         const { id_spazio } = req.params;
         const { data } = req.params;
 
@@ -83,10 +83,10 @@ async function getDisponibilitaSlot(req, res) {
             // Controlla se c'è una prenotazione per questo orario
             const prenotazione = prenotazioni.find(p => {
                 if (!p.orario_inizio || !p.orario_fine) return false;
-                
+
                 const prenotazioneInizio = parseInt(p.orario_inizio.split(':')[0]);
                 const prenotazioneFine = parseInt(p.orario_fine.split(':')[0]);
-                
+
                 return orarioHour >= prenotazioneInizio && orarioHour < prenotazioneFine;
             });
 
@@ -135,7 +135,7 @@ async function getDisponibilitaSlot(req, res) {
     } catch (error) {
         console.error('❌ Errore nel calcolo disponibilità slot:', error);
         console.error('Stack trace:', error.stack);
-        
+
         res.status(500).json({
             success: false,
             error: 'Errore nel calcolo disponibilità slot',

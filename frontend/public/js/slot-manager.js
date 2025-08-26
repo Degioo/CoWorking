@@ -69,8 +69,26 @@ class SlotManager {
 
             if (response.ok) {
                 const data = await response.json();
-                this.updateSlotsFromStatus(data.data);
-                console.log('✅ SlotManager - Stato iniziale slot caricato:', data.data.length, 'slot');
+                console.log('📋 SlotManager - Risposta ricevuta:', data);
+                
+                // Gestisci entrambi i formati di risposta
+                let slotsArray;
+                if (data.data && data.data.slots) {
+                    // Formato nuovo: { data: { slots: [...] } }
+                    slotsArray = data.data.slots;
+                } else if (Array.isArray(data.data)) {
+                    // Formato SSE: { data: [...] }
+                    slotsArray = data.data;
+                } else if (Array.isArray(data)) {
+                    // Formato diretto: [...]
+                    slotsArray = data;
+                } else {
+                    console.error('❌ SlotManager - Formato risposta non riconosciuto:', data);
+                    return;
+                }
+                
+                this.updateSlotsFromStatus(slotsArray);
+                console.log('✅ SlotManager - Stato iniziale slot caricato:', slotsArray.length, 'slot');
             } else {
                 console.error('❌ SlotManager - Errore caricamento stato iniziale:', response.status);
             }
@@ -164,13 +182,21 @@ class SlotManager {
     // Aggiorna tutti gli slot da stato completo
     updateSlotsFromStatus(slotsStatus) {
         console.log('🔄 SlotManager - Aggiornamento completo slot:', slotsStatus.length, 'slot');
+        console.log('📋 Dettagli slot ricevuti:', slotsStatus);
 
         // Pulisci stato precedente
         this.slotsStatus.clear();
 
         // Aggiorna stato locale
         slotsStatus.forEach(slot => {
-            this.slotsStatus.set(slot.id_slot, slot);
+            // Usa id_slot se presente, altrimenti usa l'indice
+            const slotId = slot.id_slot || slot.id || slot.orario;
+            if (slotId) {
+                this.slotsStatus.set(slotId, slot);
+                console.log(`📌 Slot ${slotId} mappato con status: ${slot.status}`);
+            } else {
+                console.warn('⚠️ Slot senza ID valido:', slot);
+            }
         });
 
         // Aggiorna tutti i bottoni
@@ -179,16 +205,26 @@ class SlotManager {
 
     // Aggiorna tutti i bottoni degli slot
     updateAllSlotButtons() {
+        console.log('🔄 SlotManager - Aggiornamento di tutti i bottoni');
+        console.log('📊 Stato slot corrente:', Array.from(this.slotsStatus.entries()));
+        
         this.slotsStatus.forEach((slot, slotId) => {
+            console.log(`🔄 Aggiornamento bottone per slot ${slotId}:`, slot);
             this.updateSlotButton(slotId, slot.status, slot);
         });
     }
 
     // Aggiorna singolo bottone slot
     updateSlotButton(slotId, status, slotData = {}) {
-        const button = document.querySelector(`[data-slot-id="${slotId}"]`);
+        // Cerca il bottone per data-slot-id o per orario
+        let button = document.querySelector(`[data-slot-id="${slotId}"]`);
+        if (!button) {
+            // Prova a cercare per orario se slotId è un orario
+            button = document.querySelector(`[data-orario="${slotId}"]`);
+        }
         if (!button) {
             console.warn('⚠️ SlotManager - Bottone non trovato per slot:', slotId);
+            console.log('🔍 Cercando bottoni disponibili:', document.querySelectorAll('[data-slot-id], [data-orario]'));
             return;
         }
 
