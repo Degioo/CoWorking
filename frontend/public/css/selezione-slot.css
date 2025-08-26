@@ -617,7 +617,11 @@ body {
 }
 
 /* ✅ RIMUOVI SCROLL ORIZZONTALE GLOBALE */
-.container, .row, .col, .col-md-4, .col-md-8 {
+.container,
+.row,
+.col,
+.col-md-4,
+.col-md-8 {
     overflow-x: hidden !important;
 }
 

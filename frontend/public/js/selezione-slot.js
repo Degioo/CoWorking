@@ -127,6 +127,9 @@ async function initializePage() {
     console.log('🚀 FUNZIONE INITIALIZEPAGE CHIAMATA!');
 
     try {
+        // ✅ CONTROLLA SE CI SONO DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
+        restorePendingPrenotazione();
+        
         console.log('🔄 Caricamento sedi...');
         // Carica le sedi
         await loadSedi();
@@ -388,7 +391,7 @@ function setupEventListeners() {
             const token = localStorage.getItem('token');
 
             if (!token) {
-                // Utente non autenticato: mostra modal di login
+                // ✅ UTENTE NON AUTENTICATO: Mostra modal di login con riepilogo
                 console.log('👤 Utente non autenticato, mostro modal di login');
                 if (window.showAuthModal) {
                     window.showAuthModal();
@@ -656,13 +659,17 @@ async function selectTimeSlot(orario, slotElement) {
         const token = localStorage.getItem('token');
 
         if (!token) {
-            // Utente non autenticato: abilita bottone per reindirizzamento al login
-            console.log('👤 Utente non autenticato, abilito bottone per reindirizzamento al login');
+            // ✅ UTENTE NON AUTENTICATO: Stessa esperienza ma con modal di login
+            console.log('👤 Utente non autenticato, abilito bottone e mostro riepilogo');
             document.getElementById('btnBook').disabled = false;
             document.getElementById('btnBook').textContent = 'Prenota Ora (Login Richiesto)';
             document.getElementById('btnBook').classList.remove('btn-secondary');
             document.getElementById('btnBook').classList.add('btn-warning');
 
+            // ✅ MOSTRA RIEPILOGO ANCHE PER UTENTI NON AUTENTICATI
+            updateSummary();
+            showSummary();
+            
             // Mostra messaggio informativo
             showInfo('Orari selezionati! Effettua il login per completare la prenotazione.');
             return;
@@ -925,7 +932,7 @@ function showAuthModal() {
 
 // Funzione per andare al login
 function goToLogin() {
-    // Salva i dati della selezione nel localStorage per ripristinarli dopo il login
+    // ✅ Salva i dati della selezione nel localStorage per ripristinarli dopo il login
     // Mantieni il timezone locale invece di convertire in UTC
     const formatDate = (date) => {
         if (!date) return null;
@@ -944,18 +951,48 @@ function goToLogin() {
         orarioFine: window.selectedTimeFine
     };
 
-    console.log('💾 Salvando dati prenotazione:', selectionData);
+    console.log('💾 Salvando dati prenotazione per post-login:', selectionData);
     localStorage.setItem('pendingPrenotazione', JSON.stringify(selectionData));
 
-    // Salva anche l'URL di redirect per il post-login
-    localStorage.setItem('redirectAfterLogin', '/selezione-slot.html');
-    console.log('🔄 Redirect dopo login impostato a: /selezione-slot.html');
+    // ✅ SALVA REDIRECT A PAGAMENTO DOPO LOGIN
+    localStorage.setItem('redirectAfterLogin', '/pagamento.html');
+    console.log('🔄 Redirect dopo login impostato a: /pagamento.html');
 
     // Reindirizza alla pagina di login
     window.location.href = '/login.html';
 }
 
+// ✅ FUNZIONE PER RIPRISTINARE DATI POST-LOGIN
+function restorePendingPrenotazione() {
+    const pendingData = localStorage.getItem('pendingPrenotazione');
+    const redirectUrl = localStorage.getItem('redirectAfterLogin');
+    
+    if (pendingData && redirectUrl) {
+        console.log('🔄 Ripristino dati prenotazione in attesa:', pendingData);
+        
+        try {
+            const data = JSON.parse(pendingData);
+            
+            // Ripristina i dati selezionati
+            if (data.sede && data.spazio && data.dataInizio && data.orarioInizio) {
+                console.log('✅ Dati prenotazione ripristinati, reindirizzo a:', redirectUrl);
+                
+                // Pulisci i dati dal localStorage
+                localStorage.removeItem('pendingPrenotazione');
+                localStorage.removeItem('redirectAfterLogin');
+                
+                // Reindirizza alla pagina di pagamento
+                window.location.href = redirectUrl;
+                return;
+            }
+        } catch (error) {
+            console.error('❌ Errore nel ripristino dati prenotazione:', error);
+        }
+    }
+}
+
 // Rendi le funzioni disponibili globalmente
 window.showAuthModal = showAuthModal;
 window.goToLogin = goToLogin;
+window.restorePendingPrenotazione = restorePendingPrenotazione;
 
