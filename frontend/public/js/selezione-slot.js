@@ -26,9 +26,16 @@ function initializeSlotManager() {
             slotManager.cleanup();
         }
 
-        // Crea nuova istanza
+        // PRIMA crea i bottoni degli slot
+        console.log('🔨 STEP 1: Creo i bottoni degli slot...');
+        createTimeSlots();
+        console.log('✅ STEP 1 COMPLETATO: Bottoni creati');
+
+        // POI crea nuova istanza di SlotManager
+        console.log('🚀 STEP 2: Creo SlotManager...');
         slotManager = new window.SlotManager();
         slotManager.init(sedeId, spazioId, date);
+        console.log('✅ STEP 2 COMPLETATO: SlotManager inizializzato');
 
         return true;
     }
@@ -404,7 +411,63 @@ function handleUrlParameters() {
     console.log('✅ Gestione parametri URL completata');
 }
 
-// Mostra gli slot temporali disponibili
+// Crea gli slot temporali (versione semplificata per SlotManager)
+function createTimeSlots() {
+    const timeSlotsContainer = document.getElementById('timeSlots');
+
+    console.log('🔨 createTimeSlots chiamata, container:', timeSlotsContainer);
+
+    if (!timeSlotsContainer) {
+        console.error('❌ Container timeSlots non trovato!');
+        return;
+    }
+
+    // Orari di apertura (9:00 - 18:00)
+    const orariApertura = [];
+    for (let hour = 9; hour <= 17; hour++) {
+        orariApertura.push(`${hour.toString().padStart(2, '0')}:00`);
+    }
+
+    console.log('⏰ Orari apertura:', orariApertura);
+
+    // Pulisci il container
+    timeSlotsContainer.innerHTML = '';
+
+    // Crea gli slot temporali
+    for (let i = 0; i < orariApertura.length; i++) {
+        const orario = orariApertura[i];
+        console.log('🔨 Creo slot per orario:', orario);
+
+        const slot = document.createElement('button');
+        slot.className = 'btn btn-lg slot-button slot-available';
+        slot.textContent = orario;
+        slot.dataset.orario = orario;
+        slot.dataset.slotId = i + 1; // ID univoco per ogni slot
+
+        // Aggiungi event listener per tutti gli slot
+        slot.addEventListener('click', () => selectTimeSlot(orario, slot));
+        slot.title = 'Clicca per selezionare orario inizio/fine';
+
+        timeSlotsContainer.appendChild(slot);
+        console.log('✅ Slot creato e aggiunto:', slot);
+    }
+
+    // Mostra il container
+    timeSlotsContainer.style.display = 'block';
+
+    // Assicurati che il container sia visibile
+    const timeSlotsSection = document.getElementById('timeSlots');
+    if (timeSlotsSection) {
+        timeSlotsSection.style.display = 'block';
+        console.log('🎯 Sezione timeSlots resa visibile');
+    }
+
+    console.log('🎯 Container slot mostrato, slot creati:', timeSlotsContainer.children.length);
+    console.log('🔍 Bottoni disponibili nel DOM:', document.querySelectorAll('[data-slot-id]').length);
+    console.log('🔍 Bottoni disponibili nel DOM:', document.querySelectorAll('[data-slot-id]'));
+}
+
+// Mostra gli slot temporali disponibili (versione originale per compatibilità)
 async function displayTimeSlots(disponibilita) {
     const timeSlotsContainer = document.getElementById('timeSlots');
 
@@ -457,20 +520,14 @@ async function displayTimeSlots(disponibilita) {
 
     console.log('🎯 Container slot mostrato, slot creati:', timeSlotsContainer.children.length);
 
-    // Inizializza il slot manager se tutto è pronto
-    if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio) {
-        initializeSlotManager();
-    } else {
-        // Se non abbiamo ancora tutte le informazioni, mostra tutti gli slot come disponibili
-        // (modalità base per utenti non autenticati)
-        const allButtons = document.querySelectorAll('[data-slot-id]');
-        allButtons.forEach(button => {
-            button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
-            button.classList.add('btn-success', 'slot-available');
-            button.disabled = false;
-            button.title = 'Clicca per selezionare orario inizio/fine';
-        });
-    }
+    // Mostra tutti gli slot come disponibili (SlotManager si occuperà di aggiornarli)
+    const allButtons = document.querySelectorAll('[data-slot-id]');
+    allButtons.forEach(button => {
+        button.classList.remove('btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
+        button.classList.add('btn-success', 'slot-available');
+        button.disabled = false;
+        button.title = 'Clicca per selezionare orario inizio/fine';
+    });
 
     if (orariApertura.length === 0) {
         timeSlotsContainer.innerHTML = '<p class="text-muted">Nessun orario disponibile per questa data</p>';
