@@ -960,6 +960,31 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
     try {
         console.log('createPrenotazioneFromSelection - Creo prenotazione con parametri:', { sede, spazio, dal, al, orarioInizio, orarioFine });
 
+        // ✅ VERIFICA AUTENTICAZIONE PRIMA DI TUTTO
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+
+        if (!user || !token) {
+            console.log('❌ Utente non autenticato, reindirizzo al login');
+            // Salva i dati della selezione per il post-login
+            const selectionData = {
+                sede: parseInt(sede),
+                spazio: parseInt(spazio),
+                dal: dal,
+                al: al,
+                orarioInizio: orarioInizio,
+                orarioFine: orarioFine
+            };
+            localStorage.setItem('pendingPrenotazione', JSON.stringify(selectionData));
+            localStorage.setItem('redirectAfterLogin', '/pagamento.html');
+            
+            // Reindirizza al login
+            window.location.href = '/login.html';
+            return;
+        }
+
+        console.log('✅ Utente autenticato, procedo con creazione prenotazione');
+
         // Combina data e orario per creare le date complete
         // Crea le date in modo corretto per il fuso orario locale
 
@@ -1031,7 +1056,12 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 
         // Crea l'oggetto prenotazione
         // IMPORTANTE: Salva le date come stringhe locali per evitare problemi di timezone
+        
+        // ✅ AGGIUNGI ID_UTENTE DALL'USER AUTENTICATO
+        const userData = JSON.parse(user);
+        
         prenotazioneData = {
+            id_utente: userData.id_utente, // ✅ CAMPO OBBLIGATORIO AGGIUNTO
             id_sede: parseInt(sede),
             id_spazio: parseInt(spazio),
             data_inizio: dataInizioLocale.toISOString(),
@@ -1077,6 +1107,45 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         // Popola i dettagli della prenotazione
         console.log('createPrenotazioneFromSelection - Prima di populatePrenotazioneDetails, prenotazioneData:', prenotazioneData);
         populatePrenotazioneDetails();
+
+        // ✅ CHIAMATA API PER CREARE PRENOTAZIONE NEL DATABASE
+        console.log('createPrenotazioneFromSelection - Chiamo API per creare prenotazione nel database...');
+        
+        try {
+            const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_utente: prenotazioneData.id_utente,
+                    id_sede: prenotazioneData.id_sede,
+                    id_spazio: prenotazioneData.id_spazio,
+                    data_inizio: prenotazioneData.data_inizio,
+                    data_fine: prenotazioneData.data_fine
+                })
+            }, 15000);
+
+            if (!response.ok) {
+                const error = await response.json();
+                console.error('❌ Errore creazione prenotazione:', error);
+                throw new Error(error.error || 'Errore nella creazione della prenotazione');
+            }
+
+            const prenotazioneCreata = await response.json();
+            console.log('✅ Prenotazione creata nel database:', prenotazioneCreata);
+
+            // Aggiorna i dati con l'ID della prenotazione
+            prenotazioneData.id_prenotazione = prenotazioneCreata.id_prenotazione;
+            window.prenotazioneData = prenotazioneData;
+
+            console.log('✅ Prenotazione completata con ID:', prenotazioneData.id_prenotazione);
+
+        } catch (apiError) {
+            console.error('❌ Errore API creazione prenotazione:', apiError);
+            throw new Error('Errore nella creazione della prenotazione: ' + apiError.message);
+        }
 
     } catch (error) {
         console.error('createPrenotazioneFromSelection - Errore:', error);

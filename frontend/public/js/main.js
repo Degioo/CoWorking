@@ -445,7 +445,7 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
   submitBtn.prop('disabled', true);
 
   // Usa fetch invece di jQuery per migliore gestione errori
-          fetch(`${window.CONFIG.API_BASE}/register`, {
+  fetch(`${window.CONFIG.API_BASE}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
