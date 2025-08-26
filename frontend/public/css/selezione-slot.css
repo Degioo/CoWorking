@@ -140,8 +140,8 @@ button.slot-past,
     /* Riduco gap per fit più bottoni */
     padding: 30px !important;
     margin: 30px 0 !important;
-    overflow-x: visible !important;
-    /* Rimuovi scroll orizzontale */
+    overflow-x: hidden !important;
+    /* ✅ NASCONDI SCROLL ORIZZONTALE - Non necessario */
     justify-content: center !important;
     max-width: 100% !important;
     /* Usa tutta la larghezza disponibile */
@@ -272,12 +272,12 @@ main.container {
         transform: translateX(400px) scale(0.8) !important;
         opacity: 0 !important;
     }
-    
+
     50% {
         transform: translateX(0) scale(1.05) !important;
         opacity: 0.8 !important;
     }
-    
+
     100% {
         transform: translateX(0) scale(1) !important;
         opacity: 1 !important;
@@ -335,7 +335,18 @@ main.container {
     border: none !important;
     border-radius: 20px !important;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
-    overflow: hidden !important;
+    overflow: visible !important;
+    /* ✅ PERMETTI SCROLL DEL MODAL */
+}
+
+/* ✅ ASSICURA CHE IL MODAL SIA SCROLLABILE */
+.modal-dialog-scrollable {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+}
+
+.modal-dialog-scrollable .modal-content {
+    max-height: none !important;
 }
 
 /* Header del modal */
@@ -601,6 +612,13 @@ html {
 body {
     /* ✅ TRANSIZIONE FLUIDA PER MOVIMENTO PAGINA */
     transition: scroll-behavior 0.3s ease-in-out !important;
+    /* ✅ RIMUOVI SCROLL ORIZZONTALE DALLA PAGINA */
+    overflow-x: hidden !important;
+}
+
+/* ✅ RIMUOVI SCROLL ORIZZONTALE GLOBALE */
+.container, .row, .col, .col-md-4, .col-md-8 {
+    overflow-x: hidden !important;
 }
 
 /* ✅ EFFETTO DI "SPINTA" QUANDO IL RIEPILOGO APPARA */
@@ -614,15 +632,17 @@ body {
     0% {
         transform: translateY(0) !important;
     }
-    
+
     100% {
         transform: translateY(-20px) !important;
     }
 }
 
 /* ✅ APPLICA ANIMAZIONE ALLA PAGINA QUANDO IL RIEPILOGO È ATTIVO */
-.summary-card.active ~ * {
+.summary-card.active~* {
     animation: pageScroll 0.8s ease-out forwards !important;
+}
+
 }
 
 }
