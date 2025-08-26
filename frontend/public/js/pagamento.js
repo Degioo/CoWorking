@@ -591,6 +591,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // Non è più necessario mostrare la selezione del metodo di pagamento
 
         // Popola i dettagli della prenotazione
+        console.log('🔍 DEBUG: Chiamo loadPrenotazioneData da createPrenotazioneFromSelection...');
         await loadPrenotazioneData();
 
         // Inizializza Stripe
@@ -866,7 +867,12 @@ async function initializeStripe() {
 // Carica i dati della prenotazione
 async function loadPrenotazioneData() {
     try {
-        console.log('loadPrenotazioneData - Inizio funzione');
+        console.log('🔄 loadPrenotazioneData - Inizio caricamento dati prenotazione...');
+        console.log('🔍 DEBUG: window.prenotazioneData:', window.prenotazioneData);
+        console.log('🔍 DEBUG: localStorage pendingPrenotazione:', localStorage.getItem('pendingPrenotazione'));
+        console.log('🔍 DEBUG: localStorage redirectAfterLogin:', localStorage.getItem('redirectAfterLogin'));
+        console.log('🔍 DEBUG: URL corrente:', window.location.href);
+        console.log('🔍 DEBUG: Parametri URL:', window.location.search);
 
         // COMMENTATO: Questa condizione viene controllata DOPO i parametri URL
         // if (window.prenotazioneData && window.prenotazioneData.id_prenotazione) {
@@ -909,16 +915,16 @@ async function loadPrenotazioneData() {
             } else {
                 // ✅ CONTROLLA LOCALSTORAGE PER DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
                 console.log('loadPrenotazioneData - Parametri URL mancanti, controllo localStorage per dati post-login...');
-                
+
                 const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
                 if (pendingPrenotazione) {
                     try {
                         const pendingData = JSON.parse(pendingPrenotazione);
                         console.log('loadPrenotazioneData - Dati prenotazione in attesa trovati:', pendingData);
-                        
+
                         if (pendingData.sede && pendingData.spazio && pendingData.dataInizio && pendingData.orarioInizio) {
                             console.log('loadPrenotazioneData - Creo prenotazione da dati localStorage (post-login)');
-                            
+
                             // Crea la prenotazione dai dati salvati
                             await createPrenotazioneFromSelection(
                                 pendingData.sede.id_sede || pendingData.sede,
@@ -928,11 +934,11 @@ async function loadPrenotazioneData() {
                                 pendingData.orarioInizio,
                                 pendingData.orarioFine
                             );
-                            
+
                             // Pulisci i dati dal localStorage
                             localStorage.removeItem('pendingPrenotazione');
                             localStorage.removeItem('redirectAfterLogin');
-                            
+
                             console.log('loadPrenotazioneData - Prenotazione creata da localStorage, dati puliti');
                             return;
                         }
@@ -940,6 +946,11 @@ async function loadPrenotazioneData() {
                         console.error('loadPrenotazioneData - Errore nel parsing dati localStorage:', error);
                     }
                 }
+
+                console.log('❌ DEBUG: Nessun dato trovato, lancio errore...');
+                console.log('❌ DEBUG: Parametri URL mancanti:', { sede, spazio, dal, al, orarioInizio, orarioFine });
+                console.log('❌ DEBUG: localStorage pendingPrenotazione:', localStorage.getItem('pendingPrenotazione'));
+                console.log('❌ DEBUG: localStorage redirectAfterLogin:', localStorage.getItem('redirectAfterLogin'));
                 
                 throw new Error('Parametri prenotazione mancanti. Torna alla selezione e riprova.');
             }
@@ -1948,11 +1959,47 @@ $(document).ready(async function () {
             // Crea la prenotazione automaticamente
             await createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, orarioInizio, orarioFine);
         } else {
+            // ✅ CONTROLLA SE CI SONO DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
+            console.log('🔍 DEBUG: Parametri URL mancanti, controllo localStorage per dati post-login...');
+            
+            const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+            if (pendingPrenotazione) {
+                try {
+                    const pendingData = JSON.parse(pendingPrenotazione);
+                    console.log('🔍 DEBUG: Dati prenotazione in attesa trovati:', pendingData);
+                    
+                    if (pendingData.sede && pendingData.spazio && pendingData.dataInizio && pendingData.orarioInizio) {
+                        console.log('🔍 DEBUG: Creo prenotazione da dati localStorage (post-login)');
+                        
+                        // Crea la prenotazione dai dati salvati
+                        await createPrenotazioneFromSelection(
+                            pendingData.sede.id_sede || pendingData.sede,
+                            pendingData.spazio.id_spazio || pendingData.spazio,
+                            pendingData.dataInizio,
+                            pendingData.dataFine || pendingData.dataInizio,
+                            pendingData.orarioInizio,
+                            pendingData.orarioFine
+                        );
+                        
+                        // Pulisci i dati dal localStorage
+                        localStorage.removeItem('pendingPrenotazione');
+                        localStorage.removeItem('redirectAfterLogin');
+                        
+                        console.log('🔍 DEBUG: Prenotazione creata da localStorage, dati puliti');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('🔍 DEBUG: Errore nel parsing dati localStorage:', error);
+                }
+            }
+            
             // Cerca ID prenotazione nell'URL (flusso normale)
             const prenotazioneId = new URLSearchParams(window.location.search).get('id_prenotazione');
 
             if (!prenotazioneId) {
-                console.error('ID prenotazione mancante nell\'URL');
+                console.error('❌ DEBUG: Nessun dato trovato, lancio errore...');
+                console.error('❌ DEBUG: localStorage pendingPrenotazione:', localStorage.getItem('pendingPrenotazione'));
+                console.error('❌ DEBUG: localStorage redirectAfterLogin:', localStorage.getItem('redirectAfterLogin'));
                 showError('ID prenotazione mancante. Torna alla dashboard e riprova.');
                 return;
             }
