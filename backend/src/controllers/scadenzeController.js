@@ -1,4 +1,5 @@
 const pool = require('../db');
+const SSEController = require('./sseController');
 
 // Gestisce le scadenze delle prenotazioni
 class ScadenzeController {
@@ -35,6 +36,36 @@ class ScadenzeController {
           // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
 
           console.log(`✅ Prenotazione ${prenotazione.id_prenotazione} scaduta`);
+
+          // Notifica tutti i client via SSE che lo slot è tornato disponibile
+          try {
+            // Ottieni informazioni sulla sede per le notifiche SSE
+            const sedeInfo = await pool.query(
+              `SELECT s.id_sede, s.id_spazio FROM Spazio s WHERE s.id_spazio = $1`,
+              [prenotazione.id_spazio]
+            );
+
+            if (sedeInfo.rowCount > 0) {
+              const { id_sede, id_spazio: spazioId } = sedeInfo.rows[0];
+              
+              // Notifica che lo slot è tornato disponibile
+              SSEController.broadcastSlotUpdate(
+                prenotazione.id_prenotazione, 
+                'available', 
+                { 
+                  prenotazioneId: prenotazione.id_prenotazione,
+                  reason: 'slot_expired'
+                }
+              );
+
+              // Aggiorna stato completo per tutti gli slot della data corrente
+              const today = new Date().toISOString().split('T')[0];
+              const slotsStatus = await SSEController.getSlotsStatus(id_sede, spazioId, today);
+              SSEController.broadcastSlotsStatusUpdate(id_sede, spazioId, today, slotsStatus);
+            }
+          } catch (sseError) {
+            console.warn('⚠️ Errore notifica SSE per slot liberato (non critico):', sseError);
+          }
         }
       }
 

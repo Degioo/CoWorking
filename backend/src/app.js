@@ -85,6 +85,10 @@ app.use('/api', scadenzeRoutes);
 const concorrenzaRoutes = require('./routes/concorrenza');
 app.use('/api/concorrenza', concorrenzaRoutes);
 
+// Rotte per Server-Sent Events (SSE) - Sistema real-time
+const sseRoutes = require('./routes/sse');
+app.use('/api/sse', sseRoutes);
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({

@@ -1,4 +1,5 @@
 const pool = require('../db');
+const SSEController = require('./sseController');
 
 // Verifica se uno spazio è disponibile in un intervallo
 exports.checkDisponibilita = async (req, res) => {
@@ -136,6 +137,35 @@ exports.creaPrenotazione = async (req, res) => {
        VALUES ($1, $2, $3, $4, 'in attesa', $5) RETURNING id_prenotazione`,
       [id_utente, id_spazio, data_inizio, data_fine, scadenzaSlot]
     );
+
+    // Ottieni informazioni sulla sede per le notifiche SSE
+    const sedeInfo = await pool.query(
+      `SELECT s.id_sede, s.id_spazio FROM Spazio s WHERE s.id_spazio = $1`,
+      [id_spazio]
+    );
+
+    if (sedeInfo.rowCount > 0) {
+      const { id_sede, id_spazio: spazioId } = sedeInfo.rows[0];
+      const data = new Date(data_inizio).toISOString().split('T')[0]; // Solo la data
+
+      // Notifica tutti i client via SSE che lo slot è ora occupato
+      try {
+        await SSEController.broadcastSlotUpdate(
+          result.rows[0].id_prenotazione, 
+          'occupied', 
+          { 
+            prenotazioneId: result.rows[0].id_prenotazione,
+            holdTimeRemaining: 15 // minuti
+          }
+        );
+
+        // Aggiorna stato completo per tutti gli slot della data
+        const slotsStatus = await SSEController.getSlotsStatus(id_sede, spazioId, data);
+        SSEController.broadcastSlotsStatusUpdate(id_sede, spazioId, data, slotsStatus);
+      } catch (sseError) {
+        console.warn('⚠️ Errore notifica SSE (non critico):', sseError);
+      }
+    }
 
     // Nota: La liberazione automatica dello slot è gestita dal cron job scadenzeCron
     // che controlla ogni 5 minuti le prenotazioni scadute
