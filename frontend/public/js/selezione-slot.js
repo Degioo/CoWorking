@@ -375,6 +375,12 @@ function setupEventListeners() {
     // Event listener per il bottone "Prenota Ora"
     const btnBook = document.getElementById('btnBook');
     if (btnBook) {
+        // Inizializza il bottone come disabilitato
+        btnBook.disabled = true;
+        btnBook.textContent = 'Seleziona orari...';
+        btnBook.classList.add('btn-secondary');
+        console.log('🔒 Bottone Prenota Ora inizializzato come disabilitato');
+        
         btnBook.addEventListener('click', async function () {
             console.log('🎯 Bottone Prenota Ora cliccato');
 
@@ -654,6 +660,7 @@ async function selectTimeSlot(orario, slotElement) {
             console.log('👤 Utente non autenticato, abilito bottone per reindirizzamento al login');
             document.getElementById('btnBook').disabled = false;
             document.getElementById('btnBook').textContent = 'Prenota Ora (Login Richiesto)';
+            document.getElementById('btnBook').classList.remove('btn-secondary');
             document.getElementById('btnBook').classList.add('btn-warning');
 
             // Mostra messaggio informativo
@@ -671,6 +678,13 @@ async function selectTimeSlot(orario, slotElement) {
             showError('🚫 Slot non disponibile per l\'orario selezionato');
             return;
         }
+
+        // ✅ SLOT DISPONIBILI - ABILITA IL BOTTONE!
+        console.log('✅ Slot disponibili, abilito bottone Prenota Ora');
+        document.getElementById('btnBook').disabled = false;
+        document.getElementById('btnBook').textContent = 'Prenota Ora';
+        document.getElementById('btnBook').classList.remove('btn-warning', 'btn-secondary');
+        document.getElementById('btnBook').classList.add('btn-book');
 
         // Aggiorna il riepilogo
         updateSummary();
@@ -721,19 +735,19 @@ function calculatePrice() {
     if (!window.selectedTimeInizio || !window.selectedTimeFine) {
         return 0;
     }
-    
+
     // Calcola le ore totali
     const orarioInizio = parseInt(window.selectedTimeInizio.split(':')[0]);
     const orarioFine = parseInt(window.selectedTimeFine.split(':')[0]);
     const oreTotali = orarioFine - orarioInizio;
-    
+
     // Prezzo base per ora (€15/ora)
     const prezzoPerOra = 15;
     const prezzoTotale = oreTotali * prezzoPerOra;
-    
+
     console.log(`⏰ Ore calcolate: ${orarioInizio}:00 - ${orarioFine}:00 = ${oreTotali} ore`);
     console.log(`💰 Prezzo: ${oreTotali} ore × €${prezzoPerOra} = €${prezzoTotale}`);
-    
+
     return prezzoTotale;
 }
 
@@ -752,7 +766,7 @@ function updateSummary() {
     if (summaryStanza) summaryStanza.textContent = window.selectedSpazio ? window.selectedSpazio.nome : '-';
     if (summaryData) summaryData.textContent = window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : '-';
     if (summaryOrario) summaryOrario.textContent = window.selectedTimeInizio && window.selectedTimeFine ? `${window.selectedTimeInizio} - ${window.selectedTimeFine}` : '-';
-    
+
     // Calcola il prezzo reale
     if (summaryPrezzo) {
         const prezzo = calculatePrice();
