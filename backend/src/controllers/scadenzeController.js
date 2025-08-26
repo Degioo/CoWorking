@@ -31,16 +31,10 @@ class ScadenzeController {
           AND stato NOT IN ('cancellata', 'confermata')
         `, [prenotazione.id_prenotazione]);
 
-          // Libera lo slot
-          await pool.query(`
-            UPDATE Spazio 
-            SET stato = 'disponibile', 
-                ultima_prenotazione = NULL, 
-                utente_prenotazione = NULL
-            WHERE id_spazio = $1
-          `, [prenotazione.id_spazio]);
+          // NOTA: Non aggiorniamo più lo stato generale dello spazio
+          // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
 
-          console.log(`✅ Prenotazione ${prenotazione.id_prenotazione} scaduta, slot ${prenotazione.nome_spazio} (${prenotazione.nome_sede}) liberato`);
+          console.log(`✅ Prenotazione ${prenotazione.id_prenotazione} scaduta`);
         }
       }
 
@@ -85,14 +79,8 @@ class ScadenzeController {
             WHERE id_prenotazione = $1
           `, [pagamento.id_prenotazione]);
 
-          // Libera lo slot
-          await pool.query(`
-            UPDATE Spazio 
-            SET stato = 'disponibile', ultima_prenotazione = NULL
-            WHERE id_spazio = (
-              SELECT id_spazio FROM Prenotazione WHERE id_prenotazione = $1
-            )
-          `, [pagamento.id_prenotazione]);
+          // NOTA: Non aggiorniamo più lo stato generale dello spazio
+          // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
 
           console.log(`💸 Pagamento ${pagamento.id_pagamento} scaduto e marcato come fallito`);
         }
@@ -111,7 +99,7 @@ class ScadenzeController {
     try {
       console.log('⚠️ Controllo prenotazioni in scadenza...');
 
-      // Trova prenotazioni che scadranno entro 1 ora (per slot bloccati)
+      // Trova prenotazioni che scadranno entro 1 ora
       const prenotazioniInScadenza = await pool.query(`
         SELECT p.id_prenotazione, p.scadenza_slot, p.stato, s.nome AS nome_spazio, se.nome AS nome_sede
         FROM Prenotazione p
@@ -119,7 +107,6 @@ class ScadenzeController {
         JOIN Sede se ON s.id_sede = se.id_sede
         WHERE p.stato IN ('in attesa', 'pendente')
         AND p.scadenza_slot BETWEEN NOW() AND NOW() + INTERVAL '1 hour'
-        AND s.stato = 'in_prenotazione'
       `);
 
       if (prenotazioniInScadenza.rows.length > 0) {

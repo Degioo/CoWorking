@@ -44,26 +44,9 @@ exports.checkDisponibilita = async (req, res) => {
     const spazio = spazioResult.rows[0];
     console.log('🏢 Stato spazio:', spazio);
 
-    // Se lo spazio è occupato, non è disponibile
-    if (spazio.stato === 'occupato') {
-      console.log('❌ Spazio occupato');
-      return res.json({ disponibile: false, motivo: 'Spazio occupato' });
-    }
-
-    // Se lo spazio è in prenotazione da meno di 15 minuti, non è disponibile
-    if (spazio.stato === 'in_prenotazione' && spazio.ultima_prenotazione) {
-      const minutiTrascorsi = Math.floor((Date.now() - new Date(spazio.ultima_prenotazione).getTime()) / (1000 * 60));
-
-      if (minutiTrascorsi < 15) {
-        const minutiRimanenti = 15 - minutiTrascorsi;
-        console.log(`❌ Spazio in prenotazione, riprova tra ${minutiRimanenti} minuti`);
-        return res.json({
-          disponibile: false,
-          motivo: `Spazio temporaneamente bloccato. Riprova tra ${minutiRimanenti} minuti.`,
-          minutiRimanenti: minutiRimanenti
-        });
-      }
-    }
+    // NOTA: Non controlliamo più lo stato generale dello spazio
+    // perché uno spazio può essere "occupato" per alcuni orari ma disponibile per altri
+    // Lo stato viene determinato dalle prenotazioni specifiche per l'intervallo richiesto
 
     // 2. Controlla prenotazioni confermate sovrapposte
     const prenotazioniConfermate = await pool.query(
@@ -114,10 +97,9 @@ exports.creaPrenotazione = async (req, res) => {
   }
 
   try {
-    // Prima controlla se lo slot è disponibile o in prenotazione
+    // Verifica che lo spazio esista
     const checkSlot = await pool.query(
-      `SELECT stato, ultima_prenotazione, utente_prenotazione 
-       FROM Spazio WHERE id_spazio = $1`,
+      `SELECT id_spazio FROM Spazio WHERE id_spazio = $1`,
       [id_spazio]
     );
 
@@ -125,25 +107,9 @@ exports.creaPrenotazione = async (req, res) => {
       return res.status(404).json({ error: 'Spazio non trovato' });
     }
 
-    const slot = checkSlot.rows[0];
-
-    // Se lo slot è occupato, rifiuta
-    if (slot.stato === 'occupato') {
-      return res.status(409).json({ error: 'Spazio non disponibile' });
-    }
-
-    // Se lo slot è in prenotazione da meno di 15 minuti, rifiuta
-    if (slot.stato === 'in_prenotazione' && slot.ultima_prenotazione) {
-      const minutiTrascorsi = Math.floor((Date.now() - new Date(slot.ultima_prenotazione).getTime()) / (1000 * 60));
-
-      if (minutiTrascorsi < 15) {
-        const minutiRimanenti = 15 - minutiTrascorsi;
-        return res.status(409).json({
-          error: `Spazio temporaneamente bloccato. Riprova tra ${minutiRimanenti} minuti.`,
-          minutiRimanenti: minutiRimanenti
-        });
-      }
-    }
+    // NOTA: Non controlliamo più lo stato generale dello spazio
+    // perché uno spazio può essere "occupato" per alcuni orari ma disponibile per altri
+    // Lo stato viene determinato dalle prenotazioni specifiche per l'intervallo richiesto
 
     // Controllo disponibilità per prenotazioni confermate
     const check = await pool.query(
@@ -158,15 +124,9 @@ exports.creaPrenotazione = async (req, res) => {
       return res.status(409).json({ error: 'Spazio non disponibile' });
     }
 
-    // Blocca temporaneamente lo slot per 15 minuti
-    await pool.query(
-      `UPDATE Spazio 
-       SET stato = 'in_prenotazione', 
-           ultima_prenotazione = NOW(), 
-           utente_prenotazione = $1
-       WHERE id_spazio = $2`,
-      [id_utente, id_spazio]
-    );
+    // NOTA: Non aggiorniamo più lo stato generale dello spazio
+    // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
+    // Lo stato viene gestito dalle singole prenotazioni
 
     // Inserimento prenotazione con scadenza slot
     const scadenzaSlot = new Date(Date.now() + 15 * 60 * 1000); // 15 minuti da ora
@@ -183,7 +143,6 @@ exports.creaPrenotazione = async (req, res) => {
     res.status(201).json({
       message: 'Prenotazione creata',
       id_prenotazione: result.rows[0].id_prenotazione,
-      slot_bloccato: true,
       scadenza_slot: new Date(Date.now() + 15 * 60 * 1000).toISOString()
     });
 
@@ -326,15 +285,8 @@ exports.confirmPrenotazione = async (req, res) => {
       [id_prenotazione]
     );
 
-    // Libera lo slot e lo marca come occupato per la data della prenotazione
-    await pool.query(
-      `UPDATE Spazio 
-       SET stato = 'occupato', 
-           ultima_prenotazione = NULL, 
-           utente_prenotazione = NULL
-       WHERE id_spazio = $1`,
-      [pre.rows[0].id_spazio]
-    );
+    // NOTA: Non aggiorniamo più lo stato generale dello spazio
+    // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
 
     // Aggiorna o crea il record di pagamento - logica sicura senza ON CONFLICT
     try {
@@ -361,8 +313,7 @@ exports.confirmPrenotazione = async (req, res) => {
 
     res.json({
       message: 'Prenotazione confermata',
-      stato: 'confermata',
-      slot_occupato: true
+      stato: 'confermata'
     });
 
   } catch (err) {
@@ -407,22 +358,14 @@ exports.cancellaPrenotazione = async (req, res) => {
       [id]
     );
 
-    // Libera lo slot se era bloccato
-    await pool.query(
-      `UPDATE Spazio 
-             SET stato = 'disponibile', 
-                 ultima_prenotazione = NULL, 
-                 utente_prenotazione = NULL
-             WHERE id_spazio = $1 AND stato = 'in_prenotazione'`,
-      [prenotazione.id_spazio]
-    );
+    // NOTA: Non aggiorniamo più lo stato generale dello spazio
+    // perché uno spazio può avere prenotazioni per alcuni orari ma essere disponibile per altri
 
-    console.log(`✅ Prenotazione ${id} cancellata, slot ${prenotazione.id_spazio} liberato`);
+    console.log(`✅ Prenotazione ${id} cancellata`);
 
     res.json({
       message: 'Prenotazione cancellata con successo',
-      stato: 'cancellata',
-      slot_liberato: true
+      stato: 'cancellata'
     });
 
   } catch (err) {
