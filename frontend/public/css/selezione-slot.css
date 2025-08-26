@@ -6,8 +6,10 @@
     border: 2px solid #dee2e6 !important;
 }
 
-/* Stati degli slot - solo colori, nessun sfondo grigio */
-.slot-available {
+/* Stati degli slot - CSS ULTRA-SPECIFICO per sovrascrivere Bootstrap */
+.btn.slot-available,
+button.slot-available,
+[data-slot-id].slot-available {
     background-color: #28a745 !important;
     color: white !important;
     border-color: #28a745 !important;
@@ -20,7 +22,9 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.slot-selected {
+.btn.slot-selected,
+button.slot-selected,
+[data-slot-id].slot-selected {
     background-color: #007bff !important;
     color: white !important;
     border-color: #007bff !important;
@@ -33,7 +37,9 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
 }
 
-.slot-intermediate {
+.btn.slot-intermediate,
+button.slot-intermediate,
+[data-slot-id].slot-intermediate {
     background-color: #17a2b8 !important;
     color: white !important;
     border-color: #17a2b8 !important;
@@ -46,7 +52,9 @@
     opacity: 1;
 }
 
-.slot-booked {
+.btn.slot-booked,
+button.slot-booked,
+[data-slot-id].slot-booked {
     background-color: #dc3545 !important;
     color: white !important;
     border-color: #dc3545 !important;
@@ -60,7 +68,9 @@
     box-shadow: none;
 }
 
-.slot-occupied {
+.btn.slot-occupied,
+button.slot-occupied,
+[data-slot-id].slot-occupied {
     background-color: #fd7e14 !important;
     color: white !important;
     border-color: #fd7e14 !important;
@@ -74,7 +84,9 @@
     box-shadow: none;
 }
 
-.slot-past {
+.btn.slot-past,
+button.slot-past,
+[data-slot-id].slot-past {
     background-color: #6c757d !important;
     color: #adb5bd !important;
     border-color: #6c757d !important;
