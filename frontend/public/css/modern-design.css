@@ -369,6 +369,47 @@ a:hover {
     font-weight: 700;
     color: var(--primary);
     text-decoration: none;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ===== LOGO ANIMATION ===== */
+.navbar-brand:hover {
+    transform: scale(1.05);
+    color: var(--primary-dark);
+}
+
+.navbar-brand i {
+    transition: all var(--transition-normal);
+    display: inline-block;
+}
+
+.navbar-brand:hover i {
+    transform: rotate(5deg) scale(1.1);
+    color: var(--secondary);
+}
+
+/* Animazione logo al caricamento pagina */
+.navbar-brand.loaded i {
+    animation: logoAppear 0.8s ease-out;
+}
+
+@keyframes logoAppear {
+    0% {
+        transform: translateY(-20px) scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(5px) scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
 }
 
 .navbar-nav {

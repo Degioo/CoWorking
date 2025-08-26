@@ -117,7 +117,7 @@
                         <i class="fas fa-clock me-2"></i>
                         Orari Disponibili
                     </h3>
-                    <!-- Container per gli slot temporali - PULITO -->
+                    <!-- Container per gli slot temporali -->
                     <div id="timeSlots" class="time-slots-container" style="display: none;">
                         <!-- Gli slot temporali verranno generati dinamicamente -->
                     </div>
@@ -174,8 +174,17 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/slot-manager.js"></script>
+    <script src="js/modern-ui.js"></script>
     <script src="js/selezione-slot.js"></script>
+
+    <script>
+        // Inizializza ModernUI per animazioni globali (incluso logo)
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof ModernUI !== 'undefined') {
+                new ModernUI();
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -951,7 +951,7 @@ async function loadPrenotazioneData() {
                 console.log('❌ DEBUG: Parametri URL mancanti:', { sede, spazio, dal, al, orarioInizio, orarioFine });
                 console.log('❌ DEBUG: localStorage pendingPrenotazione:', localStorage.getItem('pendingPrenotazione'));
                 console.log('❌ DEBUG: localStorage redirectAfterLogin:', localStorage.getItem('redirectAfterLogin'));
-                
+
                 throw new Error('Parametri prenotazione mancanti. Torna alla selezione e riprova.');
             }
         }
@@ -1961,16 +1961,16 @@ $(document).ready(async function () {
         } else {
             // ✅ CONTROLLA SE CI SONO DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
             console.log('🔍 DEBUG: Parametri URL mancanti, controllo localStorage per dati post-login...');
-            
+
             const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
             if (pendingPrenotazione) {
                 try {
                     const pendingData = JSON.parse(pendingPrenotazione);
                     console.log('🔍 DEBUG: Dati prenotazione in attesa trovati:', pendingData);
-                    
+
                     if (pendingData.sede && pendingData.spazio && pendingData.dataInizio && pendingData.orarioInizio) {
                         console.log('🔍 DEBUG: Creo prenotazione da dati localStorage (post-login)');
-                        
+
                         // Crea la prenotazione dai dati salvati
                         await createPrenotazioneFromSelection(
                             pendingData.sede.id_sede || pendingData.sede,
@@ -1980,11 +1980,11 @@ $(document).ready(async function () {
                             pendingData.orarioInizio,
                             pendingData.orarioFine
                         );
-                        
+
                         // Pulisci i dati dal localStorage
                         localStorage.removeItem('pendingPrenotazione');
                         localStorage.removeItem('redirectAfterLogin');
-                        
+
                         console.log('🔍 DEBUG: Prenotazione creata da localStorage, dati puliti');
                         return;
                     }
@@ -1992,7 +1992,7 @@ $(document).ready(async function () {
                     console.error('🔍 DEBUG: Errore nel parsing dati localStorage:', error);
                 }
             }
-            
+
             // Cerca ID prenotazione nell'URL (flusso normale)
             const prenotazioneId = new URLSearchParams(window.location.search).get('id_prenotazione');
 

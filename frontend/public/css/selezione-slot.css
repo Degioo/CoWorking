@@ -1,682 +1,10 @@
-/* ===== STILI PER I BOTTONI DEGLI SLOT ===== */
+/* ===== SELEZIONE SLOT - STILI DEDICATI ===== */
 
-/* Override Bootstrap per rimuovere background grigio */
-.btn {
-    background-color: transparent !important;
-    border: 2px solid #dee2e6 !important;
-}
-
-/* ===== STILI SPECIFICI PER BOTTONI SLOT ===== */
-
-/* Bottoni slot - dimensioni ottimizzate per fit completo */
-.slot-button {
-    min-width: 70px !important;
-    /* Riduco larghezza per fit più bottoni */
-    min-height: 45px !important;
-    /* Riduco altezza proporzionalmente */
-    font-size: 14px !important;
-    /* Riduco font per fit migliore */
-    font-weight: 600 !important;
-    border-radius: 10px !important;
-    transition: all 0.3s ease !important;
-    margin: 3px !important;
-    /* Riduco margin per spacing migliore */
-}
-
-/* Hover per tutti i bottoni slot */
-.slot-button:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Stati degli slot - CSS ULTRA-SPECIFICO per sovrascrivere Bootstrap */
-.btn.slot-available,
-button.slot-available,
-[data-slot-id].slot-available,
-.slot-button.slot-available {
-    background-color: #28a745 !important;
-    color: white !important;
-    border-color: #28a745 !important;
-}
-
-.slot-available:hover {
-    background-color: #218838 !important;
-    border-color: #1e7e34 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.btn.slot-selected,
-button.slot-selected,
-[data-slot-id].slot-selected,
-.slot-button.slot-selected {
-    background-color: #007bff !important;
-    color: white !important;
-    border-color: #007bff !important;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
-}
-
-.slot-selected:hover {
-    background-color: #0056b3 !important;
-    border-color: #0056b3 !important;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
-}
-
-.btn.slot-intermediate,
-button.slot-intermediate,
-[data-slot-id].slot-intermediate,
-.slot-button.slot-intermediate {
-    background-color: #17a2b8 !important;
-    color: white !important;
-    border-color: #17a2b8 !important;
-    opacity: 0.8;
-}
-
-.slot-intermediate:hover {
-    background-color: #138496 !important;
-    border-color: #117a8b !important;
-    opacity: 1;
-}
-
-.btn.slot-booked,
-button.slot-booked,
-[data-slot-id].slot-booked,
-.slot-button.slot-booked {
-    background-color: #dc3545 !important;
-    color: white !important;
-    border-color: #dc3545 !important;
-    cursor: not-allowed;
-}
-
-.slot-booked:hover {
-    background-color: #c82333 !important;
-    border-color: #bd2130 !important;
-    transform: none;
-    box-shadow: none;
-}
-
-.btn.slot-occupied,
-button.slot-occupied,
-[data-slot-id].slot-occupied,
-.slot-button.slot-occupied {
-    background-color: #fd7e14 !important;
-    color: white !important;
-    border-color: #fd7e14 !important;
-    cursor: not-allowed;
-}
-
-.slot-occupied:hover {
-    background-color: #e8690b !important;
-    border-color: #d66202 !important;
-    transform: none;
-    box-shadow: none;
-}
-
-.btn.slot-past,
-button.slot-past,
-[data-slot-id].slot-past,
-.slot-button.slot-past {
-    background-color: #6c757d !important;
-    color: white !important;
-    border-color: #6c757d !important;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.slot-past:hover {
-    background-color: #5a6268 !important;
-    border-color: #545b62 !important;
-    transform: none;
-    box-shadow: none;
-}
-
-/* ===== CONTAINER SLOT ===== */
-
-#timeSlots {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    /* Cambia da nowrap a wrap */
-    gap: 15px !important;
-    /* Riduco gap per fit più bottoni */
-    padding: 30px !important;
-    margin: 30px 0 !important;
-    overflow-x: hidden !important;
-    /* ✅ NASCONDI SCROLL ORIZZONTALE - Non necessario */
-    justify-content: center !important;
-    max-width: 100% !important;
-    /* Usa tutta la larghezza disponibile */
-}
-
-/* ===== SPACING TRA SEZIONI ===== */
-
-.slot-selector {
-    margin-bottom: 40px !important;
-}
-
-.calendar-container {
-    margin-bottom: 20px !important;
-    /* Riduco spacing per unire meglio con riepilogo */
-}
-
-.summary-card {
-    margin-bottom: 40px !important;
-}
-
-/* ===== BOTTONI AZIONE FISSI IN BASSO ===== */
-
-.action-buttons {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px) !important;
-    padding: 20px !important;
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1) !important;
-    z-index: 1000 !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    gap: 20px !important;
-}
-
-main.container {
-    padding-bottom: 100px !important;
-}
-
-/* ===== STILI BOTTONI AZIONE ===== */
-
-.btn-custom {
-    transition: all 0.3s ease !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    position: relative !important;
-    overflow: hidden !important;
-    padding: 12px 30px !important;
-    font-size: 16px !important;
-}
-
-.btn-back {
-    background: linear-gradient(45deg, #007bff, #0056b3) !important;
-    border: none !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3) !important;
-}
-
-.btn-back:hover {
-    background: linear-gradient(45deg, #0056b3, #004085) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4) !important;
-}
-
-.btn-book {
-    background: linear-gradient(45deg, #28a745, #20c997) !important;
-    border: none !important;
-    color: white !important;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
-}
-
-.btn-book:hover {
-    background: linear-gradient(45deg, #20c997, #17a2b8) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4) !important;
-}
-
-/* ===== ANIMAZIONI AVANZATE PER IL RIEPILOGO ===== */
-
-/* Stile base del riepilogo - POSIZIONAMENTO RELATIVO SOTTO SELEZIONE DATA */
-.summary-card {
-    position: relative !important;
-    /* Cambia da fixed a relative */
-    width: 100% !important;
-    /* Usa tutta la larghezza disponibile */
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-    /* Stesso blu del bottone Torna Indietro */
-    border-radius: 15px !important;
-    padding: 25px !important;
-    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3) !important;
-    margin-top: 30px !important;
-    /* Spacing sopra il riepilogo */
-    transform: translateX(400px) scale(0.8) !important;
-    /* Nascondi a destra */
-    opacity: 0 !important;
-    /* ✅ ANIMAZIONE MIGLIORATA: Transizione più fluida e elegante */
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-    /* Aggiungi transizione per il movimento della pagina */
-    scroll-behavior: smooth !important;
-}
-
-/* Nascondi riepilogo di default */
-.summary-card.hidden {
-    transform: translateX(400px) scale(0.8) !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Mostra riepilogo quando attivo - SLIDE DA DESTRA + SFUMATURA BLU DOMINANTE → VERDE SOTTILE */
-.summary-card.active {
-    transform: translateX(0) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    background: linear-gradient(135deg, #007bff 80%, #28a745 100%) !important;
-    /* Blu molto dominante, verde solo all'angolo */
-    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4) !important;
-    /* ✅ ANIMAZIONE PAGINA: Effetto di "spinta" verso il basso */
-    animation: summaryAppear 0.8s ease-out forwards !important;
-}
-
-/* ✅ KEYFRAME PER ANIMAZIONE COMPARSA RIEPILOGO */
-@keyframes summaryAppear {
-    0% {
-        transform: translateX(400px) scale(0.8) !important;
-        opacity: 0 !important;
-    }
-
-    50% {
-        transform: translateX(0) scale(1.05) !important;
-        opacity: 0.8 !important;
-    }
-
-    100% {
-        transform: translateX(0) scale(1) !important;
-        opacity: 1 !important;
-    }
-}
-
-/* NO HOVER EFFECT - Mantieni stile fisso */
-.summary-card.active:hover {
-    transform: translateX(0) scale(1) !important;
-    box-shadow: 0 15px 40px rgba(40, 167, 69, 0.4) !important;
-}
-
-/* Stili per i testi del riepilogo */
-.summary-card h5 {
-    color: white !important;
-    font-weight: 700 !important;
-    margin-bottom: 20px !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-}
-
-.summary-card .row {
-    color: white !important;
-    font-weight: 500 !important;
-}
-
-.summary-card .col-md-6 {
-    margin-bottom: 15px !important;
-}
-
-/* Icona check con animazione */
-.summary-card .bi-check-circle {
-    animation: checkBounce 0.8s ease-out 0.3s both !important;
-}
-
-@keyframes checkBounce {
-    0% {
-        transform: scale(0) rotate(-180deg);
-        opacity: 0;
-    }
-
-    50% {
-        transform: scale(1.2) rotate(0deg);
-    }
-
-    100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-    }
-}
-
-/* ===== STILI MODAL DI AUTENTICAZIONE ELEGANTE ===== */
-
-/* Modal principale */
-.auth-modal-content {
-    border: none !important;
-    border-radius: 20px !important;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
-    overflow: visible !important;
-    /* ✅ PERMETTI SCROLL DEL MODAL */
-}
-
-/* ✅ ASSICURA CHE IL MODAL SIA SCROLLABILE */
-.modal-dialog-scrollable {
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-}
-
-.modal-dialog-scrollable .modal-content {
-    max-height: none !important;
-}
-
-/* ✅ RIMUOVI BARRA DI SCORRIMENTO VISIVAMENTE */
-.modal-dialog-scrollable::-webkit-scrollbar {
-    width: 0 !important;
-    background: transparent !important;
-}
-
-.modal-dialog-scrollable::-webkit-scrollbar-track {
-    background: transparent !important;
-}
-
-.modal-dialog-scrollable::-webkit-scrollbar-thumb {
-    background: transparent !important;
-}
-
-.modal-dialog-scrollable::-webkit-scrollbar-thumb:hover {
-    background: transparent !important;
-}
-
-/* ✅ CENTRATURA PERFETTA DEL MODAL */
-.modal-dialog {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 100vh !important;
-    margin: 0 auto !important;
-}
-
-.modal-dialog.modal-lg {
-    max-width: 800px !important;
-    width: 90% !important;
-    margin: 1.75rem auto !important;
-}
-
-/* ✅ POSIZIONAMENTO OTTIMALE SU MOBILE */
-@media (max-width: 768px) {
-    .modal-dialog.modal-lg {
-        width: 95% !important;
-        margin: 0.5rem auto !important;
-    }
-}
-
-/* ✅ NASCONDI BARRA DI SCORRIMENTO SU TUTTI I BROWSER */
-.modal-dialog-scrollable {
-    scrollbar-width: none !important;
-    /* Firefox */
-    -ms-overflow-style: none !important;
-    /* Internet Explorer 10+ */
-}
-
-/* ✅ STILE PERSONALIZZATO PER SCROLL INVISIBILE */
-.modal-dialog-scrollable .modal-body {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
-    width: 0 !important;
-    background: transparent !important;
-}
-
-/* Header del modal */
-.auth-modal-header {
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-    color: white !important;
-    border-bottom: none !important;
-    padding: 25px 30px !important;
-    position: relative !important;
-}
-
-.auth-modal-header::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)) !important;
-    pointer-events: none !important;
-}
-
-/* Icona di autenticazione */
-.auth-icon-container {
-    width: 60px !important;
-    height: 60px !important;
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    backdrop-filter: blur(10px) !important;
-}
-
-.auth-icon {
-    font-size: 24px !important;
-    color: white !important;
-}
-
-/* Titolo e sottotitolo */
-.auth-modal-header .modal-title {
-    font-size: 28px !important;
-    font-weight: 700 !important;
-    margin-bottom: 5px !important;
-}
-
-.auth-subtitle {
-    font-size: 16px !important;
-    opacity: 0.9 !important;
-    font-weight: 400 !important;
-}
-
-/* Body del modal */
-.auth-modal-body {
-    padding: 30px !important;
-    background: #f8f9fa !important;
-}
-
-/* Riquadro riepilogo elegante */
-.auth-summary-card {
-    background: white !important;
-    border-radius: 15px !important;
-    padding: 25px !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
-    margin-bottom: 25px !important;
-    border-left: 5px solid #007bff !important;
-}
-
-.auth-summary-header {
-    display: flex !important;
-    align-items: center !important;
-    margin-bottom: 20px !important;
-    padding-bottom: 15px !important;
-    border-bottom: 2px solid #e9ecef !important;
-    color: #007bff !important;
-    font-weight: 600 !important;
-    font-size: 18px !important;
-}
-
-.auth-summary-content {
-    display: grid !important;
-    gap: 15px !important;
-}
-
-.auth-summary-row {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 12px 0 !important;
-    border-bottom: 1px solid #f1f3f4 !important;
-}
-
-.auth-summary-row:last-child {
-    border-bottom: none !important;
-}
-
-.auth-summary-label {
-    display: flex !important;
-    align-items: center !important;
-    color: #6c757d !important;
-    font-weight: 500 !important;
-    min-width: 120px !important;
-}
-
-.auth-summary-value {
-    color: #212529 !important;
-    font-weight: 600 !important;
-    text-align: right !important;
-    flex: 1 !important;
-}
-
-/* Messaggio informativo */
-.auth-info-message {
-    display: flex !important;
-    align-items: flex-start !important;
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    border-left: 4px solid #2196f3 !important;
-}
-
-.auth-info-icon {
-    color: #2196f3 !important;
-    font-size: 20px !important;
-    margin-right: 15px !important;
-    margin-top: 2px !important;
-}
-
-.auth-info-text strong {
-    color: #1976d2 !important;
-    font-size: 16px !important;
-    margin-bottom: 8px !important;
-    display: block !important;
-}
-
-.auth-info-text p {
-    color: #424242 !important;
-    margin: 0 !important;
-    line-height: 1.5 !important;
-}
-
-/* Footer del modal */
-.auth-modal-footer {
-    background: white !important;
-    border-top: 1px solid #e9ecef !important;
-    padding: 25px 30px !important;
-    gap: 15px !important;
-}
-
-/* Bottoni eleganti */
-.auth-btn-cancel {
-    border: 2px solid #6c757d !important;
-    color: #6c757d !important;
-    background: transparent !important;
-    border-radius: 12px !important;
-    padding: 12px 25px !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-}
-
-.auth-btn-cancel:hover {
-    background: #6c757d !important;
-    color: white !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3) !important;
-}
-
-.auth-btn-login {
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-    border: none !important;
-    color: white !important;
-    border-radius: 12px !important;
-    padding: 12px 30px !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3) !important;
-}
-
-.auth-btn-login:hover {
-    background: linear-gradient(135deg, #0056b3, #004085) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4) !important;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .auth-modal-dialog {
-        margin: 10px !important;
-    }
-
-    .auth-modal-header {
-        padding: 20px !important;
-    }
-
-    .auth-modal-body {
-        padding: 20px !important;
-    }
-
-    .auth-modal-footer {
-        padding: 20px !important;
-        flex-direction: column !important;
-    }
-
-    .auth-summary-row {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 5px !important;
-    }
-
-    .auth-summary-value {
-        text-align: left !important;
-    }
-}
-
-/* Responsive design - Ottimizzato per slot sempre visibili */
-@media (max-width: 768px) {
-    #timeSlots {
-        gap: 8px !important;
-        /* Gap ridotto per mobile */
-        padding: 15px !important;
-        flex-wrap: wrap !important;
-        /* Mantieni wrap su mobile */
-    }
-
-    .slot-button {
-        min-width: 65px !important;
-        /* Bottoni più piccoli su mobile */
-        min-height: 40px !important;
-        font-size: 13px !important;
-    }
-
-    .action-buttons {
-        flex-direction: column !important;
-        padding: 15px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    #timeSlots {
-        gap: 6px !important;
-        /* Gap minimo su mobile piccolo */
-        padding: 10px !important;
-    }
-
-    .slot-button {
-        min-width: 60px !important;
-        /* Bottoni ancora più piccoli */
-        min-height: 35px !important;
-        font-size: 12px !important;
-    }
-
-    .btn-custom {
-        padding: 10px 20px !important;
-        font-size: 14px !important;
-    }
-}
-
-/* ✅ ANIMAZIONI PAGINA PER SCORRIMENTO FLUIDO */
-html {
-    scroll-behavior: smooth !important;
-}
-
+/* ===== GLOBAL SCROLLBAR REMOVAL ===== */
 body {
-    /* ✅ TRANSIZIONE FLUIDA PER MOVIMENTO PAGINA */
-    transition: scroll-behavior 0.3s ease-in-out !important;
-    /* ✅ RIMUOVI SCROLL ORIZZONTALE DALLA PAGINA */
     overflow-x: hidden !important;
 }
 
-/* ✅ RIMUOVI SCROLL ORIZZONTALE GLOBALE */
 .container,
 .row,
 .col,
@@ -685,28 +13,476 @@ body {
     overflow-x: hidden !important;
 }
 
-/* ✅ EFFETTO DI "SPINTA" QUANDO IL RIEPILOGO APPARA */
-.summary-card.active {
-    /* ✅ ANIMAZIONE PAGINA: Effetto di "spinta" verso il basso */
-    animation: summaryAppear 0.8s ease-out forwards !important;
+/* Container calendario */
+.calendar-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem 0;
 }
 
-/* ✅ ANIMAZIONE COMPLEMENTARE PER IL MOVIMENTO DELLA PAGINA */
-@keyframes pageScroll {
-    0% {
-        transform: translateY(0) !important;
+/* Selettore slot orari */
+.slot-selector {
+    background: var(--gray-50);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+/* Slot orari individuali - TASTI VERDI */
+.time-slot {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    margin: 0.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: 80px;
+    text-align: center;
+}
+
+.time-slot.available {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.time-slot.selected {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.time-slot.occupied {
+    background: var(--warning) !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+.time-slot.booked {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+.time-slot.intermediate {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    animation: pulse-green 1.5s infinite !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Stili specifici per Bootstrap che potrebbero interferire */
+.btn.time-slot.occupied,
+button.time-slot.occupied,
+input.time-slot.occupied {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+}
+
+/* CSS ULTRA SPECIFICO per slot occupati - DEVE ESSERE ROSSO */
+.time-slot.occupied,
+div.time-slot.occupied,
+.time-slot.occupied:hover,
+.time-slot.occupied:focus,
+.time-slot.occupied:active {
+    background-color: var(--danger) !important;
+    background-image: none !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* CSS ULTRA SPECIFICO per slot prenotati - DEVE ESSERE ARANCIONE */
+.time-slot.booked,
+div.time-slot.booked,
+.time-slot.booked:hover,
+.time-slot.booked:focus,
+.time-slot.booked:active {
+    background-color: var(--warning) !important;
+    background-image: none !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+.time-slot.expired {
+    background: var(--gray-600) !important;
+    color: white !important;
+    border-color: var(--gray-600) !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+    animation: fade-out 0.5s ease-in !important;
+}
+
+.time-slot.past-time {
+    background: var(--gray-500) !important;
+    color: white !important;
+    border-color: var(--gray-500) !important;
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    animation: shake 0.5s ease-in-out !important;
+}
+
+.time-slot:hover:not(.occupied) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Previeni hover effects su slot occupati e prenotati */
+.time-slot.occupied:hover,
+.time-slot.booked:hover,
+.time-slot.expired:hover,
+.time-slot.past-time:hover {
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+.time-slot.booked:hover {
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+/* Personalizzazione Flatpickr */
+.flatpickr-calendar {
+    font-size: 16px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.flatpickr-day.disabled {
+    background: var(--danger);
+    color: white;
+    opacity: 0.7;
+}
+
+.flatpickr-day.available {
+    background: var(--success);
+    color: white;
+}
+
+.flatpickr-day.selected {
+    background: var(--primary);
+    color: white;
+}
+
+/* Card riepilogo - ANIMAZIONE BELLA E COLORATA */
+.summary-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+    transition: all 0.4s ease;
+    animation: slideInUp 0.6s ease-out;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card.hidden {
+    display: none;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
 
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animazioni per gli slot non disponibili */
+@keyframes pulse-red {
+
+    0%,
     100% {
-        transform: translateY(-20px) !important;
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+        transform: scale(1.05);
     }
 }
 
-/* ✅ APPLICA ANIMAZIONE ALLA PAGINA QUANDO IL RIEPILOGO È ATTIVO */
-.summary-card.active~* {
-    animation: pageScroll 0.8s ease-out forwards !important;
+@keyframes pulse-orange {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(255, 193, 7, 0);
+        transform: scale(1.05);
+    }
 }
 
+@keyframes fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
 }
 
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+@keyframes pulse-green {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+        transform: scale(1.05);
+    }
+}
+
+/* Pulsanti azione */
+.action-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-custom {
+    padding: 1.2rem 2.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.btn-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-back {
+    background: var(--gray-600);
+    color: white;
+    border: none;
+}
+
+.btn-back:hover {
+    background: var(--gray-700);
+    color: white;
+}
+
+.btn.btn-book {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    border: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-md) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn.btn-book:hover {
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--secondary) 100%) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.btn.btn-book:active {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    transform: scale(0.98) translateY(-2px) !important;
+}
+
+.btn.btn-book:disabled {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+    opacity: 0.7 !important;
+}
+
+/* Effetto scintillante per il tasto prenota */
+.btn.btn-book::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transition: left 0.8s ease;
+    z-index: 1;
+}
+
+.btn.btn-book:hover::before {
+    left: 100%;
+}
+
+.btn.btn-book:active::before {
+    left: 100%;
+    transition: left 0.3s ease;
+}
+
+/* Assicurati che il testo sia sopra l'effetto scintillante */
+.btn.btn-book span {
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .calendar-container,
+    .slot-selector {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-custom {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .time-slot {
+        padding: 0.6rem 1.2rem;
+        margin: 0.3rem;
+        font-size: 0.9rem;
+        min-width: 70px;
+    }
+}
+
+/* Assicura che la pagina scorra correttamente */
+body {
+    overflow-x: hidden;
+}
+
+main {
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+/* Stili per il container principale */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Migliora la leggibilità del testo */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-info {
+    color: #17a2b8 !important;
+}
+
+/* ===== LOGO ANIMATION ===== */
+.navbar-brand {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+    color: var(--primary-dark);
+}
+
+.navbar-brand i {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.navbar-brand:hover i {
+    transform: rotate(5deg) scale(1.1);
+    color: var(--secondary);
+}
+
+/* Animazione logo al caricamento pagina */
+.navbar-brand.loaded i {
+    animation: logoAppear 0.8s ease-out;
+}
+
+@keyframes logoAppear {
+    0% {
+        transform: translateY(-20px) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(5px) scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
 }

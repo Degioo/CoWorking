@@ -41,6 +41,9 @@ class ModernUI {
 
         // Animazioni per elementi che entrano nella viewport
         this.animateOnScroll();
+
+        // Animazione logo al caricamento
+        this.animateLogo();
     }
 
     animateOnScroll() {
@@ -59,6 +62,20 @@ class ModernUI {
                 element.style.transform = 'translateY(0)';
             }, delay);
         });
+    }
+
+    // ===== LOGO ANIMATION =====
+    animateLogo() {
+        const logo = document.querySelector('.navbar-brand');
+        if (logo) {
+            // Aggiungi classe per animazione
+            logo.classList.add('loaded');
+
+            // Rimuovi classe dopo animazione
+            setTimeout(() => {
+                logo.classList.remove('loaded');
+            }, 1000);
+        }
     }
 
     // ===== MICRO INTERACTIONS =====
