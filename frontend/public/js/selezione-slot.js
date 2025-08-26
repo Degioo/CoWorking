@@ -113,6 +113,9 @@ async function initializePage() {
         } else {
             console.log('⏳ Sedi non ancora caricate, rimando inizializzazione slot manager...');
         }
+        
+        // Nascondi il riepilogo all'inizializzazione
+        hideSummary();
 
     } catch (error) {
         console.error('❌ Errore durante l\'inizializzazione:', error);
@@ -676,20 +679,41 @@ function showInfo(message) {
 
 // Aggiorna riepilogo
 function updateSummary() {
-    // Implementa la logica per aggiornare il riepilogo
     console.log('📋 Aggiornamento riepilogo');
+    
+    // Aggiorna i campi del riepilogo
+    const summarySede = document.getElementById('summarySede');
+    const summaryStanza = document.getElementById('summaryStanza');
+    const summaryData = document.getElementById('summaryData');
+    const summaryOrario = document.getElementById('summaryOrario');
+    const summaryPrezzo = document.getElementById('summaryPrezzo');
+    
+    if (summarySede) summarySede.textContent = window.selectedSede ? window.selectedSede.nome : '-';
+    if (summaryStanza) summaryStanza.textContent = window.selectedSpazio ? window.selectedSpazio.nome : '-';
+    if (summaryData) summaryData.textContent = window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : '-';
+    if (summaryOrario) summaryOrario.textContent = window.selectedTimeInizio && window.selectedTimeFine ? `${window.selectedTimeInizio} - ${window.selectedTimeFine}` : '-';
+    if (summaryPrezzo) summaryPrezzo.textContent = '0'; // TODO: Calcola prezzo reale
 }
 
 // Mostra riepilogo
 function showSummary() {
-    // Implementa la logica per mostrare il riepilogo
     console.log('📋 Mostro riepilogo');
+    const summaryCard = document.getElementById('summaryCard');
+    if (summaryCard) {
+        summaryCard.classList.remove('hidden');
+        summaryCard.classList.add('active');
+        updateSummary();
+    }
 }
 
 // Nasconde riepilogo
 function hideSummary() {
-    // Implementa la logica per nascondere il riepilogo
     console.log('📋 Nascondo riepilogo');
+    const summaryCard = document.getElementById('summaryCard');
+    if (summaryCard) {
+        summaryCard.classList.remove('active');
+        summaryCard.classList.add('hidden');
+    }
 }
 
 // Funzione helper per ottenere headers di autenticazione

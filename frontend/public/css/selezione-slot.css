@@ -118,6 +118,31 @@ button.slot-past,
     }
 }
 
+/* ===== STILI PER IL RIEPILOGO ===== */
+
+/* Nascondi riepilogo di default */
+.summary-card.hidden {
+    display: none !important;
+}
+
+/* Mostra riepilogo quando attivo */
+.summary-card.active {
+    display: block !important;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Animazione per il riepilogo */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 480px) {
     #timeSlots {
         gap: 8px;
