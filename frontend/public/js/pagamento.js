@@ -467,7 +467,7 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
         // Crea la prenotazione
         const prenotazioneData = {
             id_utente: userData.id_utente,
-            id_spazio: spazio,
+            id_spazio: parseInt(spazio, 10), // ✅ Converti stringa in numero
             data_inizio: dataInizioLocale.toISOString(),
             data_fine: dataFineLocale.toISOString()
         };
@@ -565,8 +565,8 @@ async function createPrenotazioneFromParams(sede, spazio, dataInizio, dataFine, 
                 const spazi = await spazioResponse.json();
 
                 // Trova la sede e lo spazio specifici
-                const sedeData = sedi.find(s => s.id_sede == sede);
-                const spazioData = spazi.find(sp => sp.id_spazio == spazio);
+                const sedeData = sedi.find(s => s.id_sede == parseInt(sede, 10));
+                const spazioData = spazi.find(sp => sp.id_spazio == parseInt(spazio, 10));
 
                 if (sedeData && spazioData) {
                     // Completa i dati della prenotazione con i nomi
