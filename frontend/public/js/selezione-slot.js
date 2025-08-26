@@ -476,9 +476,10 @@ async function loadSedi() {
             throw new Error(`Errore caricamento sedi: ${response.status} - ${response.statusText}`);
         }
 
-        const sedi = await response.json();
-        console.log('✅ Sedi caricate:', sedi);
-        console.log(`📋 Numero sedi: ${sedi.length}`);
+                // Aggiorna la variabile globale sedi
+        window.sedi = await response.json();
+        console.log('✅ Sedi caricate:', window.sedi);
+        console.log(`📋 Numero sedi: ${window.sedi.length}`);
 
         // Popola il select delle sedi
         populateSedeSelect();
@@ -519,24 +520,30 @@ function populateSedeSelect() {
     // Pulisci le opzioni esistenti
     sedeSelect.innerHTML = '<option value="">Seleziona una sede...</option>';
 
-    // Aggiungi le sedi
-    sedi.forEach(sede => {
-        const option = document.createElement('option');
-        option.value = sede.id_sede;
-        option.textContent = `${sede.nome} - ${sede.citta}`;
-        sedeSelect.appendChild(option);
-    });
+    // Aggiungi le sedi dalla variabile globale
+    if (window.sedi && window.sedi.length > 0) {
+        window.sedi.forEach(sede => {
+            const option = document.createElement('option');
+            option.value = sede.id_sede;
+            option.textContent = `${sede.nome} - ${sede.citta}`;
+            sedeSelect.appendChild(option);
+        });
+        console.log(`✅ Dropdown sedi popolato con ${window.sedi.length} sedi`);
+    } else {
+        console.warn('⚠️ Nessuna sede disponibile per popolare il dropdown');
+        sedeSelect.innerHTML = '<option value="">Nessuna sede disponibile</option>';
+    }
 }
 
 // Gestisce errori nel caricamento sedi
 function showSediError(errorMessage) {
     const sedeSelect = document.getElementById('sedeSelect');
     const container = sedeSelect.parentElement;
-    
+
     // Mostra messaggio di errore
     sedeSelect.innerHTML = '<option value="">Errore caricamento sedi</option>';
     sedeSelect.disabled = true;
-    
+
     // Aggiungi pulsante retry
     if (!document.getElementById('retrySediBtn')) {
         const retryBtn = document.createElement('button');
@@ -551,7 +558,7 @@ function showSediError(errorMessage) {
         };
         container.appendChild(retryBtn);
     }
-    
+
     console.error('🚫 Caricamento sedi fallito:', errorMessage);
 }
 
@@ -596,9 +603,10 @@ async function loadSpazi(sedeId) {
             throw new Error(`Errore caricamento spazi: ${response.status} - ${response.statusText}`);
         }
 
-        const spazi = await response.json();
-        console.log('✅ Spazi caricati:', spazi);
-        console.log(`📋 Numero spazi: ${spazi.length}`);
+        // Aggiorna la variabile globale spazi
+        window.spazi = await response.json();
+        console.log('✅ Spazi caricati:', window.spazi);
+        console.log(`📋 Numero spazi: ${window.spazi.length}`);
 
         // Popola il select degli spazi
         populateSpazioSelect();
@@ -676,16 +684,22 @@ function populateSpazioSelect() {
     // Pulisci le opzioni esistenti
     spazioSelect.innerHTML = '<option value="">Seleziona una stanza...</option>';
 
-    // Aggiungi gli spazi
-    spazi.forEach(spazio => {
-        const option = document.createElement('option');
-        option.value = spazio.id_spazio;
-        option.textContent = `${spazio.nome} (${spazio.tipo})`;
-        option.dataset.tipo = spazio.tipo;
-        option.dataset.capacita = spazio.capacita;
-        option.dataset.prezzo = spazio.prezzo_ora || 10; // Prezzo default 10€/ora
-        spazioSelect.appendChild(option);
-    });
+    // Aggiungi gli spazi dalla variabile globale
+    if (window.spazi && window.spazi.length > 0) {
+        window.spazi.forEach(spazio => {
+            const option = document.createElement('option');
+            option.value = spazio.id_spazio;
+            option.textContent = `${spazio.nome} (${spazio.tipo})`;
+            option.dataset.tipo = spazio.tipo;
+            option.dataset.capacita = spazio.capacita;
+            option.dataset.prezzo = spazio.prezzo_ora || 10; // Prezzo default 10€/ora
+            spazioSelect.appendChild(option);
+        });
+        console.log(`✅ Dropdown spazi popolato con ${window.spazi.length} spazi`);
+    } else {
+        console.warn('⚠️ Nessuno spazio disponibile per popolare il dropdown');
+        spazioSelect.innerHTML = '<option value="">Nessuno spazio disponibile</option>';
+    }
 
     // Abilita il select
     spazioSelect.disabled = false;
@@ -743,7 +757,7 @@ function setupEventListeners() {
         const sedeId = e.target.value;
 
         if (sedeId) {
-            selectedSede = sedi.find(s => s.id_sede == sedeId);
+            selectedSede = window.sedi.find(s => s.id_sede == sedeId);
             console.log('🏢 Sede selezionata:', selectedSede);
 
             // Carica gli spazi per questa sede
