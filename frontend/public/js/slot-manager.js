@@ -230,9 +230,9 @@ class SlotManager {
             return;
         }
 
-        // Rimuovi classi precedenti
+        // Rimuovi SOLO le classi Bootstrap, mantieni le nostre classi personalizzate
         button.classList.remove('btn-success', 'btn-danger', 'btn-warning', 'btn-secondary', 'btn-outline-primary');
-        button.classList.remove('slot-available', 'slot-booked', 'slot-occupied', 'slot-past', 'slot-selected');
+        // NON rimuovere le nostre classi slot-* personalizzate!
 
         // Applica classe e stato in base al status
         switch (status) {
