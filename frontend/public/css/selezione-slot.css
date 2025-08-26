@@ -349,6 +349,64 @@ main.container {
     max-height: none !important;
 }
 
+/* ✅ RIMUOVI BARRA DI SCORRIMENTO VISIVAMENTE */
+.modal-dialog-scrollable::-webkit-scrollbar {
+    width: 0 !important;
+    background: transparent !important;
+}
+
+.modal-dialog-scrollable::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.modal-dialog-scrollable::-webkit-scrollbar-thumb {
+    background: transparent !important;
+}
+
+.modal-dialog-scrollable::-webkit-scrollbar-thumb:hover {
+    background: transparent !important;
+}
+
+/* ✅ CENTRATURA PERFETTA DEL MODAL */
+.modal-dialog {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 100vh !important;
+    margin: 0 auto !important;
+}
+
+.modal-dialog.modal-lg {
+    max-width: 800px !important;
+    width: 90% !important;
+    margin: 1.75rem auto !important;
+}
+
+/* ✅ POSIZIONAMENTO OTTIMALE SU MOBILE */
+@media (max-width: 768px) {
+    .modal-dialog.modal-lg {
+        width: 95% !important;
+        margin: 0.5rem auto !important;
+    }
+}
+
+/* ✅ NASCONDI BARRA DI SCORRIMENTO SU TUTTI I BROWSER */
+.modal-dialog-scrollable {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+}
+
+/* ✅ STILE PERSONALIZZATO PER SCROLL INVISIBILE */
+.modal-dialog-scrollable .modal-body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+    width: 0 !important;
+    background: transparent !important;
+}
+
 /* Header del modal */
 .auth-modal-header {
     background: linear-gradient(135deg, #007bff, #0056b3) !important;

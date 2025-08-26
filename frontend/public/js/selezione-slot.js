@@ -129,7 +129,7 @@ async function initializePage() {
     try {
         // ✅ CONTROLLA SE CI SONO DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
         restorePendingPrenotazione();
-        
+
         console.log('🔄 Caricamento sedi...');
         // Carica le sedi
         await loadSedi();
@@ -669,7 +669,7 @@ async function selectTimeSlot(orario, slotElement) {
             // ✅ MOSTRA RIEPILOGO ANCHE PER UTENTI NON AUTENTICATI
             updateSummary();
             showSummary();
-            
+
             // Mostra messaggio informativo
             showInfo('Orari selezionati! Effettua il login per completare la prenotazione.');
             return;
@@ -966,21 +966,21 @@ function goToLogin() {
 function restorePendingPrenotazione() {
     const pendingData = localStorage.getItem('pendingPrenotazione');
     const redirectUrl = localStorage.getItem('redirectAfterLogin');
-    
+
     if (pendingData && redirectUrl) {
         console.log('🔄 Ripristino dati prenotazione in attesa:', pendingData);
-        
+
         try {
             const data = JSON.parse(pendingData);
-            
+
             // Ripristina i dati selezionati
             if (data.sede && data.spazio && data.dataInizio && data.orarioInizio) {
                 console.log('✅ Dati prenotazione ripristinati, reindirizzo a:', redirectUrl);
-                
+
                 // Pulisci i dati dal localStorage
                 localStorage.removeItem('pendingPrenotazione');
                 localStorage.removeItem('redirectAfterLogin');
-                
+
                 // Reindirizza alla pagina di pagamento
                 window.location.href = redirectUrl;
                 return;
