@@ -380,7 +380,7 @@ function setupEventListeners() {
         btnBook.textContent = 'Seleziona orari...';
         btnBook.classList.add('btn-secondary');
         console.log('🔒 Bottone Prenota Ora inizializzato come disabilitato');
-        
+
         btnBook.addEventListener('click', async function () {
             console.log('🎯 Bottone Prenota Ora cliccato');
 

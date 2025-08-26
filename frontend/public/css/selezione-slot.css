@@ -218,7 +218,8 @@ main.container {
 /* Stile base del riepilogo - POSIZIONAMENTO FISSO IN BASSO */
 .summary-card {
     position: fixed !important;
-    bottom: 120px !important; /* Sopra i bottoni azione */
+    bottom: 120px !important;
+    /* Sopra i bottoni azione */
     right: 20px !important;
     width: 350px !important;
     background: linear-gradient(135deg, #007bff, #0056b3) !important;
@@ -226,7 +227,8 @@ main.container {
     padding: 25px !important;
     box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3) !important;
     z-index: 999 !important;
-    transform: translateX(400px) scale(0.8) !important; /* Nascondi a destra */
+    transform: translateX(400px) scale(0.8) !important;
+    /* Nascondi a destra */
     opacity: 0 !important;
     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
