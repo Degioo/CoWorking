@@ -107,12 +107,9 @@ async function initializePage() {
 
         console.log('✅ Pagina inizializzata correttamente');
 
-        // Inizializza il sistema di gestione slot real-time solo se le sedi sono caricate
-        if (window.sediLoaded) {
-            initializeSlotManager();
-        } else {
-            console.log('⏳ Sedi non ancora caricate, rimando inizializzazione slot manager...');
-        }
+        // Inizializza il sistema di gestione slot real-time SOLO quando l'utente seleziona data
+        // NON chiamare initializeSlotManager qui - verrà chiamato dopo selezione data
+        console.log('⏳ SlotManager verrà inizializzato dopo selezione data...');
 
         // Nascondi il riepilogo all'inizializzazione
         hideSummary();
@@ -158,10 +155,8 @@ async function loadSedi() {
         populateSediDropdown();
         window.sediLoaded = true;
 
-        // Inizializza il slot manager se tutto è pronto
-        if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio) {
-            initializeSlotManager();
-        }
+        // SlotManager verrà inizializzato dopo selezione data, non qui
+        console.log('✅ Sedi caricate, SlotManager verrà inizializzato dopo selezione data...');
 
     } catch (error) {
         console.error('❌ Errore caricamento sedi:', error);
@@ -224,10 +219,8 @@ async function loadSpazi(sedeId) {
         // Popola il dropdown degli spazi
         populateSpaziDropdown();
 
-        // Inizializza il slot manager se tutto è pronto
-        if (window.selectedSede && window.selectedSpazio && window.selectedDateInizio) {
-            initializeSlotManager();
-        }
+        // SlotManager verrà inizializzato dopo selezione data, non qui
+        console.log('✅ Spazi caricati, SlotManager verrà inizializzato dopo selezione data...');
 
     } catch (error) {
         console.error('❌ Errore caricamento spazi:', error);
