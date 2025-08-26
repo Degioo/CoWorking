@@ -70,15 +70,17 @@ async function checkAvailability(orarioInizio, orarioFine) {
             const disponibilita = await response.json();
             console.log('📋 Disponibilità per lo spazio:', disponibilita);
 
-            // Verifica se gli slot selezionati sono disponibili
-            if (disponibilita.success && disponibilita.data) {
+                        // Verifica se gli slot selezionati sono disponibili
+            if (disponibilita.success && disponibilita.data && disponibilita.data.slots) {
                 const orarioInizioHour = parseInt(orarioInizio.split(':')[0]);
                 const orarioFineHour = parseInt(orarioFine.split(':')[0]);
+                
+                console.log('🔍 Verifico disponibilità slot:', disponibilita.data.slots);
                 
                 // Controlla se tutti gli slot nell'intervallo sono disponibili
                 for (let hour = orarioInizioHour; hour < orarioFineHour; hour++) {
                     const orarioSlot = `${hour.toString().padStart(2, '0')}:00`;
-                    const slot = disponibilita.data.find(s => s.orario === orarioSlot);
+                    const slot = disponibilita.data.slots.find(s => s.orario === orarioSlot);
                     
                     if (!slot || slot.status !== 'available') {
                         console.log(`❌ Slot ${orarioSlot} non disponibile:`, slot);
@@ -89,7 +91,7 @@ async function checkAvailability(orarioInizio, orarioFine) {
                 console.log('✅ Tutti gli slot sono disponibili');
                 return true;
             }
-            
+
             return false;
         } else {
             console.error('❌ Errore API disponibilità:', response.status, response.statusText);
