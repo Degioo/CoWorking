@@ -434,21 +434,71 @@ async function initializePage() {
 async function loadSedi() {
     try {
         console.log('🔄 Caricamento sedi...');
+        console.log('📍 API Base:', window.CONFIG.API_BASE);
+        console.log('⏰ Inizio richiesta:', new Date().toISOString());
 
-        const response = await fetch(`${window.CONFIG.API_BASE}/sedi`);
+        // Aggiungi timeout e controller per la richiesta
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            console.warn('⚠️ Timeout richiesta sedi (10s) - Annullo richiesta');
+            controller.abort();
+        }, 10000); // 10 secondi di timeout
+
+        const startTime = Date.now();
+        
+        const response = await fetch(`${window.CONFIG.API_BASE}/sedi`, {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        clearTimeout(timeoutId);
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        console.log(`⏱️ Richiesta completata in ${duration}ms`);
+        console.log(`📊 Status: ${response.status} ${response.statusText}`);
+        console.log(`🔗 Headers:`, Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
-            throw new Error(`Errore caricamento sedi: ${response.status}`);
+            const errorText = await response.text();
+            console.error('❌ Risposta non OK:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Errore caricamento sedi: ${response.status} - ${response.statusText}`);
         }
 
-        sedi = await response.json();
+        const sedi = await response.json();
         console.log('✅ Sedi caricate:', sedi);
+        console.log(`📋 Numero sedi: ${sedi.length}`);
 
         // Popola il select delle sedi
         populateSedeSelect();
 
     } catch (error) {
-        console.error('❌ Errore caricamento sedi:', error);
+        console.error('❌ Errore caricamento sedi:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+        });
+
+        // Gestione specifica per diversi tipi di errore
+        if (error.name === 'AbortError') {
+            console.error('🚫 Richiesta annullata per timeout');
+            throw new Error('Timeout caricamento sedi: la richiesta ha impiegato troppo tempo');
+        } else if (error.message.includes('Failed to fetch')) {
+            console.error('🌐 Errore di rete - impossibile raggiungere il server');
+            throw new Error('Errore di connessione: impossibile raggiungere il server');
+        } else if (error.message.includes('Unexpected token')) {
+            console.error('📄 Errore parsing JSON - risposta non valida');
+            throw new Error('Errore parsing risposta: il server ha restituito dati non validi');
+        }
+
         throw error;
     }
 }
@@ -473,22 +523,68 @@ function populateSedeSelect() {
 async function loadSpazi(sedeId) {
     try {
         console.log(`🔄 Caricamento spazi per sede ${sedeId}...`);
+        console.log(`📍 API Base: ${window.CONFIG.API_BASE}/spazi?id_sede=${sedeId}`);
+        console.log(`⏰ Inizio richiesta:`, new Date().toISOString());
 
-        const response = await fetch(`${window.CONFIG.API_BASE}/spazi?id_sede=${sedeId}`);
+        // Aggiungi timeout e controller per la richiesta
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            console.warn('⚠️ Timeout richiesta spazi (10s) - Annullo richiesta');
+            controller.abort();
+        }, 10000); // 10 secondi di timeout
+
+        const startTime = Date.now();
+        
+        const response = await fetch(`${window.CONFIG.API_BASE}/spazi?id_sede=${sedeId}`, {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        clearTimeout(timeoutId);
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        console.log(`⏱️ Richiesta spazi completata in ${duration}ms`);
+        console.log(`📊 Status: ${response.status} ${response.statusText}`);
 
         if (!response.ok) {
-            throw new Error(`Errore caricamento spazi: ${response.status}`);
+            const errorText = await response.text();
+            console.error('❌ Risposta spazi non OK:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Errore caricamento spazi: ${response.status} - ${response.statusText}`);
         }
 
-        spazi = await response.json();
+        const spazi = await response.json();
         console.log('✅ Spazi caricati:', spazi);
+        console.log(`📋 Numero spazi: ${spazi.length}`);
 
         // Popola il select degli spazi
         populateSpazioSelect();
 
     } catch (error) {
-        console.error('❌ Errore caricamento spazi:', error);
-        showError('Errore caricamento spazi: ' + error.message);
+        console.error('❌ Errore caricamento spazi:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+        });
+
+        // Gestione specifica per diversi tipi di errore
+        if (error.name === 'AbortError') {
+            console.error('🚫 Richiesta spazi annullata per timeout');
+            showError('Timeout caricamento spazi: la richiesta ha impiegato troppo tempo');
+        } else if (error.message.includes('Failed to fetch')) {
+            console.error('🌐 Errore di rete per spazi - impossibile raggiungere il server');
+            showError('Errore di connessione: impossibile raggiungere il server');
+        } else {
+            showError('Errore caricamento spazi: ' + error.message);
+        }
     }
 }
 
