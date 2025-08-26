@@ -47,12 +47,12 @@ class ScadenzeController {
 
             if (sedeInfo.rowCount > 0) {
               const { id_sede, id_spazio: spazioId } = sedeInfo.rows[0];
-              
+
               // Notifica che lo slot è tornato disponibile
               SSEController.broadcastSlotUpdate(
-                prenotazione.id_prenotazione, 
-                'available', 
-                { 
+                prenotazione.id_prenotazione,
+                'available',
+                {
                   prenotazioneId: prenotazione.id_prenotazione,
                   reason: 'slot_expired'
                 }

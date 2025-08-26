@@ -151,9 +151,9 @@ exports.creaPrenotazione = async (req, res) => {
       // Notifica tutti i client via SSE che lo slot è ora occupato
       try {
         await SSEController.broadcastSlotUpdate(
-          result.rows[0].id_prenotazione, 
-          'occupied', 
-          { 
+          result.rows[0].id_prenotazione,
+          'occupied',
+          {
             prenotazioneId: result.rows[0].id_prenotazione,
             holdTimeRemaining: 15 // minuti
           }
