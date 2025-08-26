@@ -167,7 +167,7 @@ async function testEndpoint(req, res) {
 async function testSimulateBookings(req, res) {
     try {
         console.log('🧪 Test simulazione prenotazioni chiamato');
-        
+
         // Simula alcune prenotazioni per test
         const testBookings = [
             {
@@ -190,7 +190,7 @@ async function testSimulateBookings(req, res) {
                 title: 'Orario passato (TEST)'
             }
         ];
-        
+
         res.json({
             success: true,
             message: 'Simulazione prenotazioni per test',

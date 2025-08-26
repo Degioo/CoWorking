@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const SSEController = require('../controllers/sseController');
 const { authenticateSSEToken } = require('../middleware/sseAuth');
+const pool = require('../db');
 
 // Endpoint per connessione SSE
 router.get('/status-stream', authenticateSSEToken, (req, res) => {
@@ -61,6 +62,34 @@ router.get('/stats', authenticateSSEToken, (req, res) => {
             timestamp: new Date().toISOString()
         }
     });
+});
+
+// Endpoint di test per verificare connessione database
+router.get('/test-db', authenticateSSEToken, async (req, res) => {
+    try {
+        console.log('🧪 SSE Test DB chiamato');
+        
+        // Test connessione database
+        const testQuery = 'SELECT NOW() as current_time, version() as db_version';
+        const result = await pool.query(testQuery);
+        
+        res.json({
+            success: true,
+            message: 'Test database SSE completato',
+            data: {
+                currentTime: result.rows[0].current_time,
+                dbVersion: result.rows[0].db_version,
+                timestamp: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error('❌ SSE Test DB errore:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Errore test database SSE',
+            details: error.message
+        });
+    }
 });
 
 module.exports = router;

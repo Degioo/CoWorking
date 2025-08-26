@@ -89,44 +89,110 @@ class SSEController {
     // Ottieni stato corrente di tutti gli slot per sede/spazio/data
     static async getSlotsStatus(sedeId, spazioId, data) {
         try {
-            const query = `
-                SELECT 
-                    s.id_slot,
-                    s.orario_inizio,
-                    s.orario_fine,
-                    CASE 
-                        WHEN s.orario_inizio < NOW() THEN 'past'
-                        WHEN p.id_prenotazione IS NOT NULL AND p.stato = 'confermata' THEN 'booked'
-                        WHEN p.id_prenotazione IS NOT NULL AND p.stato = 'in_attesa' THEN 'occupied'
-                        ELSE 'available'
-                    END as status,
-                    p.id_prenotazione,
-                    p.stato as prenotazione_stato,
-                    p.data_creazione,
-                    EXTRACT(EPOCH FROM (p.data_creazione + INTERVAL '5 minutes' - NOW())) as hold_time_remaining
-                FROM slot_orari s
-                LEFT JOIN prenotazioni p ON s.id_slot = p.id_slot 
-                    AND p.data_inizio::date = $3::date
-                    AND p.stato IN ('in_attesa', 'confermata')
-                WHERE s.id_sede = $1 
-                    AND s.id_spazio = $2
-                    AND s.orario_inizio::date = $3::date
-                ORDER BY s.orario_inizio
-            `;
+            console.log(`🚀 SSEController - getSlotsStatus chiamato per sede: ${sedeId}, spazio: ${spazioId}, data: ${data}`);
 
-            const result = await pool.query(query, [sedeId, spazioId, data]);
+            // Verifica che lo spazio esista
+            const spazioQuery = 'SELECT id_spazio, nome FROM Spazio WHERE id_spazio = $1';
+            const spazioResult = await pool.query(spazioQuery, [spazioId]);
 
-            return result.rows.map(row => ({
-                id_slot: row.id_slot,
-                orario_inizio: row.orario_inizio,
-                orario_fine: row.orario_fine,
-                status: row.status,
-                id_prenotazione: row.id_prenotazione,
-                prenotazione_stato: row.prenotazione_stato,
-                hold_time_remaining: row.hold_time_remaining > 0 ? Math.ceil(row.hold_time_remaining / 60) : null
-            }));
+            if (spazioResult.rows.length === 0) {
+                throw new Error('Spazio non trovato');
+            }
+
+            const spazio = spazioResult.rows[0];
+            console.log(`✅ Spazio trovato: ${spazio.nome}`);
+
+            // Ottieni orari di apertura (9:00 - 18:00)
+            const orariApertura = [];
+            for (let hour = 9; hour <= 17; hour++) {
+                orariApertura.push(`${hour.toString().padStart(2, '0')}:00`);
+            }
+
+            console.log(`⏰ Orari apertura generati: ${orariApertura.length} slot`);
+
+            // Ottieni prenotazioni esistenti per questa data
+            let prenotazioni = [];
+            try {
+                const prenotazioniQuery = `
+                    SELECT 
+                        orario_inizio,
+                        orario_fine,
+                        stato
+                    FROM Prenotazione 
+                    WHERE id_spazio = $1 
+                    AND DATE(data_inizio) = $2
+                    AND stato IN ('confermata', 'in_attesa_pagamento')
+                `;
+
+                const prenotazioniResult = await pool.query(prenotazioniQuery, [spazioId, data]);
+                prenotazioni = prenotazioniResult.rows;
+                console.log(`📋 Prenotazioni trovate: ${prenotazioni.length}`);
+            } catch (queryError) {
+                console.warn('⚠️ Errore query prenotazioni, continuo senza:', queryError.message);
+                prenotazioni = [];
+            }
+
+            // Crea array con stato di ogni slot
+            const slotsStatus = orariApertura.map((orario, index) => {
+                const slotId = index + 1;
+                const orarioHour = parseInt(orario.split(':')[0]);
+                const now = new Date();
+                const selectedDate = new Date(data);
+
+                // Controlla se l'orario è passato (solo per oggi)
+                if (selectedDate.toDateString() === now.toDateString() && orarioHour <= now.getHours()) {
+                    console.log(`⏰ Slot ${slotId} (${orario}) marcato come PASSATO - ora corrente: ${now.getHours()}:00`);
+                    return {
+                        id_slot: slotId,
+                        orario: orario,
+                        status: 'past',
+                        title: 'Orario passato'
+                    };
+                }
+
+                // Controlla se c'è una prenotazione per questo orario
+                const prenotazione = prenotazioni.find(p => {
+                    if (!p.orario_inizio || !p.orario_fine) return false;
+
+                    const prenotazioneInizio = parseInt(p.orario_inizio.split(':')[0]);
+                    const prenotazioneFine = parseInt(p.orario_fine.split(':')[0]);
+
+                    return orarioHour >= prenotazioneInizio && orarioHour < prenotazioneFine;
+                });
+
+                if (prenotazione) {
+                    if (prenotazione.stato === 'confermata') {
+                        return {
+                            id_slot: slotId,
+                            orario: orario,
+                            status: 'booked',
+                            title: 'Slot prenotato'
+                        };
+                    } else if (prenotazione.stato === 'in_attesa_pagamento') {
+                        return {
+                            id_slot: slotId,
+                            orario: orario,
+                            status: 'occupied',
+                            title: 'Slot occupato (in attesa pagamento)',
+                            hold_time_remaining: 15
+                        };
+                    }
+                }
+
+                // Slot disponibile
+                return {
+                    id_slot: slotId,
+                    orario: orario,
+                    status: 'available',
+                    title: 'Slot disponibile'
+                };
+            });
+
+            console.log(`✅ SSEController - Stato slot calcolato: ${slotsStatus.length} slot`);
+            return slotsStatus;
+
         } catch (error) {
-            console.error('Errore nel recupero stato slot:', error);
+            console.error('❌ SSEController - Errore nel recupero stato slot:', error);
             throw error;
         }
     }
