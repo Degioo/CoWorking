@@ -352,6 +352,8 @@ window.handleLogin = function (event, email, password) {
 
       // Controlla se c'è una prenotazione in attesa
       const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+      console.log('🔍 handleLogin - Controllo pendingPrenotazione:', pendingPrenotazione);
+      
       if (pendingPrenotazione) {
         // Controlla se l'utente è arrivato dalla home o da una prenotazione
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -381,10 +383,12 @@ window.handleLogin = function (event, email, password) {
           const pagamentoUrl = new URL('pagamento.html', window.location.origin);
           pagamentoUrl.searchParams.set('sede', prenotazioneData.sede);
           pagamentoUrl.searchParams.set('spazio', prenotazioneData.spazio);
-          pagamentoUrl.searchParams.set('dataInizio', prenotazioneData.dataInizio);
-          pagamentoUrl.searchParams.set('dataFine', prenotazioneData.dataFine);
+          pagamentoUrl.searchParams.set('dal', prenotazioneData.dataInizio);
+          pagamentoUrl.searchParams.set('al', prenotazioneData.dataFine);
           pagamentoUrl.searchParams.set('orarioInizio', prenotazioneData.orarioInizio);
           pagamentoUrl.searchParams.set('orarioFine', prenotazioneData.orarioFine);
+
+          console.log('🚀 handleLogin - Redirect al pagamento con URL:', pagamentoUrl.toString());
 
           setTimeout(() => {
             window.location.href = pagamentoUrl.toString();

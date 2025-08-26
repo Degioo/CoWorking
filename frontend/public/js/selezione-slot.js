@@ -748,13 +748,18 @@ function goToLogin() {
     const selectionData = {
         sede: window.selectedSede,
         spazio: window.selectedSpazio,
-        data_inizio: window.selectedDateInizio ? window.selectedDateInizio.toISOString() : null,
-        data_fine: window.selectedDateFine ? window.selectedDateFine.toISOString() : null,
-        time_inizio: window.selectedTimeInizio,
-        time_fine: window.selectedTimeFine
+        dataInizio: window.selectedDateInizio ? window.selectedDateInizio.toISOString().split('T')[0] : null,
+        dataFine: window.selectedDateFine ? window.selectedDateFine.toISOString().split('T')[0] : null,
+        orarioInizio: window.selectedTimeInizio,
+        orarioFine: window.selectedTimeFine
     };
 
-    localStorage.setItem('pendingSelection', JSON.stringify(selectionData));
+    console.log('💾 Salvando dati prenotazione:', selectionData);
+    localStorage.setItem('pendingPrenotazione', JSON.stringify(selectionData));
+    
+    // Salva anche l'URL di redirect per il post-login
+    localStorage.setItem('redirectAfterLogin', '/selezione-slot.html');
+    console.log('🔄 Redirect dopo login impostato a: /selezione-slot.html');
 
     // Reindirizza alla pagina di login
     window.location.href = '/login.html';
