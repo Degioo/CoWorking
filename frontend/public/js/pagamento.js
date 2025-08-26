@@ -1024,18 +1024,26 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             spazio: { id_spazio: parseInt(spazio) }
         };
 
+        // IMPORTANTE: Salva anche in window.prenotazioneData per getPrenotazioneData()
+        window.prenotazioneData = prenotazioneData;
+        
+        console.log('createPrenotazioneFromSelection - window.prenotazioneData impostato:', window.prenotazioneData);
+
         console.log('createPrenotazioneFromSelection - Oggetto prenotazione creato:', {
             data_inizio: prenotazioneData.data_inizio,
             data_fine: prenotazioneData.data_fine,
             orario_inizio: prenotazioneData.orario_inizio,
             orario_fine: prenotazioneData.orario_fine,
             durata_ore: prenotazioneData.durata_ore,
-            importo: prenotazioneData.importo
+            importo: prenotazioneData.importo,
+            data_inizio_local: prenotazioneData.data_inizio_local,
+            data_fine_local: prenotazioneData.data_fine_local
         });
 
         console.log('createPrenotazioneFromSelection - Prenotazione creata:', prenotazioneData);
 
         // Popola i dettagli della prenotazione
+        console.log('createPrenotazioneFromSelection - Prima di populatePrenotazioneDetails, prenotazioneData:', prenotazioneData);
         populatePrenotazioneDetails();
 
     } catch (error) {
@@ -1055,12 +1063,16 @@ function populatePrenotazioneDetails() {
         orario_inizio: data.orario_inizio,
         orario_fine: data.orario_fine,
         durata_ore: data.durata_ore,
-        importo: data.importo
+        importo: data.importo,
+        data_inizio_local: data.data_inizio_local,
+        data_fine_local: data.data_fine_local
     });
+
+    console.log('populatePrenotazioneDetails - Oggetto data completo:', data);
 
     // IMPORTANTE: Usa le date locali salvate per evitare problemi di timezone
     let dataInizio, dataFine;
-    
+
     if (data.data_inizio_local && data.data_fine_local) {
         // Usa le date locali salvate
         dataInizio = new Date(data.data_inizio_local);
@@ -1087,7 +1099,7 @@ function populatePrenotazioneDetails() {
     // IMPORTANTE: Usa le date locali per il calcolo corretto
     const durataMs = dataFine - dataInizio;
     const durataOre = Math.max(0.5, parseFloat((durataMs / (1000 * 60 * 60)).toFixed(1)));
-    
+
     console.log('populatePrenotazioneDetails - Calcolo durata:', {
         dataInizio: dataInizio.toString(),
         dataFine: dataFine.toString(),
