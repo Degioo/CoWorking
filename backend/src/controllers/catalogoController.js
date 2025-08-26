@@ -3,10 +3,10 @@ const pool = require('../db');
 exports.getSedi = async (req, res) => {
   const { citta } = req.query;
   const startTime = Date.now();
-  
+
   try {
     console.log('🔄 getSedi chiamata:', { citta, timestamp: new Date().toISOString() });
-    
+
     let result;
     if (citta) {
       console.log(`📍 Query con filtro città: ${citta}`);
@@ -15,12 +15,12 @@ exports.getSedi = async (req, res) => {
       console.log('📍 Query senza filtri - tutte le sedi');
       result = await pool.query('SELECT * FROM Sede');
     }
-    
+
     const duration = Date.now() - startTime;
     console.log(`✅ getSedi completata in ${duration}ms - ${result.rows.length} sedi trovate`);
-    
+
     res.json(result.rows);
-    
+
   } catch (err) {
     const duration = Date.now() - startTime;
     console.error('❌ Errore getSedi:', {
@@ -29,9 +29,9 @@ exports.getSedi = async (req, res) => {
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()
     });
-    
-    res.status(500).json({ 
-      error: 'Errore server', 
+
+    res.status(500).json({
+      error: 'Errore server',
       details: err.message,
       duration: `${duration}ms`
     });
@@ -41,14 +41,14 @@ exports.getSedi = async (req, res) => {
 exports.getSpazi = async (req, res) => {
   const { id_sede, tipologia } = req.query;
   const startTime = Date.now();
-  
+
   try {
     console.log('🔄 getSpazi chiamata:', { id_sede, tipologia, timestamp: new Date().toISOString() });
-    
+
     let base = 'SELECT * FROM Spazio';
     let where = [];
     let params = [];
-    
+
     if (id_sede) {
       params.push(id_sede);
       where.push(`id_sede = $${params.length}`);
@@ -57,21 +57,21 @@ exports.getSpazi = async (req, res) => {
       params.push(tipologia);
       where.push(`tipologia = $${params.length}`);
     }
-    
+
     if (where.length > 0) {
       base += ' WHERE ' + where.join(' AND ');
     }
-    
+
     console.log(`📍 Query SQL: ${base}`);
     console.log(`🔢 Parametri:`, params);
-    
+
     const result = await pool.query(base, params);
-    
+
     const duration = Date.now() - startTime;
     console.log(`✅ getSpazi completata in ${duration}ms - ${result.rows.length} spazi trovati`);
-    
+
     res.json(result.rows);
-    
+
   } catch (err) {
     const duration = Date.now() - startTime;
     console.error('❌ Errore getSpazi:', {
@@ -80,9 +80,9 @@ exports.getSpazi = async (req, res) => {
       duration: `${duration}ms`,
       timestamp: new Date().toISOString()
     });
-    
-    res.status(500).json({ 
-      error: 'Errore server', 
+
+    res.status(500).json({
+      error: 'Errore server',
       details: err.message,
       duration: `${duration}ms`
     });
@@ -117,28 +117,28 @@ exports.getServiziSpazio = async (req, res) => {
 // Test connessione database e performance
 exports.testDatabaseConnection = async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     console.log('🔄 Test connessione database...');
-    
+
     // Test 1: Connessione base
     const connectionTest = await pool.query('SELECT NOW() as current_time');
     console.log('✅ Connessione database OK:', connectionTest.rows[0]);
-    
+
     // Test 2: Query sedi
     const sediStart = Date.now();
     const sediResult = await pool.query('SELECT COUNT(*) as count FROM Sede');
     const sediDuration = Date.now() - sediStart;
     console.log(`✅ Query sedi completata in ${sediDuration}ms:`, sediResult.rows[0]);
-    
+
     // Test 3: Query spazi
     const spaziStart = Date.now();
     const spaziResult = await pool.query('SELECT COUNT(*) as count FROM Spazio');
     const spaziDuration = Date.now() - spaziStart;
     console.log(`✅ Query spazi completata in ${spaziDuration}ms:`, spaziResult.rows[0]);
-    
+
     const totalDuration = Date.now() - startTime;
-    
+
     res.json({
       success: true,
       tests: {
@@ -149,7 +149,7 @@ exports.testDatabaseConnection = async (req, res) => {
       totalDuration: `${totalDuration}ms`,
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (err) {
     const totalDuration = Date.now() - startTime;
     console.error('❌ Test database fallito:', {
@@ -157,7 +157,7 @@ exports.testDatabaseConnection = async (req, res) => {
       stack: err.stack,
       duration: `${totalDuration}ms`
     });
-    
+
     res.status(500).json({
       success: false,
       error: err.message,

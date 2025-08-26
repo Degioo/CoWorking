@@ -77,8 +77,8 @@ let slotManager = {
 
     // Aggiorna tutti gli slot dal backend
     async updateAllSlots() {
-        if (!this.initialized || !selectedSpazio) {
-            console.log('⏳ Sede o spazio non ancora selezionati, rimando aggiornamento...');
+        if (!this.initialized || !selectedSpazio || !window.sediLoaded) {
+            console.log('⏳ Sede, spazio o sedi non ancora disponibili, rimando aggiornamento...');
             return;
         }
 
@@ -420,8 +420,12 @@ async function initializePage() {
 
         console.log('✅ Pagina inizializzata correttamente');
 
-        // Inizializza il sistema di gestione slot real-time
-        initializeSlotManager();
+        // Inizializza il sistema di gestione slot real-time solo se le sedi sono caricate
+        if (window.sediLoaded) {
+            initializeSlotManager();
+        } else {
+            console.log('⏳ Sedi non ancora caricate, rimando inizializzazione slot manager...');
+        }
         // notificationSystem.init(); // Inizializza il sistema di notifiche - Rimosso
 
     } catch (error) {
@@ -445,7 +449,7 @@ async function loadSedi() {
         }, 10000); // 10 secondi di timeout
 
         const startTime = Date.now();
-        
+
         const response = await fetch(`${window.CONFIG.API_BASE}/sedi`, {
             signal: controller.signal,
             headers: {
@@ -478,6 +482,9 @@ async function loadSedi() {
 
         // Popola il select delle sedi
         populateSedeSelect();
+        
+        // Marca le sedi come caricate con successo
+        window.sediLoaded = true;
 
     } catch (error) {
         console.error('❌ Errore caricamento sedi:', {
@@ -499,6 +506,8 @@ async function loadSedi() {
             throw new Error('Errore parsing risposta: il server ha restituito dati non validi');
         }
 
+        // Mostra errore e pulsante retry invece di continuare
+        showSediError(error.message);
         throw error;
     }
 }
@@ -519,6 +528,33 @@ function populateSedeSelect() {
     });
 }
 
+// Gestisce errori nel caricamento sedi
+function showSediError(errorMessage) {
+    const sedeSelect = document.getElementById('sedeSelect');
+    const container = sedeSelect.parentElement;
+    
+    // Mostra messaggio di errore
+    sedeSelect.innerHTML = '<option value="">Errore caricamento sedi</option>';
+    sedeSelect.disabled = true;
+    
+    // Aggiungi pulsante retry
+    if (!document.getElementById('retrySediBtn')) {
+        const retryBtn = document.createElement('button');
+        retryBtn.id = 'retrySediBtn';
+        retryBtn.className = 'btn btn-warning btn-sm mt-2';
+        retryBtn.innerHTML = '🔄 Riprova Caricamento Sedi';
+        retryBtn.onclick = () => {
+            sedeSelect.disabled = false;
+            sedeSelect.innerHTML = '<option value="">Caricamento in corso...</option>';
+            retryBtn.remove();
+            loadSedi();
+        };
+        container.appendChild(retryBtn);
+    }
+    
+    console.error('🚫 Caricamento sedi fallito:', errorMessage);
+}
+
 // Carica gli spazi per una sede specifica
 async function loadSpazi(sedeId) {
     try {
@@ -534,7 +570,7 @@ async function loadSpazi(sedeId) {
         }, 10000); // 10 secondi di timeout
 
         const startTime = Date.now();
-        
+
         const response = await fetch(`${window.CONFIG.API_BASE}/spazi?id_sede=${sedeId}`, {
             signal: controller.signal,
             headers: {
