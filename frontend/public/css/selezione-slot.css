@@ -10,13 +10,17 @@
 
 /* Bottoni slot - dimensioni ottimizzate per fit completo */
 .slot-button {
-    min-width: 70px !important; /* Riduco larghezza per fit più bottoni */
-    min-height: 45px !important; /* Riduco altezza proporzionalmente */
-    font-size: 14px !important; /* Riduco font per fit migliore */
+    min-width: 70px !important;
+    /* Riduco larghezza per fit più bottoni */
+    min-height: 45px !important;
+    /* Riduco altezza proporzionalmente */
+    font-size: 14px !important;
+    /* Riduco font per fit migliore */
     font-weight: 600 !important;
     border-radius: 10px !important;
     transition: all 0.3s ease !important;
-    margin: 3px !important; /* Riduco margin per spacing migliore */
+    margin: 3px !important;
+    /* Riduco margin per spacing migliore */
 }
 
 /* Hover per tutti i bottoni slot */
@@ -130,13 +134,17 @@ button.slot-past,
 
 #timeSlots {
     display: flex !important;
-    flex-wrap: wrap !important; /* Cambia da nowrap a wrap */
-    gap: 15px !important; /* Riduco gap per fit più bottoni */
+    flex-wrap: wrap !important;
+    /* Cambia da nowrap a wrap */
+    gap: 15px !important;
+    /* Riduco gap per fit più bottoni */
     padding: 30px !important;
     margin: 30px 0 !important;
-    overflow-x: visible !important; /* Rimuovi scroll orizzontale */
+    overflow-x: visible !important;
+    /* Rimuovi scroll orizzontale */
     justify-content: center !important;
-    max-width: 100% !important; /* Usa tutta la larghezza disponibile */
+    max-width: 100% !important;
+    /* Usa tutta la larghezza disponibile */
 }
 
 /* ===== SPACING TRA SEZIONI ===== */
@@ -223,7 +231,7 @@ main.container {
     /* Sopra i bottoni azione */
     right: 20px !important;
     width: 350px !important;
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    background: linear-gradient(135deg, #007bff, #0056b3) !important; /* Blu base */
     border-radius: 15px !important;
     padding: 25px !important;
     box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3) !important;
@@ -241,13 +249,13 @@ main.container {
     pointer-events: none !important;
 }
 
-/* Mostra riepilogo quando attivo - SLIDE DA DESTRA + CAMBIO COLORE */
+/* Mostra riepilogo quando attivo - SLIDE DA DESTRA + SFUMATURA BLU → VERDE */
 .summary-card.active {
     transform: translateX(0) scale(1) !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    background: linear-gradient(135deg, #28a745, #20c997) !important;
-    box-shadow: 0 15px 40px rgba(40, 167, 69, 0.4) !important;
+    background: linear-gradient(135deg, #007bff, #28a745) !important; /* Blu → Verde angolo destro basso */
+    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4) !important;
 }
 
 /* NO HOVER EFFECT - Mantieni stile fisso */
@@ -297,17 +305,20 @@ main.container {
 /* Responsive design - Ottimizzato per slot sempre visibili */
 @media (max-width: 768px) {
     #timeSlots {
-        gap: 8px !important; /* Gap ridotto per mobile */
+        gap: 8px !important;
+        /* Gap ridotto per mobile */
         padding: 15px !important;
-        flex-wrap: wrap !important; /* Mantieni wrap su mobile */
+        flex-wrap: wrap !important;
+        /* Mantieni wrap su mobile */
     }
-    
+
     .slot-button {
-        min-width: 65px !important; /* Bottoni più piccoli su mobile */
+        min-width: 65px !important;
+        /* Bottoni più piccoli su mobile */
         min-height: 40px !important;
         font-size: 13px !important;
     }
-    
+
     .action-buttons {
         flex-direction: column !important;
         padding: 15px !important;
@@ -316,16 +327,18 @@ main.container {
 
 @media (max-width: 480px) {
     #timeSlots {
-        gap: 6px !important; /* Gap minimo su mobile piccolo */
+        gap: 6px !important;
+        /* Gap minimo su mobile piccolo */
         padding: 10px !important;
     }
-    
+
     .slot-button {
-        min-width: 60px !important; /* Bottoni ancora più piccoli */
+        min-width: 60px !important;
+        /* Bottoni ancora più piccoli */
         min-height: 35px !important;
         font-size: 12px !important;
     }
-    
+
     .btn-custom {
         padding: 10px 20px !important;
         font-size: 14px !important;
