@@ -897,7 +897,14 @@ async function loadPrenotazioneData() {
                 console.log('loadPrenotazioneData - Flusso da selezione-slot, creo prenotazione automaticamente');
 
                 // Crea la prenotazione automaticamente
-                await createPrenotazioneFromSelection(sede, spazio, dal, al, orarioInizio, orarioFine);
+                console.log('loadPrenotazioneData - PRIMA di chiamare createPrenotazioneFromSelection');
+                try {
+                    await createPrenotazioneFromSelection(sede, spazio, dal, al, orarioInizio, orarioFine);
+                    console.log('loadPrenotazioneData - DOPO createPrenotazioneFromSelection completata');
+                } catch (error) {
+                    console.error('loadPrenotazioneData - Errore in createPrenotazioneFromSelection:', error);
+                    throw error;
+                }
                 return;
             } else {
                 throw new Error('Parametri prenotazione mancanti. Torna alla selezione e riprova.');
@@ -979,6 +986,15 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             parametriOriginali: { dal, al, orarioInizio, orarioFine }
         });
 
+        console.log('createPrenotazioneFromSelection - DEBUG DATE LOCALI:', {
+            dataInizioLocal: dataInizioLocal,
+            dataFineLocal: dataFineLocal,
+            dataInizioLocalString: dataInizioLocal.toString(),
+            dataFineLocalString: dataFineLocal.toString(),
+            dataInizioLocalType: typeof dataInizioLocal,
+            dataFineLocalType: typeof dataFineLocal
+        });
+
         // Calcola la durata in ore (considerando anche i minuti)
         // IMPORTANTE: Usa le date locali per il calcolo corretto
         const durataMs = dataFineLocal - dataInizioLocal;
@@ -1026,7 +1042,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 
         // IMPORTANTE: Salva anche in window.prenotazioneData per getPrenotazioneData()
         window.prenotazioneData = prenotazioneData;
-        
+
         console.log('createPrenotazioneFromSelection - window.prenotazioneData impostato:', window.prenotazioneData);
 
         console.log('createPrenotazioneFromSelection - Oggetto prenotazione creato:', {
@@ -1038,6 +1054,14 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             importo: prenotazioneData.importo,
             data_inizio_local: prenotazioneData.data_inizio_local,
             data_fine_local: prenotazioneData.data_fine_local
+        });
+
+        console.log('createPrenotazioneFromSelection - DEBUG OGGETTO COMPLETO:', {
+            prenotazioneData: prenotazioneData,
+            hasDataInizioLocal: 'data_inizio_local' in prenotazioneData,
+            hasDataFineLocal: 'data_fine_local' in prenotazioneData,
+            dataInizioLocalValue: prenotazioneData.data_inizio_local,
+            dataFineLocalValue: prenotazioneData.data_fine_local
         });
 
         console.log('createPrenotazioneFromSelection - Prenotazione creata:', prenotazioneData);
@@ -1056,6 +1080,14 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 function populatePrenotazioneDetails() {
     const data = getPrenotazioneData();
     if (!data) return;
+
+    console.log('populatePrenotazioneDetails - DEBUG getPrenotazioneData():', {
+        data: data,
+        windowPrenotazioneData: window.prenotazioneData,
+        localPrenotazioneData: prenotazioneData,
+        hasDataInizioLocal: data && 'data_inizio_local' in data,
+        hasDataFineLocal: data && 'data_fine_local' in data
+    });
 
     console.log('populatePrenotazioneDetails - Dati prenotazione completi:', {
         data_inizio: data.data_inizio,
