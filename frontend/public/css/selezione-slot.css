@@ -392,8 +392,10 @@ main.container {
 
 /* ✅ NASCONDI BARRA DI SCORRIMENTO SU TUTTI I BROWSER */
 .modal-dialog-scrollable {
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* Internet Explorer 10+ */
 }
 
 /* ✅ STILE PERSONALIZZATO PER SCROLL INVISIBILE */

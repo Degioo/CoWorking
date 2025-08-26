@@ -907,6 +907,40 @@ async function loadPrenotazioneData() {
                 }
                 return;
             } else {
+                // ✅ CONTROLLA LOCALSTORAGE PER DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
+                console.log('loadPrenotazioneData - Parametri URL mancanti, controllo localStorage per dati post-login...');
+                
+                const pendingPrenotazione = localStorage.getItem('pendingPrenotazione');
+                if (pendingPrenotazione) {
+                    try {
+                        const pendingData = JSON.parse(pendingPrenotazione);
+                        console.log('loadPrenotazioneData - Dati prenotazione in attesa trovati:', pendingData);
+                        
+                        if (pendingData.sede && pendingData.spazio && pendingData.dataInizio && pendingData.orarioInizio) {
+                            console.log('loadPrenotazioneData - Creo prenotazione da dati localStorage (post-login)');
+                            
+                            // Crea la prenotazione dai dati salvati
+                            await createPrenotazioneFromSelection(
+                                pendingData.sede.id_sede || pendingData.sede,
+                                pendingData.spazio.id_spazio || pendingData.spazio,
+                                pendingData.dataInizio,
+                                pendingData.dataFine || pendingData.dataInizio,
+                                pendingData.orarioInizio,
+                                pendingData.orarioFine
+                            );
+                            
+                            // Pulisci i dati dal localStorage
+                            localStorage.removeItem('pendingPrenotazione');
+                            localStorage.removeItem('redirectAfterLogin');
+                            
+                            console.log('loadPrenotazioneData - Prenotazione creata da localStorage, dati puliti');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('loadPrenotazioneData - Errore nel parsing dati localStorage:', error);
+                    }
+                }
+                
                 throw new Error('Parametri prenotazione mancanti. Torna alla selezione e riprova.');
             }
         }
@@ -1060,10 +1094,14 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         // ✅ AGGIUNGI ID_UTENTE DALL'USER AUTENTICATO
         const userData = JSON.parse(user);
 
+        // ✅ GESTISCI CORRETTAMENTE I DATI DAL LOCALSTORAGE
+        const sedeId = typeof sede === 'object' ? sede.id_sede : parseInt(sede);
+        const spazioId = typeof spazio === 'object' ? spazio.id_spazio : parseInt(spazio);
+
         prenotazioneData = {
             id_utente: userData.id_utente, // ✅ CAMPO OBBLIGATORIO AGGIUNTO
-            id_sede: parseInt(sede),
-            id_spazio: parseInt(spazio),
+            id_sede: sedeId,
+            id_spazio: spazioId,
             data_inizio: dataInizioLocale.toISOString(),
             data_fine: dataFineLocale.toISOString(),
             orario_inizio: orarioInizio,
