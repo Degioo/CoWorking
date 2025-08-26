@@ -420,10 +420,10 @@ function setupEventListeners() {
             const params = new URLSearchParams({
                 sede: window.selectedSede.id_sede,
                 spazio: window.selectedSpazio.id_spazio,
-                data_inizio: formatDate(window.selectedDateInizio),
-                data_fine: formatDate(window.selectedDateFine),
-                time_inizio: window.selectedTimeInizio,
-                time_fine: window.selectedTimeFine
+                dal: formatDate(window.selectedDateInizio),
+                al: formatDate(window.selectedDateFine),
+                orarioInizio: window.selectedTimeInizio,
+                orarioFine: window.selectedTimeFine
             });
 
             // Reindirizza alla pagina di pagamento
