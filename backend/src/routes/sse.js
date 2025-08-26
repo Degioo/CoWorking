@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const SSEController = require('../controllers/sseController');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateSSEToken } = require('../middleware/sseAuth');
 
 // Endpoint per connessione SSE
-router.get('/status-stream', authenticateToken, (req, res) => {
+router.get('/status-stream', authenticateSSEToken, (req, res) => {
     SSEController.initConnection(req, res);
 });
 
 // Endpoint per ottenere stato corrente degli slot
-router.get('/slots-status/:sedeId/:spazioId/:data', authenticateToken, async (req, res) => {
+router.get('/slots-status/:sedeId/:spazioId/:data', authenticateSSEToken, async (req, res) => {
     try {
         const { sedeId, spazioId, data } = req.params;
 
@@ -33,7 +33,7 @@ router.get('/slots-status/:sedeId/:spazioId/:data', authenticateToken, async (re
 });
 
 // Endpoint per aggiornare stato slot (per testing)
-router.post('/update-slot-status', authenticateToken, async (req, res) => {
+router.post('/update-slot-status', authenticateSSEToken, async (req, res) => {
     try {
         const { slotId, status, prenotazioneId } = req.body;
 
@@ -53,7 +53,7 @@ router.post('/update-slot-status', authenticateToken, async (req, res) => {
 });
 
 // Endpoint per ottenere statistiche connessioni SSE
-router.get('/stats', authenticateToken, (req, res) => {
+router.get('/stats', authenticateSSEToken, (req, res) => {
     res.json({
         success: true,
         data: {

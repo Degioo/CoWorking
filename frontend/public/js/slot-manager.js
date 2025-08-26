@@ -34,8 +34,17 @@ class SlotManager {
     // Carica stato iniziale degli slot
     async loadInitialSlotsStatus() {
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE}/sse/slots-status/${this.currentSede}/${this.currentSpazio}/${this.currentDate}`, {
-                headers: getAuthHeaders()
+            // Ottieni il token di autenticazione
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('❌ SlotManager - Token di autenticazione mancante per stato iniziale');
+                return;
+            }
+
+            const response = await fetch(`${window.CONFIG.API_BASE}/sse/slots-status/${this.currentSede}/${this.currentSpazio}/${this.currentDate}?token=${encodeURIComponent(token)}`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.ok) {
@@ -53,7 +62,17 @@ class SlotManager {
     // Connessione SSE
     connectSSE() {
         try {
-            const url = `${window.CONFIG.API_BASE}/sse/status-stream`;
+            // Ottieni il token di autenticazione
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('❌ SlotManager - Token di autenticazione mancante');
+                return;
+            }
+
+            // Crea URL con token nella query string per autenticazione SSE
+            const url = `${window.CONFIG.API_BASE}/sse/status-stream?token=${encodeURIComponent(token)}`;
+            console.log('🔗 SlotManager - Connessione SSE con URL:', url);
+            
             this.eventSource = new EventSource(url);
 
             this.eventSource.onopen = () => {
