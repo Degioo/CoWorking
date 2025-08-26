@@ -26,7 +26,7 @@ class SlotManager {
 
         // Controlla se l'utente è autenticato
         const token = localStorage.getItem('token');
-        
+
         if (token) {
             console.log('🔐 SlotManager - Utente autenticato, attivo modalità SSE');
             // Carica stato iniziale degli slot
@@ -48,9 +48,9 @@ class SlotManager {
         try {
             // Ottieni il token di autenticazione
             const token = localStorage.getItem('token');
-            
+
             let response;
-            
+
             if (token) {
                 // Utente autenticato: usa endpoint protetto
                 response = await fetch(`${window.CONFIG.API_BASE}/sse/slots-status/${this.currentSede}/${this.currentSpazio}/${this.currentDate}?token=${encodeURIComponent(token)}`, {
@@ -344,7 +344,7 @@ class SlotManager {
     // Metodo per gestire utenti non autenticati
     handleUnauthenticatedUser() {
         console.log('👤 SlotManager - Gestione utente non autenticato');
-        
+
         // Per utenti non autenticati, disabilita la prenotazione
         // ma mantieni la visualizzazione dello stato reale degli slot
         const allButtons = document.querySelectorAll('[data-slot-id]');

@@ -2,13 +2,25 @@ const pool = require('../db');
 
 async function getDisponibilitaSlot(req, res) {
     try {
+        console.log('🚀 getDisponibilitaSlot chiamato');
+        console.log('📋 Request params:', req.params);
+        console.log('📋 Request query:', req.query);
+        
         const { id_spazio } = req.params;
         const { data } = req.params;
 
         console.log(`🔍 Richiesta disponibilità slot per spazio ${id_spazio} e data ${data}`);
 
+        // Validazione parametri
+        if (!id_spazio || !data) {
+            return res.status(400).json({
+                success: false,
+                error: 'Parametri mancanti: id_spazio e data sono richiesti'
+            });
+        }
+
         // Verifica che lo spazio esista
-        const spazioQuery = 'SELECT * FROM Spazio WHERE id_spazio = $1';
+        const spazioQuery = 'SELECT id_spazio, nome FROM Spazio WHERE id_spazio = $1';
         const spazioResult = await pool.query(spazioQuery, [id_spazio]);
 
         if (spazioResult.rows.length === 0) {
@@ -19,6 +31,7 @@ async function getDisponibilitaSlot(req, res) {
         }
 
         const spazio = spazioResult.rows[0];
+        console.log(`✅ Spazio trovato: ${spazio.nome}`);
 
         // Ottieni orari di apertura (9:00 - 18:00)
         const orariApertura = [];
@@ -26,22 +39,29 @@ async function getDisponibilitaSlot(req, res) {
             orariApertura.push(`${hour.toString().padStart(2, '0')}:00`);
         }
 
-        // Ottieni prenotazioni esistenti per questa data
-        const prenotazioniQuery = `
-            SELECT 
-                p.orario_inizio,
-                p.orario_fine,
-                p.stato,
-                p.data_creazione,
-                EXTRACT(EPOCH FROM (p.data_creazione + INTERVAL '15 minutes' - NOW()))/60 as minuti_rimanenti
-            FROM Prenotazione p
-            WHERE p.id_spazio = $1 
-            AND p.data_inizio::date = $2::date
-            AND p.stato IN ('confermata', 'in_attesa_pagamento')
-        `;
+        console.log(`⏰ Orari apertura generati: ${orariApertura.length} slot`);
 
-        const prenotazioniResult = await pool.query(prenotazioniQuery, [id_spazio, data]);
-        const prenotazioni = prenotazioniResult.rows;
+        // Ottieni prenotazioni esistenti per questa data (query semplificata)
+        let prenotazioni = [];
+        try {
+            const prenotazioniQuery = `
+                SELECT 
+                    orario_inizio,
+                    orario_fine,
+                    stato
+                FROM Prenotazione 
+                WHERE id_spazio = $1 
+                AND DATE(data_inizio) = $2
+                AND stato IN ('confermata', 'in_attesa_pagamento')
+            `;
+
+            const prenotazioniResult = await pool.query(prenotazioniQuery, [id_spazio, data]);
+            prenotazioni = prenotazioniResult.rows;
+            console.log(`📋 Prenotazioni trovate: ${prenotazioni.length}`);
+        } catch (queryError) {
+            console.warn('⚠️ Errore query prenotazioni, continuo senza:', queryError.message);
+            prenotazioni = [];
+        }
 
         // Crea array con stato di ogni slot
         const slotsStatus = orariApertura.map((orario, index) => {
@@ -49,8 +69,8 @@ async function getDisponibilitaSlot(req, res) {
             const orarioHour = parseInt(orario.split(':')[0]);
             const now = new Date();
             const selectedDate = new Date(data);
-            
-            // Controlla se l'orario è passato
+
+            // Controlla se l'orario è passato (solo per oggi)
             if (selectedDate.toDateString() === now.toDateString() && orarioHour <= now.getHours()) {
                 return {
                     id_slot: slotId,
@@ -62,8 +82,11 @@ async function getDisponibilitaSlot(req, res) {
 
             // Controlla se c'è una prenotazione per questo orario
             const prenotazione = prenotazioni.find(p => {
+                if (!p.orario_inizio || !p.orario_fine) return false;
+                
                 const prenotazioneInizio = parseInt(p.orario_inizio.split(':')[0]);
                 const prenotazioneFine = parseInt(p.orario_fine.split(':')[0]);
+                
                 return orarioHour >= prenotazioneInizio && orarioHour < prenotazioneFine;
             });
 
@@ -76,13 +99,12 @@ async function getDisponibilitaSlot(req, res) {
                         title: 'Slot prenotato'
                     };
                 } else if (prenotazione.stato === 'in_attesa_pagamento') {
-                    const minutiRimanenti = Math.max(0, Math.floor(prenotazione.minuti_rimanenti));
                     return {
                         id_slot: slotId,
                         orario: orario,
                         status: 'occupied',
-                        title: `Slot occupato (hold scade in ${minutiRimanenti} min)`,
-                        hold_time_remaining: minutiRimanenti
+                        title: 'Slot occupato (in attesa pagamento)',
+                        hold_time_remaining: 15
                     };
                 }
             }
@@ -112,15 +134,37 @@ async function getDisponibilitaSlot(req, res) {
 
     } catch (error) {
         console.error('❌ Errore nel calcolo disponibilità slot:', error);
+        console.error('Stack trace:', error.stack);
+        
         res.status(500).json({
             success: false,
-            error: 'Errore nel calcolo disponibilità slot'
+            error: 'Errore nel calcolo disponibilità slot',
+            details: process.env.NODE_ENV === 'development' ? error.message : 'Errore interno del server'
+        });
+    }
+}
+
+// Endpoint di test semplice
+async function testEndpoint(req, res) {
+    try {
+        console.log('🧪 Test endpoint chiamato');
+        res.json({
+            success: true,
+            message: 'Test endpoint funziona',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ Errore test endpoint:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Errore test endpoint'
         });
     }
 }
 
 module.exports = {
-    getDisponibilitaSlot
+    getDisponibilitaSlot,
+    testEndpoint
 };
 
 
