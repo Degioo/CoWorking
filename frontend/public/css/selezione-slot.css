@@ -154,7 +154,8 @@ button.slot-past,
 }
 
 .calendar-container {
-    margin-bottom: 20px !important; /* Riduco spacing per unire meglio con riepilogo */
+    margin-bottom: 20px !important;
+    /* Riduco spacing per unire meglio con riepilogo */
 }
 
 .summary-card {
@@ -226,14 +227,19 @@ main.container {
 
 /* Stile base del riepilogo - POSIZIONAMENTO RELATIVO SOTTO SELEZIONE DATA */
 .summary-card {
-    position: relative !important; /* Cambia da fixed a relative */
-    width: 100% !important; /* Usa tutta la larghezza disponibile */
-    background: linear-gradient(135deg, #007bff, #0056b3) !important; /* Stesso blu del bottone Torna Indietro */
+    position: relative !important;
+    /* Cambia da fixed a relative */
+    width: 100% !important;
+    /* Usa tutta la larghezza disponibile */
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    /* Stesso blu del bottone Torna Indietro */
     border-radius: 15px !important;
     padding: 25px !important;
     box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3) !important;
-    margin-top: 30px !important; /* Spacing sopra il riepilogo */
-    transform: translateX(400px) scale(0.8) !important; /* Nascondi a destra */
+    margin-top: 30px !important;
+    /* Spacing sopra il riepilogo */
+    transform: translateX(400px) scale(0.8) !important;
+    /* Nascondi a destra */
     opacity: 0 !important;
     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
@@ -245,12 +251,12 @@ main.container {
     pointer-events: none !important;
 }
 
-/* Mostra riepilogo quando attivo - SLIDE DA DESTRA + SFUMATURA BLU → VERDE */
+/* Mostra riepilogo quando attivo - SLIDE DA DESTRA + SFUMATURA BLU DOMINANTE → VERDE SOTTILE */
 .summary-card.active {
     transform: translateX(0) scale(1) !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    background: linear-gradient(135deg, #007bff, #28a745) !important; /* Stesso blu del bottone Torna Indietro → Verde */
+    background: linear-gradient(135deg, #007bff 80%, #28a745 100%) !important; /* Blu molto dominante, verde solo all'angolo */
     box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4) !important;
 }
 
