@@ -305,6 +305,228 @@ main.container {
     }
 }
 
+/* ===== STILI MODAL DI AUTENTICAZIONE ELEGANTE ===== */
+
+/* Modal principale */
+.auth-modal-content {
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
+    overflow: hidden !important;
+}
+
+/* Header del modal */
+.auth-modal-header {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    color: white !important;
+    border-bottom: none !important;
+    padding: 25px 30px !important;
+    position: relative !important;
+}
+
+.auth-modal-header::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)) !important;
+    pointer-events: none !important;
+}
+
+/* Icona di autenticazione */
+.auth-icon-container {
+    width: 60px !important;
+    height: 60px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.auth-icon {
+    font-size: 24px !important;
+    color: white !important;
+}
+
+/* Titolo e sottotitolo */
+.auth-modal-header .modal-title {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    margin-bottom: 5px !important;
+}
+
+.auth-subtitle {
+    font-size: 16px !important;
+    opacity: 0.9 !important;
+    font-weight: 400 !important;
+}
+
+/* Body del modal */
+.auth-modal-body {
+    padding: 30px !important;
+    background: #f8f9fa !important;
+}
+
+/* Riquadro riepilogo elegante */
+.auth-summary-card {
+    background: white !important;
+    border-radius: 15px !important;
+    padding: 25px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 25px !important;
+    border-left: 5px solid #007bff !important;
+}
+
+.auth-summary-header {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 2px solid #e9ecef !important;
+    color: #007bff !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+}
+
+.auth-summary-content {
+    display: grid !important;
+    gap: 15px !important;
+}
+
+.auth-summary-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 0 !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+}
+
+.auth-summary-row:last-child {
+    border-bottom: none !important;
+}
+
+.auth-summary-label {
+    display: flex !important;
+    align-items: center !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
+    min-width: 120px !important;
+}
+
+.auth-summary-value {
+    color: #212529 !important;
+    font-weight: 600 !important;
+    text-align: right !important;
+    flex: 1 !important;
+}
+
+/* Messaggio informativo */
+.auth-info-message {
+    display: flex !important;
+    align-items: flex-start !important;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    border-left: 4px solid #2196f3 !important;
+}
+
+.auth-info-icon {
+    color: #2196f3 !important;
+    font-size: 20px !important;
+    margin-right: 15px !important;
+    margin-top: 2px !important;
+}
+
+.auth-info-text strong {
+    color: #1976d2 !important;
+    font-size: 16px !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+.auth-info-text p {
+    color: #424242 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* Footer del modal */
+.auth-modal-footer {
+    background: white !important;
+    border-top: 1px solid #e9ecef !important;
+    padding: 25px 30px !important;
+    gap: 15px !important;
+}
+
+/* Bottoni eleganti */
+.auth-btn-cancel {
+    border: 2px solid #6c757d !important;
+    color: #6c757d !important;
+    background: transparent !important;
+    border-radius: 12px !important;
+    padding: 12px 25px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.auth-btn-cancel:hover {
+    background: #6c757d !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3) !important;
+}
+
+.auth-btn-login {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 12px 30px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3) !important;
+}
+
+.auth-btn-login:hover {
+    background: linear-gradient(135deg, #0056b3, #004085) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .auth-modal-dialog {
+        margin: 10px !important;
+    }
+    
+    .auth-modal-header {
+        padding: 20px !important;
+    }
+    
+    .auth-modal-body {
+        padding: 20px !important;
+    }
+    
+    .auth-modal-footer {
+        padding: 20px !important;
+        flex-direction: column !important;
+    }
+    
+    .auth-summary-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 5px !important;
+    }
+    
+    .auth-summary-value {
+        text-align: left !important;
+    }
+}
+
 /* Responsive design - Ottimizzato per slot sempre visibili */
 @media (max-width: 768px) {
     #timeSlots {

@@ -807,31 +807,87 @@ function getAuthHeaders() {
 
 // Funzione per mostrare il modal di autenticazione
 function showAuthModal() {
-    console.log('🔐 Mostro modal di autenticazione');
+    console.log('🔐 Mostro modal di autenticazione elegante');
 
     // Crea il modal HTML se non esiste
     if (!document.getElementById('authModal')) {
         const modalHTML = `
             <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="authModalLabel">🔐 Autenticazione Richiesta</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content auth-modal-content">
+                        <div class="modal-header auth-modal-header">
+                            <div class="d-flex align-items-center">
+                                <div class="auth-icon-container me-3">
+                                    <i class="fas fa-lock-open auth-icon"></i>
+                                </div>
+                                <div>
+                                    <h4 class="modal-title mb-0" id="authModalLabel">🔐 Autenticazione Richiesta</h4>
+                                    <p class="auth-subtitle mb-0">Per completare la prenotazione devi effettuare il login o registrarti</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <p>Per completare la prenotazione devi effettuare il login o registrarti.</p>
-                            <p><strong>Orari selezionati:</strong></p>
-                            <ul>
-                                <li><strong>Sede:</strong> ${window.selectedSede ? window.selectedSede.nome : 'Non selezionata'}</li>
-                                <li><strong>Spazio:</strong> ${window.selectedSpazio ? window.selectedSpazio.nome : 'Non selezionato'}</li>
-                                <li><strong>Data:</strong> ${window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : 'Non selezionata'}</li>
-                                <li><strong>Orario:</strong> ${window.selectedTimeInizio ? window.selectedTimeInizio + ' - ' + window.selectedTimeFine : 'Non selezionato'}</li>
-                            </ul>
+                        
+                        <div class="modal-body auth-modal-body">
+                            <!-- Riquadro riepilogo elegante -->
+                            <div class="auth-summary-card">
+                                <div class="auth-summary-header">
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    <span>Riepilogo Prenotazione</span>
+                                </div>
+                                <div class="auth-summary-content">
+                                    <div class="auth-summary-row">
+                                        <div class="auth-summary-label">
+                                            <i class="fas fa-building me-2"></i>
+                                            <span>Sede:</span>
+                                        </div>
+                                        <div class="auth-summary-value">${window.selectedSede ? window.selectedSede.nome : 'Non selezionata'}</div>
+                                    </div>
+                                    <div class="auth-summary-row">
+                                        <div class="auth-summary-label">
+                                            <i class="fas fa-door-open me-2"></i>
+                                            <span>Spazio:</span>
+                                        </div>
+                                        <div class="auth-summary-value">${window.selectedSpazio ? window.selectedSpazio.nome : 'Non selezionato'}</div>
+                                    </div>
+                                    <div class="auth-summary-row">
+                                        <div class="auth-summary-label">
+                                            <i class="fas fa-calendar me-2"></i>
+                                            <span>Data:</span>
+                                        </div>
+                                        <div class="auth-summary-value">${window.selectedDateInizio ? window.selectedDateInizio.toLocaleDateString('it-IT') : 'Non selezionata'}</div>
+                                    </div>
+                                    <div class="auth-summary-row">
+                                        <div class="auth-summary-label">
+                                            <i class="fas fa-clock me-2"></i>
+                                            <span>Orario:</span>
+                                        </div>
+                                        <div class="auth-summary-value">${window.selectedTimeInizio ? window.selectedTimeInizio + ' - ' + window.selectedTimeFine : 'Non selezionato'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Messaggio informativo elegante -->
+                            <div class="auth-info-message">
+                                <div class="auth-info-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="auth-info-text">
+                                    <strong>Perché devo registrarmi?</strong>
+                                    <p>La registrazione ti permette di gestire le tue prenotazioni, ricevere conferme e accedere a servizi esclusivi.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                            <button type="button" class="btn btn-primary" onclick="goToLogin()">Vai al Login</button>
+                        
+                        <div class="modal-footer auth-modal-footer">
+                            <button type="button" class="btn btn-outline-secondary auth-btn-cancel" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-2"></i>
+                                Annulla
+                            </button>
+                            <button type="button" class="btn btn-primary auth-btn-login" onclick="goToLogin()">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Vai al Login
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -881,3 +937,4 @@ function goToLogin() {
 // Rendi le funzioni disponibili globalmente
 window.showAuthModal = showAuthModal;
 window.goToLogin = goToLogin;
+

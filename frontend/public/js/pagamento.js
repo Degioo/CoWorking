@@ -977,7 +977,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             };
             localStorage.setItem('pendingPrenotazione', JSON.stringify(selectionData));
             localStorage.setItem('redirectAfterLogin', '/pagamento.html');
-            
+
             // Reindirizza al login
             window.location.href = '/login.html';
             return;
@@ -1056,10 +1056,10 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 
         // Crea l'oggetto prenotazione
         // IMPORTANTE: Salva le date come stringhe locali per evitare problemi di timezone
-        
+
         // ✅ AGGIUNGI ID_UTENTE DALL'USER AUTENTICATO
         const userData = JSON.parse(user);
-        
+
         prenotazioneData = {
             id_utente: userData.id_utente, // ✅ CAMPO OBBLIGATORIO AGGIUNTO
             id_sede: parseInt(sede),
@@ -1110,7 +1110,7 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
 
         // ✅ CHIAMATA API PER CREARE PRENOTAZIONE NEL DATABASE
         console.log('createPrenotazioneFromSelection - Chiamo API per creare prenotazione nel database...');
-        
+
         try {
             const response = await fetchWithTimeout(`${window.CONFIG.API_BASE}/prenotazioni`, {
                 method: 'POST',
