@@ -868,13 +868,13 @@ async function loadPrenotazioneData() {
     try {
         console.log('loadPrenotazioneData - Inizio funzione');
 
-        // Se abbiamo già i dati della prenotazione (caso creazione automatica)
-        if (window.prenotazioneData && window.prenotazioneData.id_prenotazione) {
-            console.log('loadPrenotazioneData - Usa dati prenotazione già caricati:', window.prenotazioneData);
-            prenotazioneData = window.prenotazioneData;
-            populatePrenotazioneDetails();
-            return;
-        }
+        // COMMENTATO: Questa condizione viene controllata DOPO i parametri URL
+        // if (window.prenotazioneData && window.prenotazioneData.id_prenotazione) {
+        //     console.log('loadPrenotazioneData - Usa dati prenotazione già caricati:', window.prenotazioneData);
+        //     prenotazioneData = window.prenotazioneData;
+        //     populatePrenotazioneDetails();
+        //     return;
+        // }
 
         // Altrimenti cerca l'ID della prenotazione nell'URL (flusso normale)
         const urlParams = new URLSearchParams(window.location.search);
@@ -932,6 +932,14 @@ async function loadPrenotazioneData() {
         // Popola i dettagli della prenotazione
         populatePrenotazioneDetails();
         console.log('loadPrenotazioneData - Completato con successo');
+
+        // Se abbiamo già i dati della prenotazione (caso creazione automatica già completata)
+        if (window.prenotazioneData && window.prenotazioneData.id_prenotazione) {
+            console.log('loadPrenotazioneData - Usa dati prenotazione già caricati:', window.prenotazioneData);
+            prenotazioneData = window.prenotazioneData;
+            populatePrenotazioneDetails();
+            return;
+        }
 
     } catch (error) {
         console.error('Errore caricamento prenotazione:', error);
