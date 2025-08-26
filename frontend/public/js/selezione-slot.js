@@ -21,9 +21,7 @@ let slotManager = {
         this.initialized = true;
         console.log('🚀 Inizializzazione Slot Manager');
 
-        // SISTEMA DI POLLING INTELLIGENTE PER GESTIONE CONCORRENZA
-        // TEMPORANEAMENTE DISABILITATO PER EVITARE LOOP INFINITO
-        // this.startConcurrencyPolling();
+
 
         // Aggiornamento iniziale
         this.updateAllSlots();
@@ -476,14 +474,14 @@ async function loadSedi() {
             throw new Error(`Errore caricamento sedi: ${response.status} - ${response.statusText}`);
         }
 
-                // Aggiorna la variabile globale sedi
+        // Aggiorna la variabile globale sedi
         window.sedi = await response.json();
         console.log('✅ Sedi caricate:', window.sedi);
         console.log(`📋 Numero sedi: ${window.sedi.length}`);
 
         // Popola il select delle sedi
         populateSedeSelect();
-        
+
         // Marca le sedi come caricate con successo
         window.sediLoaded = true;
 
