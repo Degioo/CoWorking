@@ -957,16 +957,14 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
         const [hourFine, minuteFine] = orarioFine.split(':').map(Number);
 
         // Crea le date locali (il mese è 0-based in JavaScript)
+        // IMPORTANTE: Non sottrarre l'offset, mantieni le date locali così come sono
         const dataInizioLocal = new Date(yearInizio, monthInizio - 1, dayInizio, hourInizio, minuteInizio, 0);
         const dataFineLocal = new Date(yearFine, monthFine - 1, dayFine, hourFine, minuteFine, 0);
 
-        // IMPORTANTE: Mantieni il timezone locale invece di convertire in UTC
-        // Calcola l'offset del timezone locale
-        const timezoneOffset = dataInizioLocal.getTimezoneOffset() * 60000; // in millisecondi
-
-        // Crea le date in formato locale (senza conversione UTC)
-        const dataInizioLocale = new Date(dataInizioLocal.getTime() - timezoneOffset);
-        const dataFineLocale = new Date(dataFineLocal.getTime() - timezoneOffset);
+        // IMPORTANTE: Mantieni le date locali senza manipolazioni di timezone
+        // Le date sono già nel timezone locale dell'utente
+        const dataInizioLocale = dataInizioLocal;
+        const dataFineLocale = dataFineLocal;
 
         console.log('createPrenotazioneFromSelection - Date create correttamente:', {
             dataInizioLocal: dataInizioLocal.toString(),
@@ -975,12 +973,14 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             dataFineLocale: dataFineLocale.toString(),
             dataInizioISO: dataInizioLocale.toISOString(),
             dataFineISO: dataFineLocale.toISOString(),
-            timezoneOffset: timezoneOffset / 60000 + ' minuti'
+            timezoneLocale: 'Mantenuto locale senza conversione',
+            parametriOriginali: { dal, al, orarioInizio, orarioFine }
         });
 
         // Calcola la durata in ore (considerando anche i minuti)
+        // IMPORTANTE: Usa le date locali per il calcolo corretto
         const durataMs = dataFineLocal - dataInizioLocal;
-        const durataOre = Math.max(0.5, (durataMs / (1000 * 60 * 60)).toFixed(1));
+        const durataOre = Math.max(0.5, parseFloat((durataMs / (1000 * 60 * 60)).toFixed(1)));
 
         // Calcola l'importo (10€/ora, minimo 5€)
         const importo = Math.max(5, Math.round(durataOre * 10));
@@ -1018,6 +1018,15 @@ async function createPrenotazioneFromSelection(sede, spazio, dal, al, orarioIniz
             spazio: { id_spazio: parseInt(spazio) }
         };
 
+        console.log('createPrenotazioneFromSelection - Oggetto prenotazione creato:', {
+            data_inizio: prenotazioneData.data_inizio,
+            data_fine: prenotazioneData.data_fine,
+            orario_inizio: prenotazioneData.orario_inizio,
+            orario_fine: prenotazioneData.orario_fine,
+            durata_ore: prenotazioneData.durata_ore,
+            importo: prenotazioneData.importo
+        });
+
         console.log('createPrenotazioneFromSelection - Prenotazione creata:', prenotazioneData);
 
         // Popola i dettagli della prenotazione
@@ -1047,8 +1056,9 @@ function populatePrenotazioneDetails() {
     const dataFine = new Date(data.data_fine);
 
     // Calcola la durata in ore (considerando anche i minuti)
+    // IMPORTANTE: Usa le date locali per il calcolo corretto
     const durataMs = dataFine - dataInizio;
-    const durataOre = Math.max(0.5, (durataMs / (1000 * 60 * 60)).toFixed(1));
+    const durataOre = Math.max(0.5, parseFloat((durataMs / (1000 * 60 * 60)).toFixed(1)));
 
     // Calcola l'importo (10€/ora, minimo 5€)
     const importo = Math.max(5, Math.round(durataOre * 10));
@@ -1125,7 +1135,11 @@ function populatePrenotazioneDetails() {
             dataInizioSolo: dataInizioSolo,
             dataFineSolo: dataFineSolo,
             orarioInizio: orarioInizio,
-            orarioFine: orarioFine
+            orarioFine: orarioFine,
+            dataInizioOriginale: dataInizio.toString(),
+            dataFineOriginale: dataFine.toString(),
+            dataInizioISO: data.data_inizio,
+            dataFineISO: data.data_fine
         });
     } else {
         // Usa la visualizzazione standard
@@ -1134,7 +1148,11 @@ function populatePrenotazioneDetails() {
 
         console.log('populatePrenotazioneDetails - Visualizzazione standard:', {
             dataInizioFormattata: dataInizioFormattata,
-            dataFineFormattata: dataFineFormattata
+            dataFineFormattata: dataFineFormattata,
+            dataInizioOriginale: dataInizio.toString(),
+            dataFineOriginale: dataFine.toString(),
+            dataInizioISO: data.data_inizio,
+            dataFineISO: data.data_fine
         });
     }
 
