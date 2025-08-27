@@ -343,7 +343,7 @@ class DashboardResponsabili {
     // ✅ Fallback per sedi quando API non disponibile
     loadSediWithFallback() {
         console.log('🔄 Carico sedi con dati di esempio (fallback)');
-        
+
         const sediFallback = [
             {
                 id_sede: 1,
@@ -384,7 +384,7 @@ class DashboardResponsabili {
     // ✅ Fallback per disponibilità quando API non disponibile
     loadDisponibilitaWithFallback() {
         console.log('🔄 Carico disponibilità con dati di esempio (fallback)');
-        
+
         const disponibilitaFallback = {
             regole: [
                 {
@@ -1280,7 +1280,7 @@ class DashboardResponsabili {
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
+
     // ✅ Se l'utente è gestore/amministratore, prova anche senza token
     if (!token && user) {
         try {
@@ -1296,7 +1296,7 @@ function getAuthHeaders() {
             console.error('Errore parsing user per controllo ruolo:', error);
         }
     }
-    
+
     if (!token) {
         console.error('Token non trovato per autenticazione API');
         return {};

@@ -127,12 +127,88 @@ function logout() {
         // Ricarica la pagina per aggiornare la navbar
         window.location.reload();
     }
+
+}
+
+// ✅ NUOVA FUNZIONE: tenta di ripristinare i dati utente dal token
+async function attemptUserRestoreFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.log('attemptUserRestoreFromToken - Nessun token disponibile');
+        return false;
+    }
+
+    try {
+        console.log('🔄 Tentativo di ripristino dati utente dal token...');
+        
+        // Prova a decodificare il JWT per estrarre informazioni base
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+            try {
+                const payload = JSON.parse(atob(tokenParts[1]));
+                console.log('🔍 Payload token decodificato:', payload);
+                
+                // Se il token contiene dati utente, ricrea l'oggetto user
+                if (payload.id_utente || payload.sub) {
+                    const restoredUser = {
+                        id_utente: payload.id_utente || payload.sub,
+                        nome: payload.nome || 'Utente',
+                        cognome: payload.cognome || 'Ripristinato',
+                        email: payload.email || 'email@example.com',
+                        ruolo: payload.ruolo || 'cliente',
+                        message: 'Utente ripristinato dal token'
+                    };
+                    
+                    console.log('✅ Dati utente ripristinati dal token:', restoredUser);
+                    localStorage.setItem('user', JSON.stringify(restoredUser));
+                    return true;
+                }
+            } catch (decodeError) {
+                console.log('⚠️ Errore decodifica payload token:', decodeError);
+            }
+        }
+        
+        // Se non riesco a decodificare, prova a chiamare l'API per verificare il token
+        console.log('🔄 Tentativo verifica token tramite API...');
+        const response = await fetch(`${window.CONFIG.API_BASE}/verify-token`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'token': token,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const userData = await response.json();
+            console.log('✅ Dati utente ripristinati tramite API:', userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            return true;
+        } else {
+            console.log('⚠️ API verify-token non disponibile o fallita');
+            return false;
+        }
+        
+    } catch (error) {
+        console.error('❌ Errore nel tentativo di ripristino dati utente:', error);
+        return false;
+    }
 }
 
 // Funzione per verificare se l'utente è autenticato
-function isAuthenticated() {
+async function isAuthenticated() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
+
+    if (!user && token) {
+        // ✅ NUOVO CASO: token presente ma user mancante, prova a ripristinare
+        console.log('isAuthenticated - Token presente ma user mancante, tentativo di ripristino...');
+        const restored = await attemptUserRestoreFromToken();
+        if (restored) {
+            console.log('isAuthenticated - User ripristinato con successo');
+            return true;
+        }
+    }
 
     if (!user) {
         console.log('isAuthenticated - User mancante');
@@ -141,7 +217,7 @@ function isAuthenticated() {
 
     try {
         const userData = JSON.parse(user);
-
+        
         // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
         if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
             if (userData.id_utente) {
@@ -149,13 +225,13 @@ function isAuthenticated() {
                 return true;
             }
         }
-
+        
         // ✅ Per utenti normali, richiedi sia user che token
         if (!token) {
             console.log('isAuthenticated - User presente ma token mancante per utente normale:', userData?.nome, userData?.cognome);
             return false;
         }
-
+        
         const isAuthenticated = userData && userData.id_utente;
         console.log('isAuthenticated - Risultato:', isAuthenticated, 'per utente:', userData?.nome, userData?.cognome);
         return isAuthenticated;
@@ -245,10 +321,10 @@ async function validateTokenOnStartup() {
             localStorage.removeItem('token');
             return false;
         }
-    } else if (user && !token) {
+        } else if (user && !token) {
         // Caso speciale: user presente ma token mancante
         console.log('validateTokenOnStartup - User presente ma token mancante, verifico integrità...');
-
+        
         try {
             const userData = JSON.parse(user);
             // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
@@ -259,8 +335,14 @@ async function validateTokenOnStartup() {
         } catch (error) {
             console.log('validateTokenOnStartup - Errore parsing user per controllo ruolo:', error);
         }
-
+        
         return checkAndRestoreToken();
+    } else if (!user && token) {
+        // ✅ NUOVO CASO: token presente ma user mancante (situazione attuale)
+        console.log('⚠️ validateTokenOnStartup - Token presente ma user mancante, tentativo di ripristino...');
+        
+        // Prova a ripristinare i dati utente dal token
+        return await attemptUserRestoreFromToken();
     } else {
         console.log('validateTokenOnStartup - User o token mancanti');
         return false;

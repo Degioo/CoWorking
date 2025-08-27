@@ -107,38 +107,48 @@ function navigateToProtectedPage(pageUrl) {
         }
       }
 
-      // ✅ Per utenti normali, usa la logica standard
-      if (typeof window.isAuthenticated === 'function' && window.isAuthenticated()) {
-        console.log('✅ Utente normale autenticato, navigazione consentita');
+              // ✅ Per utenti normali, usa la logica standard
+        if (typeof window.isAuthenticated === 'function') {
+            // ✅ Gestisci la funzione asincrona
+            window.isAuthenticated().then(isAuth => {
+                if (isAuth) {
+                    console.log('✅ Utente normale autenticato, navigazione consentita');
+                    
+                    // Verifica permessi per pagine specifiche
+                    if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
+                        showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
+                        return;
+                    }
 
-        // Verifica permessi per pagine specifiche
-        if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
-          showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
-          return;
+                    console.log('Navigazione consentita a:', pageUrl);
+                    window.location.href = pageUrl;
+                } else {
+                    // ✅ Se arriviamo qui, l'utente ha user ma non è completamente autenticato
+                    console.log('⚠️ Utente con user ma autenticazione incompleta, richiedo login');
+                    localStorage.setItem('redirectAfterLogin', pageUrl);
+                    window.location.href = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
+                }
+            }).catch(error => {
+                console.error('❌ Errore nella verifica autenticazione:', error);
+                // Fallback: richiedi login
+                localStorage.setItem('redirectAfterLogin', pageUrl);
+                window.location.href = 'login.html?message=' + encodeURIComponent('Errore di autenticazione. Effettua nuovamente il login.');
+            });
+            return;
         }
 
-        console.log('Navigazione consentita a:', pageUrl);
-        window.location.href = pageUrl;
-        return;
-      }
-
-      // ✅ Se arriviamo qui, l'utente ha user ma non è completamente autenticato
-      console.log('⚠️ Utente con user ma autenticazione incompleta, richiedo login');
-      localStorage.setItem('redirectAfterLogin', pageUrl);
-      window.location.href = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
-
-    } catch (error) {
-      console.error('Errore parsing user:', error);
-      localStorage.removeItem('user');
-      showAlert('Errore nei dati utente. Effettua nuovamente il login.', 'danger');
-      window.location.href = 'login.html';
+          } catch (error) {
+        console.error('Errore parsing user:', error);
+        localStorage.removeItem('user');
+        showAlert('Errore nei dati utente. Effettua nuovamente il login.', 'danger');
+        window.location.href = 'login.html';
     }
-  } else {
+} else {
     // ✅ Utente completamente non autenticato
     console.log('Utente non autenticato, reindirizzamento al login');
     localStorage.setItem('redirectAfterLogin', pageUrl);
     window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere a questa pagina.');
-  }
+}
 }
 
 // Logout locale - chiama la funzione centralizzata
