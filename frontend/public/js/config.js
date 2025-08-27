@@ -421,8 +421,25 @@ function updateNavbarUniversal() {
         return;
     }
 
-    // Rimuovi tutti i link dinamici esistenti (Dashboard, Logout, Accedi)
-    document.querySelectorAll('.nav-item.dynamic-nav-item').forEach(item => item.remove());
+    // ✅ Rimuovi tutti gli elementi dinamici esistenti per evitare duplicati
+    console.log('🧹 Pulizia elementi dinamici esistenti...');
+    
+    // Rimuovi link dinamici (Dashboard, etc.)
+    document.querySelectorAll('.nav-item.dynamic-nav-item').forEach(item => {
+        item.remove();
+        console.log('🗑️ Rimosso elemento dinamico:', item.textContent?.trim());
+    });
+    
+    // Rimuovi anche eventuali info utente duplicati
+    const allUserInfo = document.querySelectorAll('.nav-link.text-light');
+    if (allUserInfo.length > 1) {
+        console.log('⚠️ Trovati info utente duplicati, rimuovo quelli extra...');
+        // Mantieni solo il primo, rimuovi gli altri
+        for (let i = 1; i < allUserInfo.length; i++) {
+            allUserInfo[i].remove();
+            console.log('🗑️ Rimosso info utente duplicato extra');
+        }
+    }
 
     if (userStr) {
         try {
@@ -433,7 +450,7 @@ function updateNavbarUniversal() {
             console.log('🔍 Cercando tasto Accedi nella sezione auth...');
             const accediButton = authSection.querySelector('.btn-primary');
             console.log('🔍 Tasto Accedi trovato:', accediButton);
-            
+
             if (accediButton) {
                 // ✅ Trasforma il tasto Accedi in Logout
                 console.log('🔄 Trasformo tasto Accedi in Logout...');
@@ -451,7 +468,14 @@ function updateNavbarUniversal() {
                 `;
             }
 
-            // ✅ Aggiungi info utente accanto al pulsante Logout
+            // ✅ Aggiungi info utente accanto al pulsante Logout (senza duplicati)
+            // Prima rimuovi eventuali info utente esistenti per evitare duplicati
+            const existingUserInfo = authSection.querySelector('.nav-link.text-light');
+            if (existingUserInfo) {
+                existingUserInfo.remove();
+                console.log('🗑️ Rimosso info utente duplicato esistente');
+            }
+            
             const userInfoSpan = document.createElement('span');
             userInfoSpan.className = 'nav-link text-light ms-3';
             userInfoSpan.innerHTML = `
@@ -459,6 +483,7 @@ function updateNavbarUniversal() {
                 <small class="d-block text-muted">${user.ruolo}</small>
             `;
             authSection.appendChild(userInfoSpan);
+            console.log('✅ Info utente aggiunto:', user.nome, user.cognome);
 
             // Aggiungi Dashboard se richiesto dalla configurazione
             if (config.mostraDashboard) {
@@ -597,15 +622,26 @@ function showNavbarForUnauthenticatedUser(config) {
         return;
     }
 
-    // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
+        // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
     console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
-
-    // ✅ Rimuovi info utente se presente
-    const userInfoSpan = authSection.querySelector('.nav-link.text-light');
-    if (userInfoSpan) {
-        userInfoSpan.remove();
-    }
-
+    
+    // ✅ Rimuovi TUTTI gli elementi utente esistenti per evitare duplicati
+    console.log('🧹 Pulizia completa elementi utente...');
+    
+    // Rimuovi info utente se presente
+    const allUserInfo = authSection.querySelectorAll('.nav-link.text-light');
+    allUserInfo.forEach((info, index) => {
+        info.remove();
+        console.log(`🗑️ Rimosso info utente ${index + 1}:`, info.textContent?.trim());
+    });
+    
+    // Rimuovi anche eventuali link dinamici rimasti
+    const dynamicItems = authSection.parentElement.querySelectorAll('.dynamic-nav-item');
+    dynamicItems.forEach(item => {
+        item.remove();
+        console.log('🗑️ Rimosso elemento dinamico rimasto:', item.textContent?.trim());
+    });
+    
     // ✅ Mostra tasto Accedi
     authSection.innerHTML = `
         <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
@@ -613,6 +649,7 @@ function showNavbarForUnauthenticatedUser(config) {
             Accedi
         </a>
     `;
+    console.log('✅ Tasto Accedi mostrato, navbar pulita');
 }
 
 // Funzione per inizializzare la navbar all'avvio
