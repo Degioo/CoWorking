@@ -109,6 +109,23 @@ app.get('/api/test-dashboard', (req, res) => {
   });
 });
 
+// Endpoint di test per verificare la connessione al database
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const db = require('./db');
+    const result = await db.query('SELECT NOW() as current_time, version() as db_version');
+    res.json({
+      message: 'Database connesso',
+      timestamp: new Date().toISOString(),
+      db_time: result.rows[0].current_time,
+      db_version: result.rows[0].db_version
+    });
+  } catch (error) {
+    console.error('❌ Errore test database:', error);
+    res.status(500).json({ error: 'Errore connessione database', details: error.message });
+  }
+});
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({

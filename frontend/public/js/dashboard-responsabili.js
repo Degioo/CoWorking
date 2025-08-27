@@ -57,10 +57,8 @@ class DashboardResponsabili {
         this.charts = {};
         this.currentMonth = new Date();
 
-        // Controlla autenticazione prima di inizializzare
-        if (this.checkAuthBeforeInit()) {
-            this.init();
-        }
+        // Non inizializzare qui, verrà fatto nel DOMContentLoaded
+        console.log('✅ Dashboard responsabili creata, in attesa di inizializzazione...');
     }
 
     checkAuthBeforeInit() {
@@ -88,10 +86,10 @@ class DashboardResponsabili {
     async init() {
         this.setupEventListeners();
         this.loadUserInfo();
-        
+
         // Prima carica le sedi, poi i dati overview
         await this.loadSedi();
-        
+
         // Ora che le sedi sono caricate, carica i dati overview
         this.loadOverviewData();
         this.setupCharts();
@@ -289,7 +287,7 @@ class DashboardResponsabili {
 
                 // Populate other selectors
                 this.populateSpaziSelectors(sedi);
-                
+
                 // ✅ IMPORTANTE: Imposta la prima sede come default se disponibile
                 if (sedi.length > 0) {
                     this.currentSede = sedi[0].id_sede;
@@ -366,7 +364,7 @@ class DashboardResponsabili {
 
             console.log('✅ Dropdown sedi popolato con dati di esempio');
             this.populateSpaziSelectors(sediFallback);
-            
+
             // ✅ IMPORTANTE: Imposta la prima sede come default anche nel fallback
             if (sediFallback.length > 0) {
                 this.currentSede = sediFallback[0].id_sede;
@@ -1409,14 +1407,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         window.dashboardResponsabili = new DashboardResponsabili();
-        console.log('Dashboard responsabili creata, avvio inizializzazione...');
-        
-        // Inizializza in modo asincrono
-        window.dashboardResponsabili.init().then(() => {
-            console.log('✅ Dashboard responsabili inizializzata completamente');
-        }).catch(error => {
-            console.error('❌ Errore durante inizializzazione:', error);
-        });
+        console.log('Dashboard responsabili creata, verifico autenticazione...');
+
+        // Controlla autenticazione prima di inizializzare
+        if (window.dashboardResponsabili.checkAuthBeforeInit()) {
+            console.log('✅ Utente autenticato, avvio inizializzazione...');
+            
+            // Inizializza in modo asincrono
+            window.dashboardResponsabili.init().then(() => {
+                console.log('✅ Dashboard responsabili inizializzata completamente');
+            }).catch(error => {
+                console.error('❌ Errore durante inizializzazione:', error);
+            });
+        } else {
+            console.log('❌ Utente non autenticato, dashboard non inizializzata');
+        }
     } catch (error) {
         console.error('Errore creazione dashboard responsabili:', error);
     }
