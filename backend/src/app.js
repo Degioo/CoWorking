@@ -259,6 +259,39 @@ app.get('/api/test-disponibilita-slot', (req, res) => {
   });
 });
 
+// Endpoint di test per verificare il token JWT inviato
+app.get('/api/test-token', (req, res) => {
+  const authHeader = req.headers.authorization;
+  console.log('🔐 Test Token - Auth Header:', authHeader);
+  
+  if (!authHeader) {
+    return res.status(401).json({
+      error: 'Nessun header Authorization',
+      headers: req.headers,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'Header Authorization deve iniziare con "Bearer "',
+      authHeader,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const token = authHeader.substring(7);
+  console.log('🔐 Test Token - Token estratto:', token ? token.substring(0, 20) + '...' : 'null');
+
+  res.json({
+    message: 'Token ricevuto correttamente',
+    tokenLength: token ? token.length : 0,
+    tokenPreview: token ? token.substring(0, 20) + '...' : 'null',
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Avvia il cron job per le scadenze
 const scadenzeCron = require('./cron/scadenzeCron');
 scadenzeCron.start();
