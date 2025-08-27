@@ -85,16 +85,20 @@ class DashboardResponsabili {
         }
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
         this.loadUserInfo();
-        this.loadSedi();
+        
+        // Prima carica le sedi, poi i dati overview
+        await this.loadSedi();
+        
+        // Ora che le sedi sono caricate, carica i dati overview
         this.loadOverviewData();
         this.setupCharts();
         this.startAutoRefresh();
 
-        // Aggiorna l'UI dell'autenticazione
-        updateAuthUI();
+        // Non chiamare updateAuthUI che non esiste più
+        console.log('✅ Dashboard responsabili inizializzata completamente');
     }
 
     setupEventListeners() {
@@ -246,8 +250,8 @@ class DashboardResponsabili {
                 console.warn('Dati utente incompleti:', userData);
             }
 
-            // Aggiorna anche l'UI della navbar
-            updateAuthUI();
+            // Non chiamare updateAuthUI che non esiste più
+            console.log('✅ Info utente caricate senza updateAuthUI');
         } catch (error) {
             console.error('Errore caricamento info utente:', error);
             // Non fare redirect qui, lascia che checkAuth gestisca
@@ -285,15 +289,21 @@ class DashboardResponsabili {
 
                 // Populate other selectors
                 this.populateSpaziSelectors(sedi);
+                
+                // ✅ IMPORTANTE: Imposta la prima sede come default se disponibile
+                if (sedi.length > 0) {
+                    this.currentSede = sedi[0].id_sede;
+                    console.log('✅ Sede di default impostata:', this.currentSede);
+                }
             } else {
                 console.warn('⚠️ API sedi non disponibile, uso dati di esempio');
                 // Fallback con dati di esempio per sedi
-                this.loadSediWithFallback();
+                await this.loadSediWithFallback();
             }
         } catch (error) {
             console.error('❌ Errore caricamento sedi:', error);
             // Fallback con dati di esempio in caso di errore
-            this.loadSediWithFallback();
+            await this.loadSediWithFallback();
         }
     }
 
@@ -319,7 +329,7 @@ class DashboardResponsabili {
     }
 
     // ✅ Fallback per sedi quando API non disponibile
-    loadSediWithFallback() {
+    async loadSediWithFallback() {
         console.log('🔄 Carico sedi con dati di esempio (fallback)');
 
         const sediFallback = [
@@ -356,6 +366,12 @@ class DashboardResponsabili {
 
             console.log('✅ Dropdown sedi popolato con dati di esempio');
             this.populateSpaziSelectors(sediFallback);
+            
+            // ✅ IMPORTANTE: Imposta la prima sede come default anche nel fallback
+            if (sediFallback.length > 0) {
+                this.currentSede = sediFallback[0].id_sede;
+                console.log('✅ Sede di default impostata (fallback):', this.currentSede);
+            }
         }
     }
 
@@ -408,7 +424,7 @@ class DashboardResponsabili {
             console.log('🔄 loadQuickStats - URL chiamata:', url);
             console.log('🔄 loadQuickStats - Sede corrente:', this.currentSede);
             console.log('🔄 loadQuickStats - Headers:', getAuthHeaders());
-            
+
             const response = await fetch(url, {
                 headers: getAuthHeaders()
             });
@@ -421,7 +437,7 @@ class DashboardResponsabili {
                 document.getElementById('utentiAttivi').textContent = stats.utenti_attivi || 0;
                 document.getElementById('fatturatoGiorno').textContent = `€${stats.fatturato_giorno || 0}`;
                 document.getElementById('occupazioneMedia').textContent = `${stats.occupazione_media || 0}%`;
-                
+
                 console.log('✅ loadQuickStats - Statistiche aggiornate nel DOM');
             } else {
                 console.warn('⚠️ API stats non disponibile, mostra 0');
@@ -1302,7 +1318,7 @@ function showDisponibilitaModal() {
 function refreshOverview() {
     console.log('🔄 refreshOverview() chiamata');
     console.log('🔄 window.dashboardResponsabili disponibile:', !!window.dashboardResponsabili);
-    
+
     if (window.dashboardResponsabili) {
         console.log('🔄 currentSede prima dell\'aggiornamento:', window.dashboardResponsabili.currentSede);
         window.dashboardResponsabili.loadOverviewData();
@@ -1393,8 +1409,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         window.dashboardResponsabili = new DashboardResponsabili();
-        console.log('Dashboard responsabili inizializzata con successo');
+        console.log('Dashboard responsabili creata, avvio inizializzazione...');
+        
+        // Inizializza in modo asincrono
+        window.dashboardResponsabili.init().then(() => {
+            console.log('✅ Dashboard responsabili inizializzata completamente');
+        }).catch(error => {
+            console.error('❌ Errore durante inizializzazione:', error);
+        });
     } catch (error) {
-        console.error('Errore inizializzazione dashboard responsabili:', error);
+        console.error('Errore creazione dashboard responsabili:', error);
     }
 });

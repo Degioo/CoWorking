@@ -102,11 +102,11 @@ console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.p
 
 // Endpoint di test per verificare se le route dashboard sono caricate
 app.get('/api/test-dashboard', (req, res) => {
-    res.json({ 
-        message: 'Dashboard API attive', 
-        timestamp: new Date().toISOString(),
-        routes: ['/dashboard/stats', '/dashboard/charts', '/dashboard/activity']
-    });
+  res.json({
+    message: 'Dashboard API attive',
+    timestamp: new Date().toISOString(),
+    routes: ['/dashboard/stats', '/dashboard/charts', '/dashboard/activity']
+  });
 });
 
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
