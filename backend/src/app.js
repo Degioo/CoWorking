@@ -263,7 +263,7 @@ app.get('/api/test-disponibilita-slot', (req, res) => {
 app.get('/api/test-token', (req, res) => {
   const authHeader = req.headers.authorization;
   console.log('🔐 Test Token - Auth Header:', authHeader);
-  
+
   if (!authHeader) {
     return res.status(401).json({
       error: 'Nessun header Authorization',
