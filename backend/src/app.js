@@ -130,7 +130,7 @@ app.get('/api/test-db', async (req, res) => {
 app.get('/api/test-db-tables', async (req, res) => {
   try {
     const db = require('./db');
-
+    
     // Prima verifica tutte le tabelle disponibili
     const allTablesQuery = `
       SELECT table_name 
@@ -138,21 +138,21 @@ app.get('/api/test-db-tables', async (req, res) => {
       WHERE table_schema = 'public' 
       ORDER BY table_name
     `;
-
+    
     const allTablesResult = await db.query(allTablesQuery);
     const allTables = allTablesResult.rows.map(row => row.table_name);
-
+    
     // Poi verifica le colonne delle tabelle che ci interessano
     const tablesQuery = `
       SELECT table_name, column_name, data_type 
       FROM information_schema.columns 
       WHERE table_schema = 'public' 
-      AND table_name IN ('prenotazioni', 'spazi', 'sedi', 'utenti', 'bookings', 'spaces', 'locations', 'users')
+      AND table_name IN ('prenotazione', 'spazio', 'sede', 'utente', 'pagamento')
       ORDER BY table_name, ordinal_position
     `;
-
+    
     const result = await db.query(tablesQuery);
-
+    
     // Raggruppa per tabella
     const tables = {};
     result.rows.forEach(row => {
@@ -164,7 +164,7 @@ app.get('/api/test-db-tables', async (req, res) => {
         type: row.data_type
       });
     });
-
+    
     res.json({
       message: 'Struttura database verificata',
       timestamp: new Date().toISOString(),
@@ -175,6 +175,89 @@ app.get('/api/test-db-tables', async (req, res) => {
   } catch (error) {
     console.error('❌ Errore verifica tabelle database:', error);
     res.status(500).json({ error: 'Errore verifica tabelle', details: error.message });
+  }
+});
+
+// Endpoint di debug per testare le query SQL dashboard
+app.get('/api/debug-dashboard-query', async (req, res) => {
+  try {
+    const db = require('./db');
+    const { query_type, sede } = req.query;
+    
+    console.log('🔍 Debug Dashboard Query - Tipo:', query_type, 'Sede:', sede);
+    
+    let query, params;
+    
+    switch(query_type) {
+      case 'prenotazioni':
+        query = `
+          SELECT 
+            COUNT(*) as prenotazioni_oggi,
+            COUNT(DISTINCT p.id_utente) as utenti_attivi
+          FROM prenotazione p
+          JOIN spazio s ON p.id_spazio = s.id_spazio
+          WHERE DATE(p.data_inizio) = CURRENT_DATE
+          ${sede ? 'AND s.id_sede = $1' : ''}
+        `;
+        params = sede ? [sede] : [];
+        break;
+        
+      case 'fatturato':
+        query = `
+          SELECT COALESCE(SUM(p.importo), 0) as fatturato_giorno
+          FROM prenotazione p
+          JOIN spazio s ON p.id_spazio = s.id_spazio
+          WHERE DATE(p.data_inizio) = CURRENT_DATE
+          AND p.stato = 'confermata'
+          ${sede ? 'AND s.id_sede = $1' : ''}
+        `;
+        params = sede ? [sede] : [];
+        break;
+        
+      case 'occupazione':
+        query = `
+          SELECT 
+            ROUND(
+              (COUNT(CASE WHEN p.id_prenotazione IS NOT NULL THEN 1 END) * 100.0 / COUNT(s.id_spazio)), 2
+            ) as occupazione_media
+          FROM spazio s
+          LEFT JOIN prenotazione p ON s.id_spazio = p.id_spazio 
+            AND CURRENT_DATE BETWEEN DATE(p.data_inizio) AND DATE(p.data_fine)
+            AND p.stato = 'confermata'
+          WHERE s.stato = 'attivo'
+          ${sede ? 'AND s.id_sede = $1' : ''}
+        `;
+        params = sede ? [sede] : [];
+        break;
+        
+      default:
+        return res.status(400).json({ error: 'Tipo query non valido' });
+    }
+    
+    console.log('🔍 Debug Dashboard Query - Query:', query);
+    console.log('🔍 Debug Dashboard Query - Parametri:', params);
+    
+    const result = await db.query(query, params);
+    
+    console.log('✅ Debug Dashboard Query - Risultato:', result.rows);
+    
+    res.json({
+      success: true,
+      query_type,
+      sede,
+      query,
+      params,
+      result: result.rows,
+      row_count: result.rowCount
+    });
+    
+  } catch (error) {
+    console.error('❌ Debug Dashboard Query - Errore:', error);
+    res.status(500).json({ 
+      error: 'Errore query debug', 
+      details: error.message,
+      stack: error.stack 
+    });
   }
 });
 
