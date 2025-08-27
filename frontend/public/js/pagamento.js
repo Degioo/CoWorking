@@ -1934,6 +1934,11 @@ async function testJWTAuthentication() {
 $(document).ready(async function () {
     console.log('pagamento.js - Inizializzazione pagina');
 
+    // ✅ CONTROLLA SE L'UTENTE PUÒ ACCEDERE A QUESTA PAGINA
+    if (!checkUserAccess()) {
+        return;
+    }
+
     // Inizializza la navbar universale
     if (typeof window.initializeNavbar === 'function') {
         window.initializeNavbar();
@@ -2015,3 +2020,39 @@ $(document).ready(async function () {
         addRetryButton();
     }
 });
+
+// Funzione per verificare se l'utente può accedere a questa pagina
+function checkUserAccess() {
+    const userStr = localStorage.getItem('user');
+    
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            
+            // Se l'utente è gestore o amministratore, reindirizza alla dashboard
+            if (user.ruolo === 'gestore' || user.ruolo === 'amministratore') {
+                console.log('🚫 Accesso negato: utente gestore/amministratore non può accedere alla pagina di pagamento');
+                
+                // Mostra messaggio di errore
+                showError('I gestori non possono accedere alla pagina di pagamento. Verrai reindirizzato alla dashboard.');
+                
+                // Reindirizza alla dashboard dopo 3 secondi
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 3000);
+                
+                return false;
+            }
+            
+            console.log('✅ Accesso consentito per utente:', user.ruolo);
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Errore nel controllo accesso:', error);
+            return true; // In caso di errore, permetti l'accesso
+        }
+    }
+    
+    // Utente non loggato può accedere (verrà richiesto il login per pagare)
+    return true;
+}

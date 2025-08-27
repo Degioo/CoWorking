@@ -261,18 +261,33 @@ function isPageRequiringAuth(pageName) {
     return pagesRequiringAuth.includes(pageName);
 }
 
+// Funzione per verificare se un utente può accedere a una pagina specifica
+function canUserAccessPage(pageName, userRole) {
+    // I gestori e amministratori non possono accedere alla pagina di selezione slot
+    if (pageName === 'selezione-slot.html' && (userRole === 'gestore' || userRole === 'amministratore')) {
+        return false;
+    }
+    
+    // I gestori e amministratori non possono accedere alla pagina di pagamento
+    if (pageName === 'pagamento.html' && (userRole === 'gestore' || userRole === 'amministratore')) {
+        return false;
+    }
+    
+    return true;
+}
+
 // ===== NAVBAR UNIVERSALE =====
 // Sistema centralizzato per gestire la navbar in tutte le pagine
 
 // Configurazione navbar per diverse pagine
 const NAVBAR_CONFIG = {
-    // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean }
-    'index.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: true },
-    'selezione-slot.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
-    'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
-    'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false },
-    'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false },
-    'dashboard-responsabili.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false }
+    // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean, mostraPrenota: boolean }
+    'index.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: true, mostraPrenota: true },
+    'selezione-slot.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
+    'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
+    'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: false },
+    'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
+    'dashboard-responsabili.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false, mostraPrenota: false }
 };
 
 // Funzione universale per aggiornare la navbar
@@ -322,6 +337,26 @@ function updateNavbarUniversal() {
                 authSection.insertAdjacentHTML('afterend', dashboardItem);
             }
 
+            // Aggiungi Dashboard Gestore per gestori e amministratori
+            if (user.ruolo === 'gestore' || user.ruolo === 'amministratore') {
+                const dashboardGestoreItem = `
+                    <li class="nav-item dynamic-nav-item">
+                        <a class="nav-link" href="dashboard-responsabili.html">
+                            <i class="fas fa-users-cog me-2"></i>Dashboard Gestore
+                        </a>
+                    </li>
+                `;
+                // Inserisci dopo Dashboard o dopo authSection se Dashboard non è presente
+                let targetElement = authSection;
+                if (config.mostraDashboard) {
+                    const dashboardElement = document.querySelector('.dynamic-nav-item a[href="dashboard.html"]');
+                    if (dashboardElement) {
+                        targetElement = dashboardElement.closest('.nav-item');
+                    }
+                }
+                targetElement.insertAdjacentHTML('afterend', dashboardGestoreItem);
+            }
+
             // Aggiungi Logout se richiesto dalla configurazione
             if (config.mostraLogout) {
                 const logoutItem = `
@@ -343,6 +378,9 @@ function updateNavbarUniversal() {
                 targetElement.insertAdjacentHTML('afterend', logoutItem);
             }
 
+            // Gestisci la visibilità del link "Prenota" in base al ruolo
+            managePrenotaLinkVisibility(user.ruolo);
+
         } catch (error) {
             console.error('updateNavbarUniversal - Errore parsing user:', error);
             localStorage.removeItem('user');
@@ -353,6 +391,60 @@ function updateNavbarUniversal() {
         // Utente non autenticato
         console.log('updateNavbarUniversal - Utente non autenticato');
         showNavbarForUnauthenticatedUser(config);
+    }
+}
+
+// Funzione per gestire la visibilità del link "Prenota" in base al ruolo
+function managePrenotaLinkVisibility(userRole) {
+    // Trova tutti i link "Prenota" nella navbar
+    const prenotaLinks = document.querySelectorAll('a[href="selezione-slot.html"]');
+    
+    prenotaLinks.forEach(link => {
+        // Se l'utente è gestore o amministratore, nascondi il link Prenota
+        if (userRole === 'gestore' || userRole === 'amministratore') {
+            link.style.display = 'none';
+            // Nascondi anche l'elemento padre se è un nav-item
+            const navItem = link.closest('.nav-item');
+            if (navItem) {
+                navItem.style.display = 'none';
+            }
+        } else {
+            // Per utenti normali, mostra il link
+            link.style.display = 'inline-block';
+            const navItem = link.closest('.nav-item');
+            if (navItem) {
+                navItem.style.display = 'block';
+            }
+        }
+    });
+
+    // Gestisci anche i pulsanti "Prenota Ora" nelle pagine
+    managePrenotaButtonsVisibility(userRole);
+}
+
+// Funzione per gestire la visibilità dei pulsanti "Prenota Ora" in base al ruolo
+function managePrenotaButtonsVisibility(userRole) {
+    // Se l'utente è gestore o amministratore, nascondi i pulsanti di prenotazione
+    if (userRole === 'gestore' || userRole === 'amministratore') {
+        // Nascondi pulsanti "Prenota Ora"
+        const prenotaOraButtons = document.querySelectorAll('button:contains("Prenota Ora"), .btn:contains("Prenota Ora")');
+        prenotaOraButtons.forEach(button => {
+            button.style.display = 'none';
+        });
+
+        // Nascondi pulsanti con testo "Prenota Ora" (metodo alternativo)
+        const allButtons = document.querySelectorAll('button, .btn');
+        allButtons.forEach(button => {
+            if (button.textContent.includes('Prenota Ora')) {
+                button.style.display = 'none';
+            }
+        });
+
+        // Nascondi anche i pulsanti con ID specifici
+        const btnBook = document.getElementById('btnBook');
+        if (btnBook) {
+            btnBook.style.display = 'none';
+        }
     }
 }
 
