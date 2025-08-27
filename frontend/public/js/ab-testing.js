@@ -673,12 +673,17 @@ class ABTestingSystem {
     }
 
     updateTestResults(results) {
-        results.forEach(result => {
-            this.testResults.set(result.test_id, result);
-        });
-
-        // Update UI if results dashboard is visible
-        this.updateResultsUI();
+        // L'API restituisce un oggetto, non un array
+        // results ha questa struttura:
+        // { test_name, variants, total_impressions, total_conversions, overall_rate }
+        
+        if (results && results.variants) {
+            // Salva i risultati del test corrente
+            this.testResults.set(results.test_name, results);
+            
+            // Update UI if results dashboard is visible
+            this.updateResultsUI();
+        }
     }
 
     updateResultsUI() {
