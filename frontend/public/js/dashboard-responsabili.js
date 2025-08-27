@@ -1412,7 +1412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Controlla autenticazione prima di inizializzare
         if (window.dashboardResponsabili.checkAuthBeforeInit()) {
             console.log('✅ Utente autenticato, avvio inizializzazione...');
-            
+
             // Inizializza in modo asincrono
             window.dashboardResponsabili.init().then(() => {
                 console.log('✅ Dashboard responsabili inizializzata completamente');

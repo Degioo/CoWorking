@@ -126,6 +126,46 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
+// Endpoint di test per verificare la struttura del database
+app.get('/api/test-db-tables', async (req, res) => {
+  try {
+    const db = require('./db');
+    
+    // Verifica se le tabelle esistono
+    const tablesQuery = `
+      SELECT table_name, column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_schema = 'public' 
+      AND table_name IN ('prenotazioni', 'spazi', 'sedi', 'utenti')
+      ORDER BY table_name, ordinal_position
+    `;
+    
+    const result = await db.query(tablesQuery);
+    
+    // Raggruppa per tabella
+    const tables = {};
+    result.rows.forEach(row => {
+      if (!tables[row.table_name]) {
+        tables[row.table_name] = [];
+      }
+      tables[row.table_name].push({
+        column: row.column_name,
+        type: row.data_type
+      });
+    });
+    
+    res.json({
+      message: 'Struttura database verificata',
+      timestamp: new Date().toISOString(),
+      tables: tables,
+      total_tables: Object.keys(tables).length
+    });
+  } catch (error) {
+    console.error('❌ Errore verifica tabelle database:', error);
+    res.status(500).json({ error: 'Errore verifica tabelle', details: error.message });
+  }
+});
+
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({

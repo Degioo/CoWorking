@@ -55,12 +55,27 @@ const getDashboardStats = async (req, res) => {
 
         // Esegui le query
         const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
+        
+        console.log('📊 Dashboard Stats - Parametri query:', params);
+        console.log('📊 Dashboard Stats - Query prenotazioni:', prenotazioniQuery);
+        console.log('📊 Dashboard Stats - Query fatturato:', fatturatoQuery);
+        console.log('📊 Dashboard Stats - Query occupazione:', occupazioneQuery);
 
-        const [prenotazioniResult, fatturatoResult, occupazioneResult] = await Promise.all([
-            db.query(prenotazioniQuery, params),
-            db.query(fatturatoQuery, params),
-            db.query(occupazioneQuery, params)
-        ]);
+        try {
+            const [prenotazioniResult, fatturatoResult, occupazioneResult] = await Promise.all([
+                db.query(prenotazioniQuery, params),
+                db.query(fatturatoQuery, params),
+                db.query(occupazioneQuery, params)
+            ]);
+            
+            console.log('📊 Dashboard Stats - Query eseguite con successo');
+            console.log('📊 Dashboard Stats - Risultati prenotazioni:', prenotazioniResult.rows);
+            console.log('📊 Dashboard Stats - Risultati fatturato:', fatturatoResult.rows);
+            console.log('📊 Dashboard Stats - Risultati occupazione:', occupazioneResult.rows);
+        } catch (queryError) {
+            console.error('❌ Dashboard Stats - Errore esecuzione query:', queryError);
+            throw queryError;
+        }
 
         const stats = {
             prenotazioni_oggi: parseInt(prenotazioniResult.rows[0]?.prenotazioni_oggi || 0),
