@@ -463,6 +463,29 @@ app.get('/api/test-spazi', (req, res) => {
   });
 });
 
+// Endpoint di test per verificare se le route dashboard sono caricate correttamente
+app.get('/api/test-dashboard-routes', (req, res) => {
+  try {
+    // Prova a importare il controller dashboard
+    const dashboardController = require('./controllers/dashboardController');
+    
+    res.json({
+      message: 'Dashboard routes test successful',
+      timestamp: new Date().toISOString(),
+      controller_loaded: !!dashboardController,
+      methods_available: Object.keys(dashboardController),
+      test: 'Verifica che il controller dashboard sia caricato correttamente'
+    });
+  } catch (error) {
+    console.error('❌ Errore caricamento controller dashboard:', error);
+    res.status(500).json({
+      error: 'Errore caricamento controller dashboard',
+      details: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // Endpoint di test per disponibilità slot
 app.get('/api/test-disponibilita-slot', (req, res) => {
   const { id_spazio, data } = req.query;

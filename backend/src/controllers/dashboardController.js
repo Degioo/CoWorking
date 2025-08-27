@@ -15,7 +15,7 @@ const getDashboardStats = async (req, res) => {
 
         let sedeFilter = '';
         let params = [];
-        
+
         if (sede && sede.trim() !== '') {
             sedeFilter = `AND s.id_sede = $1`;
             params = [sede];
@@ -109,7 +109,7 @@ const getDashboardCharts = async (req, res) => {
 
         let sedeFilter = '';
         let params = [];
-        
+
         if (sede && sede.trim() !== '') {
             sedeFilter = `AND s.id_sede = $1`;
             params = [sede];
@@ -199,7 +199,7 @@ const getDashboardActivity = async (req, res) => {
 
         let sedeFilter = '';
         let params = [];
-        
+
         if (sede && sede.trim() !== '') {
             sedeFilter = `AND s.id_sede = $2`;
             params = [parseInt(limit), sede];
