@@ -23,8 +23,8 @@ const getDashboardStats = async (req, res) => {
             SELECT 
                 COUNT(*) as prenotazioni_oggi,
                 COUNT(DISTINCT p.id_utente) as utenti_attivi
-            FROM prenotazioni p
-            JOIN spazi s ON p.id_spazio = s.id_spazio
+            FROM prenotazione p
+            JOIN spazio s ON p.id_spazio = s.id_spazio
             WHERE DATE(p.data_inizio) = CURRENT_DATE
             ${sedeFilter}
         `;
@@ -32,8 +32,8 @@ const getDashboardStats = async (req, res) => {
         // Query per fatturato giornaliero
         const fatturatoQuery = `
             SELECT COALESCE(SUM(p.importo), 0) as fatturato_giorno
-            FROM prenotazioni p
-            JOIN spazi s ON p.id_spazio = s.id_spazio
+            FROM prenotazione p
+            JOIN spazio s ON p.id_spazio = s.id_spazio
             WHERE DATE(p.data_inizio) = CURRENT_DATE
             AND p.stato = 'confermata'
             ${sedeFilter}
@@ -45,8 +45,8 @@ const getDashboardStats = async (req, res) => {
                 ROUND(
                     (COUNT(CASE WHEN p.id_prenotazione IS NOT NULL THEN 1 END) * 100.0 / COUNT(s.id_spazio)), 2
                 ) as occupazione_media
-            FROM spazi s
-            LEFT JOIN prenotazioni p ON s.id_spazio = p.id_spazio 
+            FROM spazio s
+            LEFT JOIN prenotazione p ON s.id_spazio = p.id_spazio 
                 AND CURRENT_DATE BETWEEN DATE(p.data_inizio) AND DATE(p.data_fine)
                 AND p.stato = 'confermata'
             WHERE s.stato = 'attivo'
@@ -115,8 +115,8 @@ const getDashboardCharts = async (req, res) => {
             SELECT 
                 DATE(p.data_inizio) as data,
                 COUNT(*) as count
-            FROM prenotazioni p
-            JOIN spazi s ON p.id_spazio = s.id_spazio
+            FROM prenotazione p
+            JOIN spazio s ON p.id_spazio = s.id_spazio
             WHERE p.data_inizio >= CURRENT_DATE - INTERVAL '${periodo} days'
             AND p.stato = 'confermata'
             ${sedeFilter}
@@ -136,13 +136,13 @@ const getDashboardCharts = async (req, res) => {
                         '1 day'::interval
                     ))), 1)), 2
                 ) as occupazione
-            FROM spazi s
+            FROM spazio s
             CROSS JOIN generate_series(
                 CURRENT_DATE - INTERVAL '${periodo} days', 
                 CURRENT_DATE, 
                 '1 day'::interval
             ) gs(data)
-            LEFT JOIN prenotazioni p ON s.id_spazio = p.id_spazio 
+            LEFT JOIN prenotazione p ON s.id_spazio = p.id_spazio 
                 AND gs.data BETWEEN DATE(p.data_inizio) AND DATE(p.data_fine)
                 AND p.stato = 'confermata'
             WHERE s.stato = 'attivo'
@@ -205,8 +205,8 @@ const getDashboardActivity = async (req, res) => {
                 'prenotazione' as tipo,
                 CONCAT('Nuova prenotazione per ', s.nome_spazio) as descrizione,
                 p.data_creazione as timestamp
-            FROM prenotazioni p
-            JOIN spazi s ON p.id_spazio = s.id_spazio
+            FROM prenotazione p
+            JOIN spazio s ON p.id_spazio = s.id_spazio
             WHERE p.stato = 'confermata'
             ${sedeFilter}
             
@@ -216,7 +216,7 @@ const getDashboardActivity = async (req, res) => {
                 'utente' as tipo,
                 CONCAT('Nuovo utente: ', u.nome, ' ', u.cognome) as descrizione,
                 u.data_registrazione as timestamp
-            FROM utenti u
+            FROM utente u
             WHERE u.data_registrazione >= CURRENT_DATE - INTERVAL '7 days'
             
             UNION ALL
@@ -225,8 +225,8 @@ const getDashboardActivity = async (req, res) => {
                 'pagamento' as tipo,
                 CONCAT('Pagamento completato per prenotazione #', p.id_prenotazione) as descrizione,
                 p.data_creazione as timestamp
-            FROM prenotazioni p
-            JOIN spazi s ON p.id_spazio = s.id_spazio
+            FROM prenotazione p
+            JOIN spazio s ON p.id_spazio = s.id_spazio
             WHERE p.stato = 'confermata' AND p.importo > 0
             ${sedeFilter}
             

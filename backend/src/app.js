@@ -130,7 +130,7 @@ app.get('/api/test-db', async (req, res) => {
 app.get('/api/test-db-tables', async (req, res) => {
   try {
     const db = require('./db');
-    
+
     // Prima verifica tutte le tabelle disponibili
     const allTablesQuery = `
       SELECT table_name 
@@ -138,10 +138,10 @@ app.get('/api/test-db-tables', async (req, res) => {
       WHERE table_schema = 'public' 
       ORDER BY table_name
     `;
-    
+
     const allTablesResult = await db.query(allTablesQuery);
     const allTables = allTablesResult.rows.map(row => row.table_name);
-    
+
     // Poi verifica le colonne delle tabelle che ci interessano
     const tablesQuery = `
       SELECT table_name, column_name, data_type 
@@ -150,9 +150,9 @@ app.get('/api/test-db-tables', async (req, res) => {
       AND table_name IN ('prenotazioni', 'spazi', 'sedi', 'utenti', 'bookings', 'spaces', 'locations', 'users')
       ORDER BY table_name, ordinal_position
     `;
-    
+
     const result = await db.query(tablesQuery);
-    
+
     // Raggruppa per tabella
     const tables = {};
     result.rows.forEach(row => {
@@ -164,7 +164,7 @@ app.get('/api/test-db-tables', async (req, res) => {
         type: row.data_type
       });
     });
-    
+
     res.json({
       message: 'Struttura database verificata',
       timestamp: new Date().toISOString(),
