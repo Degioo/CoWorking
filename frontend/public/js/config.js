@@ -134,13 +134,28 @@ function isAuthenticated() {
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
-    if (!user || !token) {
-        console.log('isAuthenticated - User o token mancanti:', { user: !!user, token: !!token });
+    if (!user) {
+        console.log('isAuthenticated - User mancante');
         return false;
     }
 
     try {
         const userData = JSON.parse(user);
+        
+        // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
+        if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
+            if (userData.id_utente) {
+                console.log('isAuthenticated - Gestore/amministratore autenticato (token opzionale):', userData.nome, userData.cognome);
+                return true;
+            }
+        }
+        
+        // ✅ Per utenti normali, richiedi sia user che token
+        if (!token) {
+            console.log('isAuthenticated - User presente ma token mancante per utente normale:', userData?.nome, userData?.cognome);
+            return false;
+        }
+        
         const isAuthenticated = userData && userData.id_utente;
         console.log('isAuthenticated - Risultato:', isAuthenticated, 'per utente:', userData?.nome, userData?.cognome);
         return isAuthenticated;
@@ -233,7 +248,7 @@ async function validateTokenOnStartup() {
     } else if (user && !token) {
         // Caso speciale: user presente ma token mancante
         console.log('validateTokenOnStartup - User presente ma token mancante, verifico integrità...');
-        
+
         try {
             const userData = JSON.parse(user);
             // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
@@ -244,7 +259,7 @@ async function validateTokenOnStartup() {
         } catch (error) {
             console.log('validateTokenOnStartup - Errore parsing user per controllo ruolo:', error);
         }
-        
+
         return checkAndRestoreToken();
     } else {
         console.log('validateTokenOnStartup - User o token mancanti');
