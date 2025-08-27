@@ -335,13 +335,27 @@ window.handleLogin = function (event, email, password) {
               }, 1000);
               return;
             }
+                  } else {
+          // ✅ CONTROLLA IL RUOLO DELL'UTENTE PER IL REDIRECT
+          const userRole = response.ruolo;
+          console.log('🔍 handleLogin - Ruolo utente (redirect fallback):', userRole);
+          
+          let redirectUrl = 'dashboard.html'; // Default
+          
+          // Se l'utente è gestore o amministratore, reindirizza alla dashboard gestore
+          if (userRole === 'gestore' || userRole === 'amministratore') {
+            redirectUrl = 'dashboard-responsabili.html';
+            console.log('🎯 handleLogin - Utente gestore/amministratore, redirect a dashboard-responsabili.html (fallback)');
           } else {
-            // Nessuna prenotazione in attesa, vai alla dashboard
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 1000);
-            return;
+            console.log('👤 handleLogin - Utente normale, redirect a dashboard.html (fallback)');
           }
+          
+          // Nessuna prenotazione in attesa, vai alla dashboard appropriata
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 1000);
+          return;
+        }
         } else {
           setTimeout(() => {
             window.location.href = redirectAfterLogin;
@@ -361,15 +375,29 @@ window.handleLogin = function (event, email, password) {
 
         if (isFromHome) {
           // Se l'utente si logga dalla home, non forzare il redirect al pagamento
-          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard appropriata
           localStorage.removeItem('pendingPrenotazione');
-          console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
+          console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
+
+          // ✅ CONTROLLA IL RUOLO DELL'UTENTE PER IL REDIRECT
+          const userRole = response.ruolo;
+          console.log('🔍 handleLogin - Ruolo utente (login dalla home):', userRole);
+          
+          let redirectUrl = 'dashboard.html'; // Default
+          
+          // Se l'utente è gestore o amministratore, reindirizza alla dashboard gestore
+          if (userRole === 'gestore' || userRole === 'amministratore') {
+            redirectUrl = 'dashboard-responsabili.html';
+            console.log('🎯 handleLogin - Utente gestore/amministratore, redirect a dashboard-responsabili.html (home)');
+          } else {
+            console.log('👤 handleLogin - Utente normale, redirect a dashboard.html (home)');
+          }
 
           // Mostra messaggio informativo
           showAlert('Login effettuato! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
 
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = redirectUrl;
           }, 1000);
         } else {
           // Se l'utente si logga da una pagina di prenotazione, procedi al pagamento
@@ -395,9 +423,23 @@ window.handleLogin = function (event, email, password) {
           }, 1000);
         }
       } else {
-        // Nessuna prenotazione in attesa, vai alla dashboard
+        // ✅ CONTROLLA IL RUOLO DELL'UTENTE PER IL REDIRECT
+        const userRole = response.ruolo;
+        console.log('🔍 handleLogin - Ruolo utente:', userRole);
+        
+        let redirectUrl = 'dashboard.html'; // Default
+        
+        // Se l'utente è gestore o amministratore, reindirizza alla dashboard gestore
+        if (userRole === 'gestore' || userRole === 'amministratore') {
+          redirectUrl = 'dashboard-responsabili.html';
+          console.log('🎯 handleLogin - Utente gestore/amministratore, redirect a dashboard-responsabili.html');
+        } else {
+          console.log('👤 handleLogin - Utente normale, redirect a dashboard.html');
+        }
+        
+        // Nessuna prenotazione in attesa, vai alla dashboard appropriata
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          window.location.href = redirectUrl;
         }, 1000);
       }
     })
@@ -497,15 +539,29 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
 
         if (isFromHome) {
           // Se l'utente si registra dalla home, non forzare il redirect al pagamento
-          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard appropriata
           localStorage.removeItem('pendingPrenotazione');
-          console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
+          console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
+
+          // ✅ CONTROLLA IL RUOLO DELL'UTENTE PER IL REDIRECT
+          const userRole = response.ruolo;
+          console.log('🔍 handleRegistration - Ruolo utente (registrazione dalla home):', userRole);
+          
+          let redirectUrl = 'dashboard.html'; // Default
+          
+          // Se l'utente è gestore o amministratore, reindirizza alla dashboard gestore
+          if (userRole === 'gestore' || userRole === 'amministratore') {
+            redirectUrl = 'dashboard-responsabili.html';
+            console.log('🎯 handleRegistration - Utente gestore/amministratore, redirect a dashboard-responsabili.html (home)');
+          } else {
+            console.log('👤 handleRegistration - Utente normale, redirect a dashboard.html (home)');
+          }
 
           // Mostra messaggio informativo
           showAlert('Registrazione completata! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
 
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = redirectUrl;
           }, 1500);
         } else {
           // Se l'utente si registra da una pagina di prenotazione, procedi al pagamento
@@ -529,9 +585,23 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
           }, 1500);
         }
       } else {
-        // Nessuna prenotazione in attesa, vai alla dashboard
+        // ✅ CONTROLLA IL RUOLO DELL'UTENTE PER IL REDIRECT
+        const userRole = response.ruolo;
+        console.log('🔍 handleRegistration - Ruolo utente (nessuna prenotazione):', userRole);
+        
+        let redirectUrl = 'dashboard.html'; // Default
+        
+        // Se l'utente è gestore o amministratore, reindirizza alla dashboard gestore
+        if (userRole === 'gestore' || userRole === 'amministratore') {
+          redirectUrl = 'dashboard-responsabili.html';
+          console.log('🎯 handleRegistration - Utente gestore/amministratore, redirect a dashboard-responsabili.html (nessuna prenotazione)');
+        } else {
+          console.log('👤 handleRegistration - Utente normale, redirect a dashboard.html (nessuna prenotazione)');
+        }
+        
+        // Nessuna prenotazione in attesa, vai alla dashboard appropriata
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          window.location.href = redirectUrl;
         }, 1500);
       }
     })

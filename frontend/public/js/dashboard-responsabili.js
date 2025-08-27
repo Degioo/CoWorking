@@ -415,7 +415,7 @@ class DashboardResponsabili {
                 data: [85, 72, 90, 65]
             }
         };
-        
+
         this.updateCharts(fallbackData);
     }
 
@@ -448,7 +448,7 @@ class DashboardResponsabili {
             { tipo: 'pagamento', descrizione: 'Pagamento completato per prenotazione #123', timestamp: new Date(Date.now() - 7200000) },
             { tipo: 'cancellazione', descrizione: 'Prenotazione cancellata per Stanza 2', timestamp: new Date(Date.now() - 10800000) }
         ];
-        
+
         this.displayRecentActivity(fallbackActivities);
     }
 
@@ -1204,7 +1204,7 @@ function getAuthHeaders() {
         console.error('Token non trovato per autenticazione API');
         return {};
     }
-    
+
     return {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
