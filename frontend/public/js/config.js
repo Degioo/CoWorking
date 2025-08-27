@@ -430,9 +430,13 @@ function updateNavbarUniversal() {
             console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
 
             // ✅ Trasforma il tasto "Accedi" esistente in "Logout" mantenendo lo stesso stile
+            console.log('🔍 Cercando tasto Accedi nella sezione auth...');
             const accediButton = authSection.querySelector('.btn-primary');
+            console.log('🔍 Tasto Accedi trovato:', accediButton);
+            
             if (accediButton) {
                 // ✅ Trasforma il tasto Accedi in Logout
+                console.log('🔄 Trasformo tasto Accedi in Logout...');
                 accediButton.innerHTML = '<i class="fas fa-sign-out-alt me-1"></i>Logout';
                 accediButton.onclick = logout;
                 accediButton.href = '#';
@@ -446,7 +450,7 @@ function updateNavbarUniversal() {
                     </a>
                 `;
             }
-            
+
             // ✅ Aggiungi info utente accanto al pulsante Logout
             const userInfoSpan = document.createElement('span');
             userInfoSpan.className = 'nav-link text-light ms-3';
@@ -461,7 +465,7 @@ function updateNavbarUniversal() {
                 const dashboardItem = `
                     <li class="nav-item dynamic-nav-item">
                         <a class="nav-link" href="dashboard.html">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard (${user.nome})
                         </a>
                     </li>
                 `;
@@ -473,7 +477,7 @@ function updateNavbarUniversal() {
                 const dashboardGestoreItem = `
                     <li class="nav-item dynamic-nav-item">
                         <a class="nav-link" href="dashboard-responsabili.html">
-                            <i class="fas fa-users-cog me-2"></i>Dashboard Gestore
+                            <i class="fas fa-users-cog me-2"></i>Dashboard Responsabili
                         </a>
                     </li>
                 `;
@@ -595,13 +599,13 @@ function showNavbarForUnauthenticatedUser(config) {
 
     // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
     console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
-    
+
     // ✅ Rimuovi info utente se presente
     const userInfoSpan = authSection.querySelector('.nav-link.text-light');
     if (userInfoSpan) {
         userInfoSpan.remove();
     }
-    
+
     // ✅ Mostra tasto Accedi
     authSection.innerHTML = `
         <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
