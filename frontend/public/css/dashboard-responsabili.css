@@ -9,13 +9,15 @@
 }
 
 .dashboard-header h1 {
-  color: var(--white);
+  color: #000000 !important;
   margin-bottom: var(--space-sm);
+  font-weight: 600;
 }
 
 .dashboard-header .lead {
-  color: rgba(255, 255, 255, 0.9);
+  color: #000000 !important;
   margin-bottom: 0;
+  font-weight: 500;
 }
 
 .user-info {
@@ -25,14 +27,16 @@
 .user-role {
   display: block;
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
   margin-bottom: var(--space-xs);
+  font-weight: 500;
 }
 
 .user-name {
   display: block;
   font-size: 1.125rem;
   font-weight: 600;
+  color: #000000 !important;
 }
 
 /* Quick Stats */

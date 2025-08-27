@@ -459,7 +459,7 @@ function updateNavbarUniversal() {
                 `;
             }
 
-                        // ✅ Info utente rimosso per navbar più pulita
+            // ✅ Info utente rimosso per navbar più pulita
             console.log('✅ Navbar pulita senza info utente');
 
             // Aggiungi Dashboard se richiesto dalla configurazione
@@ -602,9 +602,9 @@ function showNavbarForUnauthenticatedUser(config) {
     // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
     console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
 
-        // ✅ Rimuovi elementi dinamici rimasti per navbar pulita
+    // ✅ Rimuovi elementi dinamici rimasti per navbar pulita
     console.log('🧹 Pulizia elementi dinamici...');
-    
+
     // Rimuovi eventuali link dinamici rimasti
     const dynamicItems = authSection.parentElement.querySelectorAll('.dynamic-nav-item');
     dynamicItems.forEach(item => {

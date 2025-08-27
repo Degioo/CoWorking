@@ -1,7 +1,7 @@
 /* ===== DASHBOARD RESPONSABILI - FUNZIONALITÀ COMPLETE ===== */
 
 // ✅ Inizializza navbar universale all'avvio
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 Dashboard responsabili - Inizializzazione navbar universale...');
     if (typeof window.initializeNavbar === 'function') {
         window.initializeNavbar();
