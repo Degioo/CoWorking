@@ -9,13 +9,13 @@
 }
 
 .dashboard-header h1 {
-  color: #000000 !important;
+  color: #ffffff !important;
   margin-bottom: var(--space-sm);
   font-weight: 600;
 }
 
 .dashboard-header .lead {
-  color: #000000 !important;
+  color: #ffffff !important;
   margin-bottom: 0;
   font-weight: 500;
 }
@@ -27,7 +27,7 @@
 .user-role {
   display: block;
   font-size: 0.875rem;
-  color: #000000 !important;
+  color: #ffffff !important;
   margin-bottom: var(--space-xs);
   font-weight: 500;
 }
@@ -36,7 +36,7 @@
   display: block;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 
 /* Quick Stats */
@@ -90,10 +90,11 @@
 }
 
 .stat-label {
-  color: var(--gray-600);
+  color: #000000 !important;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 /* Dashboard Sidebar */
@@ -112,7 +113,7 @@
 }
 
 .sidebar-title {
-  color: var(--gray-700);
+  color: #000000 !important;
   font-weight: 600;
   margin-bottom: var(--space-md);
   text-transform: uppercase;
@@ -134,11 +135,12 @@
   display: flex;
   align-items: center;
   padding: var(--space-sm) var(--space-md);
-  color: var(--gray-600);
+  color: #000000 !important;
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .sidebar-link:hover {
@@ -186,7 +188,8 @@
 
 .section-header h3 {
   margin: 0;
-  color: var(--gray-900);
+  color: #000000 !important;
+  font-weight: 600;
 }
 
 .section-actions {
@@ -211,7 +214,7 @@
 }
 
 .chart-card h6 {
-  color: var(--gray-700);
+  color: #000000 !important;
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -225,7 +228,7 @@
 }
 
 .activity-card h6 {
-  color: var(--gray-700);
+  color: #000000 !important;
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -315,7 +318,8 @@
 
 .calendar-header h5 {
   margin: 0;
-  color: var(--gray-900);
+  color: #000000 !important;
+  font-weight: 600;
 }
 
 .calendar-body {
@@ -364,7 +368,7 @@
 }
 
 .disponibilita-rules h6 {
-  color: var(--gray-700);
+  color: #000000 !important;
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -432,7 +436,7 @@
   background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
   font-weight: 600;
-  color: var(--gray-700);
+  color: #000000 !important;
   padding: var(--space-md);
 }
 
@@ -468,9 +472,10 @@
 
 .stat-mini .stat-label {
   font-size: 0.75rem;
-  color: var(--gray-600);
+  color: #000000 !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 /* Report Filters */
@@ -503,7 +508,7 @@
 }
 
 .report-summary h6 {
-  color: var(--gray-700);
+  color: #000000 !important;
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -551,7 +556,7 @@
 }
 
 .settings-card h6 {
-  color: var(--gray-700);
+  color: #000000 !important;
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
