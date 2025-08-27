@@ -93,6 +93,10 @@ app.use('/api/sse', sseRoutes);
 const spaziRoutes = require('./routes/spazi');
 app.use('/api/spazi', spaziRoutes);
 
+// Rotte dashboard responsabili
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/api/dashboard', dashboardRoutes);
+
 // Log delle route caricate
 console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.path).filter(Boolean));
 

@@ -414,20 +414,20 @@ class DashboardResponsabili {
                 document.getElementById('fatturatoGiorno').textContent = `€${stats.fatturato_giorno || 0}`;
                 document.getElementById('occupazioneMedia').textContent = `${stats.occupazione_media || 0}%`;
             } else {
-                console.warn('⚠️ API stats non disponibile, uso dati di esempio');
-                // Fallback con dati di esempio
-                document.getElementById('prenotazioniOggi').textContent = '12';
-                document.getElementById('utentiAttivi').textContent = '45';
-                document.getElementById('fatturatoGiorno').textContent = '€180';
-                document.getElementById('occupazioneMedia').textContent = '78%';
+                console.warn('⚠️ API stats non disponibile, mostra 0');
+                // Se l'API non è disponibile, mostra 0 invece di dati falsi
+                document.getElementById('prenotazioniOggi').textContent = '0';
+                document.getElementById('utentiAttivi').textContent = '0';
+                document.getElementById('fatturatoGiorno').textContent = '€0';
+                document.getElementById('occupazioneMedia').textContent = '0%';
             }
         } catch (error) {
             console.error('❌ Errore caricamento stats:', error);
-            // Fallback con dati di esempio in caso di errore
-            document.getElementById('prenotazioniOggi').textContent = '12';
-            document.getElementById('utentiAttivi').textContent = '45';
-            document.getElementById('fatturatoGiorno').textContent = '€180';
-            document.getElementById('occupazioneMedia').textContent = '78%';
+            // In caso di errore, mostra 0 invece di dati falsi
+            document.getElementById('prenotazioniOggi').textContent = '0';
+            document.getElementById('utentiAttivi').textContent = '0';
+            document.getElementById('fatturatoGiorno').textContent = '€0';
+            document.getElementById('occupazioneMedia').textContent = '0%';
         }
     }
 
@@ -453,15 +453,15 @@ class DashboardResponsabili {
     }
 
     updateChartsWithFallback() {
-        // Dati di esempio per i grafici
+        // In caso di errore, mostra grafici vuoti invece di dati falsi
         const fallbackData = {
             prenotazioni: {
-                labels: ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'],
-                data: [15, 22, 18, 25, 20, 12, 8]
+                labels: ['Nessun dato'],
+                data: [0]
             },
             occupazione: {
-                labels: ['Stanza 1', 'Stanza 2', 'Stanza 3', 'Open Space'],
-                data: [85, 72, 90, 65]
+                labels: ['Nessun dato'],
+                data: [0]
             }
         };
 
@@ -490,12 +490,9 @@ class DashboardResponsabili {
     }
 
     displayRecentActivityWithFallback() {
-        // Attività di esempio
+        // In caso di errore, mostra messaggio invece di attività false
         const fallbackActivities = [
-            { tipo: 'prenotazione', descrizione: 'Nuova prenotazione per Stanza 1', timestamp: new Date() },
-            { tipo: 'utente', descrizione: 'Nuovo utente registrato', timestamp: new Date(Date.now() - 3600000) },
-            { tipo: 'pagamento', descrizione: 'Pagamento completato per prenotazione #123', timestamp: new Date(Date.now() - 7200000) },
-            { tipo: 'cancellazione', descrizione: 'Prenotazione cancellata per Stanza 2', timestamp: new Date(Date.now() - 10800000) }
+            { tipo: 'info', descrizione: 'Nessuna attività recente disponibile', timestamp: new Date() }
         ];
 
         this.displayRecentActivity(fallbackActivities);
@@ -1289,6 +1286,16 @@ function getAuthHeaders() {
 function showDisponibilitaModal() {
     const modal = new bootstrap.Modal(document.getElementById('disponibilitaModal'));
     modal.show();
+}
+
+// Funzione globale per aggiornare l'overview
+function refreshOverview() {
+    if (window.dashboardResponsabili) {
+        window.dashboardResponsabili.loadOverviewData();
+        console.log('🔄 Overview aggiornata manualmente');
+    } else {
+        console.error('❌ Dashboard responsabili non inizializzata');
+    }
 }
 
 function showUtenteModal() {
