@@ -335,12 +335,12 @@ window.handleLogin = function (event, email, password) {
               }, 1000);
               return;
             }
-                    } else {
+          } else {
             // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (redirect fallback)
             const userRole = response.ruolo;
             console.log('🔍 handleLogin - Ruolo utente (redirect fallback):', userRole);
             console.log('🎯 handleLogin - Redirect fallback, tutti vanno a dashboard.html');
-            
+
             // Nessuna prenotazione in attesa, vai alla dashboard utente normale
             setTimeout(() => {
               window.location.href = 'dashboard.html';
@@ -370,11 +370,11 @@ window.handleLogin = function (event, email, password) {
           localStorage.removeItem('pendingPrenotazione');
           console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
 
-                    // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (login dalla home)
+          // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (login dalla home)
           const userRole = response.ruolo;
           console.log('🔍 handleLogin - Ruolo utente (login dalla home):', userRole);
           console.log('🎯 handleLogin - Login dalla home, tutti vanno a dashboard.html');
-          
+
           // Mostra messaggio informativo
           showAlert('Login effettuato! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
 
@@ -404,12 +404,12 @@ window.handleLogin = function (event, email, password) {
             window.location.href = pagamentoUrl.toString();
           }, 1000);
         }
-            } else {
+      } else {
         // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (se non stanno prenotando)
         const userRole = response.ruolo;
         console.log('🔍 handleLogin - Ruolo utente:', userRole);
         console.log('🎯 handleLogin - Login come azione principale, tutti vanno a dashboard.html');
-        
+
         // Nessuna prenotazione in attesa, vai alla dashboard utente normale
         setTimeout(() => {
           window.location.href = 'dashboard.html';
@@ -516,11 +516,11 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
           localStorage.removeItem('pendingPrenotazione');
           console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
 
-                    // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (registrazione dalla home)
+          // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (registrazione dalla home)
           const userRole = response.ruolo;
           console.log('🔍 handleRegistration - Ruolo utente (registrazione dalla home):', userRole);
           console.log('🎯 handleRegistration - Registrazione dalla home, tutti vanno a dashboard.html');
-          
+
           // Mostra messaggio informativo
           showAlert('Registrazione completata! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
 
@@ -548,12 +548,12 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
             window.location.href = pagamentoUrl.toString();
           }, 1500);
         }
-            } else {
+      } else {
         // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (nessuna prenotazione)
         const userRole = response.ruolo;
         console.log('🔍 handleRegistration - Ruolo utente (nessuna prenotazione):', userRole);
         console.log('🎯 handleRegistration - Nessuna prenotazione, tutti vanno a dashboard.html');
-        
+
         // Nessuna prenotazione in attesa, vai alla dashboard utente normale
         setTimeout(() => {
           window.location.href = 'dashboard.html';

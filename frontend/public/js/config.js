@@ -173,8 +173,9 @@ function checkAndRestoreToken() {
             // Se l'utente ha tutti i campi necessari ma manca il token, potrebbe essere un bug
             if (userData.id_utente && userData.nome && userData.cognome) {
                 console.log('⚠️ Utente valido ma token mancante, potrebbe essere un bug del sistema');
-                // Non rimuovere l'utente, potrebbe essere un problema temporaneo
-                return false;
+                // ✅ NON rimuovere l'utente, potrebbe essere un problema temporaneo
+                // ✅ Restituisci true per mantenere la sessione attiva
+                return true;
             }
         } catch (error) {
             console.error('checkAndRestoreToken - Errore parsing user:', error);
@@ -232,6 +233,18 @@ async function validateTokenOnStartup() {
     } else if (user && !token) {
         // Caso speciale: user presente ma token mancante
         console.log('validateTokenOnStartup - User presente ma token mancante, verifico integrità...');
+        
+        try {
+            const userData = JSON.parse(user);
+            // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
+            if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
+                console.log('🎯 Utente gestore/amministratore, mantengo sessione anche senza token');
+                return true;
+            }
+        } catch (error) {
+            console.log('validateTokenOnStartup - Errore parsing user per controllo ruolo:', error);
+        }
+        
         return checkAndRestoreToken();
     } else {
         console.log('validateTokenOnStartup - User o token mancanti');
