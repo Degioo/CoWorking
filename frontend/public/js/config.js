@@ -391,13 +391,13 @@ function canUserAccessPage(pageName, userRole) {
 
 // Configurazione navbar per diverse pagine
 const NAVBAR_CONFIG = {
-    // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraAccedi: boolean, mostraPrenota: boolean }
-    'index.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: true, mostraPrenota: true },
-    'selezione-slot.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
-    'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
-    'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraAccedi: false, mostraPrenota: false },
-    'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false, mostraPrenota: true },
-    'dashboard-responsabili.html': { mostraDashboard: false, mostraLogout: true, mostraAccedi: false, mostraPrenota: false }
+    // Pagina: { mostraDashboard: boolean, mostraLogout: boolean, mostraPrenota: boolean }
+    'index.html': { mostraDashboard: true, mostraLogout: true, mostraPrenota: true },
+    'selezione-slot.html': { mostraDashboard: true, mostraLogout: true, mostraPrenota: true },
+    'catalogo.html': { mostraDashboard: true, mostraLogout: true, mostraPrenota: true },
+    'pagamento.html': { mostraDashboard: true, mostraLogout: true, mostraPrenota: false },
+    'dashboard.html': { mostraDashboard: false, mostraLogout: true, mostraPrenota: true },
+    'dashboard-responsabili.html': { mostraDashboard: false, mostraLogout: true, mostraPrenota: false }
 };
 
 // Funzione universale per aggiornare la navbar
@@ -411,6 +411,7 @@ function updateNavbarUniversal() {
     console.log('updateNavbarUniversal - Pagina corrente:', currentPage);
     console.log('updateNavbarUniversal - Config:', config);
     console.log('updateNavbarUniversal - Utente:', userStr ? 'loggato' : 'non loggato');
+    console.log('updateNavbarUniversal - Configurazione: Dashboard=' + config.mostraDashboard + ', Logout=' + config.mostraLogout + ', Prenota=' + config.mostraPrenota);
 
     // Trova la sezione auth
     const authSection = document.getElementById('authSection');
@@ -427,12 +428,17 @@ function updateNavbarUniversal() {
             const user = JSON.parse(userStr);
             console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
 
-            // Aggiorna la sezione auth con info utente
+            // ✅ Aggiorna la sezione auth con info utente E pulsante Logout prominente
             authSection.innerHTML = `
-                <span class="nav-link text-light">
-                    <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
-                    <small class="d-block text-muted">${user.ruolo}</small>
-                </span>
+                <div class="d-flex align-items-center">
+                    <span class="nav-link text-light me-3">
+                        <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
+                        <small class="d-block text-muted">${user.ruolo}</small>
+                    </span>
+                    <a class="nav-link btn btn-primary" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </a>
+                </div>
             `;
 
             // Aggiungi Dashboard se richiesto dalla configurazione
@@ -467,30 +473,12 @@ function updateNavbarUniversal() {
                 targetElement.insertAdjacentHTML('afterend', dashboardGestoreItem);
             }
 
-            // Aggiungi Logout se richiesto dalla configurazione
-            if (config.mostraLogout) {
-                const logoutItem = `
-                    <li class="nav-item dynamic-nav-item">
-                        <a class="nav-link" href="#" onclick="logout()">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a>
-                    </li>
-                `;
-                // Inserisci dopo Dashboard o dopo authSection se Dashboard non è presente
-                let targetElement = authSection;
-                if (config.mostraDashboard) {
-                    // Trova l'elemento dashboard appena inserito
-                    const dashboardElement = document.querySelector('.dynamic-nav-item a[href="dashboard.html"]');
-                    if (dashboardElement) {
-                        targetElement = dashboardElement.closest('.nav-item');
-                    }
-                }
-                targetElement.insertAdjacentHTML('afterend', logoutItem);
-            }
+            // ✅ Logout ora è integrato direttamente nella sezione auth (vedi sopra)
+            // Non serve più aggiungere un pulsante Logout separato
 
             // Gestisci la visibilità del link "Prenota" in base al ruolo
             managePrenotaLinkVisibility(user.ruolo);
-            
+
             console.log('✅ updateNavbarUniversal - Navbar aggiornata per utente autenticato');
 
         } catch (error) {
@@ -540,11 +528,11 @@ function managePrenotaButtonsVisibility(userRole) {
     // Se l'utente è gestore o amministratore, nascondi i pulsanti di prenotazione
     if (userRole === 'gestore' || userRole === 'amministratore') {
         console.log('🎯 Gestore/amministratore rilevato, nascondo pulsanti prenotazione');
-        
+
         // ✅ Metodo corretto: cerca pulsanti con testo specifico
         const allButtons = document.querySelectorAll('button, .btn');
         let hiddenCount = 0;
-        
+
         allButtons.forEach(button => {
             if (button.textContent && button.textContent.includes('Prenota Ora')) {
                 button.style.display = 'none';
@@ -570,7 +558,7 @@ function managePrenotaButtonsVisibility(userRole) {
 // Funzione per mostrare navbar per utenti non autenticati
 function showNavbarForUnauthenticatedUser(config) {
     console.log('🔄 showNavbarForUnauthenticatedUser chiamata');
-    
+
     // ✅ CONTROLLO: verifica se l'utente è effettivamente autenticato
     const user = localStorage.getItem('user');
     if (user) {
@@ -583,28 +571,21 @@ function showNavbarForUnauthenticatedUser(config) {
             console.log('⚠️ showNavbarForUnauthenticatedUser: errore parsing user, procedo con navbar non autenticata');
         }
     }
-    
+
     const authSection = document.getElementById('authSection');
     if (!authSection) {
         console.log('❌ showNavbarForUnauthenticatedUser: authSection non trovata');
         return;
     }
 
-    // Per la homepage, mostra sempre il tasto Accedi se l'utente non è loggato
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    if (currentPage === 'index.html' || config.mostraAccedi) {
-        console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
-        authSection.innerHTML = `
-            <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
-                <i class="fas fa-sign-in-alt me-1"></i>
-                Accedi
-            </a>
-        `;
-    } else {
-        // Nascondi completamente la sezione auth se non serve
-        console.log('✅ showNavbarForUnauthenticatedUser: nascondo sezione auth');
-        authSection.style.display = 'none';
-    }
+    // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
+    console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
+    authSection.innerHTML = `
+        <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
+            <i class="fas fa-sign-in-alt me-1"></i>
+            Accedi
+        </a>
+    `;
 }
 
 // Funzione per inizializzare la navbar all'avvio
