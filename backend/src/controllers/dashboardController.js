@@ -22,7 +22,8 @@ const getDashboardStats = async (req, res) => {
         let sedeFilter = '';
         let params = [];
 
-        if (sede && sede.trim() !== '') {
+        // Migliorato controllo sede - accetta anche "0" e valori falsy
+        if (sede !== undefined && sede !== null && sede !== '') {
             sedeFilter = `AND s.id_sede = $1`;
             params = [sede];
         }
@@ -48,11 +49,12 @@ const getDashboardStats = async (req, res) => {
             ${sedeFilter}
         `;
 
-        // Query per occupazione media
+        // Query per occupazione media - Semplificata senza generate_series
         const occupazioneQuery = `
             SELECT 
                 ROUND(
-                    (COUNT(CASE WHEN p.id_prenotazione IS NOT NULL THEN 1 END) * 100.0 / COUNT(s.id_spazio)), 2
+                    (COUNT(CASE WHEN p.id_prenotazione IS NOT NULL THEN 1 END) * 100.0 / 
+                    GREATEST(COUNT(s.id_spazio), 1)), 2
                 ) as occupazione_media
             FROM spazio s
             LEFT JOIN prenotazione p ON s.id_spazio = p.id_spazio 
@@ -114,7 +116,8 @@ const getDashboardCharts = async (req, res) => {
         let sedeFilter = '';
         let params = [];
 
-        if (sede && sede.trim() !== '') {
+        // Migliorato controllo sede
+        if (sede !== undefined && sede !== null && sede !== '') {
             sedeFilter = `AND s.id_sede = $1`;
             params = [sede];
         }
@@ -133,26 +136,17 @@ const getDashboardCharts = async (req, res) => {
             ORDER BY data
         `;
 
-        // Query per occupazione per spazio
+        // Query per occupazione per spazio - Semplificata senza generate_series
         const occupazioneQuery = `
             SELECT 
                 s.nome_spazio,
                 ROUND(
                     (COUNT(CASE WHEN p.id_prenotazione IS NOT NULL THEN 1 END) * 100.0 / 
-                    GREATEST(COUNT(DISTINCT DATE(generate_series(
-                        CURRENT_DATE - INTERVAL '${periodo} days', 
-                        CURRENT_DATE, 
-                        '1 day'::interval
-                    ))), 1)), 2
+                    GREATEST(COUNT(s.id_spazio), 1)), 2
                 ) as occupazione
             FROM spazio s
-            CROSS JOIN generate_series(
-                CURRENT_DATE - INTERVAL '${periodo} days', 
-                CURRENT_DATE, 
-                '1 day'::interval
-            ) gs(data)
             LEFT JOIN prenotazione p ON s.id_spazio = p.id_spazio 
-                AND gs.data BETWEEN DATE(p.data_inizio) AND DATE(p.data_fine)
+                AND CURRENT_DATE BETWEEN DATE(p.data_inizio) AND DATE(p.data_fine)
                 AND p.stato = 'confermata'
             WHERE s.stato = 'attivo'
             ${sedeFilter}
@@ -204,14 +198,15 @@ const getDashboardActivity = async (req, res) => {
         let sedeFilter = '';
         let params = [];
 
-        if (sede && sede.trim() !== '') {
+        // Migliorato controllo sede
+        if (sede !== undefined && sede !== null && sede !== '') {
             sedeFilter = `AND s.id_sede = $1`;
             params = [sede, parseInt(limit)];
         } else {
             params = [parseInt(limit)];
         }
 
-        // Query per attività recenti
+        // Query per attività recenti - Semplificata
         const activityQuery = `
             SELECT 
                 'prenotazione' as tipo,
@@ -243,7 +238,7 @@ const getDashboardActivity = async (req, res) => {
             ${sedeFilter}
             
             ORDER BY timestamp DESC
-            LIMIT ${sede && sede.trim() !== '' ? '$2' : '$1'}
+            LIMIT ${sede !== undefined && sede !== null && sede !== '' ? '$2' : '$1'}
         `;
 
         const result = await pool.query(activityQuery, params);
