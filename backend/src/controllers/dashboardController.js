@@ -55,7 +55,7 @@ const getDashboardStats = async (req, res) => {
 
         // Esegui le query
         const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
-        
+
         const [prenotazioniResult, fatturatoResult, occupazioneResult] = await Promise.all([
             db.query(prenotazioniQuery, params),
             db.query(fatturatoQuery, params),
@@ -137,7 +137,7 @@ const getDashboardCharts = async (req, res) => {
         `;
 
         const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
-        
+
         const [prenotazioniResult, occupazioneResult] = await Promise.all([
             db.query(prenotazioniQuery, params),
             db.query(occupazioneQuery, params)

@@ -119,8 +119,10 @@ class DashboardResponsabili {
         if (sedeSelector) {
             console.log('Sede selector trovato, aggiungo event listener');
             sedeSelector.addEventListener('change', (e) => {
-                console.log('Sede selezionata:', e.target.value);
+                console.log('🔄 Sede selezionata:', e.target.value);
                 this.currentSede = e.target.value;
+                console.log('🔄 currentSede aggiornata a:', this.currentSede);
+                console.log('🔄 Avvio aggiornamento dati per nuova sede...');
                 this.loadOverviewData();
                 this.loadPrenotazioni();
                 this.loadUtenti();
@@ -402,17 +404,25 @@ class DashboardResponsabili {
 
     async loadQuickStats() {
         try {
-            const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`, {
+            const url = `${window.CONFIG.API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`;
+            console.log('🔄 loadQuickStats - URL chiamata:', url);
+            console.log('🔄 loadQuickStats - Sede corrente:', this.currentSede);
+            console.log('🔄 loadQuickStats - Headers:', getAuthHeaders());
+            
+            const response = await fetch(url, {
                 headers: getAuthHeaders()
             });
 
             if (response.ok) {
                 const stats = await response.json();
+                console.log('✅ loadQuickStats - Risposta API:', stats);
 
                 document.getElementById('prenotazioniOggi').textContent = stats.prenotazioni_oggi || 0;
                 document.getElementById('utentiAttivi').textContent = stats.utenti_attivi || 0;
                 document.getElementById('fatturatoGiorno').textContent = `€${stats.fatturato_giorno || 0}`;
                 document.getElementById('occupazioneMedia').textContent = `${stats.occupazione_media || 0}%`;
+                
+                console.log('✅ loadQuickStats - Statistiche aggiornate nel DOM');
             } else {
                 console.warn('⚠️ API stats non disponibile, mostra 0');
                 // Se l'API non è disponibile, mostra 0 invece di dati falsi
@@ -1290,7 +1300,11 @@ function showDisponibilitaModal() {
 
 // Funzione globale per aggiornare l'overview
 function refreshOverview() {
+    console.log('🔄 refreshOverview() chiamata');
+    console.log('🔄 window.dashboardResponsabili disponibile:', !!window.dashboardResponsabili);
+    
     if (window.dashboardResponsabili) {
+        console.log('🔄 currentSede prima dell\'aggiornamento:', window.dashboardResponsabili.currentSede);
         window.dashboardResponsabili.loadOverviewData();
         console.log('🔄 Overview aggiornata manualmente');
     } else {
