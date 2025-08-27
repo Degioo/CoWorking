@@ -1,0 +1,754 @@
+/* ===== SELEZIONE SLOT - STILI DEDICATI ===== */
+
+/* ===== GLOBAL SCROLLBAR REMOVAL ===== */
+body {
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+body::-webkit-scrollbar {
+    display: none !important;
+}
+
+.container,
+.row,
+.col,
+.col-md-4,
+.col-md-8 {
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.container::-webkit-scrollbar,
+.row::-webkit-scrollbar,
+.col::-webkit-scrollbar,
+.col-md-4::-webkit-scrollbar,
+.col-md-8::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* ===== HIDE ALL SCROLLBARS ===== */
+* {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* ===== SPECIFIC ELEMENTS ===== */
+main,
+section,
+.navbar,
+.navbar-nav,
+.calendar-container,
+.slot-selector,
+.action-buttons {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+main::-webkit-scrollbar,
+section::-webkit-scrollbar,
+.navbar::-webkit-scrollbar,
+.navbar-nav::-webkit-scrollbar,
+.calendar-container::-webkit-scrollbar,
+.slot-selector::-webkit-scrollbar,
+.action-buttons::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Container calendario */
+.calendar-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+/* Selettore slot orari */
+.slot-selector {
+    background: var(--gray-50);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+/* Slot orari individuali - TASTI VERDI */
+.time-slot,
+.slot-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    margin: 0.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Stili specifici per i bottoni degli slot */
+.slot-button {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.slot-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.slot-button.slot-available {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+}
+
+.slot-button.slot-selected {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.slot-button.slot-occupied {
+    background: var(--warning) !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+}
+
+.slot-button.slot-booked {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+}
+
+.slot-button.slot-intermediate {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    animation: pulse-green 1.5s infinite !important;
+}
+
+.slot-button.slot-expired {
+    background: var(--gray-600) !important;
+    color: white !important;
+    border-color: var(--gray-600) !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+.slot-button.slot-past-time {
+    background: var(--gray-500) !important;
+    color: white !important;
+    border-color: var(--gray-500) !important;
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+}
+
+.time-slot.available {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.time-slot.selected {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.time-slot.occupied {
+    background: var(--warning) !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+.time-slot.booked {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+.time-slot.intermediate {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    animation: pulse-green 1.5s infinite !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Stili specifici per Bootstrap che potrebbero interferire */
+.btn.time-slot.occupied,
+button.time-slot.occupied,
+input.time-slot.occupied {
+    background: var(--danger) !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+}
+
+/* CSS ULTRA SPECIFICO per slot occupati - DEVE ESSERE ROSSO */
+.time-slot.occupied,
+div.time-slot.occupied,
+.time-slot.occupied:hover,
+.time-slot.occupied:focus,
+.time-slot.occupied:active {
+    background-color: var(--danger) !important;
+    background-image: none !important;
+    color: white !important;
+    border-color: var(--danger) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-red 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* CSS ULTRA SPECIFICO per slot prenotati - DEVE ESSERE ARANCIONE */
+.time-slot.booked,
+div.time-slot.booked,
+.time-slot.booked:hover,
+.time-slot.booked:focus,
+.time-slot.booked:active {
+    background-color: var(--warning) !important;
+    background-image: none !important;
+    color: white !important;
+    border-color: var(--warning) !important;
+    cursor: not-allowed !important;
+    opacity: 0.8 !important;
+    animation: pulse-orange 2s infinite !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+.time-slot.expired {
+    background: var(--gray-600) !important;
+    color: white !important;
+    border-color: var(--gray-600) !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+    animation: fade-out 0.5s ease-in !important;
+}
+
+.time-slot.past-time {
+    background: var(--gray-500) !important;
+    color: white !important;
+    border-color: var(--gray-500) !important;
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    animation: shake 0.5s ease-in-out !important;
+}
+
+.time-slot:hover:not(.occupied) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Previeni hover effects su slot occupati e prenotati */
+.time-slot.occupied:hover,
+.time-slot.booked:hover,
+.time-slot.expired:hover,
+.time-slot.past-time:hover {
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+}
+
+.time-slot.booked:hover {
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3) !important;
+}
+
+/* Personalizzazione Flatpickr */
+.flatpickr-calendar {
+    font-size: 16px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.flatpickr-day.disabled {
+    background: var(--danger);
+    color: white;
+    opacity: 0.7;
+}
+
+.flatpickr-day.available {
+    background: var(--success);
+    color: white;
+}
+
+.flatpickr-day.selected {
+    background: var(--primary);
+    color: white;
+}
+
+/* Card riepilogo - ANIMAZIONE BELLA E COLORATA */
+.summary-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+    transition: all 0.4s ease;
+    animation: slideInUp 0.6s ease-out;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card.hidden {
+    display: none;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animazioni per gli slot non disponibili */
+@keyframes pulse-red {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes pulse-orange {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(255, 193, 7, 0);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+@keyframes pulse-green {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.8);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+        transform: scale(1.05);
+    }
+}
+
+/* Pulsanti azione */
+.action-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-custom {
+    padding: 1.2rem 2.5rem;
+    border-radius: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.btn-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-back {
+    background: var(--gray-600);
+    color: white;
+    border: none;
+}
+
+.btn-back:hover {
+    background: var(--gray-700);
+    color: white;
+}
+
+.btn.btn-book {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    border: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-md) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn.btn-book:hover {
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--secondary) 100%) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.btn.btn-book:active {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    transform: scale(0.98) translateY(-2px) !important;
+}
+
+.btn.btn-book:disabled {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+    opacity: 0.7 !important;
+}
+
+/* Effetto scintillante per il tasto prenota */
+.btn.btn-book::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transition: left 0.8s ease;
+    z-index: 1;
+}
+
+.btn.btn-book:hover::before {
+    left: 100%;
+}
+
+.btn.btn-book:active::before {
+    left: 100%;
+    transition: left 0.3s ease;
+}
+
+/* Assicurati che il testo sia sopra l'effetto scintillante */
+.btn.btn-book span {
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .calendar-container,
+    .slot-selector {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-custom {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .time-slot {
+        padding: 0.6rem 1.2rem;
+        margin: 0.3rem;
+        font-size: 0.9rem;
+        min-width: 70px;
+    }
+}
+
+/* Assicura che la pagina scorra correttamente */
+body {
+    overflow-x: hidden;
+}
+
+main {
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+/* Stili per il container principale */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Migliora la leggibilità del testo */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-info {
+    color: #17a2b8 !important;
+}
+
+/* ===== AUTH MODAL STYLES ===== */
+.auth-modal-content {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.auth-modal-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    padding: 2rem;
+}
+
+.auth-icon-container {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.auth-icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.auth-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.auth-modal-body {
+    padding: 2rem;
+    background: var(--gray-50);
+}
+
+.auth-summary-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--primary);
+}
+
+.auth-summary-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.auth-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.auth-summary-row:last-child {
+    border-bottom: none;
+}
+
+.auth-summary-label {
+    display: flex;
+    align-items: center;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.auth-summary-value {
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
+.auth-info-message {
+    background: linear-gradient(135deg, var(--info) 0%, var(--primary-light) 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.auth-info-icon {
+    font-size: 1.5rem;
+    margin-top: 0.2rem;
+}
+
+.auth-info-text strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.auth-info-text p {
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.auth-modal-footer {
+    background: white;
+    border: none;
+    padding: 1.5rem 2rem;
+    gap: 1rem;
+}
+
+.auth-btn-cancel {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.auth-btn-cancel:hover {
+    background: var(--gray-200);
+    transform: translateY(-2px);
+}
+
+.auth-btn-login {
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.auth-btn-login:hover {
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--secondary) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+/* ===== LOGO ANIMATION ===== */
+.navbar-brand {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+    color: var(--primary-dark);
+}
+
+.navbar-brand i {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.navbar-brand:hover i {
+    transform: rotate(5deg) scale(1.1);
+    color: var(--secondary);
+}
+
+/* Animazione logo al caricamento pagina */
+.navbar-brand.loaded i {
+    animation: logoAppear 0.8s ease-out;
+}
+
+@keyframes logoAppear {
+    0% {
+        transform: translateY(-20px) scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(5px) scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

@@ -1,0 +1,55 @@
+/* Stili personalizzati per CoWorkSpace */
+
+/* Navbar personalizzata */
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+/* Cards delle sedi */
+.card {
+  transition: transform 0.2s ease-in-out;
+  border: 1px solid #dee2e6;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Hero section */
+.display-4 {
+  color: #2c3e50;
+}
+
+.lead {
+  color: #7f8c8d;
+}
+
+/* Form styling */
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Alert positioning */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  min-width: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .alert {
+    left: 20px;
+    right: 20px;
+    min-width: auto;
+  }
+} 

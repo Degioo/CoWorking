@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - CoWorkSpace</title>
+  <meta name="description" content="Accedi al tuo account Coworking Mio per gestire prenotazioni e attività">
+
+  <!-- Favicon inline per eliminare errore 404 -->
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/modern-design.css">
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="fas fa-building me-2"></i>
+        Coworking Mio
+      </a>
+
+
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="selezione-slot.html">Prenota</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="dashboard.html">Dashboard</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Page Header -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <div class="mb-4">
+              <a href="index.html" class="btn btn-outline-primary">
+                <i class="fas fa-home me-2"></i>
+                Torna alla Home
+              </a>
+            </div>
+            <h1 class="mb-3">Accedi al tuo Account</h1>
+            <p class="lead text-muted">Gestisci le tue prenotazioni e attività nel coworking</p>
+            <div id="redirectMessage" class="alert alert-info" style="display: none;">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Prenotazione in attesa!</strong> Dopo il login verrai reindirizzato alla pagina di pagamento per
+              completare la tua prenotazione.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login/Registrazione -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="card shadow-lg border-0">
+              <div class="card-body p-5">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs nav-fill mb-4" id="authTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login"
+                      type="button" role="tab">
+                      <i class="fas fa-sign-in-alt me-2"></i>Accedi
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="registrazione-tab" data-bs-toggle="tab" data-bs-target="#registrazione"
+                      type="button" role="tab">
+                      <i class="fas fa-user-plus me-2"></i>Registrati
+                    </button>
+                  </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="authTabsContent">
+                  <!-- Login Tab -->
+                  <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <form id="loginForm">
+                      <div class="mb-3">
+                        <label for="loginEmail" class="form-label">
+                          <i class="fas fa-envelope me-2"></i>Email
+                        </label>
+                        <input type="email" class="form-control form-control-lg" id="loginEmail" required
+                          placeholder="Inserisci la tua email">
+                      </div>
+                      <div class="mb-4">
+                        <label for="loginPassword" class="form-label">
+                          <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="input-group">
+                          <input type="password" class="form-control form-control-lg" id="loginPassword" required
+                            placeholder="Inserisci la tua password">
+                          <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
+                            <i class="fas fa-eye" id="loginPasswordIcon"></i>
+                          </button>
+                        </div>
+                        <div class="invalid-feedback" id="loginPassword-error"></div>
+                      </div>
+                      <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Accedi
+                      </button>
+                    </form>
+                  </div>
+
+                  <!-- Registrazione Tab -->
+                  <div class="tab-pane fade" id="registrazione" role="tabpanel">
+                    <form id="registrazioneForm">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="regNome" class="form-label">
+                              <i class="fas fa-user me-2"></i>Nome
+                            </label>
+                            <input type="text" class="form-control" id="regNome" required placeholder="Il tuo nome">
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="regCognome" class="form-label">
+                              <i class="fas fa-user me-2"></i>Cognome
+                            </label>
+                            <input type="text" class="form-control" id="regCognome" required
+                              placeholder="Il tuo cognome">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="regEmail" class="form-label">
+                          <i class="fas fa-envelope me-2"></i>Email
+                        </label>
+                        <input type="email" class="form-control" id="regEmail" required placeholder="La tua email">
+                      </div>
+                      <div class="mb-3">
+                        <label for="regPassword" class="form-label">
+                          <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="input-group">
+                          <input type="password" class="form-control" id="regPassword" required
+                            placeholder="Scegli una password sicura">
+                          <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword">
+                            <i class="fas fa-eye" id="regPasswordIcon"></i>
+                          </button>
+                        </div>
+                        <div class="invalid-feedback" id="regPassword-error"></div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="regConfirmPassword" class="form-label">
+                          <i class="fas fa-lock me-2"></i>Conferma Password
+                        </label>
+                        <div class="input-group">
+                          <input type="password" class="form-control" id="regConfirmPassword" required
+                            placeholder="Conferma la password">
+                          <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword">
+                            <i class="fas fa-eye" id="regConfirmPasswordIcon"></i>
+                          </button>
+                        </div>
+                        <div class="invalid-feedback" id="regConfirmPassword-error"></div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="regTelefono" class="form-label">
+                          <i class="fas fa-phone me-2"></i>Telefono
+                        </label>
+                        <input type="tel" class="form-control" id="regTelefono" placeholder="Il tuo numero di telefono">
+                      </div>
+                      <div class="mb-4">
+                        <label for="regRuolo" class="form-label">
+                          <i class="fas fa-user-tag me-2"></i>Ruolo
+                        </label>
+                        <select class="form-select" id="regRuolo" required>
+                          <option value="">Seleziona ruolo</option>
+                          <option value="cliente">Cliente</option>
+                          <option value="gestore">Gestore</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-user-plus me-2"></i>Registrati
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4">
+    <div class="container text-center">
+      <p class="mb-0">&copy; 2024 Coworking Mio. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="js/config.js?v=1.1"></script>
+  <script src="js/main.js?v=1.1"></script>
+  <script src="js/modern-ui.js"></script>
+</body>
+
+</html>

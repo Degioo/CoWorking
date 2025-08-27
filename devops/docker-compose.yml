@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: coworkspace
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - coworkspace-db-data:/var/lib/postgresql/data
+  backend:
+    build: ../backend
+    environment:
+      PGUSER: postgres
+      PGHOST: db
+      PGDATABASE: coworkspace
+      PGPASSWORD: postgres
+      PGPORT: 5432
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+volumes:
+  coworkspace-db-data: 

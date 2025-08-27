@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selezione Slot - Coworking Mio</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Flatpickr CSS per il calendario -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- CSS personalizzato -->
+    <link rel="stylesheet" href="css/modern-design.css">
+    <link rel="stylesheet" href="css/selezione-slot.css">
+
+</head>
+
+<body>
+
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-building me-2 text-primary"></i>
+                Coworking Mio
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="catalogo.html">Servizi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#sedi">Sedi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contatti">Contatti</a>
+                    </li>
+                </ul>
+
+                <div class="navbar-nav" id="authSection">
+                    <!-- La navbar verrà popolata dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 fw-bold text-primary">
+                        <i class="fas fa-calendar-alt me-3"></i>
+                        Seleziona Slot Disponibile
+                    </h1>
+                    <p class="lead text-muted">
+                        Scegli sede, stanza e orario per la tua prenotazione
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selettori -->
+        <div class="slot-selector">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sedeSelect" class="form-label fw-bold">
+                        <i class="fas fa-building me-2"></i>
+                        Sede
+                    </label>
+                    <select class="form-select form-select-lg" id="sedeSelect">
+                        <option value="">Seleziona una sede...</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="stanzaSelect" class="form-label fw-bold">
+                        <i class="fas fa-door-open me-2"></i>
+                        Tipo Stanza
+                    </label>
+                    <select class="form-select form-select-lg" id="stanzaSelect" disabled>
+                        <option value="">Prima seleziona una sede...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendario -->
+        <div class="calendar-container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="mb-4">
+                        <i class="fas fa-calendar me-2"></i>
+                        Seleziona Intervallo Date
+                    </h3>
+                    <input type="text" id="datePicker" class="form-control form-control-lg"
+                        placeholder="Seleziona data inizio e fine...">
+                </div>
+
+                <div class="col-md-4">
+                    <h3 class="mb-4">
+                        <i class="fas fa-clock me-2"></i>
+                        Orari Disponibili
+                    </h3>
+                    <!-- Container per gli slot temporali -->
+                    <div id="timeSlots" class="time-slots-container" style="display: none;">
+                        <!-- Gli slot temporali verranno generati dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Riepilogo Selezione -->
+        <div class="summary-card hidden" id="summaryCard">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="mb-3">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Riepilogo Selezione
+                    </h3>
+                    <div class="row">
+                        <div class="col-6">
+                            <p><strong>Sede:</strong> <span id="summarySede">-</span></p>
+                            <p><strong>Stanza:</strong> <span id="summaryStanza">-</span></p>
+                        </div>
+                        <div class="col-6">
+                            <p><strong>Data:</strong> <span id="summaryData">-</span></p>
+                            <p><strong>Orario:</strong> <span id="summaryOrario">-</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                    <div class="text-center">
+                        <div class="h2 mb-2"><span id="summaryPrezzo">0</span></div>
+                        <small>totale per il periodo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pulsanti Azione -->
+        <div class="action-buttons">
+            <button class="btn btn-custom btn-back" id="btnBack" onclick="history.back()">
+                <i class="fas fa-arrow-left me-2"></i>
+                Torna Indietro
+            </button>
+
+            <button class="btn btn-custom btn-book" id="btnBook" disabled>
+                <i class="fas fa-check me-2"></i>
+                Prenota Ora
+            </button>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/modern-ui.js"></script>
+    <script src="js/selezione-slot.js"></script>
+
+    <script>
+        // Inizializza ModernUI per animazioni globali (incluso logo)
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof ModernUI !== 'undefined') {
+                new ModernUI();
+            }
+        });
+    </script>
+</body>
+
+</html>
