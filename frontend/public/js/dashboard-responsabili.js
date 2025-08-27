@@ -1,5 +1,16 @@
 /* ===== DASHBOARD RESPONSABILI - FUNZIONALITÀ COMPLETE ===== */
 
+// ✅ Inizializza navbar universale all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Dashboard responsabili - Inizializzazione navbar universale...');
+    if (typeof window.initializeNavbar === 'function') {
+        window.initializeNavbar();
+        console.log('✅ Navbar universale inizializzata');
+    } else {
+        console.log('⚠️ Funzione initializeNavbar non disponibile');
+    }
+});
+
 // Controllo autenticazione
 function checkAuth() {
     const user = localStorage.getItem('user');
@@ -32,47 +43,12 @@ function checkAuth() {
     window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
 }
 
-// Esegui controllo autenticazione all'avvio
-// checkAuth(); // Rimosso - ora controllato dalla classe DashboardResponsabili
+// ✅ Controllo autenticazione ora gestito dalla navbar universale
+// Non serve più chiamare checkAuth() manualmente
 
-// Funzioni per gestire l'UI dell'autenticazione
-function updateAuthUI() {
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    const loginBtn = document.getElementById('loginBtn');
-    const userSection = document.getElementById('userSection');
-    const navUserName = document.getElementById('navUserName');
-
-    if (user && token) {
-        try {
-            const userData = JSON.parse(user);
-            if (userData.nome && userData.cognome) {
-                navUserName.textContent = `${userData.nome} ${userData.cognome}`;
-            }
-            loginBtn.classList.add('d-none');
-            userSection.classList.remove('d-none');
-        } catch (error) {
-            console.error('Errore parsing user data in updateAuthUI:', error);
-            handleLogout();
-        }
-    } else {
-        loginBtn.classList.remove('d-none');
-        userSection.classList.add('d-none');
-    }
-}
-
-function handleLogout() {
-    console.log('Logout dalla dashboard responsabili');
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    window.location.href = 'index.html?message=' + encodeURIComponent('Logout effettuato con successo.');
-}
-
-// Funzione per mostrare il modal di login
-function showLoginModal() {
-    // Reindirizza alla pagina di login
-    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
-}
+// ✅ Funzioni di autenticazione ora gestite dalla navbar universale in config.js
+// Rimuovo le vecchie funzioni che non servono più
+console.log('✅ Dashboard responsabili - Usa navbar universale per autenticazione');
 
 class DashboardResponsabili {
     constructor() {

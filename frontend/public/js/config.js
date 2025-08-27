@@ -423,23 +423,14 @@ function updateNavbarUniversal() {
 
     // ✅ Rimuovi tutti gli elementi dinamici esistenti per evitare duplicati
     console.log('🧹 Pulizia elementi dinamici esistenti...');
-    
+
     // Rimuovi link dinamici (Dashboard, etc.)
     document.querySelectorAll('.nav-item.dynamic-nav-item').forEach(item => {
         item.remove();
         console.log('🗑️ Rimosso elemento dinamico:', item.textContent?.trim());
     });
-    
-    // Rimuovi anche eventuali info utente duplicati
-    const allUserInfo = document.querySelectorAll('.nav-link.text-light');
-    if (allUserInfo.length > 1) {
-        console.log('⚠️ Trovati info utente duplicati, rimuovo quelli extra...');
-        // Mantieni solo il primo, rimuovi gli altri
-        for (let i = 1; i < allUserInfo.length; i++) {
-            allUserInfo[i].remove();
-            console.log('🗑️ Rimosso info utente duplicato extra');
-        }
-    }
+
+    // ✅ Info utente non più gestito, navbar più pulita
 
     if (userStr) {
         try {
@@ -468,22 +459,8 @@ function updateNavbarUniversal() {
                 `;
             }
 
-            // ✅ Aggiungi info utente accanto al pulsante Logout (senza duplicati)
-            // Prima rimuovi eventuali info utente esistenti per evitare duplicati
-            const existingUserInfo = authSection.querySelector('.nav-link.text-light');
-            if (existingUserInfo) {
-                existingUserInfo.remove();
-                console.log('🗑️ Rimosso info utente duplicato esistente');
-            }
-            
-            const userInfoSpan = document.createElement('span');
-            userInfoSpan.className = 'nav-link text-light ms-3';
-            userInfoSpan.innerHTML = `
-                <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
-                <small class="d-block text-muted">${user.ruolo}</small>
-            `;
-            authSection.appendChild(userInfoSpan);
-            console.log('✅ Info utente aggiunto:', user.nome, user.cognome);
+                        // ✅ Info utente rimosso per navbar più pulita
+            console.log('✅ Navbar pulita senza info utente');
 
             // Aggiungi Dashboard se richiesto dalla configurazione
             if (config.mostraDashboard) {
@@ -622,26 +599,19 @@ function showNavbarForUnauthenticatedUser(config) {
         return;
     }
 
-        // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
+    // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
     console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
+
+        // ✅ Rimuovi elementi dinamici rimasti per navbar pulita
+    console.log('🧹 Pulizia elementi dinamici...');
     
-    // ✅ Rimuovi TUTTI gli elementi utente esistenti per evitare duplicati
-    console.log('🧹 Pulizia completa elementi utente...');
-    
-    // Rimuovi info utente se presente
-    const allUserInfo = authSection.querySelectorAll('.nav-link.text-light');
-    allUserInfo.forEach((info, index) => {
-        info.remove();
-        console.log(`🗑️ Rimosso info utente ${index + 1}:`, info.textContent?.trim());
-    });
-    
-    // Rimuovi anche eventuali link dinamici rimasti
+    // Rimuovi eventuali link dinamici rimasti
     const dynamicItems = authSection.parentElement.querySelectorAll('.dynamic-nav-item');
     dynamicItems.forEach(item => {
         item.remove();
         console.log('🗑️ Rimosso elemento dinamico rimasto:', item.textContent?.trim());
     });
-    
+
     // ✅ Mostra tasto Accedi
     authSection.innerHTML = `
         <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
