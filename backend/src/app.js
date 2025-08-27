@@ -64,14 +64,14 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
     res.header('Access-Control-Allow-Credentials', 'true');
   }
-  
+
   // Se è una richiesta preflight, aggiungi header aggiuntivi
   if (req.method === 'OPTIONS') {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-User-ID, X-Requested-With, Accept, Origin');
     res.header('Access-Control-Max-Age', '86400');
   }
-  
+
   next();
 });
 
@@ -319,11 +319,11 @@ app.get('/api/ping', (req, res) => {
 // Endpoint di test CORS
 app.get('/api/test-cors', (req, res) => {
   console.log('Test CORS chiamato con origin:', req.headers.origin);
-  
+
   // Imposta esplicitamente gli header CORS per questo endpoint
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   res.json({
     message: 'CORS test successful',
     origin: req.headers.origin,
@@ -339,11 +339,11 @@ app.get('/api/test-cors', (req, res) => {
 // Endpoint di test CORS specifico per sedi
 app.get('/api/test-sedi-cors', (req, res) => {
   console.log('Test sedi CORS chiamato con origin:', req.headers.origin);
-  
+
   // Imposta esplicitamente gli header CORS per questo endpoint
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   res.json({
     message: 'CORS sedi test successful',
     origin: req.headers.origin,
@@ -364,13 +364,13 @@ app.get('/api/debug-cors', (req, res) => {
   console.log('Origin:', req.headers.origin);
   console.log('Referer:', req.headers.referer);
   console.log('User-Agent:', req.headers['user-agent']);
-  
+
   // Imposta esplicitamente gli header CORS
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-User-ID, X-Requested-With, Accept, Origin');
-  
+
   res.json({
     message: 'Debug CORS completo',
     timestamp: new Date().toISOString(),

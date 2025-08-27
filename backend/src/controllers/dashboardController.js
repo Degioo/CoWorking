@@ -1,4 +1,4 @@
-const db = require('../db');
+const pool = require('../db');
 
 // Controller per le statistiche dashboard
 const getDashboardStats = async (req, res) => {
@@ -14,8 +14,11 @@ const getDashboardStats = async (req, res) => {
         }
 
         let sedeFilter = '';
+        let params = [];
+        
         if (sede && sede.trim() !== '') {
-            sedeFilter = `AND s.id_sede = $2`;
+            sedeFilter = `AND s.id_sede = $1`;
+            params = [sede];
         }
 
         // Query per statistiche prenotazioni (usando nomi tabelle corretti)
@@ -53,8 +56,7 @@ const getDashboardStats = async (req, res) => {
             ${sedeFilter}
         `;
 
-        // Esegui le query
-        const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
+
 
         console.log('📊 Dashboard Stats - Parametri query:', params);
         console.log('📊 Dashboard Stats - Query prenotazioni:', prenotazioniQuery);
@@ -63,9 +65,9 @@ const getDashboardStats = async (req, res) => {
 
         try {
             const [prenotazioniResult, fatturatoResult, occupazioneResult] = await Promise.all([
-                db.query(prenotazioniQuery, params),
-                db.query(fatturatoQuery, params),
-                db.query(occupazioneQuery, params)
+                pool.query(prenotazioniQuery, params),
+                pool.query(fatturatoQuery, params),
+                pool.query(occupazioneQuery, params)
             ]);
 
             console.log('📊 Dashboard Stats - Query eseguite con successo');
@@ -106,8 +108,11 @@ const getDashboardCharts = async (req, res) => {
         }
 
         let sedeFilter = '';
+        let params = [];
+        
         if (sede && sede.trim() !== '') {
-            sedeFilter = `AND s.id_sede = $2`;
+            sedeFilter = `AND s.id_sede = $1`;
+            params = [sede];
         }
 
         // Query per prenotazioni ultimi N giorni
@@ -151,11 +156,9 @@ const getDashboardCharts = async (req, res) => {
             ORDER BY occupazione DESC
         `;
 
-        const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
-
         const [prenotazioniResult, occupazioneResult] = await Promise.all([
-            db.query(prenotazioniQuery, params),
-            db.query(occupazioneQuery, params)
+            pool.query(prenotazioniQuery, params),
+            pool.query(occupazioneQuery, params)
         ]);
 
         // Prepara dati per i grafici
@@ -195,8 +198,13 @@ const getDashboardActivity = async (req, res) => {
         }
 
         let sedeFilter = '';
+        let params = [];
+        
         if (sede && sede.trim() !== '') {
             sedeFilter = `AND s.id_sede = $2`;
+            params = [parseInt(limit), sede];
+        } else {
+            params = [parseInt(limit)];
         }
 
         // Query per attività recenti
@@ -234,8 +242,7 @@ const getDashboardActivity = async (req, res) => {
             LIMIT $1
         `;
 
-        const params = sede && sede.trim() !== '' ? [parseInt(limit), sede] : [parseInt(limit)];
-        const result = await db.query(activityQuery, params);
+        const result = await pool.query(activityQuery, params);
 
         const activities = result.rows.map(row => ({
             tipo: row.tipo,
