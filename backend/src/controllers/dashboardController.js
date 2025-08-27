@@ -18,7 +18,7 @@ const getDashboardStats = async (req, res) => {
             sedeFilter = `AND s.id_sede = $2`;
         }
 
-        // Query per statistiche prenotazioni
+        // Query per statistiche prenotazioni (usando nomi tabelle corretti)
         const prenotazioniQuery = `
             SELECT 
                 COUNT(*) as prenotazioni_oggi,
@@ -55,7 +55,7 @@ const getDashboardStats = async (req, res) => {
 
         // Esegui le query
         const params = sede && sede.trim() !== '' ? [userId, sede] : [userId];
-        
+
         console.log('📊 Dashboard Stats - Parametri query:', params);
         console.log('📊 Dashboard Stats - Query prenotazioni:', prenotazioniQuery);
         console.log('📊 Dashboard Stats - Query fatturato:', fatturatoQuery);
@@ -67,7 +67,7 @@ const getDashboardStats = async (req, res) => {
                 db.query(fatturatoQuery, params),
                 db.query(occupazioneQuery, params)
             ]);
-            
+
             console.log('📊 Dashboard Stats - Query eseguite con successo');
             console.log('📊 Dashboard Stats - Risultati prenotazioni:', prenotazioniResult.rows);
             console.log('📊 Dashboard Stats - Risultati fatturato:', fatturatoResult.rows);

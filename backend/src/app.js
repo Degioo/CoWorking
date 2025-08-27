@@ -131,12 +131,23 @@ app.get('/api/test-db-tables', async (req, res) => {
   try {
     const db = require('./db');
     
-    // Verifica se le tabelle esistono
+    // Prima verifica tutte le tabelle disponibili
+    const allTablesQuery = `
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name
+    `;
+    
+    const allTablesResult = await db.query(allTablesQuery);
+    const allTables = allTablesResult.rows.map(row => row.table_name);
+    
+    // Poi verifica le colonne delle tabelle che ci interessano
     const tablesQuery = `
       SELECT table_name, column_name, data_type 
       FROM information_schema.columns 
       WHERE table_schema = 'public' 
-      AND table_name IN ('prenotazioni', 'spazi', 'sedi', 'utenti')
+      AND table_name IN ('prenotazioni', 'spazi', 'sedi', 'utenti', 'bookings', 'spaces', 'locations', 'users')
       ORDER BY table_name, ordinal_position
     `;
     
@@ -157,8 +168,9 @@ app.get('/api/test-db-tables', async (req, res) => {
     res.json({
       message: 'Struttura database verificata',
       timestamp: new Date().toISOString(),
-      tables: tables,
-      total_tables: Object.keys(tables).length
+      all_tables_available: allTables,
+      tables_with_columns: tables,
+      total_tables_found: Object.keys(tables).length
     });
   } catch (error) {
     console.error('❌ Errore verifica tabelle database:', error);
