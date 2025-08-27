@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('../config/config');
+const { authenticateToken } = require('./middleware/auth');
 const app = express();
 const PORT = config.server.port;
 
@@ -114,12 +115,31 @@ console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.p
 console.log('🚀 Route sedi caricate:', sediRoutes.stack?.map(r => r.route?.path).filter(Boolean));
 console.log('🚀 Route A/B testing caricate:', abTestingRoutes.stack?.map(r => r.route?.path).filter(Boolean));
 
-// Endpoint di test temporaneo per verificare se le route scadenze sono caricate
+// Endpoint di test per verificare se le route scadenze sono caricate
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
     message: 'Route scadenze caricate correttamente',
     timestamp: new Date().toISOString(),
     routes: ['/api/scadenze/check', '/api/scadenze/status', '/api/scadenze/prenotazioni-scadute', '/api/scadenze/prenotazioni-in-scadenza']
+  });
+});
+
+// Endpoint di test per verificare l'autenticazione
+app.get('/api/test-auth', (req, res) => {
+  res.json({
+    message: 'Test autenticazione',
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Endpoint di test per verificare l'autenticazione con middleware
+app.get('/api/test-auth-protected', authenticateToken, (req, res) => {
+  res.json({
+    message: 'Test autenticazione protetta',
+    user: req.user,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -132,7 +152,6 @@ app.get('/api/test-concorrenza', (req, res) => {
     test: 'Testa con: GET /api/concorrenza/spazi/1/stato-concorrenza'
   });
 });
-
 
 // Rotte analytics
 const analyticsRoutes = require('./routes/analytics');
@@ -247,4 +266,4 @@ scadenzeCron.start();
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log('🚀 Cron job scadenze avviato automaticamente');
-}); 
+});
