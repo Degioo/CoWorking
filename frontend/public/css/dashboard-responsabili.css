@@ -197,6 +197,13 @@
   padding: var(--space-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--space-lg);
+  height: 300px;
+  overflow: hidden;
+}
+
+.chart-card canvas {
+  max-height: 250px !important;
+  width: 100% !important;
 }
 
 .chart-card h6 {

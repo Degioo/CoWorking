@@ -267,12 +267,12 @@ function canUserAccessPage(pageName, userRole) {
     if (pageName === 'selezione-slot.html' && (userRole === 'gestore' || userRole === 'amministratore')) {
         return false;
     }
-    
+
     // I gestori e amministratori non possono accedere alla pagina di pagamento
     if (pageName === 'pagamento.html' && (userRole === 'gestore' || userRole === 'amministratore')) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -398,7 +398,7 @@ function updateNavbarUniversal() {
 function managePrenotaLinkVisibility(userRole) {
     // Trova tutti i link "Prenota" nella navbar
     const prenotaLinks = document.querySelectorAll('a[href="selezione-slot.html"]');
-    
+
     prenotaLinks.forEach(link => {
         // Se l'utente è gestore o amministratore, nascondi il link Prenota
         if (userRole === 'gestore' || userRole === 'amministratore') {
