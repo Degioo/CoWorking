@@ -91,14 +91,14 @@ function navigateToProtectedPage(pageUrl) {
       if (user.ruolo === 'gestore' || user.ruolo === 'amministratore') {
         if (user.id_utente) {
           console.log('✅ Gestore/amministratore autenticato, navigazione consentita');
-          
+
           // Verifica permessi per pagine specifiche
           if (pageUrl.includes('dashboard-responsabili.html')) {
             console.log('🎯 Navigazione alla dashboard gestore consentita');
             window.location.href = pageUrl;
             return;
           }
-          
+
           if (pageUrl.includes('dashboard.html')) {
             console.log('🎯 Navigazione alla dashboard utente consentita');
             window.location.href = pageUrl;
@@ -106,11 +106,11 @@ function navigateToProtectedPage(pageUrl) {
           }
         }
       }
-      
+
       // ✅ Per utenti normali, usa la logica standard
       if (typeof window.isAuthenticated === 'function' && window.isAuthenticated()) {
         console.log('✅ Utente normale autenticato, navigazione consentita');
-        
+
         // Verifica permessi per pagine specifiche
         if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
           showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
@@ -121,12 +121,12 @@ function navigateToProtectedPage(pageUrl) {
         window.location.href = pageUrl;
         return;
       }
-      
+
       // ✅ Se arriviamo qui, l'utente ha user ma non è completamente autenticato
       console.log('⚠️ Utente con user ma autenticazione incompleta, richiedo login');
       localStorage.setItem('redirectAfterLogin', pageUrl);
       window.location.href = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
-      
+
     } catch (error) {
       console.error('Errore parsing user:', error);
       localStorage.removeItem('user');

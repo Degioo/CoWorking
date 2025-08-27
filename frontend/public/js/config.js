@@ -141,7 +141,7 @@ function isAuthenticated() {
 
     try {
         const userData = JSON.parse(user);
-        
+
         // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
         if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
             if (userData.id_utente) {
@@ -149,13 +149,13 @@ function isAuthenticated() {
                 return true;
             }
         }
-        
+
         // ✅ Per utenti normali, richiedi sia user che token
         if (!token) {
             console.log('isAuthenticated - User presente ma token mancante per utente normale:', userData?.nome, userData?.cognome);
             return false;
         }
-        
+
         const isAuthenticated = userData && userData.id_utente;
         console.log('isAuthenticated - Risultato:', isAuthenticated, 'per utente:', userData?.nome, userData?.cognome);
         return isAuthenticated;
