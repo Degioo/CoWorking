@@ -124,8 +124,9 @@ function logout() {
         window.location.href = 'login.html?message=' + encodeURIComponent('Logout effettuato con successo.');
     } else {
         // Rimani nella pagina corrente se non richiede autenticazione
-        // Ricarica la pagina per aggiornare la navbar
-        window.location.reload();
+        // ✅ Aggiorna la navbar per mostrare il tasto Accedi
+        console.log('logout - Aggiorno navbar per utente non autenticato');
+        updateNavbarUniversal();
     }
 
 }
@@ -428,18 +429,32 @@ function updateNavbarUniversal() {
             const user = JSON.parse(userStr);
             console.log('updateNavbarUniversal - Utente autenticato:', user.nome, user.cognome);
 
-            // ✅ Aggiorna la sezione auth con info utente E pulsante Logout prominente
-            authSection.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <span class="nav-link text-light me-3">
-                        <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
-                        <small class="d-block text-muted">${user.ruolo}</small>
-                    </span>
+            // ✅ Trasforma il tasto "Accedi" esistente in "Logout" mantenendo lo stesso stile
+            const accediButton = authSection.querySelector('.btn-primary');
+            if (accediButton) {
+                // ✅ Trasforma il tasto Accedi in Logout
+                accediButton.innerHTML = '<i class="fas fa-sign-out-alt me-1"></i>Logout';
+                accediButton.onclick = logout;
+                accediButton.href = '#';
+                console.log('✅ Tasto Accedi trasformato in Logout');
+            } else {
+                // Fallback: crea nuovo pulsante Logout se non trova quello esistente
+                console.log('⚠️ Tasto Accedi non trovato, creo nuovo pulsante Logout');
+                authSection.innerHTML = `
                     <a class="nav-link btn btn-primary" href="#" onclick="logout()">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </a>
-                </div>
+                `;
+            }
+            
+            // ✅ Aggiungi info utente accanto al pulsante Logout
+            const userInfoSpan = document.createElement('span');
+            userInfoSpan.className = 'nav-link text-light ms-3';
+            userInfoSpan.innerHTML = `
+                <i class="fas fa-user me-2"></i>${user.nome} ${user.cognome}
+                <small class="d-block text-muted">${user.ruolo}</small>
             `;
+            authSection.appendChild(userInfoSpan);
 
             // Aggiungi Dashboard se richiesto dalla configurazione
             if (config.mostraDashboard) {
@@ -580,6 +595,14 @@ function showNavbarForUnauthenticatedUser(config) {
 
     // ✅ Mostra sempre il tasto Accedi per utenti non autenticati (soprattutto sulla homepage)
     console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
+    
+    // ✅ Rimuovi info utente se presente
+    const userInfoSpan = authSection.querySelector('.nav-link.text-light');
+    if (userInfoSpan) {
+        userInfoSpan.remove();
+    }
+    
+    // ✅ Mostra tasto Accedi
     authSection.innerHTML = `
         <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
             <i class="fas fa-sign-in-alt me-1"></i>
