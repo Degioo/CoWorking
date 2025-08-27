@@ -4,12 +4,18 @@ const pool = require('../db');
 const getDashboardStats = async (req, res) => {
     try {
         const { tipo, sede } = req.query;
-        const userId = req.user.id_utente;
+        const userId = req.user?.id_utente;
 
-        console.log('📊 Dashboard Stats - Richiesta:', { tipo, sede, userId });
+        console.log('📊 Dashboard Stats - Richiesta completa:', req);
+        console.log('📊 Dashboard Stats - Query params:', req.query);
+        console.log('📊 Dashboard Stats - User object:', req.user);
+        console.log('📊 Dashboard Stats - User ID:', userId);
+        console.log('📊 Dashboard Stats - Tipo:', tipo);
+        console.log('📊 Dashboard Stats - Sede:', sede);
 
         // Verifica che l'utente sia gestore o amministratore
         if (tipo !== 'responsabile') {
+            console.log('❌ Dashboard Stats - Tipo non autorizzato:', tipo);
             return res.status(403).json({ error: 'Accesso negato. Solo responsabili possono accedere.' });
         }
 
@@ -56,8 +62,6 @@ const getDashboardStats = async (req, res) => {
             ${sedeFilter}
         `;
 
-
-
         console.log('📊 Dashboard Stats - Parametri query:', params);
         console.log('📊 Dashboard Stats - Query prenotazioni:', prenotazioniQuery);
         console.log('📊 Dashboard Stats - Query fatturato:', fatturatoQuery);
@@ -99,7 +103,7 @@ const getDashboardStats = async (req, res) => {
 const getDashboardCharts = async (req, res) => {
     try {
         const { tipo, sede, periodo = 7 } = req.query;
-        const userId = req.user.id_utente;
+        const userId = req.user?.id_utente;
 
         console.log('📈 Dashboard Charts - Richiesta:', { tipo, sede, periodo, userId });
 
@@ -189,7 +193,7 @@ const getDashboardCharts = async (req, res) => {
 const getDashboardActivity = async (req, res) => {
     try {
         const { tipo, sede, limit = 10 } = req.query;
-        const userId = req.user.id_utente;
+        const userId = req.user?.id_utente;
 
         console.log('📋 Dashboard Activity - Richiesta:', { tipo, sede, limit, userId });
 
@@ -201,8 +205,8 @@ const getDashboardActivity = async (req, res) => {
         let params = [];
 
         if (sede && sede.trim() !== '') {
-            sedeFilter = `AND s.id_sede = $2`;
-            params = [parseInt(limit), sede];
+            sedeFilter = `AND s.id_sede = $1`;
+            params = [sede, parseInt(limit)];
         } else {
             params = [parseInt(limit)];
         }
@@ -239,7 +243,7 @@ const getDashboardActivity = async (req, res) => {
             ${sedeFilter}
             
             ORDER BY timestamp DESC
-            LIMIT $1
+            LIMIT ${sede && sede.trim() !== '' ? '$2' : '$1'}
         `;
 
         const result = await pool.query(activityQuery, params);
