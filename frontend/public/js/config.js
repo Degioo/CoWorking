@@ -140,14 +140,14 @@ async function attemptUserRestoreFromToken() {
 
     try {
         console.log('🔄 Tentativo di ripristino dati utente dal token...');
-        
+
         // Prova a decodificare il JWT per estrarre informazioni base
         const tokenParts = token.split('.');
         if (tokenParts.length === 3) {
             try {
                 const payload = JSON.parse(atob(tokenParts[1]));
                 console.log('🔍 Payload token decodificato:', payload);
-                
+
                 // Se il token contiene dati utente, ricrea l'oggetto user
                 if (payload.id_utente || payload.sub) {
                     const restoredUser = {
@@ -158,7 +158,7 @@ async function attemptUserRestoreFromToken() {
                         ruolo: payload.ruolo || 'cliente',
                         message: 'Utente ripristinato dal token'
                     };
-                    
+
                     console.log('✅ Dati utente ripristinati dal token:', restoredUser);
                     localStorage.setItem('user', JSON.stringify(restoredUser));
                     return true;
@@ -167,7 +167,7 @@ async function attemptUserRestoreFromToken() {
                 console.log('⚠️ Errore decodifica payload token:', decodeError);
             }
         }
-        
+
         // Se non riesco a decodificare, prova a chiamare l'API per verificare il token
         console.log('🔄 Tentativo verifica token tramite API...');
         const response = await fetch(`${window.CONFIG.API_BASE}/verify-token`, {
@@ -178,7 +178,7 @@ async function attemptUserRestoreFromToken() {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         if (response.ok) {
             const userData = await response.json();
             console.log('✅ Dati utente ripristinati tramite API:', userData);
@@ -188,7 +188,7 @@ async function attemptUserRestoreFromToken() {
             console.log('⚠️ API verify-token non disponibile o fallita');
             return false;
         }
-        
+
     } catch (error) {
         console.error('❌ Errore nel tentativo di ripristino dati utente:', error);
         return false;
@@ -217,7 +217,7 @@ async function isAuthenticated() {
 
     try {
         const userData = JSON.parse(user);
-        
+
         // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
         if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
             if (userData.id_utente) {
@@ -225,13 +225,13 @@ async function isAuthenticated() {
                 return true;
             }
         }
-        
+
         // ✅ Per utenti normali, richiedi sia user che token
         if (!token) {
             console.log('isAuthenticated - User presente ma token mancante per utente normale:', userData?.nome, userData?.cognome);
             return false;
         }
-        
+
         const isAuthenticated = userData && userData.id_utente;
         console.log('isAuthenticated - Risultato:', isAuthenticated, 'per utente:', userData?.nome, userData?.cognome);
         return isAuthenticated;
@@ -321,10 +321,10 @@ async function validateTokenOnStartup() {
             localStorage.removeItem('token');
             return false;
         }
-        } else if (user && !token) {
+    } else if (user && !token) {
         // Caso speciale: user presente ma token mancante
         console.log('validateTokenOnStartup - User presente ma token mancante, verifico integrità...');
-        
+
         try {
             const userData = JSON.parse(user);
             // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
@@ -335,12 +335,12 @@ async function validateTokenOnStartup() {
         } catch (error) {
             console.log('validateTokenOnStartup - Errore parsing user per controllo ruolo:', error);
         }
-        
+
         return checkAndRestoreToken();
     } else if (!user && token) {
         // ✅ NUOVO CASO: token presente ma user mancante (situazione attuale)
         console.log('⚠️ validateTokenOnStartup - Token presente ma user mancante, tentativo di ripristino...');
-        
+
         // Prova a ripristinare i dati utente dal token
         return await attemptUserRestoreFromToken();
     } else {
@@ -490,11 +490,14 @@ function updateNavbarUniversal() {
 
             // Gestisci la visibilità del link "Prenota" in base al ruolo
             managePrenotaLinkVisibility(user.ruolo);
+            
+            console.log('✅ updateNavbarUniversal - Navbar aggiornata per utente autenticato');
 
         } catch (error) {
             console.error('updateNavbarUniversal - Errore parsing user:', error);
             localStorage.removeItem('user');
             // Fallback: mostra navbar per utenti non autenticati
+            console.log('⚠️ updateNavbarUniversal - Fallback a navbar non autenticata');
             showNavbarForUnauthenticatedUser(config);
         }
     } else {
@@ -536,17 +539,17 @@ function managePrenotaLinkVisibility(userRole) {
 function managePrenotaButtonsVisibility(userRole) {
     // Se l'utente è gestore o amministratore, nascondi i pulsanti di prenotazione
     if (userRole === 'gestore' || userRole === 'amministratore') {
-        // Nascondi pulsanti "Prenota Ora"
-        const prenotaOraButtons = document.querySelectorAll('button:contains("Prenota Ora"), .btn:contains("Prenota Ora")');
-        prenotaOraButtons.forEach(button => {
-            button.style.display = 'none';
-        });
-
-        // Nascondi pulsanti con testo "Prenota Ora" (metodo alternativo)
+        console.log('🎯 Gestore/amministratore rilevato, nascondo pulsanti prenotazione');
+        
+        // ✅ Metodo corretto: cerca pulsanti con testo specifico
         const allButtons = document.querySelectorAll('button, .btn');
+        let hiddenCount = 0;
+        
         allButtons.forEach(button => {
-            if (button.textContent.includes('Prenota Ora')) {
+            if (button.textContent && button.textContent.includes('Prenota Ora')) {
                 button.style.display = 'none';
+                hiddenCount++;
+                console.log('🚫 Pulsante nascosto:', button.textContent.trim());
             }
         });
 
@@ -554,17 +557,43 @@ function managePrenotaButtonsVisibility(userRole) {
         const btnBook = document.getElementById('btnBook');
         if (btnBook) {
             btnBook.style.display = 'none';
+            hiddenCount++;
+            console.log('🚫 Pulsante btnBook nascosto');
         }
+
+        console.log(`✅ Gestione pulsanti completata: ${hiddenCount} pulsanti nascosti`);
+    } else {
+        console.log('👤 Utente normale, pulsanti prenotazione visibili');
     }
 }
 
 // Funzione per mostrare navbar per utenti non autenticati
 function showNavbarForUnauthenticatedUser(config) {
+    console.log('🔄 showNavbarForUnauthenticatedUser chiamata');
+    
+    // ✅ CONTROLLO: verifica se l'utente è effettivamente autenticato
+    const user = localStorage.getItem('user');
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            console.log('⚠️ showNavbarForUnauthenticatedUser: utente già autenticato, non mostro navbar non autenticata');
+            console.log('⚠️ Utente autenticato:', userData.nome, userData.cognome, userData.ruolo);
+            return; // Non mostrare navbar non autenticata se l'utente è già loggato
+        } catch (error) {
+            console.log('⚠️ showNavbarForUnauthenticatedUser: errore parsing user, procedo con navbar non autenticata');
+        }
+    }
+    
     const authSection = document.getElementById('authSection');
+    if (!authSection) {
+        console.log('❌ showNavbarForUnauthenticatedUser: authSection non trovata');
+        return;
+    }
 
     // Per la homepage, mostra sempre il tasto Accedi se l'utente non è loggato
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     if (currentPage === 'index.html' || config.mostraAccedi) {
+        console.log('✅ showNavbarForUnauthenticatedUser: mostro tasto Accedi');
         authSection.innerHTML = `
             <a class="nav-link btn btn-primary ms-2" href="#" onclick="showLoginModal()">
                 <i class="fas fa-sign-in-alt me-1"></i>
@@ -573,6 +602,7 @@ function showNavbarForUnauthenticatedUser(config) {
         `;
     } else {
         // Nascondi completamente la sezione auth se non serve
+        console.log('✅ showNavbarForUnauthenticatedUser: nascondo sezione auth');
         authSection.style.display = 'none';
     }
 }
