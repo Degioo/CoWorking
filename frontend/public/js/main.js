@@ -80,6 +80,7 @@ function showDefaultNavbar() {
 function navigateToProtectedPage(pageUrl) {
   console.log('Tentativo di navigazione a:', pageUrl);
 
+<<<<<<< HEAD
   // Verifica se l'utente è autenticato
   if (typeof window.isAuthenticated === 'function' && window.isAuthenticated()) {
     const userStr = localStorage.getItem('user');
@@ -112,6 +113,75 @@ function navigateToProtectedPage(pageUrl) {
     // Salva la pagina di destinazione per il redirect dopo il login
     localStorage.setItem('redirectAfterLogin', pageUrl);
     // Reindirizza al login
+=======
+  // ✅ Verifica se l'utente è autenticato (con logica migliorata per gestori)
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      console.log('Utente trovato:', user.nome, user.cognome, 'Ruolo:', user.ruolo);
+
+      // ✅ Se l'utente è gestore o amministratore, mantieni la sessione anche senza token
+      if (user.ruolo === 'gestore' || user.ruolo === 'amministratore') {
+        if (user.id_utente) {
+          console.log('✅ Gestore/amministratore autenticato, navigazione consentita');
+
+          // Verifica permessi per pagine specifiche
+          if (pageUrl.includes('dashboard-responsabili.html')) {
+            console.log('🎯 Navigazione alla dashboard gestore consentita');
+            window.location.href = pageUrl;
+            return;
+          }
+
+          if (pageUrl.includes('dashboard.html')) {
+            console.log('🎯 Navigazione alla dashboard utente consentita');
+            window.location.href = pageUrl;
+            return;
+          }
+        }
+      }
+
+      // ✅ Per utenti normali, usa la logica standard
+      if (typeof window.isAuthenticated === 'function') {
+        // ✅ Gestisci la funzione asincrona
+        window.isAuthenticated().then(isAuth => {
+          if (isAuth) {
+            console.log('✅ Utente normale autenticato, navigazione consentita');
+
+            // Verifica permessi per pagine specifiche
+            if (pageUrl.includes('dashboard-responsabili.html') && user.ruolo !== 'gestore' && user.ruolo !== 'amministratore') {
+              showAlert('Non hai i permessi per accedere a questa pagina. Solo gestori e amministratori possono accedere.', 'warning');
+              return;
+            }
+
+            console.log('Navigazione consentita a:', pageUrl);
+            window.location.href = pageUrl;
+          } else {
+            // ✅ Se arriviamo qui, l'utente ha user ma non è completamente autenticato
+            console.log('⚠️ Utente con user ma autenticazione incompleta, richiedo login');
+            localStorage.setItem('redirectAfterLogin', pageUrl);
+            window.location.href = 'login.html?message=' + encodeURIComponent('Sessione scaduta. Effettua nuovamente il login.');
+          }
+        }).catch(error => {
+          console.error('❌ Errore nella verifica autenticazione:', error);
+          // Fallback: richiedi login
+          localStorage.setItem('redirectAfterLogin', pageUrl);
+          window.location.href = 'login.html?message=' + encodeURIComponent('Errore di autenticazione. Effettua nuovamente il login.');
+        });
+        return;
+      }
+
+    } catch (error) {
+      console.error('Errore parsing user:', error);
+      localStorage.removeItem('user');
+      showAlert('Errore nei dati utente. Effettua nuovamente il login.', 'danger');
+      window.location.href = 'login.html';
+    }
+  } else {
+    // ✅ Utente completamente non autenticato
+    console.log('Utente non autenticato, reindirizzamento al login');
+    localStorage.setItem('redirectAfterLogin', pageUrl);
+>>>>>>> upstream/main
     window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere a questa pagina.');
   }
 }
@@ -336,7 +406,16 @@ window.handleLogin = function (event, email, password) {
               return;
             }
           } else {
+<<<<<<< HEAD
             // Nessuna prenotazione in attesa, vai alla dashboard
+=======
+            // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (redirect fallback)
+            const userRole = response.ruolo;
+            console.log('🔍 handleLogin - Ruolo utente (redirect fallback):', userRole);
+            console.log('🎯 handleLogin - Redirect fallback, tutti vanno a dashboard.html');
+
+            // Nessuna prenotazione in attesa, vai alla dashboard utente normale
+>>>>>>> upstream/main
             setTimeout(() => {
               window.location.href = 'dashboard.html';
             }, 1000);
@@ -361,9 +440,20 @@ window.handleLogin = function (event, email, password) {
 
         if (isFromHome) {
           // Se l'utente si logga dalla home, non forzare il redirect al pagamento
+<<<<<<< HEAD
           // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
           localStorage.removeItem('pendingPrenotazione');
           console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
+=======
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard appropriata
+          localStorage.removeItem('pendingPrenotazione');
+          console.log('handleLogin - Login dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
+
+          // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (login dalla home)
+          const userRole = response.ruolo;
+          console.log('🔍 handleLogin - Ruolo utente (login dalla home):', userRole);
+          console.log('🎯 handleLogin - Login dalla home, tutti vanno a dashboard.html');
+>>>>>>> upstream/main
 
           // Mostra messaggio informativo
           showAlert('Login effettuato! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
@@ -395,7 +485,16 @@ window.handleLogin = function (event, email, password) {
           }, 1000);
         }
       } else {
+<<<<<<< HEAD
         // Nessuna prenotazione in attesa, vai alla dashboard
+=======
+        // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (se non stanno prenotando)
+        const userRole = response.ruolo;
+        console.log('🔍 handleLogin - Ruolo utente:', userRole);
+        console.log('🎯 handleLogin - Login come azione principale, tutti vanno a dashboard.html');
+
+        // Nessuna prenotazione in attesa, vai alla dashboard utente normale
+>>>>>>> upstream/main
         setTimeout(() => {
           window.location.href = 'dashboard.html';
         }, 1000);
@@ -497,9 +596,20 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
 
         if (isFromHome) {
           // Se l'utente si registra dalla home, non forzare il redirect al pagamento
+<<<<<<< HEAD
           // Rimuovi i dati della prenotazione in attesa e vai alla dashboard
           localStorage.removeItem('pendingPrenotazione');
           console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard');
+=======
+          // Rimuovi i dati della prenotazione in attesa e vai alla dashboard appropriata
+          localStorage.removeItem('pendingPrenotazione');
+          console.log('handleRegistration - Registrazione dalla home, rimuovo prenotazione in attesa e vado alla dashboard appropriata');
+
+          // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (registrazione dalla home)
+          const userRole = response.ruolo;
+          console.log('🔍 handleRegistration - Ruolo utente (registrazione dalla home):', userRole);
+          console.log('🎯 handleRegistration - Registrazione dalla home, tutti vanno a dashboard.html');
+>>>>>>> upstream/main
 
           // Mostra messaggio informativo
           showAlert('Registrazione completata! Hai una prenotazione in attesa che puoi completare dalla dashboard.', 'info');
@@ -529,7 +639,16 @@ window.handleRegistration = function (event, nome, cognome, email, password, tel
           }, 1500);
         }
       } else {
+<<<<<<< HEAD
         // Nessuna prenotazione in attesa, vai alla dashboard
+=======
+        // ✅ TUTTI GLI UTENTI VANNO ALLA DASHBOARD UTENTE NORMALE (nessuna prenotazione)
+        const userRole = response.ruolo;
+        console.log('🔍 handleRegistration - Ruolo utente (nessuna prenotazione):', userRole);
+        console.log('🎯 handleRegistration - Nessuna prenotazione, tutti vanno a dashboard.html');
+
+        // Nessuna prenotazione in attesa, vai alla dashboard utente normale
+>>>>>>> upstream/main
         setTimeout(() => {
           window.location.href = 'dashboard.html';
         }, 1500);

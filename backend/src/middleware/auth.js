@@ -8,15 +8,32 @@ function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
+<<<<<<< HEAD
     if (!token) {
+=======
+    console.log('🔐 Auth Middleware - Headers:', req.headers);
+    console.log('🔐 Auth Middleware - Auth Header:', authHeader);
+    console.log('🔐 Auth Middleware - Token estratto:', token ? token.substring(0, 20) + '...' : 'null');
+
+    if (!token) {
+        console.log('❌ Auth Middleware - Token mancante');
+>>>>>>> upstream/main
         return res.status(401).json({ error: 'Token di accesso richiesto' });
     }
 
     try {
         const decoded = verifyToken(token);
+<<<<<<< HEAD
         req.user = decoded;
         next();
     } catch (error) {
+=======
+        console.log('✅ Auth Middleware - Token decodificato:', decoded);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        console.error('❌ Auth Middleware - Errore verifica token:', error);
+>>>>>>> upstream/main
         return res.status(403).json({ error: 'Token non valido o scaduto' });
     }
 }

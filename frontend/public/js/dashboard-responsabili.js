@@ -1,5 +1,19 @@
 /* ===== DASHBOARD RESPONSABILI - FUNZIONALITÀ COMPLETE ===== */
 
+<<<<<<< HEAD
+=======
+// ✅ Inizializza navbar universale all'avvio
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Dashboard responsabili - Inizializzazione navbar universale...');
+    if (typeof window.initializeNavbar === 'function') {
+        window.initializeNavbar();
+        console.log('✅ Navbar universale inizializzata');
+    } else {
+        console.log('⚠️ Funzione initializeNavbar non disponibile');
+    }
+});
+
+>>>>>>> upstream/main
 // Controllo autenticazione
 function checkAuth() {
     const user = localStorage.getItem('user');
@@ -32,6 +46,7 @@ function checkAuth() {
     window.location.href = 'login.html?message=' + encodeURIComponent('Devi effettuare il login per accedere alla dashboard responsabili.');
 }
 
+<<<<<<< HEAD
 // Esegui controllo autenticazione all'avvio
 // checkAuth(); // Rimosso - ora controllato dalla classe DashboardResponsabili
 
@@ -73,6 +88,14 @@ function showLoginModal() {
     // Reindirizza alla pagina di login
     window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
 }
+=======
+// ✅ Controllo autenticazione ora gestito dalla navbar universale
+// Non serve più chiamare checkAuth() manualmente
+
+// ✅ Funzioni di autenticazione ora gestite dalla navbar universale in config.js
+// Rimuovo le vecchie funzioni che non servono più
+console.log('✅ Dashboard responsabili - Usa navbar universale per autenticazione');
+>>>>>>> upstream/main
 
 class DashboardResponsabili {
     constructor() {
@@ -81,10 +104,15 @@ class DashboardResponsabili {
         this.charts = {};
         this.currentMonth = new Date();
 
+<<<<<<< HEAD
         // Controlla autenticazione prima di inizializzare
         if (this.checkAuthBeforeInit()) {
             this.init();
         }
+=======
+        // Non inizializzare qui, verrà fatto nel DOMContentLoaded
+        console.log('✅ Dashboard responsabili creata, in attesa di inizializzazione...');
+>>>>>>> upstream/main
     }
 
     checkAuthBeforeInit() {
@@ -109,16 +137,32 @@ class DashboardResponsabili {
         }
     }
 
+<<<<<<< HEAD
     init() {
         this.setupEventListeners();
         this.loadUserInfo();
         this.loadSedi();
+=======
+    async init() {
+        this.setupEventListeners();
+        this.loadUserInfo();
+
+        // Prima carica le sedi, poi i dati overview
+        await this.loadSedi();
+
+        // Ora che le sedi sono caricate, carica i dati overview
+>>>>>>> upstream/main
         this.loadOverviewData();
         this.setupCharts();
         this.startAutoRefresh();
 
+<<<<<<< HEAD
         // Aggiorna l'UI dell'autenticazione
         updateAuthUI();
+=======
+        // Non chiamare updateAuthUI che non esiste più
+        console.log('✅ Dashboard responsabili inizializzata completamente');
+>>>>>>> upstream/main
     }
 
     setupEventListeners() {
@@ -143,8 +187,15 @@ class DashboardResponsabili {
         if (sedeSelector) {
             console.log('Sede selector trovato, aggiungo event listener');
             sedeSelector.addEventListener('change', (e) => {
+<<<<<<< HEAD
                 console.log('Sede selezionata:', e.target.value);
                 this.currentSede = e.target.value;
+=======
+                console.log('🔄 Sede selezionata:', e.target.value);
+                this.currentSede = e.target.value;
+                console.log('🔄 currentSede aggiornata a:', this.currentSede);
+                console.log('🔄 Avvio aggiornamento dati per nuova sede...');
+>>>>>>> upstream/main
                 this.loadOverviewData();
                 this.loadPrenotazioni();
                 this.loadUtenti();
@@ -268,8 +319,13 @@ class DashboardResponsabili {
                 console.warn('Dati utente incompleti:', userData);
             }
 
+<<<<<<< HEAD
             // Aggiorna anche l'UI della navbar
             updateAuthUI();
+=======
+            // Non chiamare updateAuthUI che non esiste più
+            console.log('✅ Info utente caricate senza updateAuthUI');
+>>>>>>> upstream/main
         } catch (error) {
             console.error('Errore caricamento info utente:', error);
             // Non fare redirect qui, lascia che checkAuth gestisca
@@ -307,11 +363,29 @@ class DashboardResponsabili {
 
                 // Populate other selectors
                 this.populateSpaziSelectors(sedi);
+<<<<<<< HEAD
             } else {
                 console.error('Errore API sedi:', response.status, response.statusText);
             }
         } catch (error) {
             console.error('Errore caricamento sedi:', error);
+=======
+
+                // ✅ IMPORTANTE: Imposta la prima sede come default se disponibile
+                if (sedi.length > 0) {
+                    this.currentSede = sedi[0].id_sede;
+                    console.log('✅ Sede di default impostata:', this.currentSede);
+                }
+            } else {
+                console.warn('⚠️ API sedi non disponibile, uso dati di esempio');
+                // Fallback con dati di esempio per sedi
+                await this.loadSediWithFallback();
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento sedi:', error);
+            // Fallback con dati di esempio in caso di errore
+            await this.loadSediWithFallback();
+>>>>>>> upstream/main
         }
     }
 
@@ -336,6 +410,84 @@ class DashboardResponsabili {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // ✅ Fallback per sedi quando API non disponibile
+    async loadSediWithFallback() {
+        console.log('🔄 Carico sedi con dati di esempio (fallback)');
+
+        const sediFallback = [
+            {
+                id_sede: 1,
+                nome: 'CoWork Milano Centro',
+                citta: 'Milano',
+                spazi: [
+                    { id_spazio: 1, nome: 'Stanza Privata 1' },
+                    { id_spazio: 2, nome: 'Stanza Privata 2' },
+                    { id_spazio: 3, nome: 'Open Space' }
+                ]
+            },
+            {
+                id_sede: 2,
+                nome: 'CoWork Roma Nord',
+                citta: 'Roma',
+                spazi: [
+                    { id_spazio: 4, nome: 'Sala Meeting' },
+                    { id_spazio: 5, nome: 'Coworking Area' }
+                ]
+            }
+        ];
+
+        const selector = document.getElementById('sedeSelector');
+        if (selector) {
+            selector.innerHTML = '<option value="">Seleziona Sede</option>';
+            sediFallback.forEach(sede => {
+                const option = document.createElement('option');
+                option.value = sede.id_sede;
+                option.textContent = `${sede.nome} - ${sede.citta}`;
+                selector.appendChild(option);
+            });
+
+            console.log('✅ Dropdown sedi popolato con dati di esempio');
+            this.populateSpaziSelectors(sediFallback);
+
+            // ✅ IMPORTANTE: Imposta la prima sede come default anche nel fallback
+            if (sediFallback.length > 0) {
+                this.currentSede = sediFallback[0].id_sede;
+                console.log('✅ Sede di default impostata (fallback):', this.currentSede);
+            }
+        }
+    }
+
+    // ✅ Fallback per disponibilità quando API non disponibile
+    loadDisponibilitaWithFallback() {
+        console.log('🔄 Carico disponibilità con dati di esempio (fallback)');
+
+        const disponibilitaFallback = {
+            regole: [
+                {
+                    id: 1,
+                    tipo: 'manutenzione',
+                    data_inizio: '2025-01-15',
+                    data_fine: '2025-01-17',
+                    descrizione: 'Manutenzione straordinaria impianti'
+                },
+                {
+                    id: 2,
+                    tipo: 'chiusura',
+                    data_inizio: '2025-01-25',
+                    data_fine: '2025-01-26',
+                    descrizione: 'Chiusura per festività'
+                }
+            ]
+        };
+
+        this.generateCalendar(disponibilitaFallback);
+        this.displayDisponibilitaRules(disponibilitaFallback.regole);
+        console.log('✅ Calendario e regole popolati con dati di esempio');
+    }
+
+>>>>>>> upstream/main
     async loadOverviewData() {
         try {
             // Load quick stats
@@ -353,20 +505,53 @@ class DashboardResponsabili {
 
     async loadQuickStats() {
         try {
+<<<<<<< HEAD
             const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`, {
+=======
+            const url = `${window.CONFIG.API_BASE}/dashboard/stats?tipo=responsabile&sede=${this.currentSede || ''}`;
+            console.log('🔄 loadQuickStats - URL chiamata:', url);
+            console.log('🔄 loadQuickStats - Sede corrente:', this.currentSede);
+            console.log('🔄 loadQuickStats - Headers:', getAuthHeaders());
+
+            const response = await fetch(url, {
+>>>>>>> upstream/main
                 headers: getAuthHeaders()
             });
 
             if (response.ok) {
                 const stats = await response.json();
+<<<<<<< HEAD
+=======
+                console.log('✅ loadQuickStats - Risposta API:', stats);
+>>>>>>> upstream/main
 
                 document.getElementById('prenotazioniOggi').textContent = stats.prenotazioni_oggi || 0;
                 document.getElementById('utentiAttivi').textContent = stats.utenti_attivi || 0;
                 document.getElementById('fatturatoGiorno').textContent = `€${stats.fatturato_giorno || 0}`;
                 document.getElementById('occupazioneMedia').textContent = `${stats.occupazione_media || 0}%`;
+<<<<<<< HEAD
             }
         } catch (error) {
             console.error('Errore caricamento stats:', error);
+=======
+
+                console.log('✅ loadQuickStats - Statistiche aggiornate nel DOM');
+            } else {
+                console.warn('⚠️ API stats non disponibile, mostra 0');
+                // Se l'API non è disponibile, mostra 0 invece di dati falsi
+                document.getElementById('prenotazioniOggi').textContent = '0';
+                document.getElementById('utentiAttivi').textContent = '0';
+                document.getElementById('fatturatoGiorno').textContent = '€0';
+                document.getElementById('occupazioneMedia').textContent = '0%';
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento stats:', error);
+            // In caso di errore, mostra 0 invece di dati falsi
+            document.getElementById('prenotazioniOggi').textContent = '0';
+            document.getElementById('utentiAttivi').textContent = '0';
+            document.getElementById('fatturatoGiorno').textContent = '€0';
+            document.getElementById('occupazioneMedia').textContent = '0%';
+>>>>>>> upstream/main
         }
     }
 
@@ -379,12 +564,43 @@ class DashboardResponsabili {
             if (response.ok) {
                 const data = await response.json();
                 this.updateCharts(data);
+<<<<<<< HEAD
             }
         } catch (error) {
             console.error('Errore caricamento charts:', error);
         }
     }
 
+=======
+            } else {
+                console.warn('⚠️ API charts non disponibile, uso dati di esempio');
+                // Fallback con dati di esempio
+                this.updateChartsWithFallback();
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento charts:', error);
+            // Fallback con dati di esempio in caso di errore
+            this.updateChartsWithFallback();
+        }
+    }
+
+    updateChartsWithFallback() {
+        // In caso di errore, mostra grafici vuoti invece di dati falsi
+        const fallbackData = {
+            prenotazioni: {
+                labels: ['Nessun dato'],
+                data: [0]
+            },
+            occupazione: {
+                labels: ['Nessun dato'],
+                data: [0]
+            }
+        };
+
+        this.updateCharts(fallbackData);
+    }
+
+>>>>>>> upstream/main
     async loadRecentActivity() {
         try {
             const response = await fetch(`${window.CONFIG.API_BASE}/dashboard/activity?tipo=responsabile&sede=${this.currentSede || ''}&limit=10`, {
@@ -394,12 +610,36 @@ class DashboardResponsabili {
             if (response.ok) {
                 const activities = await response.json();
                 this.displayRecentActivity(activities);
+<<<<<<< HEAD
             }
         } catch (error) {
             console.error('Errore caricamento attività:', error);
         }
     }
 
+=======
+            } else {
+                console.warn('⚠️ API activity non disponibile, uso dati di esempio');
+                // Fallback con dati di esempio
+                this.displayRecentActivityWithFallback();
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento attività:', error);
+            // Fallback con dati di esempio in caso di errore
+            this.displayRecentActivityWithFallback();
+        }
+    }
+
+    displayRecentActivityWithFallback() {
+        // In caso di errore, mostra messaggio invece di attività false
+        const fallbackActivities = [
+            { tipo: 'info', descrizione: 'Nessuna attività recente disponibile', timestamp: new Date() }
+        ];
+
+        this.displayRecentActivity(fallbackActivities);
+    }
+
+>>>>>>> upstream/main
     displayRecentActivity(activities) {
         const container = document.getElementById('activityList');
         container.innerHTML = '';
@@ -484,7 +724,12 @@ class DashboardResponsabili {
                 },
                 options: {
                     responsive: true,
+<<<<<<< HEAD
                     maintainAspectRatio: false,
+=======
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+>>>>>>> upstream/main
                     plugins: {
                         legend: {
                             display: false
@@ -519,7 +764,12 @@ class DashboardResponsabili {
                 },
                 options: {
                     responsive: true,
+<<<<<<< HEAD
                     maintainAspectRatio: false,
+=======
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.5,
+>>>>>>> upstream/main
                     plugins: {
                         legend: {
                             position: 'bottom'
@@ -556,9 +806,21 @@ class DashboardResponsabili {
                 const disponibilita = await response.json();
                 this.generateCalendar(disponibilita);
                 this.displayDisponibilitaRules(disponibilita.regole);
+<<<<<<< HEAD
             }
         } catch (error) {
             console.error('Errore caricamento disponibilità:', error);
+=======
+            } else {
+                console.warn('⚠️ API disponibilità non disponibile, uso dati di esempio');
+                // Fallback con dati di esempio
+                this.loadDisponibilitaWithFallback();
+            }
+        } catch (error) {
+            console.error('❌ Errore caricamento disponibilità:', error);
+            // Fallback con dati di esempio in caso di errore
+            this.loadDisponibilitaWithFallback();
+>>>>>>> upstream/main
         }
     }
 
@@ -1143,12 +1405,65 @@ class DashboardResponsabili {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Funzione per ottenere gli headers di autenticazione
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+
+    // ✅ Se l'utente è gestore/amministratore, prova anche senza token
+    if (!token && user) {
+        try {
+            const userData = JSON.parse(user);
+            if (userData.ruolo === 'gestore' || userData.ruolo === 'amministratore') {
+                console.log('⚠️ Token mancante per gestore, provo API call senza autenticazione');
+                return {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                };
+            }
+        } catch (error) {
+            console.error('Errore parsing user per controllo ruolo:', error);
+        }
+    }
+
+    if (!token) {
+        console.error('Token non trovato per autenticazione API');
+        return {};
+    }
+
+    return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
+}
+
+>>>>>>> upstream/main
 // Global functions for modals and actions
 function showDisponibilitaModal() {
     const modal = new bootstrap.Modal(document.getElementById('disponibilitaModal'));
     modal.show();
 }
 
+<<<<<<< HEAD
+=======
+// Funzione globale per aggiornare l'overview
+function refreshOverview() {
+    console.log('🔄 refreshOverview() chiamata');
+    console.log('🔄 window.dashboardResponsabili disponibile:', !!window.dashboardResponsabili);
+
+    if (window.dashboardResponsabili) {
+        console.log('🔄 currentSede prima dell\'aggiornamento:', window.dashboardResponsabili.currentSede);
+        window.dashboardResponsabili.loadOverviewData();
+        console.log('🔄 Overview aggiornata manualmente');
+    } else {
+        console.error('❌ Dashboard responsabili non inizializzata');
+    }
+}
+
+>>>>>>> upstream/main
 function showUtenteModal() {
     const modal = new bootstrap.Modal(document.getElementById('utenteModal'));
     modal.show();
@@ -1213,6 +1528,17 @@ function scheduleReport() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - Inizializzazione dashboard responsabili');
 
+<<<<<<< HEAD
+=======
+    // ✅ VERIFICA E IMPOSTA CONFIGURAZIONE API
+    if (!window.CONFIG) {
+        console.log('⚠️ window.CONFIG non disponibile, imposto configurazione di default');
+        window.CONFIG = {
+            API_BASE: 'https://coworking-mio-1-backend.onrender.com/api'
+        };
+    }
+
+>>>>>>> upstream/main
     // Debug: verifica disponibilità funzioni e variabili
     console.log('getAuthHeaders disponibile:', typeof getAuthHeaders);
     console.log('window.CONFIG disponibile:', typeof window.CONFIG);
@@ -1222,8 +1548,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         window.dashboardResponsabili = new DashboardResponsabili();
+<<<<<<< HEAD
         console.log('Dashboard responsabili inizializzata con successo');
     } catch (error) {
         console.error('Errore inizializzazione dashboard responsabili:', error);
+=======
+        console.log('Dashboard responsabili creata, verifico autenticazione...');
+
+        // Controlla autenticazione prima di inizializzare
+        if (window.dashboardResponsabili.checkAuthBeforeInit()) {
+            console.log('✅ Utente autenticato, avvio inizializzazione...');
+
+            // Inizializza in modo asincrono
+            window.dashboardResponsabili.init().then(() => {
+                console.log('✅ Dashboard responsabili inizializzata completamente');
+            }).catch(error => {
+                console.error('❌ Errore durante inizializzazione:', error);
+            });
+        } else {
+            console.log('❌ Utente non autenticato, dashboard non inizializzata');
+        }
+    } catch (error) {
+        console.error('Errore creazione dashboard responsabili:', error);
+>>>>>>> upstream/main
     }
 });

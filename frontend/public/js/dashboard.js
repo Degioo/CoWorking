@@ -134,11 +134,56 @@ function createTabs() {
     contentContainer.html(`
       <div class="tab-pane fade show active" id="overview" role="tabpanel">
         <div class="text-center py-5">
+<<<<<<< HEAD
           <h3>Dashboard Gestore</h3>
           <p class="text-muted">Benvenuto nella tua dashboard di gestione</p>
           <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
             <i class="fas fa-chart-line me-2"></i>Accedi alla Dashboard Completa
           </a>
+=======
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <h2 class="mb-4">
+                <i class="fas fa-chart-line text-primary me-3"></i>
+                Dashboard Gestore
+              </h2>
+              <p class="lead text-muted mb-4">
+                Benvenuto nella tua dashboard di gestione. Qui puoi accedere rapidamente alle funzionalità principali.
+              </p>
+              
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                      <i class="fas fa-building fa-2x text-primary mb-3"></i>
+                      <h5>Gestione Sedi</h5>
+                      <p class="text-muted small">Gestisci sedi, spazi e disponibilità</p>
+                      <a href="dashboard-responsabili.html" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right me-2"></i>Accedi
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                      <i class="fas fa-chart-bar fa-2x text-success mb-3"></i>
+                      <h5>Report e Analytics</h5>
+                      <p class="text-muted small">Statistiche avanzate e performance</p>
+                      <a href="dashboard-responsabili.html" class="btn btn-outline-success">
+                        <i class="fas fa-arrow-right me-2"></i>Accedi
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
+                <i class="fas fa-chart-line me-2"></i>Accedi alla Dashboard Completa
+              </a>
+            </div>
+          </div>
+>>>>>>> upstream/main
         </div>
       </div>
       <div class="tab-pane fade" id="sedi" role="tabpanel">
@@ -191,10 +236,21 @@ function createTabs() {
 // Carica dati iniziali
 function loadInitialData() {
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
+<<<<<<< HEAD
     // Per gestori e amministratori, mostra solo un messaggio di benvenuto
     // I dati completi sono disponibili nella dashboard responsabili
     console.log('Dashboard gestore - dati completi disponibili in dashboard-responsabili.html');
   } else {
+=======
+    // ✅ PER GESTORI: Carica le sezioni speciali con bottoni per dashboard completa
+    console.log('Dashboard gestore - Carico sezioni speciali per gestori');
+    loadSediGestore();
+    loadPrenotazioniGestore();
+    loadUtentiGestore();
+    loadReportGestore();
+  } else {
+    // Per clienti: carica prenotazioni e pagamenti
+>>>>>>> upstream/main
     loadPrenotazioniUtente();
     loadPagamentiUtente();
     loadPrenotazioniScadute();
@@ -205,12 +261,59 @@ function loadInitialData() {
 function loadSediGestore() {
   const container = $('#sediContent');
   container.html(`
+<<<<<<< HEAD
     <div class="text-center py-4">
       <h4>Gestione Sedi</h4>
       <p class="text-muted">Per gestire sedi, spazi e disponibilità</p>
       <a href="dashboard-responsabili.html" class="btn btn-primary">
         <i class="fas fa-building me-2"></i>Dashboard Completa
       </a>
+=======
+    <div class="text-center py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <i class="fas fa-building fa-3x text-primary mb-4"></i>
+          <h3 class="mb-3">Gestione Sedi e Spazi</h3>
+          <p class="lead text-muted mb-4">
+            Gestisci le tue sedi, configura spazi e monitora la disponibilità in tempo reale.
+          </p>
+          
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-building fa-2x text-info mb-2"></i>
+                  <h6>Sedi</h6>
+                  <p class="text-muted small">Gestisci le tue sedi</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-door-open fa-2x text-success mb-2"></i>
+                  <h6>Spazi</h6>
+                  <p class="text-muted small">Configura gli spazi disponibili</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                  <h6>Orari</h6>
+                  <p class="text-muted small">Imposta orari e disponibilità</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
+            <i class="fas fa-arrow-right me-2"></i>Accedi alla Dashboard Completa
+          </a>
+        </div>
+      </div>
+>>>>>>> upstream/main
     </div>
   `);
 }
@@ -219,12 +322,59 @@ function loadSediGestore() {
 function loadPrenotazioniGestore() {
   const container = $('#prenotazioniContent');
   container.html(`
+<<<<<<< HEAD
     <div class="text-center py-4">
       <h4>Gestione Prenotazioni</h4>
       <p class="text-muted">Per gestire prenotazioni, conferme e cancellazioni</p>
       <a href="dashboard-responsabili.html" class="btn btn-primary">
         <i class="fas fa-calendar-check me-2"></i>Dashboard Completa
       </a>
+=======
+    <div class="text-center py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <i class="fas fa-calendar-check fa-3x text-success mb-4"></i>
+          <h3 class="mb-3">Gestione Prenotazioni</h3>
+          <p class="lead text-muted mb-4">
+            Monitora e gestisci tutte le prenotazioni delle tue sedi in tempo reale.
+          </p>
+          
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                  <h6>In Attesa</h6>
+                  <p class="text-muted small">Prenotazioni da confermare</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                  <h6>Confermate</h6>
+                  <p class="text-muted small">Prenotazioni attive</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                  <h6>Cancellate</h6>
+                  <p class="text-muted small">Gestisci cancellazioni</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <a href="dashboard-responsabili.html" class="btn btn-success btn-lg">
+            <i class="fas fa-arrow-right me-2"></i>Accedi alla Dashboard Completa
+          </a>
+        </div>
+      </div>
+>>>>>>> upstream/main
     </div>
   `);
 }

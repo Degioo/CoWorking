@@ -1,6 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('../config/config');
+<<<<<<< HEAD
+=======
+const { authenticateToken } = require('./middleware/auth');
+>>>>>>> upstream/main
 const app = express();
 const PORT = config.server.port;
 
@@ -93,10 +97,35 @@ app.use('/api/sse', sseRoutes);
 const spaziRoutes = require('./routes/spazi');
 app.use('/api/spazi', spaziRoutes);
 
+<<<<<<< HEAD
 // Log delle route caricate
 console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.path).filter(Boolean));
 
 // Endpoint di test temporaneo per verificare se le route scadenze sono caricate
+=======
+// Rotte dashboard responsabili
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/api/dashboard', dashboardRoutes);
+
+// Rotte per sedi (endpoint pubblici per gestori)
+const sediRoutes = require('./routes/sedi');
+app.use('/api/sedi', sediRoutes);
+
+// Rotte per A/B testing
+const abTestingRoutes = require('./routes/ab-testing');
+app.use('/api/ab-testing', abTestingRoutes);
+
+// Rotte per utenti (endpoint per gestori)
+const utentiRoutes = require('./routes/utenti');
+app.use('/api/utenti', utentiRoutes);
+
+// Log delle route caricate
+console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.path).filter(Boolean));
+console.log('🚀 Route sedi caricate:', sediRoutes.stack?.map(r => r.route?.path).filter(Boolean));
+console.log('🚀 Route A/B testing caricate:', abTestingRoutes.stack?.map(r => r.route?.path).filter(Boolean));
+
+// Endpoint di test per verificare se le route scadenze sono caricate
+>>>>>>> upstream/main
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
     message: 'Route scadenze caricate correttamente',
@@ -105,6 +134,28 @@ app.get('/api/test-scadenze', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Endpoint di test per verificare l'autenticazione
+app.get('/api/test-auth', (req, res) => {
+  res.json({
+    message: 'Test autenticazione',
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Endpoint di test per verificare l'autenticazione con middleware
+app.get('/api/test-auth-protected', authenticateToken, (req, res) => {
+  res.json({
+    message: 'Test autenticazione protetta',
+    user: req.user,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+});
+
+>>>>>>> upstream/main
 // Endpoint di test per la concorrenza
 app.get('/api/test-concorrenza', (req, res) => {
   res.json({
@@ -115,7 +166,10 @@ app.get('/api/test-concorrenza', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/main
 // Rotte analytics
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api', analyticsRoutes);
@@ -222,6 +276,42 @@ app.get('/api/test-disponibilita-slot', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Endpoint di test per verificare il token JWT inviato
+app.get('/api/test-token', (req, res) => {
+  const authHeader = req.headers.authorization;
+  console.log('🔐 Test Token - Auth Header:', authHeader);
+
+  if (!authHeader) {
+    return res.status(401).json({
+      error: 'Nessun header Authorization',
+      headers: req.headers,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'Header Authorization deve iniziare con "Bearer "',
+      authHeader,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const token = authHeader.substring(7);
+  console.log('🔐 Test Token - Token estratto:', token ? token.substring(0, 20) + '...' : 'null');
+
+  res.json({
+    message: 'Token ricevuto correttamente',
+    tokenLength: token ? token.length : 0,
+    tokenPreview: token ? token.substring(0, 20) + '...' : 'null',
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+});
+
+>>>>>>> upstream/main
 // Avvia il cron job per le scadenze
 const scadenzeCron = require('./cron/scadenzeCron');
 scadenzeCron.start();
@@ -229,4 +319,8 @@ scadenzeCron.start();
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log('🚀 Cron job scadenze avviato automaticamente');
+<<<<<<< HEAD
 }); 
+=======
+});
+>>>>>>> upstream/main
