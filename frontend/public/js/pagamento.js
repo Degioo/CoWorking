@@ -1934,14 +1934,11 @@ async function testJWTAuthentication() {
 $(document).ready(async function () {
     console.log('pagamento.js - Inizializzazione pagina');
 
-<<<<<<< HEAD
-=======
     // ✅ CONTROLLA SE L'UTENTE PUÒ ACCEDERE A QUESTA PAGINA
     if (!checkUserAccess()) {
         return;
     }
 
->>>>>>> upstream/main
     // Inizializza la navbar universale
     if (typeof window.initializeNavbar === 'function') {
         window.initializeNavbar();
@@ -2023,8 +2020,6 @@ $(document).ready(async function () {
         addRetryButton();
     }
 });
-<<<<<<< HEAD
-=======
 
 // Funzione per verificare se l'utente può accedere a questa pagina
 function checkUserAccess() {
@@ -2061,4 +2056,3 @@ function checkUserAccess() {
     // Utente non loggato può accedere (verrà richiesto il login per pagare)
     return true;
 }
->>>>>>> upstream/main

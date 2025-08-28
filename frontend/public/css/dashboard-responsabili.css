@@ -9,15 +9,6 @@
 }
 
 .dashboard-header h1 {
-<<<<<<< HEAD
-  color: var(--white);
-  margin-bottom: var(--space-sm);
-}
-
-.dashboard-header .lead {
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0;
-=======
   color: #ffffff !important;
   margin-bottom: var(--space-sm);
   font-weight: 600;
@@ -27,7 +18,6 @@
   color: #ffffff !important;
   margin-bottom: 0;
   font-weight: 500;
->>>>>>> upstream/main
 }
 
 .user-info {
@@ -37,24 +27,16 @@
 .user-role {
   display: block;
   font-size: 0.875rem;
-<<<<<<< HEAD
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: var(--space-xs);
-=======
   color: #ffffff !important;
   margin-bottom: var(--space-xs);
   font-weight: 500;
->>>>>>> upstream/main
 }
 
 .user-name {
   display: block;
   font-size: 1.125rem;
   font-weight: 600;
-<<<<<<< HEAD
-=======
   color: #ffffff !important;
->>>>>>> upstream/main
 }
 
 /* Quick Stats */
@@ -108,18 +90,11 @@
 }
 
 .stat-label {
-<<<<<<< HEAD
-  color: var(--gray-600);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-=======
   color: #000000 !important;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
->>>>>>> upstream/main
 }
 
 /* Dashboard Sidebar */
@@ -138,11 +113,7 @@
 }
 
 .sidebar-title {
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   font-weight: 600;
   margin-bottom: var(--space-md);
   text-transform: uppercase;
@@ -164,19 +135,12 @@
   display: flex;
   align-items: center;
   padding: var(--space-sm) var(--space-md);
-<<<<<<< HEAD
-  color: var(--gray-600);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   font-size: 0.875rem;
-<<<<<<< HEAD
-=======
   font-weight: 500;
->>>>>>> upstream/main
 }
 
 .sidebar-link:hover {
@@ -224,12 +188,8 @@
 
 .section-header h3 {
   margin: 0;
-<<<<<<< HEAD
-  color: var(--gray-900);
-=======
   color: #000000 !important;
   font-weight: 600;
->>>>>>> upstream/main
 }
 
 .section-actions {
@@ -244,12 +204,6 @@
   padding: var(--space-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--space-lg);
-<<<<<<< HEAD
-}
-
-.chart-card h6 {
-  color: var(--gray-700);
-=======
   height: 300px;
   overflow: hidden;
 }
@@ -261,7 +215,6 @@
 
 .chart-card h6 {
   color: #000000 !important;
->>>>>>> upstream/main
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -275,11 +228,7 @@
 }
 
 .activity-card h6 {
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -369,12 +318,8 @@
 
 .calendar-header h5 {
   margin: 0;
-<<<<<<< HEAD
-  color: var(--gray-900);
-=======
   color: #000000 !important;
   font-weight: 600;
->>>>>>> upstream/main
 }
 
 .calendar-body {
@@ -423,11 +368,7 @@
 }
 
 .disponibilita-rules h6 {
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -495,11 +436,7 @@
   background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
   font-weight: 600;
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   padding: var(--space-md);
 }
 
@@ -535,16 +472,10 @@
 
 .stat-mini .stat-label {
   font-size: 0.75rem;
-<<<<<<< HEAD
-  color: var(--gray-600);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-=======
   color: #000000 !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
->>>>>>> upstream/main
 }
 
 /* Report Filters */
@@ -577,11 +508,7 @@
 }
 
 .report-summary h6 {
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -629,11 +556,7 @@
 }
 
 .settings-card h6 {
-<<<<<<< HEAD
-  color: var(--gray-700);
-=======
   color: #000000 !important;
->>>>>>> upstream/main
   margin-bottom: var(--space-md);
   font-weight: 600;
 }
@@ -657,17 +580,6 @@
   .dashboard-stats {
     grid-template-columns: 1fr;
   }
-<<<<<<< HEAD
-  
-  .disponibilita-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .settings-grid {
-    grid-template-columns: 1fr;
-  }
-  
-=======
 
   .disponibilita-grid {
     grid-template-columns: 1fr;
@@ -677,35 +589,22 @@
     grid-template-columns: 1fr;
   }
 
->>>>>>> upstream/main
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-md);
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .section-actions {
     width: 100%;
     justify-content: flex-start;
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .calendar-body {
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .calendar-day {
     font-size: 0.75rem;
     padding: var(--space-xs);
@@ -716,17 +615,6 @@
   .dashboard-header {
     padding: var(--space-xl) 0;
   }
-<<<<<<< HEAD
-  
-  .dashboard-header h1 {
-    font-size: 1.75rem;
-  }
-  
-  .stat-card {
-    padding: var(--space-md);
-  }
-  
-=======
 
   .dashboard-header h1 {
     font-size: 1.75rem;
@@ -736,24 +624,12 @@
     padding: var(--space-md);
   }
 
->>>>>>> upstream/main
   .stat-icon {
     width: 50px;
     height: 50px;
     font-size: 1.25rem;
     margin-right: var(--space-md);
   }
-<<<<<<< HEAD
-  
-  .stat-number {
-    font-size: 1.5rem;
-  }
-  
-  .dashboard-section {
-    padding: var(--space-lg);
-  }
-  
-=======
 
   .stat-number {
     font-size: 1.5rem;
@@ -763,27 +639,18 @@
     padding: var(--space-lg);
   }
 
->>>>>>> upstream/main
   .sidebar-nav {
     display: flex;
     overflow-x: auto;
     padding-bottom: var(--space-sm);
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .sidebar-nav li {
     margin-bottom: 0;
     margin-right: var(--space-sm);
     flex-shrink: 0;
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .sidebar-link {
     white-space: nowrap;
     padding: var(--space-sm);
@@ -833,10 +700,6 @@
 }
 
 @keyframes loading {
-<<<<<<< HEAD
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-=======
   0% {
     background-position: 200% 0;
   }
@@ -844,39 +707,23 @@
   100% {
     background-position: -200% 0;
   }
->>>>>>> upstream/main
 }
 
 /* Print Styles */
 @media print {
-<<<<<<< HEAD
-=======
 
->>>>>>> upstream/main
   .dashboard-sidebar,
   .section-actions,
   .btn {
     display: none !important;
   }
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> upstream/main
   .dashboard-section {
     box-shadow: none;
     border: 1px solid var(--gray-300);
   }
-<<<<<<< HEAD
-  
-  .chart-card {
-    break-inside: avoid;
-  }
-}
-=======
 
   .chart-card {
     break-inside: avoid;
   }
 }
->>>>>>> upstream/main

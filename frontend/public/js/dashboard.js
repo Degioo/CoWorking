@@ -134,13 +134,6 @@ function createTabs() {
     contentContainer.html(`
       <div class="tab-pane fade show active" id="overview" role="tabpanel">
         <div class="text-center py-5">
-<<<<<<< HEAD
-          <h3>Dashboard Gestore</h3>
-          <p class="text-muted">Benvenuto nella tua dashboard di gestione</p>
-          <a href="dashboard-responsabili.html" class="btn btn-primary btn-lg">
-            <i class="fas fa-chart-line me-2"></i>Accedi alla Dashboard Completa
-          </a>
-=======
           <div class="row justify-content-center">
             <div class="col-md-8">
               <h2 class="mb-4">
@@ -183,7 +176,6 @@ function createTabs() {
               </a>
             </div>
           </div>
->>>>>>> upstream/main
         </div>
       </div>
       <div class="tab-pane fade" id="sedi" role="tabpanel">
@@ -236,12 +228,6 @@ function createTabs() {
 // Carica dati iniziali
 function loadInitialData() {
   if (currentUser.ruolo === 'gestore' || currentUser.ruolo === 'amministratore') {
-<<<<<<< HEAD
-    // Per gestori e amministratori, mostra solo un messaggio di benvenuto
-    // I dati completi sono disponibili nella dashboard responsabili
-    console.log('Dashboard gestore - dati completi disponibili in dashboard-responsabili.html');
-  } else {
-=======
     // ✅ PER GESTORI: Carica le sezioni speciali con bottoni per dashboard completa
     console.log('Dashboard gestore - Carico sezioni speciali per gestori');
     loadSediGestore();
@@ -250,7 +236,6 @@ function loadInitialData() {
     loadReportGestore();
   } else {
     // Per clienti: carica prenotazioni e pagamenti
->>>>>>> upstream/main
     loadPrenotazioniUtente();
     loadPagamentiUtente();
     loadPrenotazioniScadute();
@@ -261,14 +246,6 @@ function loadInitialData() {
 function loadSediGestore() {
   const container = $('#sediContent');
   container.html(`
-<<<<<<< HEAD
-    <div class="text-center py-4">
-      <h4>Gestione Sedi</h4>
-      <p class="text-muted">Per gestire sedi, spazi e disponibilità</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
-        <i class="fas fa-building me-2"></i>Dashboard Completa
-      </a>
-=======
     <div class="text-center py-5">
       <div class="row justify-content-center">
         <div class="col-md-8">
@@ -313,7 +290,6 @@ function loadSediGestore() {
           </a>
         </div>
       </div>
->>>>>>> upstream/main
     </div>
   `);
 }
@@ -322,14 +298,6 @@ function loadSediGestore() {
 function loadPrenotazioniGestore() {
   const container = $('#prenotazioniContent');
   container.html(`
-<<<<<<< HEAD
-    <div class="text-center py-4">
-      <h4>Gestione Prenotazioni</h4>
-      <p class="text-muted">Per gestire prenotazioni, conferme e cancellazioni</p>
-      <a href="dashboard-responsabili.html" class="btn btn-primary">
-        <i class="fas fa-calendar-check me-2"></i>Dashboard Completa
-      </a>
-=======
     <div class="text-center py-5">
       <div class="row justify-content-center">
         <div class="col-md-8">
@@ -374,7 +342,6 @@ function loadPrenotazioniGestore() {
           </a>
         </div>
       </div>
->>>>>>> upstream/main
     </div>
   `);
 }

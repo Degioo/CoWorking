@@ -1,10 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('../config/config');
-<<<<<<< HEAD
-=======
 const { authenticateToken } = require('./middleware/auth');
->>>>>>> upstream/main
 const app = express();
 const PORT = config.server.port;
 
@@ -97,12 +94,6 @@ app.use('/api/sse', sseRoutes);
 const spaziRoutes = require('./routes/spazi');
 app.use('/api/spazi', spaziRoutes);
 
-<<<<<<< HEAD
-// Log delle route caricate
-console.log('🚀 Route spazi caricate:', spaziRoutes.stack?.map(r => r.route?.path).filter(Boolean));
-
-// Endpoint di test temporaneo per verificare se le route scadenze sono caricate
-=======
 // Rotte dashboard responsabili
 const dashboardRoutes = require('./routes/dashboard');
 app.use('/api/dashboard', dashboardRoutes);
@@ -125,7 +116,6 @@ console.log('🚀 Route sedi caricate:', sediRoutes.stack?.map(r => r.route?.pat
 console.log('🚀 Route A/B testing caricate:', abTestingRoutes.stack?.map(r => r.route?.path).filter(Boolean));
 
 // Endpoint di test per verificare se le route scadenze sono caricate
->>>>>>> upstream/main
 app.get('/api/test-scadenze', (req, res) => {
   res.json({
     message: 'Route scadenze caricate correttamente',
@@ -134,8 +124,6 @@ app.get('/api/test-scadenze', (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-=======
 // Endpoint di test per verificare l'autenticazione
 app.get('/api/test-auth', (req, res) => {
   res.json({
@@ -155,7 +143,6 @@ app.get('/api/test-auth-protected', authenticateToken, (req, res) => {
   });
 });
 
->>>>>>> upstream/main
 // Endpoint di test per la concorrenza
 app.get('/api/test-concorrenza', (req, res) => {
   res.json({
@@ -166,10 +153,6 @@ app.get('/api/test-concorrenza', (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/main
 // Rotte analytics
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api', analyticsRoutes);
@@ -276,8 +259,6 @@ app.get('/api/test-disponibilita-slot', (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-=======
 // Endpoint di test per verificare il token JWT inviato
 app.get('/api/test-token', (req, res) => {
   const authHeader = req.headers.authorization;
@@ -311,7 +292,6 @@ app.get('/api/test-token', (req, res) => {
   });
 });
 
->>>>>>> upstream/main
 // Avvia il cron job per le scadenze
 const scadenzeCron = require('./cron/scadenzeCron');
 scadenzeCron.start();
@@ -319,8 +299,4 @@ scadenzeCron.start();
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log('🚀 Cron job scadenze avviato automaticamente');
-<<<<<<< HEAD
-}); 
-=======
 });
->>>>>>> upstream/main

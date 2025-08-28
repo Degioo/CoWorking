@@ -127,14 +127,11 @@ async function initializePage() {
     console.log('🚀 FUNZIONE INITIALIZEPAGE CHIAMATA!');
 
     try {
-<<<<<<< HEAD
-=======
         // ✅ CONTROLLA SE L'UTENTE PUÒ ACCEDERE A QUESTA PAGINA
         if (!checkUserAccess()) {
             return;
         }
 
->>>>>>> upstream/main
         // ✅ CONTROLLA SE CI SONO DATI PRENOTAZIONE IN ATTESA (POST-LOGIN)
         restorePendingPrenotazione();
 
@@ -1010,8 +1007,6 @@ function restorePendingPrenotazione() {
     }
 }
 
-<<<<<<< HEAD
-=======
 // Funzione per verificare se l'utente può accedere a questa pagina
 function checkUserAccess() {
     const userStr = localStorage.getItem('user');
@@ -1048,13 +1043,9 @@ function checkUserAccess() {
     return true;
 }
 
->>>>>>> upstream/main
 // Rendi le funzioni disponibili globalmente
 window.showAuthModal = showAuthModal;
 window.goToLogin = goToLogin;
 window.restorePendingPrenotazione = restorePendingPrenotazione;
-<<<<<<< HEAD
-=======
 window.checkUserAccess = checkUserAccess;
->>>>>>> upstream/main
 
